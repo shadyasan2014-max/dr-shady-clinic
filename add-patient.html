@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Shady Samir - تسجيل مريض جديد</title>
+    <style>
+        :root {
+            --sidebar-bg: #0b1329;
+            --main-bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --primary-green: #10b981;
+            --accent-blue: #3b82f6;
+            --danger-red: #ef4444;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: white;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; }
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
+        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
+
+        .top-header {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px;
+            border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+        }
+        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+        }
+        .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-gray); margin-bottom: 8px; }
+        .form-control { width: 100%; padding: 11px 15px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        
+        .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+            margin-top: 20px;
+            border-top: 1px solid #f1f5f9;
+            padding-top: 20px;
+        }
+        .btn-submit {
+            background-color: var(--primary-green);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+        }
+        .btn-submit:hover { opacity: 0.9; }
+        .btn-cancel {
+            background-color: #e2e8f0;
+            color: var(--text-dark);
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 14px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <img src="WhatsApp Image 2026-06-11 at 10.15.39 PM_3.jpeg" alt="Logo" class="brand-logo">
+                <h2>د. شادي سمير</h2>
+                <p>عيادة التغذية العلاجية</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html">🏠 الرئيسية</a></li>
+                <li class="active"><a href="patients.html">👥 المرضى</a></li>
+                <li><a href="#" onclick="alert('قسم المواعيد قيد التطوير')">📅 المواعيد</a></li>
+                <li><a href="#" onclick="alert('قسم الخطط الغذائية قيد التطوير')">🥗 الخطط الغذائية</a></li>
+                <li><a href="#" onclick="alert('قسم جراحات السمنة قيد التطوير')">⚖️ جراحات السمنة</a></li>
+                <li><a href="#" onclick="alert('الإعدادات قيد التطوير')">⚙️ الإعدادات</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="top-header">
+            <h1>➕ تسجيل مريض جديد في عيادة د. شادي سمير</h1>
+            <div style="font-size: 13px; color: var(--text-gray);">إنشاء ملف طبي جديد وتوليد كود المريض أوتوماتيكياً</div>
+        </div>
+
+        <div class="card">
+            <h3>📝 البيانات الأساسية للحالة</h3>
+            
+            <form onsubmit="event.preventDefault(); alert('تم حفظ بيانات المريض بنجاح، سيتم الانتقال لملفه الطبي الان!'); window.location.href='patient-profile.html';">
+                <div class="form-grid">
+                    
+                    <div class="form-group">
+                        <label>اسم المريض بالكامل:</label>
+                        <input type="text" class="form-control" placeholder="مثال: أحمد محمد علي" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>رقم الهاتف / الواتساب:</label>
+                        <input type="text" class="form-control" placeholder="01xxxxxxxx" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>تاريخ الميلاد / العمر:</label>
+                        <input type="text" class="form-control" placeholder="مثال: 1990 (36 سنة)">
+                    </div>
+
+                    <div class="form-group">
+                        <label>النوع:</label>
+                        <select class="form-control">
+                            <option value="male">ذكر</option>
+                            <option value="female">أنثى</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع الحالة / البرنامج:</label>
+                        <select class="form-control">
+                            <option value="sleeve">جراحات سمنة (تكميم / تحويل مسار)</option>
+                            <option value="obesity">سمنة مفرطة / وزني زائد</option>
+                            <option value="underweight">نحافة</option>
+                            <option value="special">حالات خاصة / تغذية رياضية</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الهدف المطلوب (كجم):</label>
+                        <input type="text" class="form-control" placeholder="مثال: 80 كجم">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الوزن الحالي (كجم):</label>
+                        <input type="text" class="form-control" placeholder="مثال: 110 كجم">
+                    </div>
+
+                    <div class="form-group">
+                        <label>الطول (سم):</label>
+                        <input type="text" class="form-control" placeholder="مثال: 175 سم">
+                    </div>
+
+                </div>
+
+                <div class="form-actions">
+                    <a href="patients.html" class="btn-cancel">إلغاء والعودة للمرضى</a>
+                    <button type="submit" class="btn-submit">حفظ وإنشاء الملف الطبي 📂</button>
+                </div>
+            </form>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
