@@ -70,6 +70,9 @@
         .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-gray); margin-bottom: 8px; }
         .form-control { width: 100%; padding: 11px 15px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
         
+        /* الأقسام التفاعلية المخفية تظهر حسب الاختيار */
+        .conditional-box { display: none; margin-top: 10px; background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; }
+
         .form-actions {
             display: flex;
             justify-content: flex-end;
@@ -163,14 +166,30 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>نوع الحالة / البرنامج:</label>
-                        <select class="form-control">
+                    <!-- نوع الحالة / البرنامج (المحدث) -->
+                    <div class="form-group full-width">
+                        <label>نوع الحالة / البرنامج العلاجي:</label>
+                        <select class="form-control" id="programSelect" onchange="handleProgramChange()">
                             <option value="sleeve">جراحات سمنة (تكميم / تحويل مسار)</option>
                             <option value="obesity">سمنة مفرطة / وزني زائد</option>
                             <option value="underweight">نحافة</option>
-                            <option value="special">حالات خاصة / تغذية رياضية</option>
+                            <option value="mounjaro">حقن مونجارو (Mounjaro)</option>
+                            <option value="mesotherapy">حقن ميزوثيرابي (Mesotherapy)</option>
+                            <option value="medical_case">حالات مرضية (Medical Case)</option>
+                            <option value="sports">حالات خاصة / تغذية رياضية (Sports Nutrition)</option>
                         </select>
+
+                        <!-- خانة تفاعلية تظهر عند اختيار حالات مرضية -->
+                        <div id="medicalCaseBox" class="conditional-box">
+                            <label style="color:var(--accent-blue); margin-bottom:5px; display:block;">تفاصيل الحالة المرضية (مثال: سكري، ضغط، كلى، كبد...):</label>
+                            <textarea class="form-control" rows="2" placeholder="اكتب تفاصيل الحالة المرضية والتشخيص هنا..."></textarea>
+                        </div>
+
+                        <!-- خانة تفاعلية تظهر عند اختيار التغذية الرياضية -->
+                        <div id="sportsBox" class="conditional-box">
+                            <label style="color:var(--accent-blue); margin-bottom:5px; display:block;">نوع الرياضة المستهدفة (مثال: كمال أجسام، سباحة، كرة قدم، لياقة):</label>
+                            <input type="text" class="form-control" placeholder="اكتب نوع الرياضة ومعدل التمارين أسبوعياً...">
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -200,5 +219,24 @@
 
     </div>
 
+    <!-- سكربت إظهار وإخفاء الحقول التفاعلية حسب نوع الحالة -->
+    <script>
+        function handleProgramChange() {
+            const selectedVal = document.getElementById('programSelect').value;
+            const medicalBox = document.getElementById('medicalCaseBox');
+            const sportsBox = document.getElementById('sportsBox');
+
+            // إخفاء الكل أولاً
+            medicalBox.style.display = 'none';
+            sportsBox.style.display = 'none';
+
+            // إظهار المناسب حسب الاختيار
+            if (selectedVal === 'medical_case') {
+                medicalBox.style.display = 'block';
+            } else if (selectedVal === 'sports') {
+                sportsBox.style.display = 'block';
+            }
+        }
+    </script>
 </body>
 </html>
