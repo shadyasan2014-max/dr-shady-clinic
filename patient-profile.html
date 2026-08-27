@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Shady Samir - ملف المريض الشامل</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --sidebar-bg: #0b1329;
+            --main-bg: #f4f6f9;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --primary-green: #10b981;
+            --accent-blue: #3b82f6;
+            --warning-orange: #f59e0b;
+            --danger-red: #ef4444;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+        }
+        .sidebar {
+            width: 260px; background-color: var(--sidebar-bg); color: white;
+            display: flex; flex-direction: column; justify-content: space-between;
+            padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh;
+            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
+        }
+        .sidebar-brand {
+            padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
+            display: flex; flex-direction: column; align-items: center; text-align: center;
+        }
+        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; }
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
+        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
+
+        /* رأس ملف المريض (Patient Header Card) */
+        .patient-header-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+        }
+        .patient-main-info { display: flex; align-items: center; gap: 15px; }
+        .patient-lg-avatar { width: 65px; height: 65px; border-radius: 50%; background-color: #cbd5e1; display: flex; align-items: center; justify-content: center; font-size: 24px; font-weight: bold; color: var(--text-dark); border: 2px solid var(--primary-green); }
+        .patient-stats-badges { display: flex; gap: 15px; }
+        .stat-badge-item { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px 15px; border-radius: 8px; text-align: center; }
+        .stat-badge-item span { display: block; font-size: 11px; color: var(--text-gray); }
+        .stat-badge-item strong { font-size: 15px; color: var(--text-dark); }
+
+        /* التبويبات (Tabs Navigation) */
+        .profile-tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 20px;
+            background: var(--card-bg);
+            padding: 10px;
+            border-radius: 12px;
+            border: 1px solid var(--card-border);
+            overflow-x: auto;
+        }
+        .tab-btn {
+            background: none;
+            border: none;
+            padding: 10px 16px;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-gray);
+            cursor: pointer;
+            border-radius: 8px;
+            white-space: nowrap;
+            transition: all 0.2s;
+        }
+        .tab-btn:hover { background-color: #f1f5f9; color: var(--text-dark); }
+        .tab-btn.active { background-color: var(--accent-blue); color: white; }
+
+        /* محتوى التبويبات */
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        .card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--card-border);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+            margin-bottom: 20px;
+        }
+        .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+
+        /* فورم البيانات والأمراض والجراحات */
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group.full-width { grid-column: span 2; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        
+        /* تفعيل حقل الجراحات العامة والأمراض */
+        .hidden-section { display: none; margin-top: 10px; }
+        .disease-tags { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+        .disease-tag { background: #fee2e2; color: #991b1b; padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: bold; display: flex; align-items: center; gap: 6px; }
+        .disease-tag button { background: none; border: none; color: #991b1b; cursor: pointer; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <img src="WhatsApp Image 2026-06-11 at 10.15.39 PM_3.jpeg" alt="Logo" class="brand-logo">
+                <h2>د. شادي سمير</h2>
+                <p>عيادة التغذية العلاجية</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html">🏠 الرئيسية</a></li>
+                <li><a href="patients.html">👥 المرضى</a></li>
+                <li class="active"><a href="#">📂 ملف المريض</a></li>
+                <li><a href="#" onclick="alert('قسم المواعيد قيد التطوير')">📅 المواعيد</a></li>
+                <li><a href="#" onclick="alert('قسم الخطط الغذائية قيد التطوير')">🥗 الخطط الغذائية</a></li>
+                <li><a href="#" onclick="alert('قسم جراحات السمنة قيد التطوير')">⚖️ جراحات السمنة</a></li>
+                <li><a href="#" onclick="alert('الإعدادات قيد التطوير')">⚙️ الإعدادات</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer">
+            <button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <!-- رأس ملف المريض الثابت -->
+        <div class="patient-header-card">
+            <div class="patient-main-info">
+                <div class="patient-lg-avatar">ش</div>
+                <div>
+                    <h2 style="margin:0 0 4px 0; font-size: 18px;">شهاب الدين حسب النبي</h2>
+                    <span style="font-size: 12px; color: var(--text-gray);">كود المريض: <code style="color:var(--accent-blue);">NUT-000125</code> | تكميم معدة</span>
+                </div>
+            </div>
+            <div class="patient-stats-badges">
+                <div class="stat-badge-item">
+                    <span>الوزن الحالي</span>
+                    <strong>92 كجم</strong>
+                </div>
+                <div class="stat-badge-item">
+                    <span>مؤشر الكتلة BMI</span>
+                    <strong style="color: var(--danger-red);">31.8</strong>
+                </div>
+                <div class="stat-badge-item">
+                    <span>الهدف المطلوب</span>
+                    <strong style="color: var(--primary-green);">80 كجم</strong>
+                </div>
+            </div>
+        </div>
+
+        <!-- أشرطة التبويبات (Tabs) التفاعلية -->
+        <div class="profile-tabs">
+            <button class="tab-btn active" onclick="switchTab(event, 'tab-medical')">🏥 البيانات الطبية والتاريخ المرضي</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-assessment')">📋 التقييم الغذائي</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-measurements')">📏 القياسات وتطور الوزن</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-bariatric')">⚖️ جراحات السمنة والمتابعة</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-labs')">🧪 التحاليل والمكملات</button>
+            <button class="tab-btn" onclick="switchTab(event, 'tab-nutrition')">🥗 الخطة الغذائية</button>
+        </div>
+
+        <!-- 1. تبويب البيانات الطبية والتاريخ المرضي (مع إضافة الأمراض والجراحات العامة) -->
+        <div id="tab-medical" class="tab-content active">
+            <div class="card">
+                <h3>🩺 السجل الطبي والأمراض المزمنة</h3>
+                <div class="form-grid">
+                    
+                    <!-- قسم اختيار الأمراض -->
+                    <div class="form-group full-width">
+                        <label>الأمراض المزمنة والحالات الصحية:</label>
+                        <select class="form-control" id="diseaseSelect" onchange="addDisease()">
+                            <option value="">-- اختر مرض أو حالة طبية لإضافتها --</option>
+                            <option value="ضغط دم مرتفع">ضغط دم مرتفع (Hypertension)</option>
+                            <option value="سكري النوع الثاني">سكري النوع الثاني (Type 2 Diabetes)</option>
+                            <option value="مقاومة إنسولين">مقاومة إنسولين (Insulin Resistance)</option>
+                            <option value="خمول غدة درقية">خمول غدة درقية (Hypothyroidism)</option>
+                            <option value="ارتفاع دهون الدم">ارتفاع دهون الدم (Dyslipidemia)</option>
+                            <option value="آلام المفاصل">آلام المفاصل والخشونة (Joint Pain)</option>
+                        </select>
+                        <!-- مكان ظهور الأمراض المضافة كـ Tags -->
+                        <div class="disease-tags" id="diseaseTagsContainer">
+                            <div class="disease-tag">مقاومة إنسولين <button type="button" onclick="this.parentElement.remove()">×</button></div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>الأدوية الحالية:</label>
+                        <input type="text" class="form-control" value="Metformin 500mg">
+                    </div>
+                    <div class="form-group">
+                        <label>الحساسيات الغذائية أو الدوائية:</label>
+                        <input type="text" class="form-control" value="لا توجد حساسية معروفة">
+                    </div>
+
+                    <!-- قسم الجراحات العامة وتفعيل خانة الكتابة -->
+                    <div class="form-group full-width">
+                        <label>هل توجد جراحات عامة سابقة؟</label>
+                        <select class="form-control" id="generalSurgeryToggle" onchange="toggleSurgeryInput()">
+                            <option value="no">لا توجد</option>
+                            <option value="yes">نعم، توجد جراحات عامة سابقة</option>
+                        </select>
+                        
+                        <!-- مكان ظهور حقل كتابة تفاصيل الجراحات العامة -->
+                        <div id="generalSurgerySection" class="hidden-section">
+                            <label style="margin-top: 10px; color: var(--accent-blue);">تفاصيل الجراحات العامة السابقة (مثال: استئصال مرارة، فتق إربي...):</label>
+                            <textarea class="form-control" rows="2" placeholder="اكتب نوع الجراحات وتاريخها التقريبي هنا..."></textarea>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+
+        <!-- 2. تبويب التقييم الغذائي -->
+        <div id="tab-assessment" class="tab-content">
+            <div class="card">
+                <h3>📋 التقييم الغذائي وأسلوب الحياة (Lifestyle)</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>عدد ساعات النوم:</label><input type="text" class="form-control" value="6 ساعات"></div>
+                    <div class="form-group"><label>كمية المياه اليومية:</label><input type="text" class="form-control" value="1.5 لتر"></div>
+                    <div class="form-group"><label>النشاط البدني:</label><input type="text" class="form-control" value="مشي خفيف 3 أيام أسبوعياً"></div>
+                    <div class="form-group"><label>عدد الوجبات اليومية:</label><input type="text" class="form-control" value="وجبتين رئيسيتين + سناك"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3. تبويب القياسات -->
+        <div id="tab-measurements" class="tab-content">
+            <div class="card">
+                <h3>📏 القياسات وتطور الوزن</h3>
+                <p style="font-size: 13px; color: var(--text-gray);">سجل القياسات الدورية ومقارنتها تلقائياً.</p>
+                <button class="tab-btn active" style="background:var(--primary-green); color:white; margin-bottom:15px;">+ تسجيل قياس جديد للزيارة</button>
+            </div>
+        </div>
+
+        <!-- 4. تبويب جراحات السمنة -->
+        <div id="tab-bariatric" class="tab-content">
+            <div class="card">
+                <h3>⚖️ قسم متابعة جراحات السمنة المتخصصة</h3>
+                <div class="form-grid">
+                    <div class="form-group"><label>نوع العملية:</label><input type="text" class="form-control" value="تكميم معدة (Sleeve Gastrectomy)"></div>
+                    <div class="form-group"><label>تاريخ الجراحة:</label><input type="text" class="form-control" value="12 / 02 / 2026"></div>
+                    <div class="form-group"><label>الوزن يوم العملية:</label><input type="text" class="form-control" value="115 كجم"></div>
+                    <div class="form-group"><label>المرحلة الغذائية الحالية:</label><input type="text" class="form-control" value="مرحلة الأطعمة اللينة (Soft Diet)"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. التحاليل والمكملات -->
+        <div id="tab-labs" class="tab-content">
+            <div class="card">
+                <h3>🧪 التحاليل المطلوبة والمكملات الدوائية</h3>
+                <p style="font-size: 13px; color: var(--text-gray);">متابعة فيتامين D، الحديد، ومخزون الفرتين بانتظام.</p>
+            </div>
+        </div>
+
+        <!-- 6. الخطة الغذائية -->
+        <div id="tab-nutrition" class="tab-content">
+            <div class="card">
+                <h3>🥗 الخطة الغذائية الحالية (Smart Meal Builder)</h3>
+                <p style="font-size: 13px; color: var(--text-gray);">عرض السعرات والماكروز وتوزيع الوجبات والسناكس.</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- سكربت التحكم في التبويبات والتفاعلات -->
+    <script>
+        // التنقل بين الـ Tabs
+        function switchTab(evt, tabId) {
+            const contents = document.getElementsByClassName('tab-content');
+            for (let c of contents) c.classList.remove('active');
+
+            const buttons = document.getElementsByClassName('tab-btn');
+            for (let b of buttons) b.classList.remove('active');
+
+            document.getElementById(tabId).classList.add('active');
+            evt.currentTarget.classList.add('active');
+        }
+
+        // إظهار/إخفاء حقل الجراحات العامة
+        function toggleSurgeryInput() {
+            const val = document.getElementById('generalSurgeryToggle').value;
+            const section = document.getElementById('generalSurgerySection');
+            if (val === 'yes') {
+                section.style.display = 'block';
+            } else {
+                section.style.display = 'none';
+            }
+        }
+
+        // إضافة الأمراض المزمنة كـ Tags ديناميكية
+        function addDisease() {
+            const select = document.getElementById('diseaseSelect');
+            const diseaseName = select.value;
+            if (!diseaseName) return;
+
+            const container = document.getElementById('diseaseTagsContainer');
+            
+            // التأكد إنها مش مضافة قبل كده
+            const existing = Array.from(container.children).some(tag => tag.textContent.includes(diseaseName));
+            if (!existing) {
+                const tag = document.createElement('div');
+                tag.className = 'disease-tag';
+                tag.innerHTML = `${diseaseName} <button type="button" onclick="this.parentElement.remove()">×</button>`;
+                container.appendChild(tag);
+            }
+            select.value = ""; // ريست للقائمة
+        }
+    </script>
+</body>
+</html>
