@@ -44,7 +44,7 @@
         .btn-save-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
         .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
 
-        /* نموذج الطباعة الخفي للخطة الغذائية */
+        /* نموذج الطباعة الخفي للنظام الغذائي */
         #printMealArea { display: none; }
         @media print {
             body * { visibility: hidden; }
@@ -92,9 +92,9 @@
                     <div class="form-group">
                         <label>اختر المريض:</label>
                         <select id="patientSelect" class="form-control">
-                            <option value="shahab">شهاب الدين حسب النبي (تكميم)</option>
-                            <option value="sara">سارة أحمد محمود (مونجارو)</option>
-                            <option value="anas">أنس شادي سمير (نحافة أطفال)</option>
+                            <option value="شهاب الدين حسب النبي">شهاب الدين حسب النبي (تكميم)</option>
+                            <option value="سارة أحمد محمود">سارة أحمد محمود (مونجارو)</option>
+                            <option value="أنس شادي سمير">أنس شادي سمير (نحافة أطفال)</option>
                         </select>
                     </div>
 
@@ -105,7 +105,7 @@
                         <div class="macro-box"><span>دهون</span><strong id="macroFat">45 جم</strong></div>
                     </div>
                     <button class="btn-action" onclick="alert('تم حفظ الخطة بنجاح في ملف المريض!')">💾 حفظ الخطة</button>
-                    <button class="btn-print" onclick="printMealPlan()">🖨️ طباعة الخطة (PDF)</button>
+                    <button class="btn-print" onclick="printPatientMealPlan()">🖨️ طباعة نظام المريض (PDF)</button>
                 </div>
             </div>
 
@@ -163,19 +163,20 @@
         </div>
     </div>
 
-    <!-- نموذج الطباعة الخفي -->
+    <!-- نموذج الطباعة المخصص لكل مريض -->
     <div id="printMealArea">
         <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
             <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
             <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
         </div>
         <h3 style="text-align: center; color: #3b82f6; margin-bottom: 15px;">البرنامج الغذائي المخصص للمريض</h3>
-        <div style="font-size: 14px; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 8px;">
+        <div style="font-size: 14px; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 8px; border: 1px solid #e2e8f0;">
+            <p style="margin: 4px 0;"><strong>اسم المريض:</strong> <span id="printPatientName">---</span></p>
             <p style="margin: 4px 0;"><strong>إجمالي السعرات المستهدفة:</strong> <span id="pCal">1400</span> سعرة حرارية</p>
-            <p style="margin: 4px 0;"><strong>توزيع السعرات (Macros):</strong> بروتين <span id="pPro">120 جم</span> | كارب <span id="pCarb">130 جم</span> | دهون <span id="pFat">45 جم</span></p>
+            <p style="margin: 4px 0;"><strong>توزيع السعرات (Macros):</strong> بروتين: <span id="pPro">120 جم</span> | كارب: <span id="pCarb">130 جم</span> | دهون: <span id="pFat">45 جم</span></p>
         </div>
         <div id="printMealsList" style="font-size: 14px; line-height: 1.8;">
-            <!-- يتم تعبئته آلياً وقت الطباعة -->
+            <!-- يتم تعبئته آلياً -->
         </div>
         <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
             <p>توقيع الطبيب: د. شادي سمير</p>
@@ -218,7 +219,11 @@
     <script>
         let currentEditingId = null;
 
-        function printMealPlan() {
+        function printPatientMealPlan() {
+            const selectElement = document.getElementById('patientSelect');
+            const patientName = selectElement.options[selectElement.selectedIndex].text;
+            document.getElementById('printPatientName').innerText = patientName;
+
             document.getElementById('pCal').innerText = document.getElementById('targetCalories').value;
             document.getElementById('pPro').innerText = document.getElementById('macroProt').innerText;
             document.getElementById('pCarb').innerText = document.getElementById('macroCarb').innerText;
