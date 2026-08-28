@@ -34,6 +34,17 @@
         .badge-bypass { background-color: #f3e8ff; color: #6b21a8; }
         .badge-sasi { background-color: #fef3c7; color: #92400e; }
         .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        
+        /* Modal تصميم النوافذ المنبثقة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
     </style>
 </head>
 <body>
@@ -60,27 +71,119 @@
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
+
     <div class="main-content">
         <div class="top-header">
             <h1>⚖️ قسم جراحات السمنة والمتابعات الخاصة</h1>
-            <button class="btn-action-sm" style="background:var(--primary-green); color:white; border:none; padding:8px 15px;" onclick="alert('إضافة حالة جراحية جديدة')">+ تسجيل حالة جديدة</button>
+            <button class="btn-action-sm" style="background:var(--primary-green); color:white; border:none; padding:8px 15px; font-size:13px;" onclick="openBariatricModal()">+ تسجيل حالة جديدة</button>
         </div>
+
         <div class="stats-grid">
             <div class="stat-card"><div class="title">إجمالي حالات الجراحات</div><div class="number" style="color:var(--accent-blue);">86 مريض</div></div>
             <div class="stat-card"><div class="title">حالات تكميم المعدة</div><div class="number" style="color:var(--primary-green);">52 مريض</div></div>
             <div class="stat-card"><div class="title">حالات تحويل المسار والساسي</div><div class="number" style="color:var(--warning-orange);">34 مريض</div></div>
         </div>
+
         <div class="table-card">
             <h3 style="margin-top:0; font-size:15px; margin-bottom:15px;">📋 سجل حالات جراحات السمنة والمتابعة</h3>
             <table>
-                <thead><tr><th>الملف</th><th>نوع الجراحة</th><th>تاريخ العملية</th><th>الوزن بعد العملية</th><th>الوزن المثالي المستهدف</th><th>اسم المريض</th></tr></thead>
-                <tbody>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge badge-sleeve">تكميم معدة</span></td><td>يناير 2026</td><td><strong>92 كجم</strong> (بدءاً من 125)</td><td>75 كجم</td><td><strong>شهاب الدين حسب النبي</strong></td></tr>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge badge-bypass">تحويل مسار كلاسيكي</span></td><td>نوفمبر 2025</td><td><strong>84 كجم</strong> (بدءاً من 130)</td><td>70 كجم</td><td><strong>محمود حسن السيد</strong></td></tr>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge badge-sasi">ساسي (SASI)</span></td><td>مارس 2026</td><td><strong>98 كجم</strong> (بدءاً من 140)</td><td>80 كجم</td><td><strong>رانيا عبد الله</strong></td></tr>
+                <thead>
+                    <tr>
+                        <th>الملف</th>
+                        <th>نوع الجراحة</th>
+                        <th>تاريخ العملية</th>
+                        <th>الوزن بعد العملية</th>
+                        <th>الوزن المثالي المستهدف</th>
+                        <th>اسم المريض</th>
+                    </tr>
+                </thead>
+                <tbody id="bariatric-tbody">
+                    <tr>
+                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                        <td><span class="badge badge-sleeve">تكميم معدة</span></td>
+                        <td>يناير 2026</td>
+                        <td><strong>92 كجم</strong> (بدءاً من 125)</td>
+                        <td>75 كجم</td>
+                        <td><strong>شهاب الدين حسب النبي</strong></td>
+                    </tr>
+                    <tr>
+                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                        <td><span class="badge badge-bypass">تحويل مسار كلاسيكي</span></td>
+                        <td>نوفمبر 2025</td>
+                        <td><strong>84 كجم</strong> (بدءاً من 130)</td>
+                        <td>70 كجم</td>
+                        <td><strong>محمود حسن السيد</strong></td>
+                    </tr>
+                    <tr>
+                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                        <td><span class="badge badge-sasi">ساسي (SASI)</span></td>
+                        <td>مارس 2026</td>
+                        <td><strong>98 كجم</strong> (بدءاً من 140)</td>
+                        <td>80 كجم</td>
+                        <td><strong>رانيا عبد الله</strong></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- نافذة تسجيل حالة جراحية جديدة -->
+    <div id="bariatricModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>⚖️ تسجيل حالة جراحات سمنة جديدة</h3>
+            <form onsubmit="addNewBariatric(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="barName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
+                <div class="form-group">
+                    <label>نوع الجراحة:</label>
+                    <select id="barType" class="form-control">
+                        <option value="sleeve">تكميم معدة</option>
+                        <option value="bypass">تحويل مسار كلاسيكي</option>
+                        <option value="sasi">ساسي (SASI)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>تاريخ العملية:</label><input type="text" id="barDate" class="form-control" placeholder="مثال: أغسطس 2026" required></div>
+                <div class="form-group"><label>الوزن الحالي والبداية:</label><input type="text" id="barWeight" class="form-control" placeholder="مثال: 95 كجم (بدءاً من 135)" required></div>
+                <div class="form-group"><label>الوزن المثالي المستهدف:</label><input type="text" id="barTarget" class="form-control" placeholder="مثال: 75 كجم" required></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ الحالة</button>
+                    <button type="button" class="btn-close-modal" onclick="closeBariatricModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openBariatricModal() { document.getElementById('bariatricModal').style.display = 'flex'; }
+        function closeBariatricModal() { document.getElementById('bariatricModal').style.display = 'none'; }
+
+        function addNewBariatric(event) {
+            event.preventDefault();
+            const name = document.getElementById('barName').value;
+            const typeVal = document.getElementById('barType').value;
+            const date = document.getElementById('barDate').value;
+            const weight = document.getElementById('barWeight').value;
+            const target = document.getElementById('barTarget').value;
+
+            let badgeClass = 'badge-sleeve';
+            let badgeText = 'تكميم معدة';
+            if(typeVal === 'bypass') { badgeClass = 'badge-bypass'; badgeText = 'تحويل مسار كلاسيكي'; }
+            else if(typeVal === 'sasi') { badgeClass = 'badge-sasi'; badgeText = 'ساسي (SASI)'; }
+
+            const tbody = document.getElementById('bariatric-tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                <td>${date}</td>
+                <td><strong>${weight}</strong></td>
+                <td>${target}</td>
+                <td><strong>${name}</strong></td>
+            `;
+            tbody.insertBefore(newRow, tbody.firstChild);
+            alert('تم تسجيل الحالة الجراحية بنجاح!');
+            closeBariatricModal();
+            event.target.reset();
+        }
+    </script>
 </body>
 </html>
