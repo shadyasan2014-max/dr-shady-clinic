@@ -23,7 +23,7 @@
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
         .builder-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
@@ -43,9 +43,9 @@
         .btn-print { background-color: var(--accent-blue); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
         .btn-print-notes { background-color: #8b5cf6; color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
 
-        /* نموذج الطباعة الأول: نظام الوجبات للأسبوع */
+        /* نموذج الطباعة الأول: النظام الغذائي (يومي أو أسبوعي) */
         #printMealArea { display: none; }
-        /* نموذج الطباعة الثاني: التوجيهات الطبية وخطة الغذاء الكاملة */
+        /* نموذج الطباعة الثاني: التقرير الطبي وخطة الغذاء الكاملة الفنية */
         #printNotesArea { display: none; }
 
         @media print {
@@ -53,21 +53,24 @@
             #printMealArea:not(.hidden-print), #printMealArea:not(.hidden-print) *,
             #printNotesArea:not(.hidden-print), #printNotesArea:not(.hidden-print) * { visibility: visible; }
             
+            @page { size: A4; margin: 15mm; }
+            
             #printMealArea, #printNotesArea { 
                 position: absolute; 
                 left: 0; 
                 top: 0; 
                 width: 100%; 
+                box-sizing: border-box;
                 display: block !important; 
-                padding: 30px; 
+                padding: 10mm 15mm !important; 
                 direction: rtl; 
                 font-family: 'Segoe UI', Tahoma, sans-serif; 
                 color: #1e293b; 
                 background: #ffffff; 
             }
-            .print-header { text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 12px; margin-bottom: 20px; }
-            .print-patient-card { background: #f0fdf4 !important; border: 2px solid #10b981 !important; border-radius: 10px !important; padding: 12px 18px !important; margin-bottom: 20px !important; }
-            .print-day-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; border-right: 5px solid #10b981 !important; padding: 12px !important; border-radius: 8px !important; margin-bottom: 12px !important; page-break-inside: avoid; }
+            .print-header { text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px; }
+            .print-patient-card { background: #f0fdf4 !important; border: 2px solid #10b981 !important; border-radius: 10px !important; padding: 10px 15px !important; margin-bottom: 15px !important; }
+            .print-day-box { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; border-right: 5px solid #10b981 !important; padding: 10px !important; border-radius: 8px !important; margin-bottom: 10px !important; page-break-inside: avoid; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -99,21 +102,29 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 باني الخطط الغذائية الشاملة والجدول الأسبوعي</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">إدارة وجبات 7 أيام وطباعة التقارير الطبية المنظمة</div>
+            <h1>🥗 باني الخطط الغذائية الشاملة</h1>
+            <div style="font-size: 13px; color: var(--text-gray);">إدارة الأنظمة الغذائية (يومي أو أسبوعي) وطباعة التقارير الفنية</div>
         </div>
 
         <div class="builder-grid">
-            <!-- العمود الأيمن: إعدادات المريض والسعرات والأزرار -->
+            <!-- العمود الأيمن: البيانات، نوع النظام، الملاحظات، والأزرار -->
             <div>
                 <div class="card">
-                    <h3>⚙️ بيانات المريض وإعدادات السعرات</h3>
+                    <h3>⚙️ إعدادات النظام والسعرات</h3>
                     <div class="form-group">
                         <label>اختر المريض:</label>
                         <select id="patientSelect" class="form-control">
                             <option value="شهاب الدين حسب النبي (تكميم)">شهاب الدين حسب النبي (تكميم)</option>
                             <option value="سارة أحمد محمود (مونجارو)">سارة أحمد محمود (مونجارو)</option>
                             <option value="أنس شادي سمير (نحافة أطفال)">أنس شادي سمير (نحافة أطفال)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>نوع النظام المراد طباعته:</label>
+                        <select id="planType" class="form-control">
+                            <option value="daily">نظام يومي (اليوم الأول فقط)</option>
+                            <option value="weekly" selected>نظام أسبوعي متكامل (7 أيام)</option>
                         </select>
                     </div>
 
@@ -128,100 +139,113 @@
                         <div class="macro-box"><span>دهون</span><strong id="macroFat">45 جم</strong></div>
                     </div>
 
-                    <button class="btn-action" onclick="alert('تم حفظ جدول الأسبوع بنجاح في ملف المريض!')">💾 حفظ جدول الأسبوع بالسيستم</button>
-                    <button class="btn-print" onclick="printWeeklyMealPlan()">🖨️ طباعة جدول الأسبوع كامل (7 أيام)</button>
+                    <button class="btn-action" onclick="alert('تم حفظ النظام بنجاح في ملف المريض!')">💾 حفظ بالسيستم</button>
+                    <button class="btn-print" onclick="printMealPlan()">🖨️ طباعة النظام الغذائي (PDF)</button>
                 </div>
 
-                <!-- مكان كتابة خطة الغذاء الكاملة والتوجيهات الطبية مع زر طباعة منفصل -->
+                <!-- صندوق الملاحظات الطبية -->
                 <div class="card">
-                    <h3>📝 خطة الغذاء الكاملة والتوجيهات الطبية</h3>
+                    <h3>📌 ملاحظات الطبيب الهامة</h3>
                     <div class="form-group">
-                        <label>اكتب التعليمات الطبية الشاملة (خط واضح ومنظم):</label>
-                        <textarea id="fullDietNotes" class="form-control" rows="6" placeholder="اكتب التوجيهات الطبية، تعليمات المياه، الممنوعات...">1. الالتزام بتناول وجبات الأسبوع في مواعيدها الثابتة.
-2. شرب 3 لتر ماء يومياً بانتظام.
-3. الامتناع التام عن المشروبات الغازية والسكريات المضافة.
-4. المتابعة الأسبوعية لقياس الوزن وتعديل الماكروز.</textarea>
+                        <textarea id="doctorNotes" class="form-control" rows="3" placeholder="اكتب الملاحظات الخاصة بالحالة لتظهر في التقرير...">• يرجى الالتزام بمواعيد الوجبات بدقة وعدم إهمال وجبة الإفطار.
+• في حالة الشعور بأي تعب، يرجى التواصل مع العيادة فوراً.</textarea>
                     </div>
-                    <button class="btn-print-notes" onclick="printMedicalNotesReport()">🖨️ طباعة التقرير الطبي والتوجيهات (PDF)</button>
+                </div>
+
+                <!-- خطة الغذاء الكاملة بتصميم فني بارز -->
+                <div class="card" style="border: 2px solid #8b5cf6;">
+                    <h3 style="color: #8b5cf6;">🎨 خطة الغذاء الكاملة والتوجيهات الطبية</h3>
+                    <div class="form-group">
+                        <label>اكتب التعليمات الفنية والتوجيهات (لتظهر بشكل فني واضح ومنظم):</label>
+                        <textarea id="fullDietNotes" class="form-control" rows="5" placeholder="اكتب التوجيهات الفنية الشاملة...">1. شرب من 2.5 إلى 3 لتر ماء يومياً.
+2. ممنوع السكريات والمياه الغازية تماماً.
+3. الالتزام بتناول الفيتامينات والمكملات الموصوفة.
+4. المشي الخفيف لمدة 30 دقيقة يومياً.</textarea>
+                    </div>
+                    <button class="btn-print-notes" onclick="printArtisticMedicalReport()">🖨️ طباعة خطة الغذاء الفنية (PDF)</button>
                 </div>
             </div>
 
-            <!-- العمود الأيسر: جدول الـ 7 أيام (3 واجبات و3 سناكس لكل يوم) -->
+            <!-- العمود الأيسر: إدخال الوجبات للأسبوع الكامل -->
             <div>
                 <div class="card">
-                    <h3>📅 جدولة الأسبوع الكامل (7 أيام: 3 وجبات + 3 سناكس يومياً)</h3>
-                    <div style="font-size: 11px; color: var(--text-gray); margin-bottom: 12px;">قم بتعبئة الأكل المناسب لكل يوم حسب رغبة المريض وحالته السريرية:</div>
+                    <h3>📅 إدخال وجبات الـ 7 أيام (3 وجبات رئيسية + 3 سناكس يومياً)</h3>
+                    <div style="font-size: 11px; color: var(--text-gray); margin-bottom: 12px;">املأ البيانات لكل يوم لتظهر في التقرير اليومي أو الأسبوعي بدقة:</div>
 
                     <div id="weeklyContainer">
-                        <!-- سيتم توليد الـ 7 أيام آلياً هنا -->
+                        <!-- يتم توليد الـ 7 أيام هنا -->
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نموذج الطباعة الأول: جدول الأسبوع الكامل -->
+    <!-- نموذج الطباعة الأول: النظام (يومي أو أسبوعي) -->
     <div id="printMealArea" class="hidden-print">
         <div class="print-header">
             <h2 style="margin: 0; color: #0b1329; font-size: 24px;">د. شادي سمير</h2>
             <p style="margin: 4px 0 0 0; color: #059669; font-size: 13px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
         </div>
         
-        <div style="text-align: center; margin-bottom: 15px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 15px; background: #3b82f6; display: inline-block; padding: 6px 20px; border-radius: 20px;">البرنامج الغذائي المتكامل لـ 7 أيام</h3>
+        <div style="text-align: center; margin-bottom: 12px;">
+            <h3 id="printTitleBadge" style="color: #ffffff; margin: 0; font-size: 14px; background: #3b82f6; display: inline-block; padding: 5px 18px; border-radius: 15px;">البرنامج الغذائي</h3>
         </div>
 
         <div class="print-patient-card">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
                 <p style="margin: 0;"><strong>👤 المريض:</strong> <span id="pName" style="color: #047857; font-weight: bold;">---</span></p>
                 <p style="margin: 0;"><strong>⚡ السعرات اليومية:</strong> <span id="pCal" style="color: #1d4ed8; font-weight: bold;">1400</span> سعرة</p>
             </div>
-            <p style="margin: 0; font-size: 12px; color: #065f46; text-align: center; font-weight: bold;">
+            <p style="margin: 0; font-size: 11px; color: #065f46; text-align: center; font-weight: bold;">
                 📊 توزيع المغذيات الكبرى (Macros): بروتين: 120 جم | كارب: 130 جم | دهون: 45 جم
             </p>
         </div>
 
-        <div id="printWeeklyContent">
-            <!-- تفاصيل الـ 7 أيام للطباعة -->
+        <div id="printMealsContent">
+            <!-- المحتوى يتغير حسب يومي أو أسبوعي -->
         </div>
 
-        <div style="margin-top: 30px; display: flex; justify-content: space-between; font-size: 13px; border-top: 2px dashed #cbd5e1; padding-top: 15px;">
-            <p style="margin: 0; font-weight: bold;">توقيع الطبيب المعالج: د. شادي سمير</p>
-            <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
+        <div id="printNotesSection" style="margin-top: 15px; background: #fffbeb; border: 1px solid #f59e0b; padding: 10px; border-radius: 6px; font-size: 12px; display: none;">
+            <strong>📌 ملاحظات هامة:</strong><br>
+            <span id="printNotesText" style="white-space: pre-wrap; color: #b45309;">---</span>
+        </div>
+
+        <div style="margin-top: 25px; display: flex; justify-content: space-between; font-size: 12px; border-top: 2px dashed #cbd5e1; padding-top: 10px;">
+            <p style="margin: 0; font-weight: bold;">توقيع الطبيب: د. شادي سمير</p>
+            <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة</p>
         </div>
     </div>
 
-    <!-- نموذج الطباعة الثاني: التقرير الطبي وخطة الغذاء الكاملة -->
+    <!-- نموذج الطباعة الثاني: خطة الغذاء الكاملة بتصميم فني بارز ومنظم -->
     <div id="printNotesArea" class="hidden-print">
         <div class="print-header">
-            <h2 style="margin: 0; color: #0b1329; font-size: 24px;">د. شادي سمير</h2>
-            <p style="margin: 4px 0 0 0; color: #059669; font-size: 13px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
+            <h2 style="margin: 0; color: #0b1329; font-size: 26px;">د. شادي سمير</h2>
+            <p style="margin: 4px 0 0 0; color: #8b5cf6; font-size: 13px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
         </div>
         
         <div style="text-align: center; margin-bottom: 15px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 15px; background: #8b5cf6; display: inline-block; padding: 6px 20px; border-radius: 20px;">التقرير الطبي والتوجيهات الغذائية الشاملة</h3>
+            <h3 style="color: #ffffff; margin: 0; font-size: 15px; background: #8b5cf6; display: inline-block; padding: 6px 20px; border-radius: 20px;">🎨 التقرير الفني وخطة الغذاء الكاملة</h3>
         </div>
 
         <div class="print-patient-card" style="background: #faf5ff !important; border-color: #8b5cf6 !important;">
-            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px;">
+            <div style="display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 4px;">
                 <p style="margin: 0;"><strong>👤 اسم المريض:</strong> <span id="nName" style="color: #6d28d9; font-weight: bold;">---</span></p>
-                <p style="margin: 0;"><strong>📅 تاريخ التقرير:</strong> ٢٨ أغسطس ٢٠٢٦</p>
+                <p style="margin: 0;"><strong>📅 تاريخ الإصدار:</strong> ٢٨ أغسطس ٢٠٢٦</p>
             </div>
         </div>
 
-        <div style="background: #f8fafc; border: 1px solid #cbd5e1; padding: 20px; border-radius: 10px; font-size: 14px; line-height: 1.8; color: #1e293b;">
-            <h4 style="color: #6d28d9; margin-top: 0; border-bottom: 1px solid #cbd5e1; padding-bottom: 8px;">📋 تفاصيل الخطة والتوجيهات الطبية المعتمدة:</h4>
-            <div id="printNotesContent" style="white-space: pre-wrap; font-weight: 500;">---</div>
+        <div style="background: #f8fafc; border: 2px solid #cbd5e1; padding: 20px; border-radius: 12px; font-size: 13px; line-height: 1.9; color: #1e293b;">
+            <h4 style="color: #6d28d9; margin-top: 0; border-bottom: 2px solid #8b5cf6; padding-bottom: 8px; font-size: 15px;">✨ تفاصيل التعليمات والتوجيهات الغذائية الفنية المعتمدة:</h4>
+            <div id="printArtisticNotesContent" style="white-space: pre-wrap; font-weight: 500; font-size: 13px; color: #334155;">---</div>
         </div>
 
-        <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 13px; border-top: 2px dashed #cbd5e1; padding-top: 15px;">
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; border-top: 2px dashed #cbd5e1; padding-top: 12px;">
             <p style="margin: 0; font-weight: bold;">توقيع الطبيب المعالج: د. شادي سمير</p>
             <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
         </div>
     </div>
 
     <script>
-        // توليد الـ 7 أيام في الواجهة تلقائياً
         const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
         const container = document.getElementById('weeklyContainer');
 
@@ -245,47 +269,78 @@
             `;
         });
 
-        // طباعة جدول الأسبوع الكامل
-        function printWeeklyMealPlan() {
+        // طباعة النظام الغذائي (يومي أو أسبوعي)
+        function printMealPlan() {
             const selectElement = document.getElementById('patientSelect');
+            const planType = document.getElementById('planType').value;
             document.getElementById('pName').innerText = selectElement.options[selectElement.selectedIndex].text;
             document.getElementById('pCal').innerText = document.getElementById('targetCalories').value;
 
             let htmlContent = '';
-            days.forEach((day, index) => {
-                const m1 = document.getElementById(`d${index}_m1`).value;
-                const m2 = document.getElementById(`d${index}_m2`).value;
-                const m3 = document.getElementById(`d${index}_m3`).value;
-                const s1 = document.getElementById(`d${index}_s1`).value;
-                const s2 = document.getElementById(`d${index}_s2`).value;
-                const s3 = document.getElementById(`d${index}_s3`).value;
+            if (planType === 'daily') {
+                document.getElementById('printTitleBadge').innerText = 'البرنامج الغذائي اليومي';
+                const m1 = document.getElementById(`d0_m1`).value;
+                const m2 = document.getElementById(`d0_m2`).value;
+                const m3 = document.getElementById(`d0_m3`).value;
+                const s1 = document.getElementById(`d0_s1`).value;
+                const s2 = document.getElementById(`d0_s2`).value;
+                const s3 = document.getElementById(`d0_s3`).value;
 
-                htmlContent += `
-                    <div class="print-day-box">
-                        <strong style="color: #047857; font-size: 14px;">📅 اليوم ${index + 1} (${day}):</strong>
-                        <div style="font-size: 12px; margin-top: 6px; line-height: 1.6; color: #334155;">
-                            • <strong>الرئيسية:</strong> إفطار: ${m1} | غداء: ${m2} | عشاء: ${m3}<br>
-                            • <strong>السناكس:</strong> 1) ${s1} &nbsp;&nbsp;|&nbsp;&nbsp; 2) ${s2} &nbsp;&nbsp;|&nbsp;&nbsp; 3) ${s3}
+                htmlContent = `
+                    <div class="print-day-box" style="border-right-color: #3b82f6 !important;">
+                        <strong style="color: #1d4ed8; font-size: 15px;">📅 تفاصيل النظام اليومي:</strong>
+                        <div style="font-size: 13px; margin-top: 10px; line-height: 1.8; color: #334155;">
+                            • <strong>وجبة الإفطار:</strong> ${m1}<br>
+                            • <strong>وجبة الغداء:</strong> ${m2}<br>
+                            • <strong>وجبة العشاء:</strong> ${m3}<br>
+                            • <strong>السناكس:</strong> 1) ${s1} | 2) ${s2} | 3) ${s3}
                         </div>
                     </div>
                 `;
-            });
+            } else {
+                document.getElementById('printTitleBadge').innerText = 'البرنامج الغذائي المتكامل لـ 7 أيام';
+                days.forEach((day, index) => {
+                    const m1 = document.getElementById(`d${index}_m1`).value;
+                    const m2 = document.getElementById(`d${index}_m2`).value;
+                    const m3 = document.getElementById(`d${index}_m3`).value;
+                    const s1 = document.getElementById(`d${index}_s1`).value;
+                    const s2 = document.getElementById(`d${index}_s2`).value;
+                    const s3 = document.getElementById(`d${index}_s3`).value;
 
-            document.getElementById('printWeeklyContent').innerHTML = htmlContent;
+                    htmlContent += `
+                        <div class="print-day-box">
+                            <strong style="color: #047857; font-size: 13px;">📅 اليوم ${index + 1} (${day}):</strong>
+                            <div style="font-size: 12px; margin-top: 4px; line-height: 1.5; color: #334155;">
+                                • <strong>الرئيسية:</strong> إفطار: ${m1} | غداء: ${m2} | عشاء: ${m3}<br>
+                                • <strong>السناكس:</strong> 1) ${s1} &nbsp;&nbsp;|&nbsp;&nbsp; 2) ${s2} &nbsp;&nbsp;|&nbsp;&nbsp; 3) ${s3}
+                            </div>
+                        </div>
+                    `;
+                });
+            }
 
-            // إعطاء أمر الطباعة لـ جدول الأسبوع
+            document.getElementById('printMealsContent').innerHTML = htmlContent;
+
+            // معالجة الملاحظات
+            const notes = document.getElementById('doctorNotes').value.trim();
+            if (notes) {
+                document.getElementById('printNotesText').innerText = notes;
+                document.getElementById('printNotesSection').style.display = 'block';
+            } else {
+                document.getElementById('printNotesSection').style.display = 'none';
+            }
+
             document.getElementById('printMealArea').classList.remove('hidden-print');
             document.getElementById('printNotesArea').classList.add('hidden-print');
             window.print();
         }
 
-        // طباعة التقرير الطبي والتوجيهات الشاملة
-        function printMedicalNotesReport() {
+        // طباعة خطة الغذاء الفنية الكاملة
+        function printArtisticMedicalReport() {
             const selectElement = document.getElementById('patientSelect');
             document.getElementById('nName').innerText = selectElement.options[selectElement.selectedIndex].text;
-            document.getElementById('printNotesContent').innerText = document.getElementById('fullDietNotes').value;
+            document.getElementById('printArtisticNotesContent').innerText = document.getElementById('fullDietNotes').value;
 
-            // إعطاء أمر الطباعة لـ التقرير الطبي
             document.getElementById('printNotesArea').classList.remove('hidden-print');
             document.getElementById('printMealArea').classList.add('hidden-print');
             window.print();
