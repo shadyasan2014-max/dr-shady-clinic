@@ -34,6 +34,27 @@
         .badge-paid { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
         .badge-due { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #fef3c7; color: #92400e; }
         .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        
+        /* Modal تصميم النوافذ المنبثقة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
+        .btn-print-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
+        .btn-wa-modal { background-color: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
+        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 80px; font-size: 12px; }
+
+        /* تنسيق الطباعة الخفي للإيصال */
+        #printArea { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 30px; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; background: #fff; }
+        }
     </style>
 </head>
 <body>
@@ -60,30 +81,172 @@
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
+
     <div class="main-content">
         <div class="top-header">
             <h1>💰 إدارة المدفوعات وحسابات العيادة</h1>
             <div style="font-size: 13px; color: var(--text-gray);">متابعة الإيرادات وحركات الدفع للكشوفات والمتابعات</div>
         </div>
+
         <div class="stats-grid">
-            <div class="stat-card"><div class="title">إيرادات اليوم</div><div class="number" style="color:var(--primary-green);">8,650 جنيه</div></div>
-            <div class="stat-card"><div class="title">إيرادات هذا الأسبوع</div><div class="number" style="color:var(--accent-blue);">42,300 جنيه</div></div>
-            <div class="stat-card"><div class="title">حالات مستحقة الدفع</div><div class="number" style="color:var(--warning-orange);">3 حالات</div></div>
+            <div class="stat-card">
+                <div class="title">إيرادات اليوم</div>
+                <div class="number" style="color:var(--primary-green);">8,650 جنيه</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">إيرادات هذا الأسبوع</div>
+                <div class="number" style="color:var(--accent-blue);">42,300 جنيه</div>
+            </div>
+            <div class="stat-card">
+                <div class="title">حالات مستحقة الدفع</div>
+                <div class="number" style="color:var(--warning-orange);">3 حالات</div>
+            </div>
         </div>
+
         <div class="action-bar">
             <div style="font-size: 14px; font-weight: bold;">سجل المعاملات المالية الحديثة</div>
-            <button class="btn-add" onclick="alert('تسجيل عملية دفع جديدة')">+ تسجيل مدفوعة جديدة</button>
+            <button class="btn-add" onclick="openPayModal()">+ تسجيل مدفوعة جديدة</button>
         </div>
+
         <div class="table-card">
             <table>
-                <thead><tr><th>إجراء الملف</th><th>الحالة المالية</th><th>المبلغ المدفوع</th><th>نوع الخدمة / الزيارة</th><th>التاريخ</th><th>اسم المريض</th></tr></thead>
-                <tbody>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge-paid">تم الدفع بالكامل</span></td><td><strong>450 جنيه</strong></td><td>متابعة دورية</td><td>28 أغسطس 2026</td><td><strong>أحمد محمد علي</strong></td></tr>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge-due">مستحق (جزئي)</span></td><td><strong>600 جنيه</strong> (متبقي 200)</td><td>كشف أول زيارة (باقة شهرية)</td><td>28 أغسطس 2026</td><td><strong>سارة أحمد محمود</strong></td></tr>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge-paid">تم الدفع بالكامل</span></td><td><strong>500 جنيه</strong></td><td>استشارة ما بعد جراحات السمنة</td><td>28 أغسطس 2026</td><td><strong>شهاب الدين حسب النبي</strong></td></tr>
+                <thead>
+                    <tr>
+                        <th>إجراء الملف</th>
+                        <th>الحالة المالية</th>
+                        <th>المبلغ المدفوع</th>
+                        <th>نوع الخدمة / الزيارة</th>
+                        <th>التاريخ</th>
+                        <th>اسم المريض</th>
+                    </tr>
+                </thead>
+                <tbody id="payments-tbody">
+                    <tr>
+                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                        <td><span class="badge-paid">تم الدفع بالكامل</span></td>
+                        <td><strong>450 جنيه</strong></td>
+                        <td>متابعة دورية</td>
+                        <td>28 أغسطس 2026</td>
+                        <td><strong>أحمد محمد علي</strong></td>
+                    </tr>
+                    <tr>
+                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                        <td><span class="badge-due">مستحق (جزئي)</span></td>
+                        <td><strong>600 جنيه</strong> (متبقي 200)</td>
+                        <td>كشف أول زيارة (باقة شهرية)</td>
+                        <td>28 أغسطس 2026</td>
+                        <td><strong>سارة أحمد محمود</strong></td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- نافذة تسجيل مدفوعة جديدة -->
+    <div id="payModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>💰 تسجيل عملية دفع جديدة</h3>
+            <form id="payForm" onsubmit="saveAndAddPayment(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="payName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
+                <div class="form-group"><label>رقم الهاتف (واتساب):</label><input type="text" id="payPhone" class="form-control" placeholder="010xxxxxxxx" required></div>
+                <div class="form-group"><label>نوع الخدمة / الزيارة:</label><input type="text" id="payService" class="form-control" placeholder="مثال: متابعة دورية / كشف جديد" required></div>
+                <div class="form-group"><label>المبلغ المدفوع:</label><input type="text" id="payAmount" class="form-control" placeholder="مثال: 500 جنيه" required></div>
+                <div class="form-group">
+                    <label>الحالة المالية:</label>
+                    <select id="payStatus" class="form-control">
+                        <option value="paid">تم الدفع بالكامل</option>
+                        <option value="due">مستحق (جزئي)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>التاريخ:</label><input type="text" id="payDate" class="form-control" value="28 أغسطس 2026" required></div>
+
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ المدفوعة</button>
+                    <button type="button" class="btn-print-modal" onclick="printPaymentReceipt()">🖨️ طباعة إيصال</button>
+                    <button type="button" class="btn-wa-modal" onclick="sendPaymentWhatsApp()">💬 واتساب</button>
+                    <button type="button" class="btn-close-modal" onclick="closePayModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نموذج الطباعة الخفي للإيصال المالي -->
+    <div id="printArea">
+        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+        </div>
+        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 20px;">إيصال سداد واستلام نقدية</h3>
+        <div style="font-size: 15px; line-height: 2;">
+            <p><strong>اسم المريض:</strong> <span id="rName">---</span></p>
+            <p><strong>الخدمة المقدمة:</strong> <span id="rService">---</span></p>
+            <p><strong>المبلغ المدفوع:</strong> <span id="rAmount">---</span></p>
+            <p><strong>التاريخ:</strong> <span id="rDate">---</span></p>
+        </div>
+        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
+            <p>توقيع الخزينة / العيادة</p>
+            <p>ختم العيادة</p>
+        </div>
+    </div>
+
+    <script>
+        function openPayModal() { document.getElementById('payModal').style.display = 'flex'; }
+        function closePayModal() { document.getElementById('payModal').style.display = 'none'; }
+
+        function updatePrintArea() {
+            document.getElementById('rName').innerText = document.getElementById('payName').value || 'غير محدد';
+            document.getElementById('rService').innerText = document.getElementById('payService').value || 'غير محدد';
+            document.getElementById('rAmount').innerText = document.getElementById('payAmount').value || '0 جنيه';
+            document.getElementById('rDate').innerText = document.getElementById('payDate').value || 'اليوم';
+        }
+
+        function printPaymentReceipt() {
+            updatePrintArea();
+            window.print();
+        }
+
+        function sendPaymentWhatsApp() {
+            const name = document.getElementById('payName').value;
+            const phone = document.getElementById('payPhone').value;
+            const amount = document.getElementById('payAmount').value;
+            const service = document.getElementById('payService').value;
+
+            if(!name || !phone || !amount) {
+                alert('من فضلك املأ بيانات المريض والمبلغ أولاً للإرسال عبر واتساب!');
+                return;
+            }
+
+            const message = `مرحباً بك يا مريضنا العزيز ${name} 🩺\n\nتأكيد استلام الدفع من عيادة د. شادي سمير:\n\n🏷️ الخدمة: ${service}\n💵 المبلغ المدفوع: ${amount}\n\nشكراً لثقتكم بنا، ومع تمنياتنا بدوام الصحة والعافية ✨`;
+            const encodedUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(encodedUrl, '_blank');
+        }
+
+        function saveAndAddPayment(event) {
+            event.preventDefault();
+            const name = document.getElementById('payName').value;
+            const phone = document.getElementById('payPhone').value;
+            const service = document.getElementById('payService').value;
+            const amount = document.getElementById('payAmount').value;
+            const status = document.getElementById('payStatus').value;
+            const date = document.getElementById('payDate').value;
+
+            let badgeHtml = status === 'paid' ? '<span class="badge-paid">تم الدفع بالكامل</span>' : '<span class="badge-due">مستحق (جزئي)</span>';
+
+            const tbody = document.getElementById('payments-tbody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
+                <td>${badgeHtml}</td>
+                <td><strong>${amount}</strong></td>
+                <td>${service}</td>
+                <td>${date}</td>
+                <td><strong>${name}</strong></td>
+            `;
+            tbody.insertBefore(newRow, tbody.firstChild);
+            alert('تم تسجيل المدفوعة بنجاح!');
+            closePayModal();
+            document.getElementById('payForm').reset();
+        }
+    </script>
 </body>
 </html>
