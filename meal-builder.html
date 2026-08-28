@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - باني الخطط الغذائية الذكية</title>
+    <title>Dr. Shady Samir - باني الخطط الغذائية الذكية بالذكاء الاصطناعي (AI)</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -32,7 +32,8 @@
         .macro-box span { display: block; font-size: 11px; color: var(--text-gray); }
         .macro-box strong { font-size: 14px; color: var(--accent-blue); }
         .meal-item-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; }
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
+        .btn-ai { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
         .btn-edit-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         
         /* Modal تصميم النوافذ المنبثقة */
@@ -71,48 +72,65 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 Smart Meal Builder - باني الوجبات والخطط الغذائية</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">تصميم وتخصيص السعرات والماكروز للحالات</div>
+            <h1>🥗 Smart AI Meal Builder - باني الخطط الغذائية بالذكاء الاصطناعي</h1>
+            <div style="font-size: 13px; color: var(--text-gray);">التحليل التلقائي لبيانات المريض، السمنة، والتحاليل</div>
         </div>
 
         <div class="builder-grid">
             <div>
                 <div class="card">
-                    <h3>⚙️ إعدادات السعرات والماكروز</h3>
-                    <div class="form-group"><label>اختر المريض:</label><select class="form-control"><option>شهاب الدين حسب النبي (تكميم)</option><option>أنس شادي سمير (تغذية أطفال)</option><option>سارة أحمد (سمنة مفرطة)</option></select></div>
-                    <div class="form-group"><label>إجمالي السعرات المستهدفة (Calories):</label><input type="number" class="form-control" value="1400"></div>
-                    <div class="macro-row">
-                        <div class="macro-box"><span>بروتين</span><strong>120 جم</strong></div>
-                        <div class="macro-box"><span>كاربوهيدرات</span><strong>130 جم</strong></div>
-                        <div class="macro-box"><span>دهون صحية</span><strong>45 جم</strong></div>
+                    <h3>⚙️ إعدادات الحالة والذكاء الاصطناعي</h3>
+                    <div class="form-group">
+                        <label>اختر المريض للتحليل:</label>
+                        <select id="patientSelect" class="form-control" onchange="loadPatientProfileData()">
+                            <option value="shahab">شهاب الدين حسب النبي (متابعة تكميم)</option>
+                            <option value="sara">سارة أحمد محمود (سمنة مفرطة + مونجارو)</option>
+                            <option value="anas">أنس شادي سمير (تغذية أطفال ونحافة)</option>
+                        </select>
                     </div>
-                    <button class="btn-action" onclick="alert('تم حفظ الخطة الغذائية وتحديث حسابات المريض بنجاح!')">💾 حفظ وتصدير الخطة</button>
+
+                    <div style="background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; margin-bottom: 15px; font-size: 12px; color: #1e40af;" id="aiAnalysisBox">
+                        <strong>🤖 تحليل ملف المريض بواسطة AI:</strong><br>
+                        الحالة: تكميم معدة (اليوم الأول)<br>
+                        التحاليل: CBC (في انتظار)<br>
+                        الهدف: سوائل صافية / بروتين سائل عالي.
+                    </div>
+
+                    <button class="btn-ai" onclick="generateAIMealPlan()">✨ توليد خطة غذائية ذكية بالـ AI</button>
+
+                    <div class="form-group" style="margin-top: 15px;"><label>إجمالي السعرات المستهدفة:</label><input type="number" id="targetCalories" class="form-control" value="1200"></div>
+                    <div class="macro-row">
+                        <div class="macro-box"><span>بروتين</span><strong id="macroProt">90 جم</strong></div>
+                        <div class="macro-box"><span>كارب</span><strong id="macroCarb">80 جم</strong></div>
+                        <div class="macro-box"><span>دهون</span><strong id="macroFat">35 جم</strong></div>
+                    </div>
+                    <button class="btn-action" onclick="alert('تم حفظ الخطة الذكية المعتمدة وتحديث ملف المريض بنجاح!')">💾 حفظ وتصدير الخطة</button>
                 </div>
             </div>
 
             <div>
                 <div class="card">
-                    <h3>🍽️ توزيع الوجبات اليومية</h3>
+                    <h3>🍽️ جدول الوجبات المقترح (يتم تحديثه تلقائياً)</h3>
                     <div id="meals-list-container">
                         <div id="meal-1" style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الإفطار:</strong>
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الإفطار (سوائل صافية):</strong>
                                 <button class="btn-edit-sm" onclick="openEditModal('meal-1')">تعديل ⚙️</button>
                             </div>
                             <div class="meal-item-box">
-                                <span class="m-desc">بيضة مسلوقة + قطعة جبن قريش + رغيف سن</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">320 سعرة</span>
+                                <span class="m-desc">مرقة دجاج صافية دافئة + نصف كوب يانسون دافئ</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">60 سعرة</span>
                             </div>
                         </div>
 
                         <div id="meal-2" style="margin-bottom: 15px;">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الغداء:</strong>
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الغداء (بروتين سائل):</strong>
                                 <button class="btn-edit-sm" onclick="openEditModal('meal-2')">تعديل ⚙️</button>
                             </div>
                             <div class="meal-item-box">
-                                <span class="m-desc">صدر دجاج مشوي (150جم) + 5 معالق أرز + سلطة خضراء</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">550 سعرة</span>
+                                <span class="m-desc">شوربة لحم صافية خالية الدسم + مكمل بروتين سائل (مخفف)</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">180 سعرة</span>
                             </div>
                         </div>
 
@@ -122,8 +140,8 @@
                                 <button class="btn-edit-sm" onclick="openEditModal('meal-3')">تعديل ⚙️</button>
                             </div>
                             <div class="meal-item-box">
-                                <span class="m-desc">علبة زبادي يوناني + ثمرة فاكهة</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">230 سعرة</span>
+                                <span class="m-desc">حليب خالي الدسم دافئ (جرعات صغيرة جداً بالملعقة)</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">90 سعرة</span>
                             </div>
                         </div>
                     </div>
@@ -133,7 +151,7 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة صنف أو وجبة جديدة -->
+    <!-- نافذة إضافة صنف جديد -->
     <div id="mealModal" class="modal-overlay">
         <div class="modal-box">
             <h3>🍽️ إضافة صنف أو وجبة جديدة</h3>
@@ -169,6 +187,46 @@
     <script>
         let currentEditingId = null;
 
+        function loadPatientProfileData() {
+            const patient = document.getElementById('patientSelect').value;
+            const analysisBox = document.getElementById('aiAnalysisBox');
+            if (patient === 'shahab') {
+                analysisBox.innerHTML = `<strong>🤖 تحليل ملف المريض بواسطة AI:</strong><br>الحالة: تكميم معدة (اليوم الأول)<br>التحاليل: CBC (في انتظار)<br>الهدف: سوائل صافية / بروتين سائل عالي.`;
+            } else if (patient === 'sara') {
+                analysisBox.innerHTML = `<strong>🤖 تحليل ملف المريض بواسطة AI:</strong><br>الحالة: سمنة مفرطة + حقن مونجارو 5mg<br>الشكوى السابقة: غثيان وانعدام شهية<br>الهدف: وجبات عالية البروتين ومنخفضة الدهون لتجنب الغثيان.`;
+            } else {
+                analysisBox.innerHTML = `<strong>🤖 تحليل ملف المريض بواسطة AI:</strong><br>الحالة: تغذية أطفال ونحافة<br>الهدف: زيادة السعرات الصحية مع فتح الشهية.`;
+            }
+        }
+
+        function generateAIMealPlan() {
+            alert('✨ جاري تحليل حالة المريض بواسطة الذكاء الاصطناعي واستخراج أفضل نظام غذائي وماكروز متوافقة مع جراحات السمنة والتحاليل...');
+            setTimeout(() => {
+                const patient = document.getElementById('patientSelect').value;
+                const container = document.getElementById('meals-list-container');
+                
+                if (patient === 'sara') {
+                    document.getElementById('targetCalories').value = 1100;
+                    document.getElementById('macroProt').innerText = '110 جم';
+                    document.getElementById('macroCarb').innerText = '90 جم';
+                    document.getElementById('macroFat').innerText = '30 جم';
+
+                    container.innerHTML = `
+                        <div id="m-s1" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><strong style="color:var(--accent-blue);" class="m-title">الإفطار (متوافق مع مونجارو):</strong><button class="btn-edit-sm" onclick="openEditModal('m-s1')">تعديل ⚙️</button></div>
+                            <div class="meal-item-box"><span class="m-desc">بيضة مسلوقة جيداً + شريحة توست سن</span><span style="font-size: 11px; color: var(--text-gray);" class="m-cal">180 سعرة</span></div>
+                        </div>
+                        <div id="m-s2" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;"><strong style="color:var(--accent-blue);" class="m-title">الغداء (بروتين عالي وخفيف):</strong><button class="btn-edit-sm" onclick="openEditModal('m-s2')">تعديل ⚙️</button></div>
+                            <div class="meal-item-box"><span class="m-desc">100جم سمك مشوي + 4 معالق أرز مسلوق + سلطة</span><span style="font-size: 11px; color: var(--text-gray);" class="m-cal">380 سعرة</span></div>
+                        </div>
+                    `;
+                } else {
+                    alert('تم توليد النظام الغذائي الذكي بنجاح وتحديثه بناءً على أحدث بيانات المريض!');
+                }
+            }, 800);
+        }
+
         function openMealModal() { document.getElementById('mealModal').style.display = 'flex'; }
         function closeMealModal() { document.getElementById('mealModal').style.display = 'none'; }
 
@@ -194,7 +252,7 @@
                 </div>`;
             
             container.appendChild(newDiv);
-            alert('تمت إضافة الوجبة بنجاح!');
+            alert('تمت إضافة الصنف الذكي بنجاح!');
             closeMealModal();
             event.target.reset();
         }
@@ -213,9 +271,7 @@
             document.getElementById('editModal').style.display = 'flex';
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
-        }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
         function saveEditedMeal(event) {
             event.preventDefault();
