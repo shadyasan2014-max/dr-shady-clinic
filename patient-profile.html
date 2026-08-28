@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - التقرير الشامل للمريض والمرفقات</title>
+    <title>Dr. Shady Samir - التقرير الشامل للمريض</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -31,12 +31,11 @@
         
         .report-section { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
         .report-section h4 { margin: 0 0 6px 0; color: var(--accent-blue); font-size: 13px; }
-
         .file-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
@@ -73,7 +72,7 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>📂 التقرير الشامل للمريض: شهاب الدين حسب النبي</h1>
+            <h1>📂 التقرير الشامل للمريض: <span id="headerPatientName">شهاب الدين حسب النبي</span></h1>
             <a href="patients.html" style="font-size: 13px; color: var(--accent-blue); text-decoration: none; font-weight: bold;">← العودة لقائمة المرضى</a>
         </div>
 
@@ -81,12 +80,12 @@
             <div>
                 <div class="card">
                     <h3>👤 البيانات الأساسية</h3>
-                    <div class="info-row"><span>السن:</span> <strong>34 سنة</strong></div>
-                    <div class="info-row"><span>التصنيف:</span> <strong style="color:var(--accent-blue);">متابعة تكميم</strong></div>
-                    <div class="info-row"><span>رقم الهاتف:</span> <strong>010xxxxxxxx</strong></div>
-                    <div class="info-row"><span>الوزن الحالي:</span> <strong id="current-weight">92 كجم</strong></div>
-                    <div class="info-row"><span>الطول:</span> <strong>178 سم</strong></div>
-                    <button class="btn-action" onclick="alert('فتح نافذة تعديل بيانات المريض')">تعديل بيانات المريض ⚙️</button>
+                    <div class="info-row"><span>السن:</span> <strong id="lblAge">34 سنة</strong></div>
+                    <div class="info-row"><span>التصنيف:</span> <strong id="lblCat" style="color:var(--accent-blue);">متابعة تكميم</strong></div>
+                    <div class="info-row"><span>رقم الهاتف:</span> <strong id="lblPhone">010xxxxxxxx</strong></div>
+                    <div class="info-row"><span>الوزن الحالي:</span> <strong id="lblWeight">92 كجم</strong></div>
+                    <div class="info-row"><span>الطول:</span> <strong id="lblHeight">178 سم</strong></div>
+                    <button class="btn-action" onclick="openEditPatientModal()">تعديل بيانات المريض ⚙️</button>
                 </div>
 
                 <div class="card">
@@ -107,17 +106,12 @@
                     <button class="btn-action" style="background:var(--primary-green); margin-top:0;" onclick="openFollowupModal()">+ تسجيل متابعة جديدة</button>
                 </div>
 
-                <!-- قسم مرفقات الفحوصات والتحاليل الطبية -->
                 <div class="card">
-                    <h3>📁 مرفقات الفحوصات والتحاليل الطبية (صور و PDF)</h3>
+                    <h3>📁 مرفقات الفحوصات والتحاليل الطبية</h3>
                     <div id="files-list-container">
                         <div class="file-item">
                             <span>📄 تحليل صورة دم كاملة CBC.pdf (24 أغسطس)</span>
-                            <button class="btn-edit-sm" onclick="viewFile('تحليل صورة دم كاملة CBC', 'pdf')">عرض 👁️</button>
-                        </div>
-                        <div class="file-item">
-                            <span>🖼️ صورة تقرير InBody الأخير.jpg (15 أغسطس)</span>
-                            <button class="btn-edit-sm" onclick="viewFile('تقرير InBody الأخير', 'image')">عرض 👁️</button>
+                            <button class="btn-edit-sm" onclick="alert('جاري عرض المستند الطبي...')">عرض 👁️</button>
                         </div>
                     </div>
                     <button class="btn-action" style="background:var(--accent-blue); margin-top: 10px;" onclick="openUploadModal()">+ رفع ملف أو صورة جديدة</button>
@@ -135,14 +129,22 @@
         </div>
     </div>
 
-    <!-- نافذة معاينة الملفات المرفقة -->
-    <div id="viewFileModal" class="modal-overlay">
-        <div class="modal-box" style="width: 500px; text-align: center;">
-            <h3 id="viewFileTitle">معاينة المستند الطبي</h3>
-            <div id="viewFileContent" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 15px; min-height: 150px; display: flex; align-items: center; justify-content: center; color: var(--text-gray);">
-                <!-- محتوى المعاينة -->
-            </div>
-            <button type="button" class="btn-close-modal" style="width: 100%;" onclick="closeViewModal()">إغلاق المعاينة</button>
+    <!-- نافذة تعديل بيانات المريض -->
+    <div id="editPatientModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>⚙️ تعديل بيانات المريض الأساسية</h3>
+            <form onsubmit="savePatientData(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
+                <div class="form-group"><label>السن:</label><input type="text" id="editAge" class="form-control" required></div>
+                <div class="form-group"><label>التصنيف / الحالة:</label><input type="text" id="editCat" class="form-control" required></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control" required></div>
+                <div class="form-group"><label>الوزن (كجم):</label><input type="text" id="editWeight" class="form-control" required></div>
+                <div class="form-group"><label>الطول (سم):</label><input type="text" id="editHeight" class="form-control" required></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ التعديلات</button>
+                    <button type="button" class="btn-close-modal" onclick="closeEditPatientModal()">إلغاء</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -151,25 +153,25 @@
         <div class="modal-box">
             <h3>➕ تسجيل زيارة ومتابعة جديدة</h3>
             <form onsubmit="saveFollowup(event)">
-                <div class="form-group"><label>الوزن الحالي الجديد (كجم):</label><input type="number" step="0.1" id="newWeight" class="form-control" placeholder="مثال: 90.5" required></div>
-                <div class="form-group"><label>ملاحظات الزيارة:</label><textarea id="newNote" class="form-control" rows="3" placeholder="أدخل تفاصيل ومعدل نزول الوزن..." required></textarea></div>
+                <div class="form-group"><label>الوزن الحالي الجديد (كجم):</label><input type="number" step="0.1" id="newWeight" class="form-control" required></div>
+                <div class="form-group"><label>ملاحظات الزيارة:</label><textarea id="newNote" class="form-control" rows="3" required></textarea></div>
                 <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ المتابعة</button>
+                    <button type="submit" class="btn-save-modal">حفظ</button>
                     <button type="button" class="btn-close-modal" onclick="closeFollowupModal()">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- نافذة رفع الملفات والفحوصات -->
+    <!-- نافذة رفع الملفات -->
     <div id="uploadModal" class="modal-overlay">
         <div class="modal-box">
-            <h3>📁 رفع صورة تحليل أو تقرير جديد</h3>
+            <h3>📁 رفع مرفق طبي جديد</h3>
             <form onsubmit="saveUploadedFile(event)">
-                <div class="form-group"><label>عنوان أو اسم المرفق:</label><input type="text" id="fileName" class="form-control" placeholder="مثال: تحليل الغدة الدرقية TSH" required></div>
-                <div class="form-group"><label>اختر الملف (صورة أو PDF):</label><input type="file" id="fileObj" class="form-control" accept="image/*,.pdf" required></div>
+                <div class="form-group"><label>اسم المرفق:</label><input type="text" id="fileName" class="form-control" required></div>
+                <div class="form-group"><label>اختر الملف:</label><input type="file" id="fileObj" class="form-control" accept="image/*,.pdf" required></div>
                 <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">رفع وحفظ</button>
+                    <button type="submit" class="btn-save-modal">رفع</button>
                     <button type="button" class="btn-close-modal" onclick="closeUploadModal()">إلغاء</button>
                 </div>
             </form>
@@ -177,35 +179,40 @@
     </div>
 
     <script>
+        function openEditPatientModal() {
+            document.getElementById('editName').value = document.getElementById('headerPatientName').innerText;
+            document.getElementById('editAge').value = document.getElementById('lblAge').innerText;
+            document.getElementById('editCat').value = document.getElementById('lblCat').innerText;
+            document.getElementById('editPhone').value = document.getElementById('lblPhone').innerText;
+            document.getElementById('editWeight').value = document.getElementById('lblWeight').innerText;
+            document.getElementById('editHeight').value = document.getElementById('lblHeight').innerText;
+            document.getElementById('editPatientModal').style.display = 'flex';
+        }
+        function closeEditPatientModal() { document.getElementById('editPatientModal').style.display = 'none'; }
+
+        function savePatientData(event) {
+            event.preventDefault();
+            document.getElementById('headerPatientName').innerText = document.getElementById('editName').value;
+            document.getElementById('lblAge').innerText = document.getElementById('editAge').value;
+            document.getElementById('lblCat').innerText = document.getElementById('editCat').value;
+            document.getElementById('lblPhone').innerText = document.getElementById('editPhone').value;
+            document.getElementById('lblWeight').innerText = document.getElementById('editWeight').value;
+            document.getElementById('lblHeight').innerText = document.getElementById('editHeight').value;
+            alert('تم تعديل بيانات المريض بنجاح!');
+            closeEditPatientModal();
+        }
+
         function openFollowupModal() { document.getElementById('followupModal').style.display = 'flex'; }
         function closeFollowupModal() { document.getElementById('followupModal').style.display = 'none'; }
-        
         function openUploadModal() { document.getElementById('uploadModal').style.display = 'flex'; }
         function closeUploadModal() { document.getElementById('uploadModal').style.display = 'none'; }
 
-        function viewFile(title, type) {
-            document.getElementById('viewFileTitle').innerText = title;
-            const contentBox = document.getElementById('viewFileContent');
-            if (type === 'image') {
-                contentBox.innerHTML = `<div style="color: var(--accent-blue); font-weight: bold;">🖼️ معاينة صورة التقرير الطبي المرفق<br><span style="font-size:11px; color:var(--text-gray);">(تم تحميل الصورة بنجاح وجاهزة للاستعراض الطبي)</span></div>`;
-            } else {
-                contentBox.innerHTML = `<div style="color: var(--danger-red); font-weight: bold;">📄 ملف مستند PDF طبي رسمي<br><span style="font-size:11px; color:var(--text-gray);">(تم تحميل ملف الفحص وجاهز للمراجعة)</span></div>`;
-            }
-            document.getElementById('viewFileModal').style.display = 'flex';
-        }
-
-        function closeViewModal() {
-            document.getElementById('viewFileModal').style.display = 'none';
-        }
-
         function saveFollowup(event) {
             event.preventDefault();
-            const weight = document.getElementById('newWeight').value;
-            const note = document.getElementById('newNote').value;
-            document.getElementById('current-weight').innerText = weight + ' كجم';
+            document.getElementById('lblWeight').innerText = document.getElementById('newWeight').value + ' كجم';
             document.getElementById('last-date').innerText = 'اليوم (28 أغسطس 2026)';
-            document.getElementById('last-note').innerText = note;
-            alert('تم تسجيل المتابعة وتحديث التقرير الشامل للمريض بنجاح!');
+            document.getElementById('last-note').innerText = document.getElementById('newNote').value;
+            alert('تم تسجيل المتابعة بنجاح!');
             closeFollowupModal();
         }
 
@@ -214,17 +221,12 @@
             const name = document.getElementById('fileName').value;
             const fileInput = document.getElementById('fileObj');
             if (fileInput.files.length > 0) {
-                const fileNameReal = fileInput.files[0].name;
-                const fileType = fileNameReal.endsWith('.pdf') ? 'pdf' : 'image';
                 const container = document.getElementById('files-list-container');
                 const newDiv = document.createElement('div');
                 newDiv.className = 'file-item';
-                newDiv.innerHTML = `
-                    <span>📎 ${name} (${fileNameReal})</span>
-                    <button class="btn-edit-sm" onclick="viewFile('${name}', '${fileType}')">عرض 👁️</button>
-                `;
+                newDiv.innerHTML = `<span>📎 ${name}</span><button class="btn-edit-sm" onclick="alert('معاينة الملف...')">عرض 👁️</button>`;
                 container.appendChild(newDiv);
-                alert('تم رفع وحفظ المرفق الطبي بنجاح!');
+                alert('تم رفع الملف بنجاح!');
                 closeUploadModal();
                 event.target.reset();
             }
