@@ -33,6 +33,7 @@
         .badge-sleeve { background-color: #dbeafe; color: #1e40af; }
         .badge-bypass { background-color: #f3e8ff; color: #6b21a8; }
         .badge-sasi { background-color: #fef3c7; color: #92400e; }
+        .badge-other { background-color: #f1f5f9; color: #475569; }
         .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
         
         /* Modal تصميم النوافذ المنبثقة */
@@ -116,7 +117,7 @@
                     </tr>
                     <tr>
                         <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge badge-sasi">ساسي (SASI)</span></td>
+                        <td><span class="badge badge-sasi">عملية الساسي (SASI)</span></td>
                         <td>مارس 2026</td>
                         <td><strong>98 كجم</strong> (بدءاً من 140)</td>
                         <td>80 كجم</td>
@@ -135,11 +136,17 @@
                 <div class="form-group"><label>اسم المريض:</label><input type="text" id="barName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
                 <div class="form-group">
                     <label>نوع الجراحة:</label>
-                    <select id="barType" class="form-control">
-                        <option value="sleeve">تكميم معدة</option>
-                        <option value="bypass">تحويل مسار كلاسيكي</option>
-                        <option value="sasi">ساسي (SASI)</option>
+                    <select id="barType" class="form-control" onchange="toggleOtherInput(this)">
+                        <option value="تكميم معدة">تكميم معدة</option>
+                        <option value="تحويل مسار كلاسيكي">تحويل مسار كلاسيكي</option>
+                        <option value="عملية الساسي (SASI)">عملية الساسي (SASI)</option>
+                        <option value="أخرى">أخرى</option>
                     </select>
+                </div>
+                <!-- خانة الكتابة التي تظهر عند اختيار أخرى -->
+                <div class="form-group" id="otherTypeGroup" style="display: none;">
+                    <label>اكتب اسم الجراحة الأخرى:</label>
+                    <input type="text" id="barOtherType" class="form-control" placeholder="اكتب نوع الجراحة هنا...">
                 </div>
                 <div class="form-group"><label>تاريخ العملية:</label><input type="text" id="barDate" class="form-control" placeholder="مثال: أغسطس 2026" required></div>
                 <div class="form-group"><label>الوزن الحالي والبداية:</label><input type="text" id="barWeight" class="form-control" placeholder="مثال: 95 كجم (بدءاً من 135)" required></div>
@@ -154,26 +161,45 @@
 
     <script>
         function openBariatricModal() { document.getElementById('bariatricModal').style.display = 'flex'; }
-        function closeBariatricModal() { document.getElementById('bariatricModal').style.display = 'none'; }
+        function closeBariatricModal() { 
+            document.getElementById('bariatricModal').style.display = 'none'; 
+            document.getElementById('otherTypeGroup').style.display = 'none';
+        }
+
+        function toggleOtherInput(selectObj) {
+            const otherGroup = document.getElementById('otherTypeGroup');
+            if (selectObj.value === 'أخرى') {
+                otherGroup.style.display = 'block';
+                document.getElementById('barOtherType').required = true;
+            } else {
+                otherGroup.style.display = 'none';
+                document.getElementById('barOtherType').required = false;
+            }
+        }
 
         function addNewBariatric(event) {
             event.preventDefault();
             const name = document.getElementById('barName').value;
-            const typeVal = document.getElementById('barType').value;
+            let typeText = document.getElementById('barType').value;
+            
+            if (typeText === 'أخرى') {
+                typeText = document.getElementById('barOtherType').value;
+            }
+
             const date = document.getElementById('barDate').value;
             const weight = document.getElementById('barWeight').value;
             const target = document.getElementById('barTarget').value;
 
-            let badgeClass = 'badge-sleeve';
-            let badgeText = 'تكميم معدة';
-            if(typeVal === 'bypass') { badgeClass = 'badge-bypass'; badgeText = 'تحويل مسار كلاسيكي'; }
-            else if(typeVal === 'sasi') { badgeClass = 'badge-sasi'; badgeText = 'ساسي (SASI)'; }
+            let badgeClass = 'badge-other';
+            if(typeText.includes('تكميم')) badgeClass = 'badge-sleeve';
+            else if(typeText.includes('تحويل')) badgeClass = 'badge-bypass';
+            else if(typeText.includes('الساسي') || typeText.includes('SASI')) badgeClass = 'badge-sasi';
 
             const tbody = document.getElementById('bariatric-tbody');
             const newRow = document.createElement('tr');
             newRow.innerHTML = `
                 <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                <td><span class="badge ${badgeClass}">${badgeText}</span></td>
+                <td><span class="badge ${badgeClass}">${typeText}</span></td>
                 <td>${date}</td>
                 <td><strong>${weight}</strong></td>
                 <td>${target}</td>
