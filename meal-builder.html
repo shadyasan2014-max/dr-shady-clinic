@@ -43,9 +43,9 @@
         .btn-print { background-color: var(--accent-blue); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
         .btn-print-notes { background-color: #8b5cf6; color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
 
-        /* نموذج الطباعة الأول: النظام الغذائي (يومي أو أسبوعي) */
+        /* نموذج الطباعة الأول: النظام الغذائي */
         #printMealArea { display: none; }
-        /* نموذج الطباعة الثاني: التقرير الطبي وخطة الغذاء الكاملة الفنية */
+        /* نموذج الطباعة الثاني: التقرير الطبي وخطة الغذاء الكاملة */
         #printNotesArea { display: none; }
 
         @media print {
@@ -122,7 +122,7 @@
 
                     <div class="form-group">
                         <label>نوع النظام المراد طباعته:</label>
-                        <select id="planType" class="form-control">
+                        <select id="planType" class="form-control" onchange="togglePlanView()">
                             <option value="daily">نظام يومي (اليوم الأول فقط)</option>
                             <option value="weekly" selected>نظام أسبوعي متكامل (7 أيام)</option>
                         </select>
@@ -166,14 +166,14 @@
                 </div>
             </div>
 
-            <!-- العمود الأيسر: إدخال الوجبات للأسبوع الكامل -->
+            <!-- العمود الأيسر: إدخال الوجبات (تتغير ديناميكياً بين يومي وأسبوعي) -->
             <div>
                 <div class="card">
-                    <h3>📅 إدخال وجبات الـ 7 أيام (3 وجبات رئيسية + 3 سناكس يومياً)</h3>
-                    <div style="font-size: 11px; color: var(--text-gray); margin-bottom: 12px;">املأ البيانات لكل يوم لتظهر في التقرير اليومي أو الأسبوعي بدقة:</div>
+                    <h3 id="containerTitle">📅 إدخال وجبات الأسبوع الكامل (7 أيام)</h3>
+                    <div id="containerSubtitle" style="font-size: 11px; color: var(--text-gray); margin-bottom: 12px;">املأ البيانات لكل يوم لتظهر في التقرير الأسبوعي بدقة:</div>
 
                     <div id="weeklyContainer">
-                        <!-- يتم توليد الـ 7 أيام هنا -->
+                        <!-- سيتم توليد الأيام هنا ديناميكياً -->
                     </div>
                 </div>
             </div>
@@ -247,27 +247,67 @@
 
     <script>
         const days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-        const container = document.getElementById('weeklyContainer');
 
-        days.forEach((day, index) => {
-            container.innerHTML += `
-                <div class="day-box">
-                    <h4>📅 اليوم ${index + 1}: (${day})</h4>
-                    <div style="font-size:11px; color:var(--text-gray); margin-bottom:4px;">وجبات رئيسية (إفطار، غداء، عشاء):</div>
-                    <div class="meal-input-grid">
-                        <input type="text" id="d${index}_m1" placeholder="الإفطار..." value="بيضة مسلوقة + توست سن + شاي">
-                        <input type="text" id="d${index}_m2" placeholder="الغداء..." value="صدور دجاج + أرز + سلطة">
-                        <input type="text" id="d${index}_m3" placeholder="العشاء..." value="زبادي لايت + جبنة قريش">
+        function renderFormFields() {
+            const planType = document.getElementById('planType').value;
+            const container = document.getElementById('weeklyContainer');
+            container.innerHTML = '';
+
+            if (planType === 'daily') {
+                document.getElementById('containerTitle').innerText = '📅 إدخال وجبات النظام اليومي (يوم واحد)';
+                document.getElementById('containerSubtitle').innerText = 'املأ بيانات الوجبات والسناكس لتظهر في التقرير اليومي:';
+                
+                container.innerHTML = `
+                    <div class="day-box" style="border-right-color: #3b82f6;">
+                        <h4 style="color: #3b82f6;">📅 تفاصيل النظام اليومي</h4>
+                        <div style="font-size:11px; color:var(--text-gray); margin-bottom:4px;">وجبات رئيسية (إفطار، غداء، عشاء):</div>
+                        <div class="meal-input-grid">
+                            <input type="text" id="d0_m1" placeholder="الإفطار..." value="بيضة مسلوقة + توست سن + شاي">
+                            <input type="text" id="d0_m2" placeholder="الغداء..." value="صدور دجاج + أرز + سلطة">
+                            <input type="text" id="d0_m3" placeholder="العشاء..." value="زبادي لايت + جبنة قريش">
+                        </div>
+                        <div style="font-size:11px; color:var(--text-gray); margin: 6px 0 4px 0;">سناكس (3 سناكس خفيفة):</div>
+                        <div class="snack-input-grid">
+                            <input type="text" id="d0_s1" placeholder="سناك 1" value="تفاح أخضر">
+                            <input type="text" id="d0_s2" placeholder="سناك 2" value="مكسرات (10جم)">
+                            <input type="text" id="d0_s3" placeholder="سناك 3" value="مشروب أعشاب">
+                        </div>
                     </div>
-                    <div style="font-size:11px; color:var(--text-gray); margin: 6px 0 4px 0;">سناكس (3 سناكس خفيفة):</div>
-                    <div class="snack-input-grid">
-                        <input type="text" id="d${index}_s1" placeholder="سناك 1" value="تفاح أخضر">
-                        <input type="text" id="d${index}_s2" placeholder="سناك 2" value="مكسرات (10جم)">
-                        <input type="text" id="d${index}_s3" placeholder="سناك 3" value="مشروب أعشاب">
-                    </div>
-                </div>
-            `;
-        });
+                `;
+            } else {
+                document.getElementById('containerTitle').innerText = '📅 إدخال وجبات الأسبوع الكامل (7 أيام)';
+                document.getElementById('containerSubtitle').innerText = 'املأ البيانات لكل يوم لتظهر في التقرير الأسبوعي بدقة:';
+
+                days.forEach((day, index) => {
+                    container.innerHTML += `
+                        <div class="day-box">
+                            <h4>📅 اليوم ${index + 1}: (${day})</h4>
+                            <div style="font-size:11px; color:var(--text-gray); margin-bottom:4px;">وجبات رئيسية (إفطار، غداء، عشاء):</div>
+                            <div class="meal-input-grid">
+                                <input type="text" id="d${index}_m1" placeholder="الإفطار..." value="بيضة مسلوقة + توست سن + شاي">
+                                <input type="text" id="d${index}_m2" placeholder="الغداء..." value="صدور دجاج + أرز + سلطة">
+                                <input type="text" id="d${index}_m3" placeholder="العشاء..." value="زبادي لايت + جبنة قريش">
+                            </div>
+                            <div style="font-size:11px; color:var(--text-gray); margin: 6px 0 4px 0;">سناكس (3 سناكس خفيفة):</div>
+                            <div class="snack-input-grid">
+                                <input type="text" id="d${index}_s1" placeholder="سناك 1" value="تفاح أخضر">
+                                <input type="text" id="d${index}_s2" placeholder="سناك 2" value="مكسرات (10جم)">
+                                <input type="text" id="d${index}_s3" placeholder="سناك 3" value="مشروب أعشاب">
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+        }
+
+        function togglePlanView() {
+            renderFormFields();
+        }
+
+        // تشغيلها عند فتح الصفحة أول مرة
+        window.onload = function() {
+            renderFormFields();
+        };
 
         // طباعة النظام الغذائي (يومي أو أسبوعي)
         function printMealPlan() {
