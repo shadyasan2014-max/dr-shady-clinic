@@ -38,7 +38,9 @@
         .tabs-row { display: flex; gap: 6px; }
         .tab-btn { background: #e2e8f0; border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; color: var(--text-dark); }
         .tab-btn.active { background: var(--accent-blue); color: white; }
-        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .action-btns-group { display: flex; gap: 6px; }
+        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; }
+        .btn-print-full-report { background-color: #8b5cf6; color: white; border: none; padding: 7px 14px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; }
 
         /* شبكة الداشبورد الرئيسية */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -68,32 +70,49 @@
         .form-control { width: 100%; padding: 8px; border: 1px solid var(--card-border); border-radius: 6px; font-size: 12px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 10px; }
         .img-row-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 6px; border-radius: 6px; margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
 
-        /* إعدادات الطباعة المثالية لتناسب ورقة A4 بالكامل وبدون اقتطاع */
+        /* نموذج التقرير الشامل المخفي أثناء التصفح وظهوره عند طباعته حصرياً */
+        #printFullReportArea { display: none; }
+
+        /* إعدادات الطباعة للداشبورد */
         @media print {
-            body * { visibility: hidden; }
-            .main-content, .main-content * { visibility: visible; }
-            .sidebar, .btn-print-dashboard, .btn-action, .modal-overlay { display: none !important; }
+            body.printing-dashboard * { visibility: hidden; }
+            body.printing-dashboard .main-content, body.printing-dashboard .main-content * { visibility: visible; }
+            body.printing-dashboard .sidebar, body.printing-dashboard .top-action-bar, body.printing-dashboard .btn-action, body.printing-dashboard .modal-overlay { display: none !important; }
             
             @page { size: A4 portrait; margin: 6mm; }
-            body { background-color: #ffffff !important; }
-            .main-content { 
+            body.printing-dashboard { background-color: #ffffff !important; }
+            body.printing-dashboard .main-content { 
                 margin: 0 !important; 
                 padding: 0 !important; 
                 width: 100% !important; 
                 position: absolute; 
                 top: 0; 
                 right: 0; 
-                transform: scale(0.92); /* تصغير خفيف ومناسب ليحتوي كل الداشبورد في صفحة واحدة بدون ترحيل */
+                transform: scale(0.92);
                 transform-origin: top right;
             }
-            .dashboard-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
-            .metrics-grid { display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
-            .card { break-inside: avoid; margin-bottom: 8px !important; padding: 10px !important; }
+            body.printing-dashboard .dashboard-grid { display: grid !important; grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
+            body.printing-dashboard .metrics-grid { display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
+            body.printing-dashboard .card { break-inside: avoid; margin-bottom: 8px !important; padding: 10px !important; }
+
+            /* إعدادات طباعة التقرير الشامل المفصل */
+            body.printing-full-report * { visibility: hidden; }
+            body.printing-full-report #printFullReportArea, body.printing-full-report #printFullReportArea * { visibility: visible; }
+            body.printing-full-report .sidebar, body.printing-full-report .main-content, body.printing-full-report .modal-overlay { display: none !important; }
+            body.printing-full-report #printFullReportArea { 
+                position: absolute; 
+                left: 0; 
+                top: 0; 
+                width: 100% !important; 
+                display: block !important;
+                padding: 0 !important;
+                background: #ffffff !important;
+            }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
-<body>
+<body id="pageBody">
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
@@ -109,9 +128,6 @@
                 <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
                 <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -149,7 +165,8 @@
                 <button class="tab-btn" onclick="location.href='supplements.html'">💊 المكملات</button>
             </div>
             <div class="action-btns-group">
-                <button class="btn-print-dashboard" onclick="window.print()">🖨️ طباعة لوحة التحكم</button>
+                <button class="btn-print-dashboard" onclick="triggerDashboardPrint()">🖨️ طباعة لوحة التحكم</button>
+                <button class="btn-print-full-report" onclick="triggerFullReportPrint()">📄 التقرير المفصل للحالة</button>
             </div>
         </div>
 
@@ -236,6 +253,39 @@
         </div>
     </div>
 
+    <!-- نموذج التقرير المفصل الشامل المخصص للطباعة -->
+    <div id="printFullReportArea">
+        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">
+            <h2 style="margin: 0; color: #0b1329; font-size: 24px;">د. شادي سمير</h2>
+            <p style="margin: 3px 0 0 0; color: #059669; font-size: 12px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 12px;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 14px; background: #8b5cf6; display: inline-block; padding: 5px 18px; border-radius: 15px;">📄 التقرير المفصل والشامل لرحلة المريض (من البداية)</h3>
+        </div>
+
+        <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <p style="margin: 0;"><strong>👤 اسم المريض:</strong> أحمد محمد علي (NUT-000125)</p>
+                <p style="margin: 0;"><strong>⚖️ الإجراء:</strong> تكميم المعدة (01/08/2026)</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin: 0;">
+                <p style="margin: 0;"><strong>⚡ وزن البداية:</strong> 107.0 كجم</p>
+                <p style="margin: 0;"><strong>📉 إجمالي النزول حتى الآن:</strong> <span style="color:#2563eb; font-weight:bold;" id="reportTotalLoss">-14.6 كجم</span></p>
+            </div>
+        </div>
+
+        <h4 style="color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 5px; margin-bottom: 10px; font-size: 13px;">📋 سجل الزيارات والمتابعات تفصيلياً مع المقارنات:</h4>
+        <div id="fullReportTimelineContent" style="font-size: 11px; line-height: 1.6;">
+            <!-- يتم تعبئته آلياً بكل الزيارات -->
+        </div>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; border-top: 2px dashed #cbd5e1; padding-top: 12px;">
+            <p style="margin: 0; font-weight: bold;">توقيع الطبيب المعالج: د. شادي سمير</p>
+            <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
+        </div>
+    </div>
+
     <script>
         let startWeight = 107.0; 
         let currentVisitCount = 5;
@@ -309,6 +359,7 @@
             
             let totalLoss = (startWeight - newWeight).toFixed(1);
             document.getElementById('barTotalLoss').innerText = '-' + totalLoss + ' كجم';
+            document.getElementById('reportTotalLoss').innerText = '-' + totalLoss + ' كجم';
 
             let newBMI = (newWeight / (1.75 * 1.75)).toFixed(1);
             document.getElementById('barBMI').innerText = newBMI;
@@ -354,6 +405,49 @@
                     </div>
                 `;
             });
+        }
+
+        // دالة طباعة لوحة التحكم (الداشبورد كاملة)
+        function triggerDashboardPrint() {
+            document.getElementById('pageBody').className = 'printing-dashboard';
+            window.print();
+            document.getElementById('pageBody').className = '';
+        }
+
+        // دالة طباعة التقرير المفصل للحالة من البداية
+        function triggerFullReportPrint() {
+            let htmlContent = '';
+            visitsHistory.forEach(v => {
+                let imgsPrintHtml = '';
+                if (v.images && v.images.length > 0) {
+                    imgsPrintHtml = `<div style="display:flex; gap:10px; margin-top:6px;">`;
+                    v.images.forEach(img => {
+                        imgsPrintHtml += `
+                            <div style="text-align:center;">
+                                <img src="${img.url}" style="width:65px; height:65px; border-radius:6px; object-fit:cover; border:1px solid #cbd5e1;" alt="صورة">
+                                <span style="display:block; font-size:8px; color:#64748b;">${img.date}</span>
+                            </div>
+                        `;
+                    });
+                    imgsPrintHtml += `</div>`;
+                }
+
+                htmlContent += `
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-right: 4px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 8px; page-break-inside: avoid;">
+                        <strong style="color: #047857; font-size: 13px;">📅 ${v.date} (${v.visitNum})</strong>
+                        <div style="margin-top: 4px; color: #1e293b;">
+                            • <strong>الوزن المسجل:</strong> ${v.weight} كجم<br>
+                            • <strong>ملاحظات وتوجيهات الطبيب:</strong> ${v.note}
+                            ${imgsPrintHtml}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('fullReportTimelineContent').innerHTML = htmlContent;
+
+            document.getElementById('pageBody').className = 'printing-full-report';
+            window.print();
+            document.getElementById('pageBody').className = '';
         }
     </script>
 </body>
