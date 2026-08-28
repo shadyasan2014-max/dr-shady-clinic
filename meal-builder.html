@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - محرك الـ AI السريري المباشر (Gemini)</title>
+    <title>Dr. Shady Samir - الخطط الغذائية الذكية</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -27,11 +27,31 @@
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .macro-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; }
+        .macro-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; }
+        .macro-box span { display: block; font-size: 11px; color: var(--text-gray); }
+        .macro-box strong { font-size: 14px; color: var(--accent-blue); }
+        .meal-item-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
-        .btn-ai { background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; padding: 12px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+        .btn-print { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
+        .btn-edit-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         
-        /* صندوق استعراض رد الـ AI المباشر */
-        .ai-response-box { background: #f8fafc; border: 1px solid #cbd5e1; padding: 15px; border-radius: 8px; font-size: 13px; line-height: 1.8; min-height: 250px; max-height: 450px; overflow-y: auto; white-space: pre-wrap; color: var(--text-dark); }
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+
+        /* نموذج الطباعة الخفي للخطة الغذائية */
+        #printMealArea { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #printMealArea, #printMealArea * { visibility: visible; }
+            #printMealArea { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 30px; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; background: #fff; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
     </style>
 </head>
 <body>
@@ -61,99 +81,214 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 محرك الـ AI السريري المباشر (مدعوم بـ Gemini)</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">الاستعلام التفاعلي المباشر وتوليد الخطط الطبية بالذكاء الاصطناعي</div>
+            <h1>🥗 باني الخطط الغذائية الذكية</h1>
+            <div style="font-size: 13px; color: var(--text-gray);">تصميم وإدارة الأنظمة الغذائية وتصديرها للمرضى</div>
         </div>
 
         <div class="builder-grid">
             <div>
                 <div class="card">
-                    <h3>⚙️ إعدادات الربط وحالة المريض</h3>
-                    
+                    <h3>⚙️ إعدادات الخطة والسعرات</h3>
                     <div class="form-group">
-                        <label>مفتاح API الخاص بـ Gemini (اختياري، أو استخدم الافتراضي):</label>
-                        <input type="password" id="apiKeyInput" class="form-control" placeholder="أدخل مفتاح Gemini API هنا...">
-                    </div>
-
-                    <div class="form-group">
-                        <label>اختر الحالة الطبية أو المريض:</label>
-                        <select id="patientCaseSelect" class="form-control" onchange="updateCasePrompt()">
-                            <option value="تكميم معدة حديث، يعاني من سوائل صافية، السن 34 سنة">شهاب الدين حسب النبي (متابعة تكميم)</option>
-                            <option value="سمنة مفرطة مع استخدام حقن مونجارو 5mg، يعاني من غثيان خفيف">سارة أحمد محمود (مونجارو)</option>
-                            <option value="نحافة حادة وزيادة وزن للأطفال، السن 10 سنوات، شهادة ضعيفة">أنس شادي سمير (نحافة أطفال)</option>
-                            <option value="custom">حالة مخصصة (اكتبها بنفسك في الأسفل)</option>
+                        <label>اختر المريض:</label>
+                        <select id="patientSelect" class="form-control">
+                            <option value="shahab">شهاب الدين حسب النبي (تكميم)</option>
+                            <option value="sara">سارة أحمد محمود (مونجارو)</option>
+                            <option value="anas">أنس شادي سمير (نحافة أطفال)</option>
                         </select>
                     </div>
 
-                    <div class="form-group">
-                        <label>💬 اكتب طلبك أو وصف الحالة للذكاء الاصطناعي:</label>
-                        <textarea id="aiPromptBox" class="form-control" rows="4" placeholder="اكتب هنا ما تريده من الـ AI (مثلاً: صمم نظام غذائي اقتصادي لـ 1200 سعرة مع مراعاة حالة التكميم...)"></textarea>
+                    <div class="form-group"><label>إجمالي السعرات المستهدفة:</label><input type="number" id="targetCalories" class="form-control" value="1400"></div>
+                    <div class="macro-row">
+                        <div class="macro-box"><span>بروتين</span><strong id="macroProt">120 جم</strong></div>
+                        <div class="macro-box"><span>كارب</span><strong id="macroCarb">130 جم</strong></div>
+                        <div class="macro-box"><span>دهون</span><strong id="macroFat">45 جم</strong></div>
                     </div>
-
-                    <button class="btn-ai" onclick="callGeminiAI()">✨ إرسال الطلب واستخراج النظام بالـ AI</button>
-                    <button class="btn-action" style="margin-top: 10px;" onclick="alert('تم حفظ واعتماد النظام الغذائي المولد في ملف المريض بنجاح!')">💾 حفظ الخطة في ملف المريض</button>
+                    <button class="btn-action" onclick="alert('تم حفظ الخطة بنجاح في ملف المريض!')">💾 حفظ الخطة</button>
+                    <button class="btn-print" onclick="printMealPlan()">🖨️ طباعة الخطة (PDF)</button>
                 </div>
             </div>
 
             <div>
                 <div class="card">
-                    <h3>🤖 مخرجات وتقرير الذكاء الاصطناعي المباشر (Gemini AI Output)</h3>
-                    <div id="aiOutputContainer" class="ai-response-box">
-                        مرحباً د. شادي! 🩺<br>
-                        اضغط على زر **"إرسال الطلب واستخراج النظام بالـ AI"** لكي يقوم مساعد الذكاء الاصطناعي بتحليل الحالة وتوليد النظام الغذائي والماكروز التفصيلية فوراً أمامك...
+                    <h3>🍽️ تفاصيل الوجبات اليومية</h3>
+                    <div id="meals-list-container">
+                        <div id="meal-1" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الإفطار:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-1')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">بيضة مسلوقة + نصف رغيف سن + شاي أخضر</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">180 سعرة</span>
+                            </div>
+                        </div>
+
+                        <div id="meal-2" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الغداء:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-2')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">صدور دجاج مشوية (150جم) + 4 معالق أرز + سلطة</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">420 سعرة</span>
+                            </div>
+                        </div>
+
+                        <div id="meal-3" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة السناك:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-3')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">ثمرة تفاح أخضر + مكسرات</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">130 سعرة</span>
+                            </div>
+                        </div>
+
+                        <div id="meal-4" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة العشاء:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-4')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">علبة زبادي لايت + جبنة قريش</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">150 سعرة</span>
+                            </div>
+                        </div>
                     </div>
+                    <button class="btn-action" style="background:var(--accent-blue);" onclick="openMealModal()">+ إضافة وجبة جديدة</button>
                 </div>
             </div>
         </div>
     </div>
 
+    <!-- نموذج الطباعة الخفي -->
+    <div id="printMealArea">
+        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+        </div>
+        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 15px;">البرنامج الغذائي المخصص للمريض</h3>
+        <div style="font-size: 14px; margin-bottom: 20px; background: #f8fafc; padding: 12px; border-radius: 8px;">
+            <p style="margin: 4px 0;"><strong>إجمالي السعرات المستهدفة:</strong> <span id="pCal">1400</span> سعرة حرارية</p>
+            <p style="margin: 4px 0;"><strong>توزيع السعرات (Macros):</strong> بروتين <span id="pPro">120 جم</span> | كارب <span id="pCarb">130 جم</span> | دهون <span id="pFat">45 جم</span></p>
+        </div>
+        <div id="printMealsList" style="font-size: 14px; line-height: 1.8;">
+            <!-- يتم تعبئته آلياً وقت الطباعة -->
+        </div>
+        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
+            <p>توقيع الطبيب: د. شادي سمير</p>
+            <p>ختم العيادة</p>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل الوجبة -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>✏️ تعديل الوجبة</h3>
+            <form onsubmit="saveEditedMeal(event)">
+                <div class="form-group"><label>اسم الوجبة:</label><input type="text" id="editTitle" class="form-control" required></div>
+                <div class="form-group"><label>المكونات:</label><input type="text" id="editDesc" class="form-control" required></div>
+                <div class="form-group"><label>السعرات:</label><input type="number" id="editCalories" class="form-control" required></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ</button>
+                    <button type="button" class="btn-close-modal" onclick="closeEditModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة وجبة -->
+    <div id="mealModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>➕ إضافة وجبة جديدة</h3>
+            <form onsubmit="addNewMeal(event)">
+                <div class="form-group"><label>اسم الوجبة:</label><input type="text" id="mealTitle" class="form-control" required></div>
+                <div class="form-group"><label>المكونات:</label><input type="text" id="mealDesc" class="form-control" required></div>
+                <div class="form-group"><label>السعرات:</label><input type="number" id="mealCalories" class="form-control" required></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">إضافة</button>
+                    <button type="button" class="btn-close-modal" onclick="closeMealModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function updateCasePrompt() {
-            const val = document.getElementById('patientCaseSelect').value;
-            if (val !== 'custom') {
-                document.getElementById('aiPromptBox').value = `بصفتك استشاري تغذية أكلينيكية، قم بتصميم نظام غذائي متكامل ومخصص لحالة: (${val}). يرجى تضمين السعرات المستهدفة، توزيع الماكريوتريانتس (بروتين، كارب، دهون)، جدول الوجبات (إفطار، غداء، سناك، عشاء)، وملاحظات طبية هامة.`;
-            } else {
-                document.getElementById('aiPromptBox').value = '';
-            }
+        let currentEditingId = null;
+
+        function printMealPlan() {
+            document.getElementById('pCal').innerText = document.getElementById('targetCalories').value;
+            document.getElementById('pPro').innerText = document.getElementById('macroProt').innerText;
+            document.getElementById('pCarb').innerText = document.getElementById('macroCarb').innerText;
+            document.getElementById('pFat').innerText = document.getElementById('macroFat').innerText;
+
+            const items = document.querySelectorAll('#meals-list-container > div');
+            let htmlContent = '';
+            items.forEach(item => {
+                const title = item.querySelector('.m-title').innerText;
+                const desc = item.querySelector('.m-desc').innerText;
+                const cal = item.querySelector('.m-cal').innerText;
+                htmlContent += `<div style="margin-bottom: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px;"><strong>${title}</strong><br>• المكونات: ${desc} (${cal})</div>`;
+            });
+            document.getElementById('printMealsList').innerHTML = htmlContent;
+            window.print();
         }
 
-        // تهيئة النص الافتراضي عند فتح الصفحة
-        window.onload = function() {
-            updateCasePrompt();
-        };
+        function openMealModal() { document.getElementById('mealModal').style.display = 'flex'; }
+        function closeMealModal() { document.getElementById('mealModal').style.display = 'none'; }
+        function addNewMeal(event) {
+            event.preventDefault();
+            const title = document.getElementById('mealTitle').value;
+            const desc = document.getElementById('mealDesc').value;
+            const calories = document.getElementById('mealCalories').value;
+            const uniqueId = 'meal-' + Date.now();
 
-        async function callGeminiAI() {
-            const prompt = document.getElementById('aiPromptBox').value.trim();
-            const userApiKey = document.getElementById('apiKeyInput').value.trim();
-            const outputBox = document.getElementById('aiOutputContainer');
+            const container = document.getElementById('meals-list-container');
+            const newDiv = document.createElement('div');
+            newDiv.id = uniqueId;
+            newDiv.style.marginBottom = '15px';
+            newDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">${title}:</strong>
+                    <button class="btn-edit-sm" onclick="openEditModal('${uniqueId}')">تعديل ⚙️</button>
+                </div>
+                <div class="meal-item-box">
+                    <span class="m-desc">${desc}</span>
+                    <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">${calories} سعرة</span>
+                </div>`;
+            container.appendChild(newDiv);
+            alert('تمت إضافة الوجبة بنجاح!');
+            closeMealModal();
+            event.target.reset();
+        }
 
-            if (!prompt) {
-                alert('من فضلك اكتب الطلب أو وصف الحالة أولاً!');
-                return;
-            }
+        function openEditModal(mealId) {
+            currentEditingId = mealId;
+            const mealElement = document.getElementById(mealId);
+            const titleText = mealElement.querySelector('.m-title').innerText.replace(':', '');
+            const descText = mealElement.querySelector('.m-desc').innerText;
+            const calText = mealElement.querySelector('.m-cal').innerText.replace(' سعرة', '');
 
-            outputBox.innerHTML = '🔄 جاري الاتصال بمحرك الذكاء الاصطناعي وتحليل الحالة الطبية... يرجى الانتظار لحظات...';
+            document.getElementById('editTitle').value = titleText;
+            document.getElementById('editDesc').value = descText;
+            document.getElementById('editCalories').value = calText;
+            document.getElementById('editModal').style.display = 'flex';
+        }
+        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+        function saveEditedMeal(event) {
+            event.preventDefault();
+            const title = document.getElementById('editTitle').value;
+            const desc = document.getElementById('editDesc').value;
+            const calories = document.getElementById('editCalories').value;
 
-            // مفتاح تجريبي افتراضي أو المفتاح الذي أدخله المستخدم
-            const apiKey = userApiKey || 'AIzaSyDummyKeyForClinicalSystemEnvironment2026';
-
-            try {
-                // محاكاة الاتصال الفعلي بـ Gemini API أو جلب الرد الديناميكي بناءً على البرومبت المكتوب
-                setTimeout(() => {
-                    let aiResponseText = "";
-                    if (prompt.includes('تكميم')) {
-                        aiResponseText = `🩺 **تقرير الـ AI السريري لمتابعة ما بعد التكميم:**\n\n🔹 **السعرات المستهدفة:** 950 سعرة حرارية\n🔹 **الماكروز:** بروتين 85جم | كارب 45جم | دهون 20جم\n\n🍽️ **جدول الوجبات المقترح:**\n1. **الإفطار:** كوب حليب لايت دافئ + سكوب واي بروتين (140 سعرة).\n2. **الغداء:** 6 ملاعق شوربة عدس مصفاة + قطعة سمك مسلوق مهروسة (220 سعرة).\n3. **السناك:** مشروب يانسون دافئ بدون سكر (10 سعرات).\n4. **العشاء:** علبة زبادي لايت خالية الدسم (60 سعرة).\n\n💡 **ملاحظة طبية:** التركيز على الترطيب المستمر وتجنب السكريات تماماً لتجنب متلازمة الإغراق (Dumping Syndrome).`;
-                    } else if (prompt.includes('مونجارو')) {
-                        aiResponseText = `🩺 **تقرير الـ AI السريري لمستخدمي مونجارو (5mg):**\n\n🔹 **السعرات المستهدفة:** 1150 سعرة حرارية\n🔹 **الماكروز:** بروتين 110جم | كارب 80جم | دهون 30جم\n\n🍽️ **جدول الوجبات المقترح (لمقاومة الغثيان):**\n1. **الإفطار:** بيضة مسلوقة + شاي زنجبيل دافئ بدون سكر (100 سعرة).\n2. **الغداء:** 120جم صدور دجاج مشوية (أكل البيت) + 3 ملاعق أرز + سلطة خضراء (380 سعرة).\n3. **السناك:** ثمرة تفاح أخضر (70 سعرة).\n4. **العشاء:** علبة زبادي يوناني غنية بالبروتين (110 سعرة).\n\n💡 **ملاحظة طبية:** تقسيم الوجبات لوجبات صغيرة جداً لتجنب الشعور بالامتلاء الحاد أو الغثيان الناتج عن الدواء.`;
-                    } else {
-                        aiResponseText = `🩺 **تقرير الـ AI السريري المخصص:**\n\n📋 بناءً على طلبك: "${prompt}"\n\n🔹 **السعرات المستهدفة:** 1800 سعرة حرارية متوازنة\n🔹 **الماكروز:** بروتين 90جم | كارب 200جم | دهون 55جم\n\n🍽️ **جدول الوجبات المقترح:**\n1. **الإفطار:** فول بالزيت الحار + بيضة مسلوقة + نصف رغيف بلدي (350 سعرة).\n2. **الغداء:** شريحة لحم مشوية + أرز مصري + خضار سوتيه (650 سعرة).\n3. **السناك:** كوب عصير فواكه طبيعي بدون سكر مضاف (180 سعرة).\n4. **العشاء:** جبنة قريش + طماطم وخيار + رغيف سن (280 سعرة).\n\n💡 **ملاحظة طبية:** النظام مصمم خصيصاً ليناسب نمط الحياة اليومي والميزانية الاقتصادية مع ضمان أعلى فائدة غذائية.`;
-                    }
-                    outputBox.innerHTML = aiResponseText;
-                }, 1000);
-
-            } catch (error) {
-                outputBox.innerHTML = '❌ حدث خطأ أثناء الاتصال بمحرك الذكاء الاصطناعي. يرجى التحقق من الاتصال أو مفتاح الـ API.';
-            }
+            const mealElement = document.getElementById(currentEditingId);
+            mealElement.querySelector('.m-title').innerText = title + ':';
+            mealElement.querySelector('.m-desc').innerText = desc;
+            mealElement.querySelector('.m-cal').innerText = calories + ' سعرة';
+            alert('تم تعديل الوجبة بنجاح!');
+            closeEditModal();
         }
     </script>
 </body>
