@@ -94,6 +94,10 @@
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل ملف مريض جديد في SQL</h3>
             <form onsubmit="savePatientToSQL(event)">
+                <div class="form-group">
+                    <label style="color:var(--accent-blue);">كود المريض (اختياري أو اكتبه يدوي):</label>
+                    <input type="text" id="pCode" class="form-control" placeholder="مثال: NUT-001">
+                </div>
                 <div class="form-group"><label>اسم المريض الرباعي:</label><input type="text" id="pName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
                 <div class="form-group"><label>السن:</label><input type="number" id="pAge" class="form-control" required placeholder="مثال: 35"></div>
                 
@@ -140,20 +144,19 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // جلب البيانات من قاعدة بيانات SQL عند فتح الصفحة
         async function fetchPatientsFromSQL() {
             const tbody = document.getElementById('patientsTableBody');
             const { data, error } = await supabaseClient.from('patients').select('*').order('created_at', { ascending: false });
 
             if (error) {
                 console.error('خطأ في جلب البيانات:', error);
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة بيانات SQL. تأكد من إعدادات الاتصال.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة بيانات SQL.</td></tr>`;
                 return;
             }
 
             tbody.innerHTML = '';
             if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات مسجلة في قاعدة بيانات SQL حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات مسجلة حالياً. السيستم نظيف وجاهز.</td></tr>`;
                 return;
             }
 
@@ -188,9 +191,15 @@
             otherGroup.style.display = select.value === 'آخر' ? 'block' : 'none';
         }
 
-        // حفظ المريض مباشرة في قاعدة بيانات SQL
         async function savePatientToSQL(event) {
             event.preventDefault();
+            
+            // قراءة الكود الذي أدخله الطبيب يدويًا، أو إنشاء كود افتراضي لو تركته فارغاً
+            let patient_code = document.getElementById('pCode').value.trim();
+            if (!patient_code) {
+                patient_code = 'NUT-' + Math.floor(100 + Math.random() * 900);
+            }
+
             const name = document.getElementById('pName').value;
             const age = parseInt(document.getElementById('pAge').value);
             let cat = document.getElementById('pCat').value;
@@ -204,8 +213,6 @@
             const weight = parseFloat(document.getElementById('pWeight').value);
             const height = parseFloat(document.getElementById('pHeight').value);
             const phone = document.getElementById('pPhone').value;
-            
-            const patient_code = 'NUT-' + Math.floor(100 + Math.random() * 900);
 
             const { error } = await supabaseClient.from('patients').insert([
                 { patient_code, name, age, category: cat, medical_condition: condition, weight, height, phone }
@@ -216,7 +223,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ بيانات المريض في قاعدة بيانات SQL بنجاح دائم!');
+            alert('✨ تم حفظ بيانات المريض في قاعدة بيانات SQL بنجاح!');
             closeAddPatientModal();
             fetchPatientsFromSQL();
             event.target.reset();
