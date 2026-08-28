@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Shady Samir - سجل الزيارات الإكلينيكية (SQL Live)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
+        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <h2>د. شادي سمير</h2>
+                <p>عيادة التغذية العلاجية</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html">🏠 الرئيسية</a></li>
+                <li><a href="patients.html">👥 المرضى</a></li>
+                <li><a href="appointments.html">📅 المواعيد</a></li>
+                <li class="active"><a href="visits.html">📋 الزيارات</a></li>
+                <li><a href="measurements.html">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل</a></li>
+                <li><a href="supplements.html">💊 المكملات</a></li>
+                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html">💰 المدفوعات</a></li>
+                <li><a href="reports.html">📊 التقارير</a></li>
+                <li><a href="notifications.html">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html">⚙️ الإعدادات</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <h1>📋 سجل الزيارات والفحوصات الإكلينيكية (SQL Live)</h1>
+            <button class="btn-action" onclick="openModal()">+ تسجيل زيارة جديدة</button>
+        </div>
+
+        <div class="card">
+            <h3>📋 تفاصيل زيارات الحالات والمرضى</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>اسم المريض</th>
+                        <th>تاريخ الزيارة</th>
+                        <th>التشخيص / الحالة</th>
+                        <th>ملاحظات الطبيب</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="visitsTableBody">
+                    <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب الزيارات من قاعدة البيانات...</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Modal -->
+    <div id="visitModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل زيارة جديدة</h3>
+            <form onsubmit="saveVisit(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="vPatient" class="form-control" required placeholder="اسم المريض..."></div>
+                <div class="form-group"><label>تاريخ الزيارة:</label><input type="date" id="vDate" class="form-control" required></div>
+                <div class="form-group"><label>التشخيص الإكلينيكي:</label><input type="text" id="vDiagnosis" class="form-control" required placeholder="مثال: متابعة بعد التكميم - نزول وزن ممتاز"></div>
+                <div class="form-group"><label>ملاحظات الطبيب:</label><textarea id="vNotes" class="form-control" rows="2" placeholder="التعليمات الموجهة للمريض..."></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
+                    <button type="button" onclick="closeModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function fetchVisits() {
+            const tbody = document.getElementById('visitsTableBody');
+            const { data, error } = await supabaseClient.from('visits').select('*').order('visit_date', { ascending: false });
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الجلب (تأكد من إنشاء جدول visits).</td></tr>`;
+                return;
+            }
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد زيارات مسجلة.</td></tr>`;
+                return;
+            }
+            data.forEach(v => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${v.patient_name}</strong></td>
+                        <td>${v.visit_date}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${v.diagnosis}</span></td>
+                        <td style="font-size:11px; color:var(--text-gray);">${v.doctor_notes || 'لا توجد ملاحظات'}</td>
+                        <td><button onclick="deleteVisit('${v.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer;">🗑️ حذف</button></td>
+                    </tr>
+                `;
+            });
+        }
+        window.onload = fetchVisits;
+        function openModal() { document.getElementById('visitModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('visitModal').style.display = 'none'; }
+        async function saveVisit(e) {
+            e.preventDefault();
+            const patient_name = document.getElementById('vPatient').value;
+            const visit_date = document.getElementById('vDate').value;
+            const diagnosis = document.getElementById('vDiagnosis').value;
+            const doctor_notes = document.getElementById('vNotes').value;
+            const { error } = await supabaseClient.from('visits').insert([{ patient_name, visit_date, diagnosis, doctor_notes }]);
+            if (error) { alert('خطأ: ' + error.message); return; }
+            alert('✨ تم حفظ الزيارة في SQL بنجاح!');
+            closeModal();
+            fetchVisits();
+            e.target.reset();
+        }
+        async function deleteVisit(id) {
+            if (confirm('حذف هذه الزيارة نهائياً؟')) {
+                await supabaseClient.from('visits').delete().eq('id', id);
+                fetchVisits();
+            }
+        }
+    </script>
+</body>
+</html>
