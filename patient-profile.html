@@ -20,58 +20,67 @@
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 20px; }
+        .main-content { flex: 1; margin-right: 260px; padding: 20px; box-sizing: border-box; }
         
         /* كارت المريض العلوي */
-        .patient-header-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .patient-bio { display: flex; align-items: center; gap: 15px; }
-        .patient-bio img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); }
+        .patient-header-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .patient-bio { display: flex; align-items: center; gap: 12px; }
+        .patient-bio img { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); }
         
         /* شريط المؤشرات السريعة العلوي */
-        .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 15px; }
-        .metric-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .metric-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 4px; }
-        .metric-box .value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
+        .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 10px; margin-bottom: 12px; }
+        .metric-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 10px; border-radius: 10px; text-align: center; }
+        .metric-box .title { font-size: 10px; color: var(--text-gray); margin-bottom: 2px; }
+        .metric-box .value { font-size: 16px; font-weight: bold; color: var(--text-dark); }
         
-        /* شريط التبويبات (Tabs) والطباعة */
-        .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
-        .tabs-row { display: flex; gap: 10px; }
-        .tab-btn { background: #e2e8f0; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; color: var(--text-dark); }
+        /* شريط التبويبات وزرار الطباعة */
+        .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 2px solid var(--card-border); padding-bottom: 8px; }
+        .tabs-row { display: flex; gap: 8px; }
+        .tab-btn { background: #e2e8f0; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; color: var(--text-dark); }
         .tab-btn.active { background: var(--accent-blue); color: white; }
-        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3); }
+        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 7px 16px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
 
         /* شبكة الداشبورد الرئيسية */
-        .dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; }
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 15px; }
-        .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 12px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 14px; border-radius: 10px; margin-bottom: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .card h3 { margin-top: 0; font-size: 13px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 6px; margin-bottom: 10px; }
 
         /* سجل المتابعات Timeline */
-        .timeline-item { border-right: 3px solid var(--primary-green); padding-right: 12px; margin-bottom: 15px; position: relative; }
-        .timeline-item .date { font-size: 11px; color: var(--accent-blue); font-weight: bold; }
-        .timeline-item .weight { font-size: 15px; font-weight: bold; color: var(--text-dark); }
-        .timeline-item .note { font-size: 12px; color: var(--text-gray); margin-top: 3px; }
+        .timeline-item { border-right: 3px solid var(--primary-green); padding-right: 10px; margin-bottom: 10px; position: relative; }
+        .timeline-item .date { font-size: 10px; color: var(--accent-blue); font-weight: bold; }
+        .timeline-item .weight { font-size: 13px; font-weight: bold; color: var(--text-dark); }
+        .timeline-item .note { font-size: 11px; color: var(--text-gray); margin-top: 2px; }
 
         /* التقييم الغذائي ونمط الحياة */
-        .eval-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-bottom: 12px; }
-        .eval-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; font-size: 12px; }
-        .eval-box strong { display: block; font-size: 14px; color: var(--accent-blue); margin-top: 3px; }
+        .eval-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
+        .eval-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px; border-radius: 6px; font-size: 11px; text-align: center; }
+        .eval-box strong { display: block; font-size: 13px; color: var(--accent-blue); margin-top: 2px; }
 
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 8px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; width: 100%; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 12px; }
+        .modal-box { background: white; padding: 20px; border-radius: 10px; width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-control { width: 100%; padding: 8px; border: 1px solid var(--card-border); border-radius: 6px; font-size: 12px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 10px; }
 
-        /* إعدادات الطباعة الاحترافية المطابقة لشكل الصفحة */
+        /* إعدادات الطباعة الفورية المتكاملة في صفحة واحدة A4 */
         @media print {
             body * { visibility: hidden; }
             .main-content, .main-content * { visibility: visible; }
             .sidebar, .btn-print-dashboard, .btn-action, .tabs-row, .modal-overlay { display: none !important; }
             
-            @page { size: A4; margin: 10mm; }
+            @page { size: A4 portrait; margin: 8mm; }
             body { background-color: #ffffff !important; }
-            .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .main-content { 
+                margin: 0 !important; 
+                padding: 0 !important; 
+                width: 100% !important; 
+                position: absolute; 
+                top: 0; 
+                right: 0; 
+                transform: scale(0.92); /* تصغير خفيف ليحتوي كل المحتوى في صفحة واحدة */
+                transform-origin: top right;
+            }
             .card, .patient-header-card, .metric-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; background: #ffffff !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
@@ -92,7 +101,6 @@
                 <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
                 <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
                 <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
                 <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
                 <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
                 <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
@@ -108,12 +116,12 @@
             <div class="patient-bio">
                 <img src="logo.jpeg" alt="Patient">
                 <div>
-                    <h2 style="margin:0; font-size: 18px;" id="pName">أحمد محمد علي <span style="font-size: 12px; color: var(--text-gray); font-weight: normal;">NUT-000125</span></h2>
-                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">28 سنة • ذكر • 175 سم</p>
+                    <h2 style="margin:0; font-size: 16px;" id="pName">أحمد محمد علي <span style="font-size: 11px; color: var(--text-gray); font-weight: normal;">NUT-000125</span></h2>
+                    <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-gray);">28 سنة • ذكر • 175 سم</p>
                 </div>
             </div>
             <div style="text-align: left;">
-                <span style="background: #e0f2fe; color: #0369a1; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold;">⚖️ تكميم المعدة (01/08/2026)</span>
+                <span style="background: #e0f2fe; color: #0369a1; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold;">⚖️ تكميم المعدة (01/08/2026)</span>
             </div>
         </div>
 
@@ -135,7 +143,7 @@
                 <button class="tab-btn" onclick="location.href='labs.html'">🧪 التحاليل</button>
                 <button class="tab-btn" onclick="location.href='supplements.html'">💊 المكملات</button>
             </div>
-            <button class="btn-print-dashboard" onclick="window.print()">🖨️ طباعة لوحة التحكم (PDF)</button>
+            <button class="btn-print-dashboard" onclick="window.print()">🖨️ طباعة لوحة التحكم بالكامل (PDF)</button>
         </div>
 
         <!-- الداشبورد الرئيسية -->
@@ -144,7 +152,7 @@
             <div>
                 <div class="card">
                     <h3>📈 تطور ونزول الوزن</h3>
-                    <div style="height: 180px;"><canvas id="weightChart"></canvas></div>
+                    <div style="height: 150px;"><canvas id="weightChart"></canvas></div>
                 </div>
 
                 <div class="card">
@@ -161,7 +169,7 @@
                             <div class="note">• تحسن ممتاز في الالتزام.<br>• تقليل الكربوهيدرات في العشاء.</div>
                         </div>
                     </div>
-                    <button class="btn-action" style="margin-top: 10px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة</button>
+                    <button class="btn-action" style="margin-top: 8px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة</button>
                 </div>
             </div>
 
@@ -187,13 +195,13 @@
 
                 <div class="card">
                     <h3>📝 ملاحظات د. شادي سمير</h3>
-                    <div style="font-size: 13px; line-height: 1.8; color: var(--text-gray); background: #f8fafc; padding: 12px; border-radius: 8px; border-right: 4px solid var(--primary-green);">
+                    <div style="font-size: 12px; line-height: 1.6; color: var(--text-gray); background: #f8fafc; padding: 10px; border-radius: 6px; border-right: 3px solid var(--primary-green);">
                         • المريض ملتزم بشكل جيد جداً.<br>
                         • الاستمرار على نفس الخطة مع زيادة البروتين.<br>
                         • التركيز على شرب المياه باستمرار.<br>
                         • المتابعة القادمة بعد أسبوعين.
                     </div>
-                    <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue); margin-top: 15px;">تعديل أو عرض الخطة الغذائية 🥗</a>
+                    <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue); margin-top: 10px;">تعديل أو عرض الخطة الغذائية 🥗</a>
                 </div>
             </div>
         </div>
@@ -202,19 +210,19 @@
     <!-- نافذة تسجيل متابعة جديدة -->
     <div id="followupModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل متابعة وزيارة جديدة</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:6px; font-size: 15px;">➕ تسجيل متابعة وزيارة جديدة</h3>
             <form onsubmit="saveFollowup(event)">
                 <div class="form-group">
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-gray);">الوزن الجديد (كجم):</label>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray);">الوزن الجديد (كجم):</label>
                     <input type="number" step="0.1" id="newW" class="form-control" placeholder="مثال: 91.0" required>
                 </div>
                 <div class="form-group">
-                    <label style="font-size:12px; font-weight:bold; color:var(--text-gray);">ملاحظات الزيارة والنظام:</label>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray);">ملاحظات الزيارة والنظام:</label>
                     <textarea id="newN" rows="3" class="form-control" placeholder="اكتب الملاحظات والتوجيهات..." required></textarea>
                 </div>
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ وتحديث المؤشرات</button>
-                    <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                <div style="display:flex; gap:8px; margin-top:12px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:8px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer; font-size:12px;">حفظ وتحديث المؤشرات</button>
+                    <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:8px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer; font-size:12px;">إلغاء</button>
                 </div>
             </form>
         </div>
