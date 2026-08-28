@@ -33,6 +33,7 @@
         .badge-sleeve { background-color: #dbeafe; color: #1e40af; }
         .badge-bypass { background-color: #f3e8ff; color: #6b21a8; }
         .badge-sasi { background-color: #fef3c7; color: #92400e; }
+        .badge-revision { background-color: #ffedd5; color: #c2410c; }
         .badge-other { background-color: #f1f5f9; color: #475569; }
         .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
         
@@ -140,6 +141,7 @@
                         <option value="تكميم معدة">تكميم معدة</option>
                         <option value="تحويل مسار كلاسيكي">تحويل مسار كلاسيكي</option>
                         <option value="عملية الساسي (SASI)">عملية الساسي (SASI)</option>
+                        <option value="جراحة تصحيح (Revision)">جراحة تصحيح (Revision)</option>
                         <option value="أخرى">أخرى</option>
                     </select>
                 </div>
@@ -194,6 +196,7 @@
             if(typeText.includes('تكميم')) badgeClass = 'badge-sleeve';
             else if(typeText.includes('تحويل')) badgeClass = 'badge-bypass';
             else if(typeText.includes('الساسي') || typeText.includes('SASI')) badgeClass = 'badge-sasi';
+            else if(typeText.includes('تصحيح') || typeText.includes('Revision')) badgeClass = 'badge-revision';
 
             const tbody = document.getElementById('bariatric-tbody');
             const newRow = document.createElement('tr');
