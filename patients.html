@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - قائمة المرضى</title>
+    <title>Dr. Shady Samir - إدارة وسجل المرضى</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -18,15 +18,26 @@
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
+        
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .btn-add { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-block; }
-        .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
-        th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
-        td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
+        
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-block; text-decoration: none; }
+        .btn-view { background-color: var(--accent-blue); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
     </style>
 </head>
 <body>
@@ -53,21 +64,130 @@
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
+
     <div class="main-content">
         <div class="top-header">
-            <h1>👥 سجل وسجل المرضى</h1>
-            <a href="add-patient.html" class="btn-add">+ تسجيل مريض جديد</a>
+            <h1>👥 قاعدة بيانات ورجال العيادة (سجل المرضى)</h1>
+            <button class="btn-action" onclick="openAddPatientModal()">+ تسجيل مريض جديد</button>
         </div>
-        <div class="table-card">
+
+        <div class="card">
+            <h3>📋 قائمة الحالات المسجلة</h3>
             <table>
-                <thead><tr><th>إجراءات الملف</th><th>التصنيف / الحالة</th><th>رقم التليفون</th><th>السن</th><th>اسم المريض</th></tr></thead>
-                <tbody>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span style="color:var(--accent-blue); font-weight:bold;">متابعة تكميم</span></td><td>010xxxxxxxx</td><td>34 سنة</td><td><strong>شهاب الدين حسب النبي</strong></td></tr>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span style="color:var(--primary-green); font-weight:bold;">تغذية أطفال</span></td><td>011xxxxxxxx</td><td>10 سنوات</td><td><strong>أنس شادي سمير</strong></td></tr>
-                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span style="color:var(--warning-orange); font-weight:bold;">سمنة مفرطة (مونجارو)</span></td><td>012xxxxxxxx</td><td>42 سنة</td><td><strong>سارة أحمد محمود</strong></td></tr>
+                <thead>
+                    <tr>
+                        <th>كود المريض</th>
+                        <th>اسم المريض</th>
+                        <th>السن / الجنس</th>
+                        <th>التصنيف / الحالة</th>
+                        <th>الوزن الحالي</th>
+                        <th>رقم الهاتف</th>
+                        <th>الإجراء</th>
+                    </tr>
+                </thead>
+                <tbody id="patientsTableBody">
+                    <!-- يتم تعبئتها آلياً من قاعدة البيانات المحلية -->
                 </tbody>
             </table>
         </div>
     </div>
+
+    <!-- نافذة إضافة مريض جديد -->
+    <div id="addPatientModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل ملف مريض جديد</h3>
+            <form onsubmit="saveNewPatient(event)">
+                <div class="form-group"><label>اسم المريض الرباعي:</label><input type="text" id="pName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
+                <div class="form-group"><label>السن:</label><input type="number" id="pAge" class="form-control" required placeholder="مثال: 35"></div>
+                <div class="form-group"><label>التصنيف / الحالة الإكلينيكية:</label>
+                    <select id="pCat" class="form-control">
+                        <option value="تكميم معدة">تكميم معدة</option>
+                        <option value="تحويل مسار">تحويل مسار</option>
+                        <option value="متابعة مونجارو">متابعة مونجارو</option>
+                        <option value="سمنة مفرطة">سمنة مفرطة</option>
+                        <option value="نحافة">نحافة</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>الوزن الابتدائي (كجم):</label><input type="number" step="0.1" id="pWeight" class="form-control" required placeholder="مثال: 110"></div>
+                <div class="form-group"><label>الطول (سم):</label><input type="number" id="pHeight" class="form-control" required placeholder="مثال: 175"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="pPhone" class="form-control" required placeholder="010xxxxxxxx"></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ الملف بالسيستم</button>
+                    <button type="button" onclick="closeAddPatientModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // تهيئة قاعدة البيانات المحلية (إذا كانت فاضية، نفرغها تماماً بناءً على طلبك ونحط بيانات أساسية فارغة أو نظيفة)
+        let patients = JSON.parse(localStorage.getItem('clinic_patients')) || [
+            { id: 'NUT-001', name: 'أحمد محمد علي', age: 28, cat: 'تكميم معدة', weight: 92.4, height: 175, phone: '01012345678' },
+            { id: 'NUT-002', name: 'سارة أحمد محمود', age: 29, cat: 'متابعة مونجارو', weight: 108.0, height: 165, phone: '01198765432' }
+        ];
+
+        function renderPatientsTable() {
+            const tbody = document.getElementById('patientsTableBody');
+            tbody.innerHTML = '';
+            
+            if (patients.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات مسجلة حالياً. اضغط على "+ تسجيل مريض جديد" لإضافة أول حالة.</td></tr>`;
+                return;
+            }
+
+            patients.forEach((p, index) => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.id}</strong></td>
+                        <td>${p.name}</td>
+                        <td>${p.age} سنة</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${p.cat}</span></td>
+                        <td><strong>${p.weight} كجم</strong></td>
+                        <td>${p.phone}</td>
+                        <td>
+                            <a href="patient-profile.html?id=${p.id}" class="btn-view">📂 فتح الملف</a>
+                            <button onclick="deletePatient(${index})" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; margin-right:5px;">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.onload = function() {
+            renderPatientsTable();
+        };
+
+        function openAddPatientModal() { document.getElementById('addPatientModal').style.display = 'flex'; }
+        function closeAddPatientModal() { document.getElementById('addPatientModal').style.display = 'none'; }
+
+        function saveNewPatient(event) {
+            event.preventDefault();
+            const name = document.getElementById('pName').value;
+            const age = document.getElementById('pAge').value;
+            const cat = document.getElementById('pCat').value;
+            const weight = document.getElementById('pWeight').value;
+            const height = document.getElementById('pHeight').value;
+            const phone = document.getElementById('pPhone').value;
+            
+            const newId = 'NUT-' + Math.floor(100 + Math.random() * 900);
+
+            const newPatient = { id: newId, name, age, cat, weight, height, phone };
+            patients.push(newPatient);
+            localStorage.setItem('clinic_patients', JSON.stringify(patients));
+
+            alert('✨ تم تسجيل ملف المريض الجديد بنجاح في قاعدة البيانات!');
+            closeAddPatientModal();
+            renderPatientsTable();
+            event.target.reset();
+        }
+
+        function deletePatient(index) {
+            if (confirm('هل أنت متأكد من حذف هذا المريض من قاعدة البيانات؟')) {
+                patients.splice(index, 1);
+                localStorage.setItem('clinic_patients', JSON.stringify(patients));
+                renderPatientsTable();
+            }
+        }
+    </script>
 </body>
 </html>
