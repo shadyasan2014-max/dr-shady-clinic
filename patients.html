@@ -5,46 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - قائمة المرضى</title>
     <style>
-        :root {
-            --sidebar-bg: #0b1329;
-            --main-bg: #f4f6f9;
-            --card-bg: #ffffff;
-            --card-border: #e2e8f0;
-            --primary-green: #10b981;
-            --accent-blue: #3b82f6;
-            --warning-orange: #f59e0b;
-            --danger-red: #ef4444;
-            --text-dark: #1e293b;
-            --text-gray: #64748b;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--main-bg);
-            color: var(--text-dark);
-            margin: 0;
-            display: flex;
-            min-height: 100vh;
-        }
-        .sidebar {
-            width: 260px; background-color: var(--sidebar-bg); color: white;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-        }
-        .sidebar-brand {
-            padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-        }
-        .brand-logo { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--primary-green); 
-            margin-bottom: 8px; 
-        }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; }
-        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
         .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
@@ -52,17 +18,10 @@
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-
         .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px;
-            border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
         .btn-add { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; text-decoration: none; display: inline-block; }
-        .btn-add:hover { opacity: 0.9; }
-
         .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
         th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
@@ -71,7 +30,6 @@
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
@@ -84,58 +42,32 @@
                 <li class="active"><a href="patients.html">👥 المرضى</a></li>
                 <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
                 <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="#" onclick="alert('قسم جراحات السمنة قيد التطوير')">⚖️ جراحات السمنة</a></li>
-                <li><a href="#" onclick="alert('الإعدادات قيد التطوير')">⚙️ الإعدادات</a></li>
+                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
+                <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
+                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
+                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
+                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
+                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
             </ul>
         </div>
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button>
-        </div>
+        <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
-
     <div class="main-content">
         <div class="top-header">
             <h1>👥 سجل وسجل المرضى</h1>
             <a href="add-patient.html" class="btn-add">+ تسجيل مريض جديد</a>
         </div>
-
         <div class="table-card">
             <table>
-                <thead>
-                    <tr>
-                        <th>إجراءات الملف</th>
-                        <th>التصنيف / الحالة</th>
-                        <th>رقم التليفون</th>
-                        <th>السن</th>
-                        <th>اسم المريض</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>إجراءات الملف</th><th>التصنيف / الحالة</th><th>رقم التليفون</th><th>السن</th><th>اسم المريض</th></tr></thead>
                 <tbody>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span style="color:var(--accent-blue); font-weight:bold;">متابعة تكميم</span></td>
-                        <td>010xxxxxxxx</td>
-                        <td>34 سنة</td>
-                        <td><strong>شهاب الدين حسب النبي</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span style="color:var(--primary-green); font-weight:bold;">تغذية أطفال</span></td>
-                        <td>011xxxxxxxx</td>
-                        <td>10 سنوات</td>
-                        <td><strong>أنس شادي سمير</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span style="color:var(--warning-orange); font-weight:bold;">سمنة مفرطة (مونجارو)</span></td>
-                        <td>012xxxxxxxx</td>
-                        <td>42 سنة</td>
-                        <td><strong>سارة أحمد محمود</strong></td>
-                    </tr>
+                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span style="color:var(--accent-blue); font-weight:bold;">متابعة تكميم</span></td><td>010xxxxxxxx</td><td>34 سنة</td><td><strong>شهاب الدين حسب النبي</strong></td></tr>
+                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span style="color:var(--primary-green); font-weight:bold;">تغذية أطفال</span></td><td>011xxxxxxxx</td><td>10 سنوات</td><td><strong>أنس شادي سمير</strong></td></tr>
+                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span style="color:var(--warning-orange); font-weight:bold;">سمنة مفرطة (مونجارو)</span></td><td>012xxxxxxxx</td><td>42 سنة</td><td><strong>سارة أحمد محمود</strong></td></tr>
                 </tbody>
             </table>
         </div>
     </div>
-
 </body>
 </html>
