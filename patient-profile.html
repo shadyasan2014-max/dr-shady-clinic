@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - التقرير الشامل للمريض</title>
+    <title>Dr. Shady Samir - التقرير الشامل للمريض وسجل المتابعات</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -29,17 +29,21 @@
         .info-row span { color: var(--text-gray); }
         .btn-action { background-color: var(--accent-blue); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
         
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 8px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
         .report-section { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
-        .report-section h4 { margin: 0 0 6px 0; color: var(--accent-blue); font-size: 13px; }
         .file-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
+        .form-control:focus { border-color: var(--accent-blue); }
         .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
         .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
         .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
@@ -77,6 +81,7 @@
         </div>
 
         <div class="profile-layout">
+            <!-- العمود الأيمن: البيانات الأساسية والحالة المالية -->
             <div>
                 <div class="card">
                     <h3>👤 البيانات الأساسية</h3>
@@ -96,14 +101,38 @@
                 </div>
             </div>
 
+            <!-- العمود الأيسر: سجل المتابعات، المرفقات، والخطة النشطة -->
             <div>
                 <div class="card">
-                    <h3>📋 سجل القياسات ومتابعة الوزن</h3>
-                    <div id="history-container" style="font-size: 13px; line-height: 1.6; color: var(--text-gray); margin-bottom: 12px;">
-                        <p><strong>آخر زيارة:</strong> <span id="last-date">28 أغسطس 2026</span></p>
-                        <p><strong>معدل نزول الوزن:</strong> <span id="last-note">ممتاز، تم فقدان 3.5 كجم في الشهر الأخير مع التزام تام بالبروتين والماء.</span></p>
-                    </div>
-                    <button class="btn-action" style="background:var(--primary-green); margin-top:0;" onclick="openFollowupModal()">+ تسجيل متابعة جديدة</button>
+                    <h3>📋 سجل المتابعات والزيارات السابقة</h3>
+                    <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 10px;">تتبع تطور المقاسات والأوزان زيارة بزيارة:</div>
+                    
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>تاريخ الزيارة</th>
+                                <th>الوزن</th>
+                                <th>نسبة الدهون</th>
+                                <th>ملاحظات الطبيب / النظام</th>
+                            </tr>
+                        </thead>
+                        <tbody id="followupTableBody">
+                            <tr>
+                                <td>28 أغسطس 2026</td>
+                                <td><strong>92 كجم</strong></td>
+                                <td>22%</td>
+                                <td>ممتاز، فقدان 3.5 كجم مع الالتزام بالبروتين.</td>
+                            </tr>
+                            <tr>
+                                <td>01 أغسطس 2026</td>
+                                <td><strong>95.5 كجم</strong></td>
+                                <td>25%</td>
+                                <td>البداية بعد التكميم (مرحلة السوائل).</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <button class="btn-action" style="background:var(--primary-green); margin-top:15px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة</button>
                 </div>
 
                 <div class="card">
@@ -129,6 +158,35 @@
         </div>
     </div>
 
+    <!-- نافذة تسجيل متابعة وزيارة جديدة -->
+    <div id="followupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>➕ تسجيل زيارة ومتابعة جديدة</h3>
+            <form onsubmit="saveNewFollowup(event)">
+                <div class="form-group">
+                    <label>تاريخ الزيارة:</label>
+                    <input type="text" id="visitDate" class="form-control" value="28 أغسطس 2026" required>
+                </div>
+                <div class="form-group">
+                    <label>الوزن الحالي الجديد (كجم):</label>
+                    <input type="number" step="0.1" id="newWeight" class="form-control" placeholder="مثال: 90.5" required>
+                </div>
+                <div class="form-group">
+                    <label>نسبة الدهون (%):</label>
+                    <input type="text" id="newFat" class="form-control" placeholder="مثال: 21.5%">
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات الزيارة / تفاصيل النظام الجديد:</label>
+                    <textarea id="newNote" class="form-control" rows="3" placeholder="اكتب تطور الحالة، المقاسات، والنظام الغذائي الموصوف..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ الزيارة</button>
+                    <button type="button" class="btn-close-modal" onclick="closeFollowupModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <!-- نافذة تعديل بيانات المريض -->
     <div id="editPatientModal" class="modal-overlay">
         <div class="modal-box">
@@ -143,21 +201,6 @@
                 <div class="modal-actions">
                     <button type="submit" class="btn-save-modal">حفظ التعديلات</button>
                     <button type="button" class="btn-close-modal" onclick="closeEditPatientModal()">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة تسجيل متابعة جديدة -->
-    <div id="followupModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>➕ تسجيل زيارة ومتابعة جديدة</h3>
-            <form onsubmit="saveFollowup(event)">
-                <div class="form-group"><label>الوزن الحالي الجديد (كجم):</label><input type="number" step="0.1" id="newWeight" class="form-control" required></div>
-                <div class="form-group"><label>ملاحظات الزيارة:</label><textarea id="newNote" class="form-control" rows="3" required></textarea></div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ</button>
-                    <button type="button" class="btn-close-modal" onclick="closeFollowupModal()">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -179,7 +222,7 @@
     </div>
 
     <script>
-        // دالة تحميل بيانات المريض بناءً على البحث القادم من الصفحة الرئيسية
+        // تحميل بيانات المريض بناءً على البحث
         window.onload = function() {
             const urlParams = new URLSearchParams(window.location.search);
             const patientParam = urlParams.get('patient');
@@ -196,7 +239,6 @@
                 document.getElementById('lblMacroPro').innerText = '110 جم';
                 document.getElementById('lblMacroCarb').innerText = '80 جم';
                 document.getElementById('lblMacroFat').innerText = '30 جم';
-                document.getElementById('last-note').innerText = 'متابعة حقن مونجارو، الغثيان خفيف والنزول جيد جداً.';
             } else if (patientParam === 'ahmed') {
                 document.getElementById('headerPatientName').innerText = 'أحمد محمد علي';
                 document.getElementById('lblAge').innerText = '41 سنة';
@@ -209,9 +251,39 @@
                 document.getElementById('lblMacroPro').innerText = '130 جم';
                 document.getElementById('lblMacroCarb').innerText = '140 جم';
                 document.getElementById('lblMacroFat').innerText = '50 جم';
-                document.getElementById('last-note').innerText = 'تم كسر ثبات الوزن بنجاح بزيادة الكارديو.';
             }
         };
+
+        function openFollowupModal() { document.getElementById('followupModal').style.display = 'flex'; }
+        function closeFollowupModal() { document.getElementById('followupModal').style.display = 'none'; }
+
+        function saveNewFollowup(event) {
+            event.preventDefault();
+            const date = document.getElementById('visitDate').value;
+            const weight = document.getElementById('newWeight').value;
+            const fat = document.getElementById('newFat').value || 'غير محدد';
+            const note = document.getElementById('newNote').value;
+
+            // تحديث الوزن الحالي في بطاقة البيانات الأساسية
+            document.getElementById('lblWeight').innerText = weight + ' كجم';
+
+            // إضافة الزيارة الجديدة لجدول المتابعات في أعلى الجدول
+            const tbody = document.getElementById('followupTableBody');
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = `
+                <td>${date}</td>
+                <td><strong>${weight} كجم</strong></td>
+                <td>${fat}</td>
+                <td>${note}</td>
+            `;
+            tbody.insertBefore(newRow, tbody.firstChild);
+
+            alert('تم تسجيل زيارة المتابعة الجديدة وتحديث السجل بنجاح!');
+            closeFollowupModal();
+            document.getElementById('newWeight').value = '';
+            document.getElementById('newFat').value = '';
+            document.getElementById('newNote').value = '';
+        }
 
         function openEditPatientModal() {
             document.getElementById('editName').value = document.getElementById('headerPatientName').innerText;
@@ -236,19 +308,8 @@
             closeEditPatientModal();
         }
 
-        function openFollowupModal() { document.getElementById('followupModal').style.display = 'flex'; }
-        function closeFollowupModal() { document.getElementById('followupModal').style.display = 'none'; }
         function openUploadModal() { document.getElementById('uploadModal').style.display = 'flex'; }
         function closeUploadModal() { document.getElementById('uploadModal').style.display = 'none'; }
-
-        function saveFollowup(event) {
-            event.preventDefault();
-            document.getElementById('lblWeight').innerText = document.getElementById('newWeight').value + ' كجم';
-            document.getElementById('last-date').innerText = 'اليوم (28 أغسطس 2026)';
-            document.getElementById('last-note').innerText = document.getElementById('newNote').value;
-            alert('تم تسجيل المتابعة بنجاح!');
-            closeFollowupModal();
-        }
 
         function saveUploadedFile(event) {
             event.preventDefault();
