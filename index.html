@@ -25,8 +25,8 @@
         .main-content { flex: 1; margin-right: 260px; padding: 20px; box-sizing: border-box; }
         
         .welcome-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .welcome-title-box { display: flex; align-items: center; gap: 12px; }
-        .welcome-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .welcome-title-box { display: flex; align-items: center; gap: 15px; }
+        .welcome-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
         
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; text-align: center; }
@@ -63,12 +63,13 @@
     </div>
 
     <div class="main-content">
+        <!-- الهيدر الافتتاحي وفي بدايته شعار العيادة (Logo) -->
         <div class="welcome-card">
             <div class="welcome-title-box">
-                <img src="logo.jpeg" alt="Logo" class="welcome-logo">
+                <img src="logo.jpeg" alt="Dr. Shady Logo" class="welcome-logo">
                 <div>
                     <h2 style="margin:0; font-size: 18px;">مرحباً بك، د. شادي 👋 🩺</h2>
-                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (اللوحة الإحصائية والتحليلية)</p>
+                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (لوحة التحكم الإكلينيكية الحية)</p>
                 </div>
             </div>
             <div style="text-align: left;">
@@ -106,7 +107,7 @@
                         </tr>
                     </thead>
                     <tbody id="homeApptsTableBody">
-                        <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب المواعيد...</td></tr>
+                        <tr><td colspan="4" style="text-align:center; padding:15px; color:var(--text-gray);">جاري جلب المواعيد من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -171,7 +172,6 @@
             });
         }
 
-        // دالة رسم الشارت الدائري الحي بناءً على داتا SQL
         function renderChart(counts) {
             const ctx = document.getElementById('casesChart').getContext('2d');
             if (myChart) {
