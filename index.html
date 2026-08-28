@@ -24,6 +24,8 @@
         .main-content { flex: 1; margin-right: 260px; padding: 20px; box-sizing: border-box; }
         
         .welcome-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .welcome-title-box { display: flex; align-items: center; gap: 12px; }
+        .welcome-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
         
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; text-align: center; }
@@ -57,9 +59,12 @@
 
     <div class="main-content">
         <div class="welcome-card">
-            <div>
-                <h2 style="margin:0; font-size: 18px;">مرحباً بك، د. شادي 👋</h2>
-                <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">نظام إدارة العيادة الإكلينيكية الذكي</p>
+            <div class="welcome-title-box">
+                <img src="logo.jpeg" alt="Logo" class="welcome-logo">
+                <div>
+                    <h2 style="margin:0; font-size: 18px;">مرحباً بك، د. شادي 👋 🩺</h2>
+                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (نظام إدارة العيادة الذكي)</p>
+                </div>
             </div>
             <div style="text-align: left;">
                 <span style="background: #e0f2fe; color: #0369a1; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold;" id="currentDateBadge">التاريخ: جاري التحميل...</span>
@@ -102,7 +107,7 @@
             // عرض التاريخ الحالي
             document.getElementById('currentDateBadge').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            // 1. جلب إجمالي عدد المرضى الحقيقيين من جدول SQL
+            // جلب إجمالي عدد المرضى الحقيقيين من جدول SQL
             const { count, error } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
             if (!error) {
                 document.getElementById('totalPatientsCount').innerText = count || 0;
