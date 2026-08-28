@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - لوحة تحكم المريض الإكلينيكية</title>
+    <title>Dr. Shady Samir - لوحة تحكم المريض الإكلينيكية والتقرير الشامل</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
@@ -33,12 +33,14 @@
         .metric-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 3px; }
         .metric-box .value { font-size: 16px; font-weight: bold; color: var(--text-dark); }
         
-        /* شريط التبويبات وزرار الطباعة */
+        /* شريط التبويبات وأزرار الطباعة */
         .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
         .tabs-row { display: flex; gap: 8px; }
         .tab-btn { background: #e2e8f0; border: none; padding: 7px 15px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; color: var(--text-dark); }
         .tab-btn.active { background: var(--accent-blue); color: white; }
-        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 8px 18px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; display: flex; align-items: center; gap: 6px; }
+        .action-btns-group { display: flex; gap: 8px; }
+        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .btn-print-full-report { background-color: #8b5cf6; color: white; border: none; padding: 8px 14px; border-radius: 6px; font-weight: bold; font-size: 12px; cursor: pointer; }
 
         /* شبكة الداشبورد الرئيسية */
         .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
@@ -50,8 +52,8 @@
         .timeline-item .date { font-size: 11px; color: var(--accent-blue); font-weight: bold; }
         .timeline-item .weight { font-size: 14px; font-weight: bold; color: var(--text-dark); }
         .timeline-item .note { font-size: 12px; color: var(--text-gray); margin-top: 2px; }
+        .timeline-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; margin-top: 5px; cursor: pointer; }
 
-        /* التقييم الغذائي ونمط الحياة */
         .eval-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
         .eval-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px; border-radius: 6px; font-size: 11px; text-align: center; }
         .eval-box strong { display: block; font-size: 13px; color: var(--accent-blue); margin-top: 2px; }
@@ -60,31 +62,27 @@
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 20px; border-radius: 10px; width: 380px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-control { width: 100%; padding: 8px; border: 1px solid var(--card-border); border-radius: 6px; font-size: 12px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 10px; }
 
-        /* إعدادات الطباعة الاحترافية المتكاملة */
+        /* نموذج الطباعة الشامل (تقرير الحالة من البداية) مخفي حتى يتم الضغط عليه */
+        #printFullReportArea { display: none; }
+
         @media print {
             body * { visibility: hidden; }
-            .main-content, .main-content * { visibility: visible; }
-            .sidebar, .btn-print-dashboard, .btn-action, .tabs-row, .modal-overlay { display: none !important; }
+            .print-active-area, .print-active-area * { visibility: visible; }
+            .sidebar, .top-action-bar, .btn-action, .modal-overlay { display: none !important; }
             
             @page { size: A4 portrait; margin: 10mm; }
             body { background-color: #ffffff !important; }
-            .main-content { 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                width: 100% !important; 
+            .print-active-area { 
                 position: absolute; 
+                left: 0; 
                 top: 0; 
-                right: 0; 
+                width: 100% !important; 
+                padding: 15px !important;
+                background: #ffffff !important;
             }
-            /* تحويل الشبكة إلى عمود واحد في الطباعة لتظهر كاملة وواضحة بدون قص */
-            .dashboard-grid { display: block !important; }
-            .metrics-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px; }
-            .card { break-inside: avoid; margin-bottom: 10px !important; }
-            
-            .card, .patient-header-card, .metric-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; background: #ffffff !important; }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
@@ -113,6 +111,7 @@
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
+    <!-- المحتوى الرئيسي -->
     <div class="main-content">
         <!-- كارت المريض العلوي -->
         <div class="patient-header-card">
@@ -138,7 +137,7 @@
             <div class="metric-box"><div class="title">وزن البداية</div><div class="value" id="barStartWeight">107.0 كجم</div></div>
         </div>
 
-        <!-- شريط التبويبات وزرار الطباعة -->
+        <!-- شريط التبويبات وأزرار الطباعة -->
         <div class="top-action-bar">
             <div class="tabs-row">
                 <button class="tab-btn active">📊 ملخص الحالة</button>
@@ -146,12 +145,14 @@
                 <button class="tab-btn" onclick="location.href='labs.html'">🧪 التحاليل</button>
                 <button class="tab-btn" onclick="location.href='supplements.html'">💊 المكملات</button>
             </div>
-            <button class="btn-print-dashboard" onclick="window.print()">🖨️ طباعة لوحة التحكم بالكامل (PDF)</button>
+            <div class="action-btns-group">
+                <button class="btn-print-dashboard" onclick="window.print()">🖨️ طباعة لوحة التحكم</button>
+                <button class="btn-print-full-report" onclick="printFullPatientJourneyReport()">📄 تقرير الحالة الشامل (من البداية)</button>
+            </div>
         </div>
 
         <!-- الداشبورد الرئيسية -->
         <div class="dashboard-grid">
-            <!-- العمود الأيمن: تطور الوزن وسجل المتابعات -->
             <div>
                 <div class="card">
                     <h3>📈 تطور ونزول الوزن</h3>
@@ -159,7 +160,7 @@
                 </div>
 
                 <div class="card">
-                    <h3>📅 تاريخ المتابعات وسجل الزيارات</h3>
+                    <h3>📅 تاريخ المتابعات وسجل الزيارات والصور</h3>
                     <div id="timelineContainer">
                         <div class="timeline-item">
                             <div class="date">28/08/2026 - المتابعة 5 (الحالية)</div>
@@ -172,11 +173,10 @@
                             <div class="note">• تحسن ممتاز في الالتزام.<br>• تقليل الكربوهيدرات في العشاء.</div>
                         </div>
                     </div>
-                    <button class="btn-action" style="margin-top: 8px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة</button>
+                    <button class="btn-action" style="margin-top: 8px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة (مع صور)</button>
                 </div>
             </div>
 
-            <!-- العمود الأيسر: التقييم الغذائي ونمط الحياة وملاحظات الطبيب -->
             <div>
                 <div class="card">
                     <h3>🍎 التقييم الغذائي الحالي</h3>
@@ -210,10 +210,10 @@
         </div>
     </div>
 
-    <!-- نافذة تسجيل متابعة جديدة -->
+    <!-- نافذة تسجيل متابعة جديدة مع رفع صور -->
     <div id="followupModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:6px; font-size: 15px;">➕ تسجيل متابعة وزيارة جديدة</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:6px; font-size: 15px;">➕ تسجيل متابعة جديدة (مع صور المقارنة)</h3>
             <form onsubmit="saveFollowup(event)">
                 <div class="form-group">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray);">الوزن الجديد (كجم):</label>
@@ -223,26 +223,70 @@
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray);">ملاحظات الزيارة والنظام:</label>
                     <textarea id="newN" rows="3" class="form-control" placeholder="اكتب الملاحظات والتوجيهات..." required></textarea>
                 </div>
+                <div class="form-group">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray);">صور المقارنة (قبل وبعد أو InBody):</label>
+                    <input type="file" id="newImg" class="form-control" accept="image/*">
+                </div>
                 <div style="display:flex; gap:8px; margin-top:12px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:8px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer; font-size:12px;">حفظ وتحديث المؤشرات</button>
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:8px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer; font-size:12px;">حفظ الزيارة</button>
                     <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:8px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer; font-size:12px;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- نموذج التقرير الشامل للحالة (من البداية) المخصص للطباعة -->
+    <div id="printFullReportArea">
+        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 12px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #0b1329; font-size: 26px;">د. شادي سمير</h2>
+            <p style="margin: 4px 0 0 0; color: #059669; font-size: 13px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
+        </div>
+        
+        <div style="text-align: center; margin-bottom: 15px;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 15px; background: #8b5cf6; display: inline-block; padding: 6px 20px; border-radius: 20px;">📄 التقرير الطبي الشامل لرحلة المريض (من البداية)</h3>
+        </div>
+
+        <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+                <p style="margin: 0;"><strong>👤 اسم المريض:</strong> أحمد محمد علي (NUT-000125)</p>
+                <p style="margin: 0;"><strong>⚖️ الإجراء:</strong> تكميم المعدة (01/08/2026)</p>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin: 0;">
+                <p style="margin: 0;"><strong>⚡ وزن البداية:</strong> 107.0 كجم</p>
+                <p style="margin: 0;"><strong>📉 إجمالي النزول حتى الآن:</strong> <span style="color:#2563eb; font-weight:bold;" id="reportTotalLoss">-14.6 كجم</span></p>
+            </div>
+        </div>
+
+        <h4 style="color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin-bottom: 15px;">📋 سجل الزيارات والمتابعات تفصيلياً:</h4>
+        <div id="fullReportTimelineContent" style="font-size: 12px; line-height: 1.8;">
+            <!-- يتم تعبئته آلياً بكل الزيارات -->
+        </div>
+
+        <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 13px; border-top: 2px dashed #cbd5e1; padding-top: 15px;">
+            <p style="margin: 0; font-weight: bold;">توقيع الطبيب المعالج: د. شادي سمير</p>
+            <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
+        </div>
+    </div>
+
     <script>
         let startWeight = 107.0; 
         let currentVisitCount = 5;
+        let visitsHistory = [
+            { date: '28/08/2026', visitNum: 'المتابعة 5 (الحالية)', weight: 92.4, note: 'استمرار على نفس الخطة مع تعديل بسيط. زيادة البروتين إلى 90 جم يومياً.' },
+            { date: '12/08/2026', visitNum: 'المتابعة 4', weight: 98.9, note: 'تحسن ممتاز في الالتزام. تقليل الكربوهيدرات في العشاء.' },
+            { date: '29/07/2026', visitNum: 'المتابعة 3', weight: 100.8, note: 'تحسن في شرب الماء. تقليل الحلويات والسكريات.' },
+            { date: '15/07/2026', visitNum: 'المتابعة 2', weight: 103.5, note: 'بداية الالتزام بنظام جديد. زيادة شرب المياه.' },
+            { date: '01/07/2026', visitNum: 'أول زيارة', weight: 107.0, note: 'وضع الخطة الأولية. شرح التعليمات الأساسية.' }
+        ];
 
         const ctx = document.getElementById('weightChart').getContext('2d');
         let weightChart = new Chart(ctx, {
             type: 'line',
             data: {
-                labels: ['01/08', '15/08', '22/08', '28/08'],
+                labels: ['01/07', '15/07', '29/07', '12/08', '28/08'],
                 datasets: [{
                     label: 'الوزن (كجم)',
-                    data: [107.0, 103.5, 98.9, 92.4],
+                    data: [107.0, 103.5, 100.8, 98.9, 92.4],
                     borderColor: '#10b981',
                     backgroundColor: 'rgba(16, 185, 129, 0.1)',
                     fill: true,
@@ -259,8 +303,14 @@
             event.preventDefault();
             const newWeight = parseFloat(document.getElementById('newW').value);
             const note = document.getElementById('newN').value;
+            const fileInput = document.getElementById('newImg');
             
             if (isNaN(newWeight)) return;
+
+            let imgSrc = '';
+            if (fileInput.files && fileInput.files[0]) {
+                imgSrc = URL.createObjectURL(fileInput.files[0]);
+            }
 
             currentVisitCount++;
             document.getElementById('barVisitNum').innerText = currentVisitCount;
@@ -268,28 +318,65 @@
             
             let totalLoss = (startWeight - newWeight).toFixed(1);
             document.getElementById('barTotalLoss').innerText = '-' + totalLoss + ' كجم';
+            document.getElementById('reportTotalLoss').innerText = '-' + totalLoss + ' كجم';
 
             let newBMI = (newWeight / (1.75 * 1.75)).toFixed(1);
             document.getElementById('barBMI').innerText = newBMI;
 
-            const container = document.getElementById('timelineContainer');
-            const newItem = document.createElement('div');
-            newItem.className = 'timeline-item';
-            newItem.innerHTML = `
-                <div class="date">اليوم - المتابعة ${currentVisitCount} (الحالية)</div>
-                <div class="weight">${newWeight} كجم</div>
-                <div class="note">${note}</div>
-            `;
-            container.insertBefore(newItem, container.firstChild);
+            const todayStr = 'اليوم';
+            visitsHistory.unshift({ date: todayStr, visitNum: `المتابعة ${currentVisitCount}`, weight: newWeight, note: note, img: imgSrc });
 
-            weightChart.data.labels.push('اليوم');
+            renderTimeline();
+
+            weightChart.data.labels.push(todayStr);
             weightChart.data.datasets[0].data.push(newWeight);
             weightChart.update();
 
-            alert('✨ تم تسجيل الزيارة بنجاح وتحديث المؤشرات والبار العلوي فوري!');
+            alert('✨ تم تسجيل الزيارة بنجاح مع رفع صورة المقارنة وتحديث السجل!');
             closeFollowupModal();
-            document.getElementById('newW').value = '';
-            document.getElementById('newN').value = '';
+            event.target.reset();
+        }
+
+        function renderTimeline() {
+            const container = document.getElementById('timelineContainer');
+            container.innerHTML = '';
+            visitsHistory.forEach(v => {
+                let imgHtml = v.img ? `<img src="${v.img}" class="timeline-img" alt="صورة المتابعة">` : '';
+                container.innerHTML += `
+                    <div class="timeline-item">
+                        <div class="date">${v.date} - ${v.visitNum}</div>
+                        <div class="weight">${v.weight} كجم</div>
+                        <div class="note">• ${v.note}</div>
+                        ${imgHtml}
+                    </div>
+                `;
+            });
+        }
+
+        // طباعة التقرير الشامل للحالة من أول يوم
+        function printFullPatientJourneyReport() {
+            let htmlContent = '';
+            visitsHistory.forEach(v => {
+                htmlContent += `
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-right: 4px solid #10b981; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
+                        <strong style="color: #047857; font-size: 14px;">📅 ${v.date} (${v.visitNum})</strong>
+                        <div style="margin-top: 5px; color: #1e293b;">
+                            • <strong>الوزن المسجل:</strong> ${v.weight} كجم<br>
+                            • <strong>ملاحظات وتوجيهات الطبيب:</strong> ${v.note}
+                        </div>
+                    </div>
+                `;
+            });
+            document.getElementById('fullReportTimelineContent').innerHTML = htmlContent;
+
+            // تفعيل كلاس الطباعة للتقرير الشامل وإلغاء الداشبورد العادية مؤقتاً أثناء الطباعة
+            document.getElementById('printFullReportArea').style.display = 'block';
+            document.querySelector('.main-content').classList.add('print-active-area');
+            
+            window.print();
+
+            document.getElementById('printFullReportArea').style.display = 'none';
+            document.querySelector('.main-content').classList.remove('print-active-area');
         }
     </script>
 </body>
