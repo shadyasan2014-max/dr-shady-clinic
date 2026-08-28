@@ -33,6 +33,14 @@
         .macro-box strong { font-size: 14px; color: var(--accent-blue); }
         .meal-item-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; }
+        
+        /* Modal تصميم نافذة إضافة الوجبة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
     </style>
 </head>
 <body>
@@ -59,11 +67,13 @@
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
+
     <div class="main-content">
         <div class="top-header">
             <h1>🥗 Smart Meal Builder - باني الوجبات والخطط الغذائية</h1>
             <div style="font-size: 13px; color: var(--text-gray);">تصميم وتخصيص السعرات والماكروز للحالات</div>
         </div>
+
         <div class="builder-grid">
             <div>
                 <div class="card">
@@ -78,16 +88,69 @@
                     <button class="btn-action" onclick="alert('تم حفظ الخطة الغذائية وتحديث حسابات المريض بنجاح!')">💾 حفظ وتصدير الخطة</button>
                 </div>
             </div>
+
             <div>
                 <div class="card">
                     <h3>🍽️ توزيع الوجبات اليومية</h3>
-                    <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة الإفطار:</strong><div class="meal-item-box"><span>بيضة مسلوقة + قطعة جبن قريش + رغيف سن</span><span style="font-size: 11px; color: var(--text-gray);">320 سعرة</span></div></div>
-                    <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة الغداء:</strong><div class="meal-item-box"><span>صدر دجاج مشوي (150جم) + 5 معالق أرز + سلطة خضراء</span><span style="font-size: 11px; color: var(--text-gray);">550 سعرة</span></div></div>
-                    <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة العشاء:</strong><div class="meal-item-box"><span>علبة زبادي يوناني + ثمرة فاكهة</span><span style="font-size: 11px; color: var(--text-gray);">230 سعرة</span></div></div>
-                    <button class="btn-action" style="background:var(--accent-blue);" onclick="alert('فتح قاعدة بيانات الأطعمة لإضافة صنف جديد')">+ إضافة صنف أو وجبة جديدة</button>
+                    <div id="meals-list-container">
+                        <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة الإفطار:</strong><div class="meal-item-box"><span>بيضة مسلوقة + قطعة جبن قريش + رغيف سن</span><span style="font-size: 11px; color: var(--text-gray);">320 سعرة</span></div></div>
+                        <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة الغداء:</strong><div class="meal-item-box"><span>صدر دجاج مشوي (150جم) + 5 معالق أرز + سلطة خضراء</span><span style="font-size: 11px; color: var(--text-gray);">550 سعرة</span></div></div>
+                        <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة العشاء:</strong><div class="meal-item-box"><span>علبة زبادي يوناني + ثمرة فاكهة</span><span style="font-size: 11px; color: var(--text-gray);">230 سعرة</span></div></div>
+                    </div>
+                    <button class="btn-action" style="background:var(--accent-blue);" onclick="openMealModal()">+ إضافة صنف أو وجبة جديدة</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- نافذة إضافة صنف أو وجبة -->
+    <div id="mealModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>🍽️ إضافة صنف أو وجبة جديدة</h3>
+            <form onsubmit="addNewMeal(event)">
+                <div class="form-group">
+                    <label>اسم الوجبة أو الصنف:</label>
+                    <input type="text" id="mealTitle" class="form-control" placeholder="مثال: وجبة خفيفة / شوفان بالحليب" required>
+                </div>
+                <div class="form-group">
+                    <label>مكونات الصنف / الوجبة:</label>
+                    <input type="text" id="mealDesc" class="form-control" placeholder="مثال: كوب حليب + 3 معالق شوفان" required>
+                </div>
+                <div class="form-group">
+                    <label>السعرات الحرارية (Calories):</label>
+                    <input type="number" id="mealCalories" class="form-control" placeholder="مثال: 250" required>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">إضافة للقائمة</button>
+                    <button type="button" class="btn-close-modal" onclick="closeMealModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openMealModal() {
+            document.getElementById('mealModal').style.display = 'flex';
+        }
+        function closeMealModal() {
+            document.getElementById('mealModal').style.display = 'none';
+        }
+        function addNewMeal(event) {
+            event.preventDefault();
+            const title = document.getElementById('mealTitle').value;
+            const desc = document.getElementById('mealDesc').value;
+            const calories = document.getElementById('mealCalories').value;
+
+            const container = document.getElementById('meals-list-container');
+            const newDiv = document.createElement('div');
+            newDiv.style.marginBottom = '15px';
+            newDiv.innerHTML = `<strong style="font-size: 13px; color: var(--accent-blue);">${title}:</strong><div class="meal-item-box"><span>${desc}</span><span style="font-size: 11px; color: var(--text-gray);">${calories} سعرة</span></div>`;
+            
+            container.appendChild(newDiv);
+            alert('تمت إضافة الوجبة بنجاح للخطّة الغذائية!');
+            closeMealModal();
+            event.target.reset();
+        }
+    </script>
 </body>
 </html>
