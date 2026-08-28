@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dr. Shady Samir - التنبيهات الذكية (SQL Live)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
+        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 15px; }
+        .alert-item { padding: 12px 15px; border-radius: 8px; background: #eff6ff; border-right: 4px solid var(--accent-blue); margin-bottom: 10px; font-size: 13px; color: var(--text-dark); display: flex; justify-content: space-between; align-items: center; }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <div>
+            <div class="sidebar-brand">
+                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <h2>د. شادي سمير</h2>
+                <p>عيادة التغذية العلاجية</p>
+            </div>
+            <ul class="sidebar-menu">
+                <li><a href="index.html">🏠 الرئيسية</a></li>
+                <li><a href="patients.html">👥 المرضى</a></li>
+                <li><a href="appointments.html">📅 المواعيد</a></li>
+                <li><a href="visits.html">📋 الزيارات</a></li>
+                <li><a href="measurements.html">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل</a></li>
+                <li><a href="supplements.html">💊 المكملات</a></li>
+                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html">💰 المدفوعات</a></li>
+                <li><a href="reports.html">📊 التقارير</a></li>
+                <li class="active"><a href="notifications.html">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html">⚙️ الإعدادات</a></li>
+            </ul>
+        </div>
+        <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <h1>🔔 التنبيهات والإشعارات الذكية (SQL Live)</h1>
+        </div>
+
+        <div class="card">
+            <h3>📋 تنبيهات المواعيد والزيارات القادمة</h3>
+            <div id="alertsListContainer">
+                <p style="color:var(--text-gray); text-align:center; padding:15px;">جاري جلب التنبيهات...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function loadNotifications() {
+            const container = document.getElementById('alertsListContainer');
+            const { data, error } = await supabaseClient.from('appointments').select('*').order('appt_date', { ascending: true }).limit(10);
+            
+            if (error || !data || data.length === 0) {
+                container.innerHTML = `<p style="color:var(--text-gray); text-align:center; padding:15px;">لا توجد مواعيد أو تنبيهات نشطة حالياً.</p>`;
+                return;
+            }
+
+            container.innerHTML = '';
+            data.forEach(a => {
+                container.innerHTML += `
+                    <div class="alert-item">
+                        <div>
+                            <strong>موعد حجز للمريض: ${a.patient_name}</strong>
+                            <div style="font-size:11px; color:var(--text-gray); margin-top:3px;">نوع الزيارة: ${a.appt_type} - الوقت: ${a.appt_time}</div>
+                        </div>
+                        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">${a.status}</span>
+                    </div>
+                `;
+            });
+        }
+
+        window.onload = loadNotifications;
+    </script>
+</body>
+</html>
