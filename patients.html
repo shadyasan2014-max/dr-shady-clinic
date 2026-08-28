@@ -34,7 +34,7 @@
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
@@ -67,7 +67,7 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>👥 قاعدة بيانات ورجال العيادة (سجل المرضى)</h1>
+            <h1>👥 قاعدة بيانات وعيادة الدكتور شادي سمير (سجل المرضى)</h1>
             <button class="btn-action" onclick="openAddPatientModal()">+ تسجيل مريض جديد</button>
         </div>
 
@@ -78,15 +78,15 @@
                     <tr>
                         <th>كود المريض</th>
                         <th>اسم المريض</th>
-                        <th>السن / الجنس</th>
+                        <th>السن</th>
                         <th>التصنيف / الحالة</th>
-                        <th>الوزن الحالي</th>
-                        <th>رقم الهاتف</th>
+                        <th>الحالة المرضية</th>
+                        <th>الوزن</th>
                         <th>الإجراء</th>
                     </tr>
                 </thead>
                 <tbody id="patientsTableBody">
-                    <!-- يتم تعبئتها آلياً من قاعدة البيانات المحلية -->
+                    <!-- يتم تعبئتها آلياً -->
                 </tbody>
             </table>
         </div>
@@ -99,18 +99,36 @@
             <form onsubmit="saveNewPatient(event)">
                 <div class="form-group"><label>اسم المريض الرباعي:</label><input type="text" id="pName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
                 <div class="form-group"><label>السن:</label><input type="number" id="pAge" class="form-control" required placeholder="مثال: 35"></div>
-                <div class="form-group"><label>التصنيف / الحالة الإكلينيكية:</label>
-                    <select id="pCat" class="form-control">
+                
+                <div class="form-group">
+                    <label>التصنيف / الحالة الإكلينيكية:</label>
+                    <select id="pCat" class="form-control" onchange="checkCategorySelection()">
                         <option value="تكميم معدة">تكميم معدة</option>
                         <option value="تحويل مسار">تحويل مسار</option>
+                        <option value="تصحيح">تصحيح</option>
                         <option value="متابعة مونجارو">متابعة مونجارو</option>
                         <option value="سمنة مفرطة">سمنة مفرطة</option>
+                        <option value="سمنة">سمنة</option>
                         <option value="نحافة">نحافة</option>
+                        <option value="آخر">آخر</option>
                     </select>
                 </div>
+
+                <!-- خانة إضافية تظهر فقط لو اختار "آخر" -->
+                <div class="form-group" id="otherCategoryGroup" style="display: none;">
+                    <label style="color: var(--accent-blue);">حدد نوع العملية أو الحالة:</label>
+                    <input type="text" id="pOtherCategory" class="form-control" placeholder="اكتب اسم العملية أو الحالة...">
+                </div>
+
+                <div class="form-group">
+                    <label>الحالة المرضية (تعاني من إيه؟):</label>
+                    <textarea id="pMedicalCondition" class="form-control" rows="2" placeholder="اكتب الأمراض المزمنة، مقاومة إنسولين، غدة، ضغط..."></textarea>
+                </div>
+
                 <div class="form-group"><label>الوزن الابتدائي (كجم):</label><input type="number" step="0.1" id="pWeight" class="form-control" required placeholder="مثال: 110"></div>
                 <div class="form-group"><label>الطول (سم):</label><input type="number" id="pHeight" class="form-control" required placeholder="مثال: 175"></div>
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="pPhone" class="form-control" required placeholder="010xxxxxxxx"></div>
+
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ الملف بالسيستم</button>
                     <button type="button" onclick="closeAddPatientModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
@@ -120,11 +138,7 @@
     </div>
 
     <script>
-        // تهيئة قاعدة البيانات المحلية (إذا كانت فاضية، نفرغها تماماً بناءً على طلبك ونحط بيانات أساسية فارغة أو نظيفة)
-        let patients = JSON.parse(localStorage.getItem('clinic_patients')) || [
-            { id: 'NUT-001', name: 'أحمد محمد علي', age: 28, cat: 'تكميم معدة', weight: 92.4, height: 175, phone: '01012345678' },
-            { id: 'NUT-002', name: 'سارة أحمد محمود', age: 29, cat: 'متابعة مونجارو', weight: 108.0, height: 165, phone: '01198765432' }
-        ];
+        let patients = JSON.parse(localStorage.getItem('clinic_patients')) || [];
 
         function renderPatientsTable() {
             const tbody = document.getElementById('patientsTableBody');
@@ -142,8 +156,8 @@
                         <td>${p.name}</td>
                         <td>${p.age} سنة</td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${p.cat}</span></td>
+                        <td><span style="color:#b45309; font-size:11px;">${p.condition || 'لا توجد'}</span></td>
                         <td><strong>${p.weight} كجم</strong></td>
-                        <td>${p.phone}</td>
                         <td>
                             <a href="patient-profile.html?id=${p.id}" class="btn-view">📂 فتح الملف</a>
                             <button onclick="deletePatient(${index})" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; margin-right:5px;">🗑️ حذف</button>
@@ -160,18 +174,36 @@
         function openAddPatientModal() { document.getElementById('addPatientModal').style.display = 'flex'; }
         function closeAddPatientModal() { document.getElementById('addPatientModal').style.display = 'none'; }
 
+        // إظهار خانة "نوع العملية" لو المستخدم اختار "آخر"
+        function checkCategorySelection() {
+            const select = document.getElementById('pCat');
+            const otherGroup = document.getElementById('otherCategoryGroup');
+            if (select.value === 'آخر') {
+                otherGroup.style.display = 'block';
+            } else {
+                otherGroup.style.display = 'none';
+            }
+        }
+
         function saveNewPatient(event) {
             event.preventDefault();
             const name = document.getElementById('pName').value;
             const age = document.getElementById('pAge').value;
-            const cat = document.getElementById('pCat').value;
+            let cat = document.getElementById('pCat').value;
+            
+            if (cat === 'آخر') {
+                const otherVal = document.getElementById('pOtherCategory').value.trim();
+                if (otherVal) cat = otherVal;
+            }
+
+            const condition = document.getElementById('pMedicalCondition').value;
             const weight = document.getElementById('pWeight').value;
             const height = document.getElementById('pHeight').value;
             const phone = document.getElementById('pPhone').value;
             
             const newId = 'NUT-' + Math.floor(100 + Math.random() * 900);
 
-            const newPatient = { id: newId, name, age, cat, weight, height, phone };
+            const newPatient = { id: newId, name, age, cat, condition, weight, height, phone };
             patients.push(newPatient);
             localStorage.setItem('clinic_patients', JSON.stringify(patients));
 
@@ -179,6 +211,7 @@
             closeAddPatientModal();
             renderPatientsTable();
             event.target.reset();
+            document.getElementById('otherCategoryGroup').style.display = 'none';
         }
 
         function deletePatient(index) {
