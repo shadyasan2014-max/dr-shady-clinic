@@ -44,7 +44,7 @@
         .btn-save-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
         .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
 
-        /* تنسيق الطباعة الفخم والملون */
+        /* تنسيق الطباعة الفخم والملون بالكامل */
         #printMealArea { display: none; }
         @media print {
             body * { visibility: hidden; }
@@ -62,23 +62,27 @@
                 background: #ffffff; 
             }
             .print-card {
-                background: #f8fafc !important;
+                background: #f0fdf4 !important;
                 border: 2px solid #10b981 !important;
                 border-radius: 12px !important;
-                padding: 20px !important;
+                padding: 15px 20px !important;
                 margin-bottom: 20px !important;
             }
             .print-meal-box {
-                background: #ffffff !important;
-                border-right: 5px solid #3b82f6 !important;
+                background: #f8fafc !important;
+                border-right: 6px solid #3b82f6 !important;
                 border-top: 1px solid #e2e8f0;
-                border-left: 1px solid #e2e8f0;
+                border-right-color: #3b82f6 !important;
                 border-bottom: 1px solid #e2e8f0;
+                border-left: 1px solid #e2e8f0;
                 padding: 12px 15px !important;
                 border-radius: 8px !important;
                 margin-bottom: 12px !important;
             }
-            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+            * { 
+                -webkit-print-color-adjust: exact !important; 
+                print-color-adjust: exact !important; 
+            }
         }
     </style>
 </head>
@@ -191,38 +195,38 @@
         </div>
     </div>
 
-    <!-- نموذج الطباعة الفخم والمزخرف لكل مريض -->
+    <!-- نموذج الطباعة الملون والفخم لكل مريض -->
     <div id="printMealArea">
         <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #0b1329; font-size: 24px;">د. شادي سمير</h2>
-            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
+            <h2 style="margin: 0; color: #0b1329; font-size: 26px;">د. شادي سمير</h2>
+            <p style="margin: 5px 0 0 0; color: #059669; font-size: 14px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
         </div>
         
         <div style="text-align: center; margin-bottom: 20px;">
-            <h3 style="color: #3b82f6; margin: 0; font-size: 18px; background: #eff6ff; display: inline-block; padding: 6px 20px; border-radius: 20px; border: 1px solid #bfdbfe;">البرنامج الغذائي المخصص للمريض</h3>
+            <h3 style="color: #ffffff; margin: 0; font-size: 16px; background: #3b82f6; display: inline-block; padding: 8px 25px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">البرنامج الغذائي المخصص للمريض</h3>
         </div>
 
         <div class="print-card">
-            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 10px;">
-                <p style="margin: 0;"><strong>👤 اسم المريض:</strong> <span id="printPatientName" style="color: #10b981; font-weight: bold;">---</span></p>
-                <p style="margin: 0;"><strong>⚡ إجمالي السعرات:</strong> <span id="pCal" style="color: #3b82f6; font-weight: bold;">1400</span> سعرة</p>
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                <p style="margin: 0;"><strong>👤 اسم المريض:</strong> <span id="printPatientName" style="color: #047857; font-weight: bold; font-size: 15px;">---</span></p>
+                <p style="margin: 0;"><strong>⚡ إجمالي السعرات:</strong> <span id="pCal" style="color: #1d4ed8; font-weight: bold; font-size: 15px;">1400</span> سعرة حرارية</p>
             </div>
-            <hr style="border: 0; border-top: 1px solid #cbd5e1; margin: 10px 0;">
-            <p style="margin: 0; font-size: 13px; color: #475569; text-align: center;">
-                <strong>📊 توزيع المغذيات الكبرى (Macros):</strong> 
-                بروتين: <span id="pPro" style="color:#059669; font-weight:bold;">120 جم</span> | 
-                كارب: <span id="pCarb" style="color:#2563eb; font-weight:bold;">130 جم</span> | 
-                دهون صحية: <span id="pFat" style="color:#d97706; font-weight:bold;">45 جم</span>
+            <hr style="border: 0; border-top: 1px solid #a7f3d0; margin: 10px 0;">
+            <p style="margin: 0; font-size: 13px; color: #065f46; text-align: center; font-weight: bold;">
+                📊 توزيع المغذيات (Macros): 
+                بروتين: <span style="color:#047857;">120 جم</span> | 
+                كارب: <span style="color:#1d4ed8;">130 جم</span> | 
+                دهون صحية: <span style="color:#b45309;">45 جم</span>
             </p>
         </div>
 
         <div id="printMealsList" style="margin-top: 15px;">
-            <!-- يتم تعبئته آلياً بتصميم بطاقات ملونة -->
+            <!-- يتم تعبئته آلياً -->
         </div>
 
-        <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 14px; border-top: 1px dashed #cbd5e1; padding-top: 20px;">
-            <p style="margin: 0; font-weight: bold;">توقيع الطبيب المعالج: د. شادي سمير</p>
-            <p style="margin: 0; color: #64748b;">ختم العيادة الرسمي</p>
+        <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 14px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
+            <p style="margin: 0; font-weight: bold; color: #0f172a;">توقيع الطبيب المعالج: د. شادي سمير</p>
+            <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
         </div>
     </div>
 
@@ -279,9 +283,9 @@
                 const cal = item.querySelector('.m-cal').innerText;
                 htmlContent += `
                     <div class="print-meal-box">
-                        <strong style="color: #1e40af; font-size: 15px;">🍽️ ${title}</strong><br>
+                        <strong style="color: #1d4ed8; font-size: 15px;">🍽️ ${title}</strong><br>
                         <span style="color: #334155; font-size: 13px; line-height: 1.6; display: inline-block; margin-top: 4px;">• المكونات: ${desc}</span>
-                        <span style="float: left; color: #059669; font-weight: bold; font-size: 12px;">🔥 ${cal}</span>
+                        <span style="float: left; color: #059669; font-weight: bold; font-size: 13px;">🔥 ${cal}</span>
                     </div>`;
             });
             document.getElementById('printMealsList').innerHTML = htmlContent;
