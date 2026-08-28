@@ -34,14 +34,24 @@
         
         /* Modal تصميم النوافذ المنبثقة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
+        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
+        .btn-print-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
+        .btn-wa-modal { background-color: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
+        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 80px; font-size: 12px; }
+
+        /* تنسيق خاص بالطباعة (Hidden by default) */
+        #printArea { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #printArea, #printArea * { visibility: visible; }
+            #printArea { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 30px; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; background: #fff; }
+        }
     </style>
 </head>
 <body>
@@ -101,41 +111,49 @@
                         <td>010xxxxxxxx</td>
                         <td><strong>شهاب الدين حسب النبي</strong></td>
                     </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-status badge-received">تم التسليم والمراجعة</span></td>
-                        <td>وظائف الغدة الدرقية (TSH, T3, T4)</td>
-                        <td>20 أغسطس 2026</td>
-                        <td>011xxxxxxxx</td>
-                        <td><strong>أنس شادي سمير</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-status badge-pending">في انتظار التسليم</span></td>
-                        <td>سكر تراكمي (HbA1c) + دهون ثلاثية</td>
-                        <td>25 أغسطس 2026</td>
-                        <td>012xxxxxxxx</td>
-                        <td><strong>سارة أحمد محمود</strong></td>
-                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- نافذة طلب تحليل جديد -->
+    <!-- نافذة طلب تحليل جديد مع أزرار الطباعة والواتساب -->
     <div id="labModal" class="modal-overlay">
         <div class="modal-box">
             <h3>🧪 طلب تحليل طبي جديد لمريض</h3>
-            <form onsubmit="addNewLab(event)">
+            <form id="labForm" onsubmit="saveAndAddLab(event)">
                 <div class="form-group"><label>اسم المريض:</label><input type="text" id="labName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
-                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="labPhone" class="form-control" placeholder="010xxxxxxxx" required></div>
+                <div class="form-group"><label>رقم الهاتف (واتساب):</label><input type="text" id="labPhone" class="form-control" placeholder="010xxxxxxxx" required></div>
                 <div class="form-group"><label>نوع التحاليل المطلوبة:</label><input type="text" id="labTypes" class="form-control" placeholder="مثال: صورة دم كاملة + فيتامين د" required></div>
                 <div class="form-group"><label>تاريخ الطلب:</label><input type="text" id="labDate" class="form-control" value="28 أغسطس 2026" required></div>
+                
                 <div class="modal-actions">
                     <button type="submit" class="btn-save-modal">حفظ الطلب</button>
+                    <button type="button" class="btn-print-modal" onclick="printLabRequest()">🖨️ طباعة / PDF</button>
+                    <button type="button" class="btn-wa-modal" onclick="sendWhatsApp()">💬 واتساب</button>
                     <button type="button" class="btn-close-modal" onclick="closeLabModal()">إلغاء</button>
                 </div>
             </form>
+        </div>
+    </div>
+
+    <!-- نموذج الطباعة الخفي (يتحول لـ PDF أو طباعة رسمية) -->
+    <div id="printArea">
+        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+        </div>
+        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 20px;">طلب تحاليل وفحوصات طبية</h3>
+        <div style="font-size: 15px; line-height: 2;">
+            <p><strong>اسم المريض:</strong> <span id="pName">---</span></p>
+            <p><strong>تاريخ الطلب:</strong> <span id="pDate">---</span></p>
+            <p><strong>التحاليل المطلوبة:</strong></p>
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 5px;">
+                <span id="pTypes">---</span>
+            </div>
+        </div>
+        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
+            <p>توقيع الطبيب: د. شادي سمير</p>
+            <p>ختم العيادة</p>
         </div>
     </div>
 
@@ -143,7 +161,33 @@
         function openLabModal() { document.getElementById('labModal').style.display = 'flex'; }
         function closeLabModal() { document.getElementById('labModal').style.display = 'none'; }
 
-        function addNewLab(event) {
+        function updatePrintArea() {
+            document.getElementById('pName').innerText = document.getElementById('labName').value || 'غير محدد';
+            document.getElementById('pDate').innerText = document.getElementById('labDate').value || 'اليوم';
+            document.getElementById('pTypes').innerText = document.getElementById('labTypes').value || 'لا توجد تحاليل';
+        }
+
+        function printLabRequest() {
+            updatePrintArea();
+            window.print();
+        }
+
+        function sendWhatsApp() {
+            const name = document.getElementById('labName').value;
+            const phone = document.getElementById('labPhone').value;
+            const types = document.getElementById('labTypes').value;
+
+            if(!name || !phone || !types) {
+                alert('من فضلك املأ بيانات المريض والتحاليل أولاً لإرسالها عبر واتساب!');
+                return;
+            }
+
+            const message = `مرحباً بك يا استشاري/مريضنا العزيز ${name} 🩺\n\nإليك طلب التحاليل الطبية المطلوبة من عيادة د. شادي سمير للتغذية العلاجية:\n\n📋 التحاليل المطلوبة:\n${types}\n\nمع تمنياتنا لكم بدوام الصحة والعافية ✨`;
+            const encodedUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+            window.open(encodedUrl, '_blank');
+        }
+
+        function saveAndAddLab(event) {
             event.preventDefault();
             const name = document.getElementById('labName').value;
             const phone = document.getElementById('labPhone').value;
@@ -161,9 +205,9 @@
                 <td><strong>${name}</strong></td>
             `;
             tbody.insertBefore(newRow, tbody.firstChild);
-            alert('تم تسجيل طلب التحليل بنجاح!');
+            alert('تم حفظ وتسجيل طلب التحليل بنجاح!');
             closeLabModal();
-            event.target.reset();
+            document.getElementById('labForm').reset();
         }
     </script>
 </body>
