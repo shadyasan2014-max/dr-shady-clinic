@@ -70,10 +70,9 @@
         .form-control { width: 100%; padding: 8px; border: 1px solid var(--card-border); border-radius: 6px; font-size: 12px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 10px; }
         .img-row-box { background: #f8fafc; border: 1px dashed #cbd5e1; padding: 6px; border-radius: 6px; margin-bottom: 6px; display: flex; gap: 6px; align-items: center; }
 
-        /* نموذج التقرير الشامل المخفي أثناء التصفح وظهوره عند طباعته حصرياً */
         #printFullReportArea { display: none; }
 
-        /* إعدادات الطباعة للداشبورد */
+        /* إعدادات الطباعة للداشبورد (جعل الملاحظات في الأسفل وبعرض كامل) */
         @media print {
             body.printing-dashboard * { visibility: hidden; }
             body.printing-dashboard .main-content, body.printing-dashboard .main-content * { visibility: visible; }
@@ -95,7 +94,15 @@
             body.printing-dashboard .metrics-grid { display: grid !important; grid-template-columns: repeat(6, 1fr) !important; gap: 6px !important; }
             body.printing-dashboard .card { break-inside: avoid; margin-bottom: 8px !important; padding: 10px !important; }
 
-            /* إعدادات طباعة التقرير الشامل المفصل */
+            /* نقل بطاقة الملاحظات لأسفل وتأخذ العرض الكامل 100% في الطباعة فقط */
+            body.printing-dashboard #notesCard {
+                grid-column: span 2 !important;
+                order: 99 !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
+            }
+
+            /* إعدادات طباعة التقرير الشامل */
             body.printing-full-report * { visibility: hidden; }
             body.printing-full-report #printFullReportArea, body.printing-full-report #printFullReportArea * { visibility: visible; }
             body.printing-full-report .sidebar, body.printing-full-report .main-content, body.printing-full-report .modal-overlay { display: none !important; }
@@ -209,7 +216,8 @@
                     </div>
                 </div>
 
-                <div class="card">
+                <!-- بطاقة الملاحظات المميزة التي ستأخذ العرض الكامل أسفل الصفحة في الطباعة -->
+                <div class="card" id="notesCard">
                     <h3>📝 ملاحظات د. شادي سمير</h3>
                     <div style="font-size: 11px; line-height: 1.5; color: var(--text-gray); background: #f8fafc; padding: 8px; border-radius: 6px; border-right: 3px solid var(--primary-green);">
                         • المريض ملتزم بشكل جيد جداً.<br>
@@ -407,14 +415,14 @@
             });
         }
 
-        // دالة طباعة لوحة التحكم (الداشبورد كاملة)
+        // طباعة لوحة التحكم
         function triggerDashboardPrint() {
             document.getElementById('pageBody').className = 'printing-dashboard';
             window.print();
             document.getElementById('pageBody').className = '';
         }
 
-        // دالة طباعة التقرير المفصل للحالة من البداية
+        // طباعة التقرير المفصل للحالة
         function triggerFullReportPrint() {
             let htmlContent = '';
             visitsHistory.forEach(v => {
