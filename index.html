@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - لوحة تحكم العيادة الإكلينيكية (SQL Live)</title>
-    <!-- استدعاء مكتبة Supabase للربط بقاعدة بيانات SQL -->
+    <!-- استدعاء مكتبة Chart.js للرسوم البيانية ومكتبة Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
@@ -32,7 +33,7 @@
         .stat-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
         .stat-box .value { font-size: 20px; font-weight: bold; color: var(--text-dark); }
         
-        .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; }
         
@@ -67,7 +68,7 @@
                 <img src="logo.jpeg" alt="Logo" class="welcome-logo">
                 <div>
                     <h2 style="margin:0; font-size: 18px;">مرحباً بك، د. شادي 👋 🩺</h2>
-                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (لوحة المؤشرات والتقارير الحية)</p>
+                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (اللوحة الإحصائية والتحليلية)</p>
                 </div>
             </div>
             <div style="text-align: left;">
@@ -80,10 +81,19 @@
             <div class="stat-box"><div class="title">إجمالي المرضى المسجلين</div><div class="value" id="totalPatientsCount" style="color:var(--accent-blue);">0</div></div>
             <div class="stat-box"><div class="title">إجمالي المواعيد المحجوزة</div><div class="value" id="totalApptsCount" style="color:var(--primary-green);">0</div></div>
             <div class="stat-box"><div class="title">التحاليل الطبية المسجلة</div><div class="value" id="totalLabsCount" style="color:var(--warning-orange);">0</div></div>
-            <div class="stat-box"><div class="title">حالة النظام السحابي</div><div class="value" style="color:var(--primary-green); font-size: 14px; padding-top: 5px;">🟢 متصل بـ SQL</div></div>
+            <div class="stat-box"><div class="title">حالة النظام السحابي</div><div class="value" style="color:var(--primary-green); font-size: 13px; padding-top: 5px;">🟢 متصل بـ SQL & AI</div></div>
         </div>
 
         <div class="dashboard-grid">
+            <!-- الرسم البياني الحي المرتبط بـ SQL -->
+            <div class="card">
+                <h3>⚖️ توزيع الحالات وجراحات السمنة (تحليل حي)</h3>
+                <div style="width: 240px; margin: 0 auto; padding: 10px;">
+                    <canvas id="casesChart"></canvas>
+                </div>
+            </div>
+
+            <!-- جداول المواعيد الحية -->
             <div class="card">
                 <h3>📅 جدول المواعيد والزيارات الحية</h3>
                 <table>
@@ -96,47 +106,54 @@
                         </tr>
                     </thead>
                     <tbody id="homeApptsTableBody">
-                        <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب مواعيد اليوم من قاعدة بيانات SQL...</td></tr>
+                        <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب المواعيد...</td></tr>
                     </tbody>
                 </table>
-            </div>
-
-            <div class="card">
-                <h3>🔔 التنبيهات الذكية للعيادة</h3>
-                <div id="smartAlertsContainer" style="text-align: center; padding: 25px; color: var(--text-gray); font-size: 12px;">
-                    لا توجد تنبيهات متأخرة. السيستم يعمل بكفاءة تامة.
-                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // إعدادات الاتصال بقاعدة بيانات Supabase SQL
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let myChart = null;
+
         async function loadDashboardReports() {
-            // عرض التاريخ الحالي
             document.getElementById('currentDateBadge').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            // 1. جلب إجمالي عدد المرضى
-            const { count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
+            // 1. جلب المرضى والعد
+            const { data: patientsData, count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact' });
             document.getElementById('totalPatientsCount').innerText = patientsCount || 0;
 
-            // 2. جلب إجمالي عدد المواعيد
-            const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(5);
+            // 2. تحليل التصنيفات للجرافيك الدائري الحي
+            let catCounts = { 'تكميم معدة': 0, 'تحويل مسار': 0, 'سمنة مفرطة': 0, 'نحافة': 0, 'أخرى': 0 };
+            if (patientsData) {
+                patientsData.forEach(p => {
+                    let c = p.category;
+                    if (catCounts[c] !== undefined) {
+                        catCounts[c]++;
+                    } else {
+                        catCounts['أخرى']++;
+                    }
+                });
+            }
+            renderChart(catCounts);
+
+            // 3. جلب المواعيد والعد
+            const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(4);
             document.getElementById('totalApptsCount').innerText = apptsCount || 0;
 
-            // 3. جلب إجمالي عدد التحاليل
+            // 4. جلب التحاليل والعد
             const { count: labsCount } = await supabaseClient.from('labs').select('*', { count: 'exact', head: true });
             document.getElementById('totalLabsCount').innerText = labsCount || 0;
 
-            // 4. تعبئة جدول المواعيد في الصفحة الرئيسية
+            // تعبئة جدول المواعيد
             const tbody = document.getElementById('homeApptsTableBody');
             if (!apptsData || apptsData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--text-gray);">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
                 return;
             }
 
@@ -151,6 +168,34 @@
                         <td><span style="background:${badgeColor}20; color:${badgeColor}; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:bold;">${a.status}</span></td>
                     </tr>
                 `;
+            });
+        }
+
+        // دالة رسم الشارت الدائري الحي بناءً على داتا SQL
+        function renderChart(counts) {
+            const ctx = document.getElementById('casesChart').getContext('2d');
+            if (myChart) {
+                myChart.destroy();
+            }
+
+            myChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['تكميم معدة', 'تحويل مسار', 'سمنة مفرطة', 'نحافة', 'أخرى'],
+                    datasets: [{
+                        data: [counts['تكميم معدة'], counts['تحويل مسار'], counts['سمنة مفرطة'], counts['نحافة'], counts['أخرى']],
+                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: { font: { size: 10 }, boxWidth: 12 }
+                        }
+                    }
+                }
             });
         }
 
