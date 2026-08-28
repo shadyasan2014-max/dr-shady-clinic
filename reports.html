@@ -27,24 +27,11 @@
         .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .btn-export { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-block; text-decoration: none; }
         
-        #printReportArea { display: none; }
-
         @media print {
-            body * { visibility: hidden; }
-            #printReportArea, #printReportArea * { visibility: visible; }
-            #printReportArea { 
-                position: absolute; 
-                left: 0; 
-                top: 0; 
-                width: 100%; 
-                display: block; 
-                padding: 30px; 
-                direction: rtl; 
-                font-family: 'Segoe UI', Tahoma, sans-serif; 
-                color: #000; 
-                background: #fff; 
-            }
-            /* أمر إجبار المتصفح على طباعة الألوان والخلفيات */
+            .sidebar, .top-header, .btn-export { display: none !important; }
+            .main-content { margin-right: 0 !important; padding: 0 !important; }
+            body { background-color: #ffffff !important; }
+            .card { border: none !important; box-shadow: none !important; }
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -79,8 +66,8 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>📊 تقارير وإحصائيات العيادة الشاملة</h1>
-            <button class="btn-export" onclick="exportReportPDF()">📥 تصدير تقرير الشهر (PDF)</button>
+            <h1>📊 تقارير والإحصائيات العيادة الشاملة</h1>
+            <button class="btn-export" onclick="window.print()">📥 تصدير تقرير الشهر (PDF)</button>
         </div>
 
         <div class="reports-grid">
@@ -92,24 +79,6 @@
                 <h3>👥 توزيع أعداد الحالات حسب التخصص</h3>
                 <canvas id="typesChart" style="max-height: 220px;"></canvas>
             </div>
-        </div>
-    </div>
-
-    <div id="printReportArea">
-        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #0b1329; font-size: 24px;">د. شادي سمير</h2>
-            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-        </div>
-        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 25px; font-size: 18px;">التقرير الإحصائي الشهري لأداء العيادة</h3>
-        <div style="font-size: 15px; line-height: 2.2; margin-bottom: 40px; background: #f8fafc; padding: 20px; border-radius: 8px; border: 1px solid #e2e8f0;">
-            <p style="margin: 6px 0;"><strong>فترة التقرير:</strong> أغسطس 2026</p>
-            <p style="margin: 6px 0;"><strong>إجمالي عدد المرضى المتابعين:</strong> 86 مريض</p>
-            <p style="margin: 6px 0;"><strong>متوسط معدل فقدان الوزن الشهري:</strong> 5.5 كجم لكل حالة</p>
-            <p style="margin: 6px 0;"><strong>نسبة التزام الحالات بالبرنامج الغذائي والمكملات:</strong> 92% (ممتاز)</p>
-        </div>
-        <div style="margin-top: 100px; display: flex; justify-content: space-between; font-size: 14px;">
-            <p>توقيع المدير المسؤول / الطبيب: د. شادي سمير</p>
-            <p>ختم العيادة</p>
         </div>
     </div>
 
@@ -130,7 +99,7 @@
         });
 
         const ctxTypes = document.getElementById('typesChart').getContext('2d');
-        newChart(ctxTypes, {
+        new Chart(ctxTypes, {
             type: 'pie',
             data: {
                 labels: ['سمنة مفرطة', 'متابعة جراحات سمنة', 'نحافة', 'تغذية أطفال'],
@@ -141,10 +110,6 @@
             },
             options: { responsive: true }
         });
-
-        function exportReportPDF() {
-            window.print();
-        }
     </script>
 </body>
 </html>
