@@ -90,7 +90,7 @@
 
                 <div class="card">
                     <h3>💰 الحالة المالية</h3>
-                    <div class="info-row"><span>إجمالي المدفوع:</span> <strong style="color:var(--primary-green);">1,450 جنيه</strong></div>
+                    <div class="info-row"><span>إجمالي المدفوع:</span> <strong style="color:var(--primary-green);" id="lblPaid">1,450 جنيه</strong></div>
                     <div class="info-row"><span>آخر معاملة:</span> <strong>تم الدفع بالكامل</strong></div>
                     <a href="payments.html" class="btn-action" style="background: var(--warning-orange); color: white;">إدارة الحسابات والمدفوعات 💰</a>
                 </div>
@@ -110,8 +110,8 @@
                     <h3>📁 مرفقات الفحوصات والتحاليل الطبية</h3>
                     <div id="files-list-container">
                         <div class="file-item">
-                            <span>📄 تحليل صورة دم كاملة CBC.pdf (24 أغسطس)</span>
-                            <button class="btn-edit-sm" onclick="alert('جاري عرض المستند الطبي...')">عرض 👁️</button>
+                            <span>📄 تقرير التحاليل الطبية الشاملة.pdf</span>
+                            <button class="btn-edit-sm" onclick="alert('عرض المستند الطبي...')">عرض 👁️</button>
                         </div>
                     </div>
                     <button class="btn-action" style="background:var(--accent-blue); margin-top: 10px;" onclick="openUploadModal()">+ رفع ملف أو صورة جديدة</button>
@@ -120,8 +120,8 @@
                 <div class="card">
                     <h3>🥗 الخطة الغذائية النشطة</h3>
                     <div class="report-section">
-                        <h4>السعرات والماكروز المستهدفة: 1400 سعرة حرارية</h4>
-                        <p style="margin: 4px 0;">بروتين: 120 جم | كاربوهيدرات: 130 جم | دهون صحية: 45 جم</p>
+                        <h4>السعرات والماكروز المستهدفة: <span id="lblCalories">1400</span> سعرة حرارية</h4>
+                        <p style="margin: 4px 0;">بروتين: <span id="lblMacroPro">120 جم</span> | كاربوهيدرات: <span id="lblMacroCarb">130 جم</span> | دهون صحية: <span id="lblMacroFat">45 جم</span></p>
                     </div>
                     <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue);">تعديل أو عرض خطة الأكل 🥗</a>
                 </div>
@@ -179,6 +179,40 @@
     </div>
 
     <script>
+        // دالة تحميل بيانات المريض بناءً على البحث القادم من الصفحة الرئيسية
+        window.onload = function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const patientParam = urlParams.get('patient');
+
+            if (patientParam === 'sara') {
+                document.getElementById('headerPatientName').innerText = 'سارة أحمد محمود';
+                document.getElementById('lblAge').innerText = '29 سنة';
+                document.getElementById('lblCat').innerText = 'سمنة مفرطة + مونجارو';
+                document.getElementById('lblPhone').innerText = '011xxxxxxxx';
+                document.getElementById('lblWeight').innerText = '108 كجم';
+                document.getElementById('lblHeight').innerText = '165 سم';
+                document.getElementById('lblPaid').innerText = '850 جنيه';
+                document.getElementById('lblCalories').innerText = '1150';
+                document.getElementById('lblMacroPro').innerText = '110 جم';
+                document.getElementById('lblMacroCarb').innerText = '80 جم';
+                document.getElementById('lblMacroFat').innerText = '30 جم';
+                document.getElementById('last-note').innerText = 'متابعة حقن مونجارو، الغثيان خفيف والنزول جيد جداً.';
+            } else if (patientParam === 'ahmed') {
+                document.getElementById('headerPatientName').innerText = 'أحمد محمد علي';
+                document.getElementById('lblAge').innerText = '41 سنة';
+                document.getElementById('lblCat').innerText = 'متابعة سمنة وكسر ثبات وزن';
+                document.getElementById('lblPhone').innerText = '012xxxxxxxx';
+                document.getElementById('lblWeight').innerText = '98 كجم';
+                document.getElementById('lblHeight').innerText = '174 سم';
+                document.getElementById('lblPaid').innerText = '1,200 جنيه';
+                document.getElementById('lblCalories').innerText = '1500';
+                document.getElementById('lblMacroPro').innerText = '130 جم';
+                document.getElementById('lblMacroCarb').innerText = '140 جم';
+                document.getElementById('lblMacroFat').innerText = '50 جم';
+                document.getElementById('last-note').innerText = 'تم كسر ثبات الوزن بنجاح بزيادة الكارديو.';
+            }
+        };
+
         function openEditPatientModal() {
             document.getElementById('editName').value = document.getElementById('headerPatientName').innerText;
             document.getElementById('editAge').value = document.getElementById('lblAge').innerText;
