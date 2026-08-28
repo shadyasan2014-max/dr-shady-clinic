@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - إدارة وسجل المرضى</title>
+    <title>Dr. Shady Samir - إدارة الحالات والتنبيهات الذكية</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -20,11 +20,19 @@
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
         
+        /* قسم التنبيهات الذكية لتجديد الأنظمة */
+        .alerts-card { background: #fffbeb; border: 1px solid #f59e0b; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .alerts-card h3 { margin-top: 0; color: #b45309; font-size: 15px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #fde68a; padding-bottom: 8px; margin-bottom: 10px; }
+        .alert-item { display: flex; justify-content: space-between; align-items: center; background: #ffffff; padding: 8px 12px; border-radius: 6px; margin-bottom: 6px; border-right: 4px solid var(--warning-orange); font-size: 12px; }
+
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         
+        .search-box { display: flex; gap: 10px; margin-bottom: 15px; }
+        .search-input { flex: 1; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background: #f8fafc; outline: none; }
+
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
@@ -53,13 +61,9 @@
                 <li class="active"><a href="patients.html">👥 المرضى</a></li>
                 <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
                 <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
                 <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
                 <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -67,35 +71,49 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>👥 قاعدة بيانات وعيادة الدكتور شادي سمير (سجل المرضى)</h1>
+            <h1>👥 قاعدة بيانات واسترجاع الحالات</h1>
             <button class="btn-action" onclick="openAddPatientModal()">+ تسجيل مريض جديد</button>
         </div>
 
+        <!-- نظام التنبيهات الذكية لتجديد الأنظمة -->
+        <div class="alerts-card">
+            <h3>⏰ تنبيهات مواعيد تجديد الأنظمة الغذائية</h3>
+            <div id="alertsContainer">
+                <!-- يتم توليد التنبيهات آلياً هنا -->
+            </div>
+        </div>
+
         <div class="card">
-            <h3>📋 قائمة الحالات المسجلة</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                <h3 style="margin: 0;">📋 سجل الحالات المسجلة واسترجاع البيانات</h3>
+                <div style="width: 300px;">
+                    <input type="text" id="searchInput" class="search-input" placeholder="🔍 ابحث باسم المريض أو الكود..." onkeyup="filterPatients()">
+                </div>
+            </div>
+
             <table>
                 <thead>
                     <tr>
                         <th>كود المريض</th>
                         <th>اسم المريض</th>
-                        <th>السن</th>
                         <th>التصنيف / الحالة</th>
-                        <th>الحالة المرضية</th>
+                        <th>تاريخ بدء الخطة</th>
+                        <th>مدة الخطة</th>
                         <th>الوزن</th>
                         <th>الإجراء</th>
                     </tr>
                 </thead>
                 <tbody id="patientsTableBody">
-                    <!-- يتم تعبئتها آلياً -->
+                    <!-- يتم تعبئتها آلياً من قاعدة البيانات المحلية -->
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- نافذة إضافة مريض جديد -->
+    <!-- نافذة إضافة مريض جديد مع تاريخ بدء الخطة -->
     <div id="addPatientModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل ملف مريض جديد</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل ملف مريض جديد وبدء الخطة</h3>
             <form onsubmit="saveNewPatient(event)">
                 <div class="form-group"><label>اسم المريض الرباعي:</label><input type="text" id="pName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
                 <div class="form-group"><label>السن:</label><input type="number" id="pAge" class="form-control" required placeholder="مثال: 35"></div>
@@ -107,22 +125,26 @@
                         <option value="تحويل مسار">تحويل مسار</option>
                         <option value="تصحيح">تصحيح</option>
                         <option value="متابعة مونجارو">متابعة مونجارو</option>
-                        <option value="سمنة مفرطة">سمنة مفرطة</option>
                         <option value="سمنة">سمنة</option>
                         <option value="نحافة">نحافة</option>
                         <option value="آخر">آخر</option>
                     </select>
                 </div>
 
-                <!-- خانة إضافية تظهر فقط لو اختار "آخر" -->
                 <div class="form-group" id="otherCategoryGroup" style="display: none;">
                     <label style="color: var(--accent-blue);">حدد نوع العملية أو الحالة:</label>
                     <input type="text" id="pOtherCategory" class="form-control" placeholder="اكتب اسم العملية أو الحالة...">
                 </div>
 
+                <div class="form-group"><label>تاريخ بدء الخطة الغذائية:</label><input type="date" id="pStartDate" class="form-control" required></div>
+                
                 <div class="form-group">
-                    <label>الحالة المرضية (تعاني من إيه؟):</label>
-                    <textarea id="pMedicalCondition" class="form-control" rows="2" placeholder="اكتب الأمراض المزمنة، مقاومة إنسولين، غدة، ضغط..."></textarea>
+                    <label>مدة الخطة (لتنبيه التجديد):</label>
+                    <select id="pPlanDuration" class="form-control">
+                        <option value="7">أسبوع واحد (7 أيام)</option>
+                        <option value="14">أسبوعين (14 يوم)</option>
+                        <option value="30">شهر كامل (30 يوم)</option>
+                    </select>
                 </div>
 
                 <div class="form-group"><label>الوزن الابتدائي (كجم):</label><input type="number" step="0.1" id="pWeight" class="form-control" required placeholder="مثال: 110"></div>
@@ -138,51 +160,99 @@
     </div>
 
     <script>
-        let patients = JSON.parse(localStorage.getItem('clinic_patients')) || [];
+        // قاعدة بيانات محلية افتراضية لو فارغة
+        let patients = JSON.parse(localStorage.getItem('clinic_patients')) || [
+            { id: 'NUT-001', name: 'أحمد محمد علي', age: 28, cat: 'تكميم معدة', startDate: '2026-08-20', duration: 7, weight: 92.4, height: 175, phone: '01012345678' },
+            { id: 'NUT-002', name: 'سارة أحمد محمود', age: 29, cat: 'متابعة مونجارو', startDate: '2026-08-10', duration: 14, weight: 108.0, height: 165, phone: '01198765432' }
+        ];
 
-        function renderPatientsTable() {
+        function renderPatientsTable(dataToRender = patients) {
             const tbody = document.getElementById('patientsTableBody');
             tbody.innerHTML = '';
             
-            if (patients.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات مسجلة حالياً. اضغط على "+ تسجيل مريض جديد" لإضافة أول حالة.</td></tr>`;
+            if (dataToRender.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات مطابقة للبحث.</td></tr>`;
                 return;
             }
 
-            patients.forEach((p, index) => {
+            dataToRender.forEach((p, index) => {
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${p.id}</strong></td>
                         <td>${p.name}</td>
-                        <td>${p.age} سنة</td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${p.cat}</span></td>
-                        <td><span style="color:#b45309; font-size:11px;">${p.condition || 'لا توجد'}</span></td>
+                        <td>${p.startDate || 'غير محدد'}</td>
+                        <td>${p.duration ? p.duration + ' أيام' : '7 أيام'}</td>
                         <td><strong>${p.weight} كجم</strong></td>
                         <td>
-                            <a href="patient-profile.html?id=${p.id}" class="btn-view">📂 فتح الملف</a>
+                            <a href="patient-profile.html?id=${p.id}" class="btn-view">📂 استرجاع الملف</a>
                             <button onclick="deletePatient(${index})" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer; margin-right:5px;">🗑️ حذف</button>
                         </td>
                     </tr>
                 `;
             });
+            checkRenewalAlerts();
+        }
+
+        // فحص التنبيهات وتجديد الأنظمة
+        function checkRenewalAlerts() {
+            const container = document.getElementById('alertsContainer');
+            container.innerHTML = '';
+            let alertsCount = 0;
+
+            const today = new Date();
+
+            patients.forEach(p => {
+                if (p.startDate && p.duration) {
+                    const start = new Date(p.startDate);
+                    const durationDays = parseInt(p.duration);
+                    
+                    // حساب تاريخ انتهاء الخطة
+                    const expiryDate = new Date(start);
+                    expiryDate.setDate(start.getDate() + durationDays);
+
+                    // الفرق بالأيام بين اليوم وتاريخ انتهاء الخطة
+                    const diffTime = expiryDate - today;
+                    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                    if (diffDays <= 2) {
+                        alertsCount++;
+                        let alertText = diffDays < 0 ? `⚠️ انتهت خطة المريض منذ ${Math.abs(diffDays)} أيام وتحتاج للتجديد الفوري!` : (diffDays === 0 ? `🚨 موعد تجديد خطة المريض ينتهي اليوم!` : `⏰ متبقي ${diffDays} أيام على تجديد نظام المريض.`);
+                        
+                        container.innerHTML += `
+                            <div class="alert-item">
+                                <div><strong>${p.name}</strong> (${p.cat}) - ${alertText}</div>
+                                <a href="patient-profile.html?id=${p.id}" style="background:#b45309; color:white; padding:4px 10px; border-radius:4px; text-decoration:none; font-weight:bold;">تجديد الخطة 🥗</a>
+                            </div>
+                        `;
+                    }
+                }
+            });
+
+            if (alertsCount === 0) {
+                container.innerHTML = `<div style="font-size: 12px; color: var(--text-gray);">لا توجد تنبيهات تجديد عاجلة حالياً. جميع الأنظمة سارية بانتظام.</div>`;
+            }
         }
 
         window.onload = function() {
+            // وضع تاريخ اليوم كافتراضي في تاريخ بدء الخطة
+            document.getElementById('pStartDate').valueAsDate = new Date();
             renderPatientsTable();
         };
+
+        function filterPatients() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = patients.filter(p => p.name.toLowerCase().includes(query) || p.id.toLowerCase().includes(query));
+            renderPatientsTable(filtered);
+        }
 
         function openAddPatientModal() { document.getElementById('addPatientModal').style.display = 'flex'; }
         function closeAddPatientModal() { document.getElementById('addPatientModal').style.display = 'none'; }
 
-        // إظهار خانة "نوع العملية" لو المستخدم اختار "آخر"
         function checkCategorySelection() {
             const select = document.getElementById('pCat');
             const otherGroup = document.getElementById('otherCategoryGroup');
-            if (select.value === 'آخر') {
-                otherGroup.style.display = 'block';
-            } else {
-                otherGroup.style.display = 'none';
-            }
+            otherGroup.style.display = select.value === 'آخر' ? 'block' : 'none';
         }
 
         function saveNewPatient(event) {
@@ -196,18 +266,19 @@
                 if (otherVal) cat = otherVal;
             }
 
-            const condition = document.getElementById('pMedicalCondition').value;
+            const startDate = document.getElementById('pStartDate').value;
+            const duration = document.getElementById('pPlanDuration').value;
             const weight = document.getElementById('pWeight').value;
             const height = document.getElementById('pHeight').value;
             const phone = document.getElementById('pPhone').value;
             
             const newId = 'NUT-' + Math.floor(100 + Math.random() * 900);
 
-            const newPatient = { id: newId, name, age, cat, condition, weight, height, phone };
+            const newPatient = { id: newId, name, age, cat, startDate, duration, weight, height, phone };
             patients.push(newPatient);
             localStorage.setItem('clinic_patients', JSON.stringify(patients));
 
-            alert('✨ تم تسجيل ملف المريض الجديد بنجاح في قاعدة البيانات!');
+            alert('✨ تم تسجيل المريض وحفظ بياناته وتفعيل نظام التنبيهات بنجاح!');
             closeAddPatientModal();
             renderPatientsTable();
             event.target.reset();
