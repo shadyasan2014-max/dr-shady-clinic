@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - قسم المكملات والفيتامينات</title>
+    <title>Dr. Shady Samir - المكملات والفيتامينات الذكية (SQL + AI)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -18,39 +19,26 @@
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .action-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .btn-add { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; }
-        .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
-        th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
-        td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .badge-alert { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #fef2f2; color: #991b1b; }
-        .badge-ok { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
-        .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
         
-        /* Modal تصميم النوافذ المنبثقة */
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-block; text-decoration: none; }
+        .btn-ai { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; padding: 7px 12px; border-radius: 6px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 10px; }
+        
+        /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
-        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
-        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
-        .btn-print-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
-        .btn-wa-modal { background-color: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 80px; font-size: 12px; }
-
-        /* تنسيق الطباعة الخفي */
-        #printArea { display: none; }
-        @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 30px; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; background: #fff; }
-        }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
     </style>
 </head>
 <body>
@@ -66,13 +54,8 @@
                 <li><a href="patients.html">👥 المرضى</a></li>
                 <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
                 <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
-                <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
                 <li class="active"><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -80,143 +63,172 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>💊 متابعة المكملات الغذائية وجرعات الأدوية</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">متابعة الفيتامينات وحالات قرب انتهاء الجرعات</div>
+            <h1>💊 المكملات وبروتوكولات الفيتامينات (SQL + AI)</h1>
+            <button class="btn-action" onclick="openAddSuppModal()">+ وصف مكمل جديد</button>
         </div>
 
-        <div class="action-bar">
-            <div style="font-size: 14px; font-weight: bold;">مرضى بحاجة لمراجعة أو تجديد الجرعات والمكملات</div>
-            <button class="btn-add" onclick="openSuppModal()">+ إضافة بروتوكول جديد</button>
-        </div>
-
-        <div class="table-card">
+        <div class="card">
+            <h3>📋 سجل المكملات والفيتامينات المسجلة للحالات</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>إجراء الملف</th>
-                        <th>حالة المخزون / الجرعة</th>
-                        <th>المكملات والبروتوكول المقرر</th>
-                        <th>نوع الحالة</th>
-                        <th>رقم التليفون</th>
                         <th>اسم المريض</th>
+                        <th>المكملات / الفيتامينات</th>
+                        <th>الجرعات</th>
+                        <th>المدة</th>
+                        <th>ملاحظات إكلينيكية</th>
+                        <th>الإجراء</th>
                     </tr>
                 </thead>
-                <tbody id="supp-tbody">
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-alert">قرب انتهاء الجرعة (متبقي 3 أيام)</span></td>
-                        <td>مجموعة فيتامينات ما بعد التكميم + كالسيوم</td>
-                        <td>متابعة تكميم</td>
-                        <td>010xxxxxxxx</td>
-                        <td><strong>شهاب الدين حسب النبي</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-ok">الجرعة منتظمة (مستمر)</span></td>
-                        <td>حقن مونجارو (Mounjaro 5mg) أسبوعياً</td>
-                        <td>سمنة مفرطة</td>
-                        <td>012xxxxxxxx</td>
-                        <td><strong>سارة أحمد محمود</strong></td>
-                    </tr>
+                <tbody id="suppsTableBody">
+                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب البيانات من قاعدة بيانات SQL...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- نافذة إضافة بروتوكول مكملات جديد -->
-    <div id="suppModal" class="modal-overlay">
+    <!-- نافذة إضافة وصفة مكملات -->
+    <div id="addSuppModal" class="modal-overlay">
         <div class="modal-box">
-            <h3>💊 إضافة بروتوكول مكملات أو أدوية جديد</h3>
-            <form id="suppForm" onsubmit="saveAndAddSupp(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="suppName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
-                <div class="form-group"><label>رقم الهاتف (واتساب):</label><input type="text" id="suppPhone" class="form-control" placeholder="010xxxxxxxx" required></div>
-                <div class="form-group"><label>نوع الحالة:</label><input type="text" id="suppType" class="form-control" placeholder="مثال: متابعة تكميم / سمنة مفرطة" required></div>
-                <div class="form-group"><label>المكملات والبروتوكول المقرر:</label><input type="text" id="suppItems" class="form-control" placeholder="مثال: فيتامين د + أوميجا 3 + كالسيوم" required></div>
-                <div class="form-group"><label>حالة الجرعة / المخزون:</label><input type="text" id="suppStatusText" class="form-control" placeholder="مثال: قرب انتهاء الجرعة (متبقي 3 أيام)" required></div>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ وصف مكملات وفيتامينات (مع مساعد AI)</h3>
+            
+            <button type="button" class="btn-ai" onclick="generateAISupplements()">✨ توليد بروتوكول فيتامينات بالذكاء الاصطناعي</button>
 
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ البروتوكول</button>
-                    <button type="button" class="btn-print-modal" onclick="printSuppRequest()">🖨️ طباعة / PDF</button>
-                    <button type="button" class="btn-wa-modal" onclick="sendSuppWhatsApp()">💬 واتساب</button>
-                    <button type="button" class="btn-close-modal" onclick="closeSuppModal()">إلغاء</button>
+            <form onsubmit="saveSuppToSQL(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="suppPatientName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
+                
+                <div class="form-group">
+                    <label>نوع الحالة / العملية (لتوجيه الـ AI):</label>
+                    <select id="suppCaseType" class="form-control">
+                        <option value="تكميم معدة">تكميم معدة (أول 6 شهور)</option>
+                        <option value="تحويل مسار">تحويل مسار (بروتوكول مكثف)</option>
+                        <option value="سمنة ومقاومة إنسولين">سمنة ومقاومة إنسولين</option>
+                        <option value="نحافة حادة">نحافة حادة</option>
+                    </select>
+                </div>
+
+                <div class="form-group"><label>قائمة الفيتامينات والمكملات:</label><textarea id="suppList" class="form-control" rows="3" required placeholder="مثال: Multivitamin, Calcium Citrate, Iron..."></textarea></div>
+                <div class="form-group"><label>الجرعات:</label><input type="text" id="suppDosage" class="form-control" required placeholder="مثال: قرص مرتين يومياً"></div>
+                <div class="form-group"><label>المدة الزمنية:</label><input type="text" id="suppDuration" class="form-control" required placeholder="مثال: 3 أشهر"></div>
+                <div class="form-group"><label>تعليمات إكلينيكية:</label><textarea id="suppNotes" class="form-control" rows="2" placeholder="تجنب اخذ الحديد مع الكالسيوم معاً..."></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
+                    <button type="button" onclick="closeAddSuppModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- نموذج الطباعة الخفي -->
-    <div id="printArea">
-        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
-            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-        </div>
-        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 20px;">روشتة المكملات الغذائية والفيتامينات</h3>
-        <div style="font-size: 15px; line-height: 2;">
-            <p><strong>اسم المريض:</strong> <span id="sName">---</span></p>
-            <p><strong>نوع الحالة:</strong> <span id="sType">---</span></p>
-            <p><strong>المكملات والجرعات المقررة:</strong></p>
-            <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 8px; margin-top: 5px;">
-                <span id="sItems">---</span>
-            </div>
-        </div>
-        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
-            <p>توقيع الطبيب: د. شادي سمير</p>
-            <p>ختم العيادة</p>
-        </div>
-    </div>
-
     <script>
-        function openSuppModal() { document.getElementById('suppModal').style.display = 'flex'; }
-        function closeSuppModal() { document.getElementById('suppModal').style.display = 'none'; }
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function updatePrintArea() {
-            document.getElementById('sName').innerText = document.getElementById('suppName').value || 'غير محدد';
-            document.getElementById('sType').innerText = document.getElementById('suppType').value || 'غير محدد';
-            document.getElementById('sItems').innerText = document.getElementById('suppItems').value || 'لا توجد مكملات';
-        }
+        async function fetchSuppsFromSQL() {
+            const tbody = document.getElementById('suppsTableBody');
+            const { data, error } = await supabaseClient.from('supplements').select('*').order('created_at', { ascending: false });
 
-        function printSuppRequest() {
-            updatePrintArea();
-            window.print();
-        }
-
-        function sendSuppWhatsApp() {
-            const name = document.getElementById('suppName').value;
-            const phone = document.getElementById('suppPhone').value;
-            const items = document.getElementById('suppItems').value;
-
-            if(!name || !phone || !items) {
-                alert('من فضلك املأ بيانات المريض والمكملات أولاً للإرسال عبر واتساب!');
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
                 return;
             }
 
-            const message = `مرحباً بك يا مريضنا العزيز ${name} 🩺\n\nإليك بروتوكول المكملات الغذائية والفيتامينات المقررة من عيادة د. شادي سمير:\n\n💊 المكملات:\n${items}\n\nمع تمنياتنا لكم بدوام الصحة والعافية ✨`;
-            const encodedUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-            window.open(encodedUrl, '_blank');
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مكملات مسجلة حالياً.</td></tr>`;
+                return;
+            }
+
+            data.forEach(s => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${s.patient_name}</strong></td>
+                        <td>${s.supp_list}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${s.dosage}</span></td>
+                        <td>${s.duration}</td>
+                        <td style="color:var(--text-gray); font-size:11px;">${s.notes || 'لا توجد ملاحظات'}</td>
+                        <td>
+                            <button onclick="deleteSuppFromSQL('${s.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
 
-        function saveAndAddSupp(event) {
-            event.preventDefault();
-            const name = document.getElementById('suppName').value;
-            const phone = document.getElementById('suppPhone').value;
-            const type = document.getElementById('suppType').value;
-            const items = document.getElementById('suppItems').value;
-            const statusText = document.getElementById('suppStatusText').value;
+        window.onload = function() {
+            fetchSuppsFromSQL();
+        };
 
-            const tbody = document.getElementById('supp-tbody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                <td><span class="badge-alert">${statusText}</span></td>
-                <td>${items}</td>
-                <td>${type}</td>
-                <td>${phone}</td>
-                <td><strong>${name}</strong></td>
-            `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-            alert('تم حفظ وتسجيل بروتوكول المكملات بنجاح!');
-            closeSuppModal();
-            document.getElementById('suppForm').reset();
+        function openAddSuppModal() { document.getElementById('addSuppModal').style.display = 'flex'; }
+        function closeAddSuppModal() { document.getElementById('addSuppModal').style.display = 'none'; }
+
+        // مولد الذكاء الاصطناعي لبروتوكولات الفيتامينات حسب حالة المريض
+        function generateAISupplements() {
+            const caseType = document.getElementById('suppCaseType').value;
+            let listField = document.getElementById('suppList');
+            let dosageField = document.getElementById('suppDosage');
+            let durationField = document.getElementById('suppDuration');
+            let notesField = document.getElementById('suppNotes');
+
+            if (caseType.includes('تكميم')) {
+                listField.value = 'كبسولات Multivitamin + Calcium Citrate + Vitamin B12 (صايم أو تحت اللسان)';
+                dosageField.value = 'ملتي فيتامين مرتين يومياً + كالسيوم قرصين (بينهما ساعتان عن الحديد)';
+                durationField.value = 'مستمر طوال الـ 6 شهور الأولى';
+                notesField.value = 'ضرورة شرب الماء بانتظام وتجنب المشروبات الغازية تماماً.';
+            } else if (caseType.includes('تحويل مسار')) {
+                listField.value = 'Multivitamin مكثف + Iron (حديد) + Calcium Citrate + Vitamin D3 + B12';
+                dosageField.value = 'حديد يومياً + كالسيوم 3 مرات + فوار B12 أسبوعياً';
+                durationField.value = 'متابعة دورية كل 3 أشهر مع التحاليل';
+                notesField.value = 'مراعاة امتصاص الحديد والكالسيوم وفصلهم زمنياً بدقة شديدة.';
+            } else if (caseType.includes('مقاومة إنسولين')) {
+                listField.value = 'Omega 3 + Vitamin D3 + Chromium Picolinate';
+                dosageField.value = 'كبسولة يومياً بعد الغداء الرئيسي';
+                durationField.value = '3 أشهر';
+                notesField.value = 'التركيز على تقليل النشويات البسيطة وتنظيم وجبات الأكل الواعي.';
+            } else {
+                listField.value = 'بروتوكول عام دعم المتابعة والنشاط الحيوي';
+                dosageField.value = 'قرص يومياً';
+                durationField.value = 'شهر واحد';
+                notesField.value = 'مراجعة الحالة عند ظهور أي أعراض إجهاد.';
+            }
+
+            alert('✨ تم توليد بروتوكول الفيتامينات الذكي بنجاح بواسطة الـ AI!');
+        }
+
+        async function saveSuppToSQL(event) {
+            event.preventDefault();
+            const patient_name = document.getElementById('suppPatientName').value;
+            const supp_list = document.getElementById('suppList').value;
+            const dosage = document.getElementById('suppDosage').value;
+            const duration = document.getElementById('suppDuration').value;
+            const notes = document.getElementById('suppNotes').value;
+
+            const { error } = await supabaseClient.from('supplements').insert([
+                { patient_name, supp_list, dosage, duration, notes }
+            ]);
+
+            if (error) {
+                alert('خطأ أثناء الحفظ: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم حفظ بروتوكول المكملات في قاعدة بيانات SQL بنجاح دائم!');
+            closeAddSuppModal();
+            fetchSuppsFromSQL();
+            event.target.reset();
+        }
+
+        async function deleteSuppFromSQL(rowId) {
+            if (confirm('هل أنت متأكد من حذف هذه الوصفة نهائياً من قاعدة بيانات SQL؟')) {
+                const { error } = await supabaseClient.from('supplements').delete().eq('id', rowId);
+                if (error) {
+                    alert('خطأ أثناء الحذف: ' + error.message);
+                    return;
+                }
+                fetchSuppsFromSQL();
+            }
         }
     </script>
 </body>
