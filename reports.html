@@ -27,11 +27,35 @@
         .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .btn-export { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-block; text-decoration: none; }
         
+        /* رأس الصفحة للطباعة فقط (الدباجة) */
+        .print-only-header { display: none; }
+
         @media print {
             .sidebar, .top-header, .btn-export { display: none !important; }
-            .main-content { margin-right: 0 !important; padding: 0 !important; }
+            .main-content { margin-right: 0 !important; padding: 10px !important; }
             body { background-color: #ffffff !important; }
-            .card { border: none !important; box-shadow: none !important; }
+            .card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; page-break-inside: avoid; }
+            
+            /* إظهار دباجة العيادة فوق التقرير المطبوع */
+            .print-only-header {
+                display: block;
+                text-align: center;
+                border-bottom: 2px solid #10b981;
+                padding-bottom: 10px;
+                margin-bottom: 20px;
+            }
+            
+            /* تصغير مساحات العرض في الطباعة لكي تندمج الرسومات بجانب بعضها في صفحة واحدة */
+            .reports-grid {
+                display: flex !important;
+                flex-direction: row !important;
+                justify-content: space-between !important;
+                gap: 15px !important;
+            }
+            .card {
+                width: 48% !important;
+            }
+
             * {
                 -webkit-print-color-adjust: exact !important;
                 print-color-adjust: exact !important;
@@ -66,18 +90,24 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>📊 تقارير والإحصائيات العيادة الشاملة</h1>
+            <h1>📊 تقارير وإحصائيات العيادة الشاملة</h1>
             <button class="btn-export" onclick="window.print()">📥 تصدير تقرير الشهر (PDF)</button>
+        </div>
+
+        <!-- دباجة العيادة الرسمية التي ستظهر في الطباعة فقط -->
+        <div class="print-only-header">
+            <h2 style="margin: 0; color: #0b1329; font-size: 22px;">د. شادي سمير</h2>
+            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">استشاري التغذية العلاجية وجراحات السمنة - التقرير الإحصائي الشهري</p>
         </div>
 
         <div class="reports-grid">
             <div class="card">
                 <h3>📈 معدل نجاح الحالات ونزول الوزن</h3>
-                <canvas id="successChart" style="max-height: 220px;"></canvas>
+                <canvas id="successChart" style="max-height: 200px;"></canvas>
             </div>
             <div class="card">
                 <h3>👥 توزيع أعداد الحالات حسب التخصص</h3>
-                <canvas id="typesChart" style="max-height: 220px;"></canvas>
+                <canvas id="typesChart" style="max-height: 200px;"></canvas>
             </div>
         </div>
     </div>
@@ -87,7 +117,7 @@
         new Chart(ctxSuccess, {
             type: 'bar',
             data: {
-                labels: ['الشهر الأول', 'الشهر الثاني', 'الشهر الثالث', 'الشهر الرابع', 'الشهر الخامس', 'الشهر السادس'],
+                labels: ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
                 datasets: [{
                     label: 'متوسط فقدان الوزن (كجم)',
                     data: [5.2, 4.8, 6.1, 5.5, 4.9, 5.8],
@@ -102,7 +132,7 @@
         new Chart(ctxTypes, {
             type: 'pie',
             data: {
-                labels: ['سمنة مفرطة', 'متابعة جراحات سمنة', 'نحافة', 'تغذية أطفال'],
+                labels: ['سمنة مفرطة', 'جراحات سمنة', 'نحافة', 'تغذية أطفال'],
                 datasets: [{
                     data: [45, 30, 15, 10],
                     backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
