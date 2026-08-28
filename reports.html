@@ -3,64 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - التقارير والإحصائيات</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dr. Shady Samir - التقارير الإحصائية والمالية (SQL Live)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .stat-box .title { font-size: 12px; color: var(--text-gray); margin-bottom: 8px; }
+        .stat-box .value { font-size: 24px; font-weight: bold; color: var(--text-dark); }
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-        .btn-export { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-block; text-decoration: none; }
-        
-        /* رأس الصفحة للطباعة فقط (الدباجة) */
-        .print-only-header { display: none; }
-
-        @media print {
-            .sidebar, .top-header, .btn-export { display: none !important; }
-            .main-content { margin-right: 0 !important; padding: 10px !important; }
-            body { background-color: #ffffff !important; }
-            .card { border: 1px solid #e2e8f0 !important; box-shadow: none !important; page-break-inside: avoid; }
-            
-            /* إظهار دباجة العيادة فوق التقرير المطبوع */
-            .print-only-header {
-                display: block;
-                text-align: center;
-                border-bottom: 2px solid #10b981;
-                padding-bottom: 10px;
-                margin-bottom: 20px;
-            }
-            
-            /* تصغير مساحات العرض في الطباعة لكي تندمج الرسومات بجانب بعضها في صفحة واحدة */
-            .reports-grid {
-                display: flex !important;
-                flex-direction: row !important;
-                justify-content: space-between !important;
-                gap: 15px !important;
-            }
-            .card {
-                width: 48% !important;
-            }
-
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-        }
     </style>
 </head>
 <body>
@@ -74,15 +40,19 @@
             <ul class="sidebar-menu">
                 <li><a href="index.html">🏠 الرئيسية</a></li>
                 <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
-                <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li class="active"><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
+                <li><a href="appointments.html">📅 المواعيد</a></li>
+                <li><a href="visits.html">📋 الزيارات</a></li>
+                <li><a href="measurements.html">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل</a></li>
+                <li><a href="supplements.html">💊 المكملات</a></li>
+                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html">💰 المدفوعات</a></li>
+                <li class="active"><a href="reports.html">📊 التقارير</a></li>
+                <li><a href="notifications.html">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -90,56 +60,47 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>📊 تقارير وإحصائيات العيادة الشاملة</h1>
-            <button class="btn-export" onclick="window.print()">📥 تصدير تقرير الشهر (PDF)</button>
+            <h1>📊 التقارير الإحصائية والمالية الشاملة (SQL Live)</h1>
         </div>
 
-        <!-- دباجة العيادة الرسمية التي ستظهر في الطباعة فقط -->
-        <div class="print-only-header">
-            <h2 style="margin: 0; color: #0b1329; font-size: 22px;">د. شادي سمير</h2>
-            <p style="margin: 4px 0 0 0; color: #64748b; font-size: 13px;">استشاري التغذية العلاجية وجراحات السمنة - التقرير الإحصائي الشهري</p>
+        <div class="stats-grid">
+            <div class="stat-box"><div class="title">إجمالي إيرادات العيادة</div><div class="value" id="totalRevenue" style="color:var(--primary-green);">0 جنيه</div></div>
+            <div class="stat-box"><div class="title">إجمالي الحالات المسجلة</div><div class="value" id="repPatients" style="color:var(--accent-blue);">0</div></div>
+            <div class="stat-box"><div class="title">إجمالي العمليات الجراحية</div><div class="value" id="repBariatric" style="color:var(--warning-orange, #f59e0b);">0</div></div>
         </div>
 
-        <div class="reports-grid">
-            <div class="card">
-                <h3>📈 معدل نجاح الحالات ونزول الوزن</h3>
-                <canvas id="successChart" style="max-height: 200px;"></canvas>
-            </div>
-            <div class="card">
-                <h3>👥 توزيع أعداد الحالات حسب التخصص</h3>
-                <canvas id="typesChart" style="max-height: 200px;"></canvas>
-            </div>
+        <div class="card">
+            <h3>📈 ملخص الأداء الإكلينيكي والمالي</h3>
+            <p style="color:var(--text-gray); font-size:13px; line-height: 1.6;">
+                هذه التقارير يتم استخراجها وحسابها لحظياً من قاعدة بيانات السحابية (Supabase SQL) لتعكس بدقة حجم العمل الإكلينيكي في عيادة د. شادي سمير، مما يتيح متابعة الإيرادات، نمو المرضى، وحالات جراحات السمنة بضغطة زر.
+            </p>
         </div>
     </div>
 
     <script>
-        const ctxSuccess = document.getElementById('successChart').getContext('2d');
-        new Chart(ctxSuccess, {
-            type: 'bar',
-            data: {
-                labels: ['الأول', 'الثاني', 'الثالث', 'الرابع', 'الخامس', 'السادس'],
-                datasets: [{
-                    label: 'متوسط فقدان الوزن (كجم)',
-                    data: [5.2, 4.8, 6.1, 5.5, 4.9, 5.8],
-                    backgroundColor: '#10b981',
-                    borderRadius: 6
-                }]
-            },
-            options: { responsive: true, plugins: { legend: { display: false } } }
-        });
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        const ctxTypes = document.getElementById('typesChart').getContext('2d');
-        new Chart(ctxTypes, {
-            type: 'pie',
-            data: {
-                labels: ['سمنة مفرطة', 'جراحات سمنة', 'نحافة', 'تغذية أطفال'],
-                datasets: [{
-                    data: [45, 30, 15, 10],
-                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
-                }]
-            },
-            options: { responsive: true }
-        });
+        async function loadReportsData() {
+            // 1. حساب إجمالي الإيرادات من جدول payments
+            const { data: payData } = await supabaseClient.from('payments').select('amount');
+            let sumRevenue = 0;
+            if (payData) {
+                payData.forEach(p => sumRevenue += Number(p.amount || 0));
+            }
+            document.getElementById('totalRevenue').innerText = sumRevenue.toLocaleString() + ' جنيه';
+
+            // 2. عدد المرضى
+            const { count: patCount } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
+            document.getElementById('repPatients').innerText = patCount || 0;
+
+            // 3. عدد حالات السمنة
+            const { count: barCount } = await supabaseClient.from('bariatric_cases').select('*', { count: 'exact', head: true });
+            document.getElementById('repBariatric').innerText = barCount || 0;
+        }
+
+        window.onload = loadReportsData;
     </script>
 </body>
 </html>
