@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - التقرير الشامل للمريض وسجل المتابعات</title>
+    <title>Dr. Shady Samir - لوحة تحكم المريض الإكلينيكية</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -18,35 +19,42 @@
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
         
-        .profile-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-        .info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 6px; }
-        .info-row span { color: var(--text-gray); }
-        .btn-action { background-color: var(--accent-blue); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
+        .main-content { flex: 1; margin-right: 260px; padding: 20px; }
         
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 8px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
-        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        /* كارت المريض العلوي */
+        .patient-header-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .patient-bio { display: flex; align-items: center; gap: 15px; }
+        .patient-bio img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); }
+        
+        /* شريط المؤشرات السريعة */
+        .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 15px; }
+        .metric-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .metric-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 4px; }
+        .metric-box .value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
+        
+        /* شريط التبويبات (Tabs) */
+        .tabs-row { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
+        .tab-btn { background: #e2e8f0; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; color: var(--text-dark); }
+        .tab-btn.active { background: var(--accent-blue); color: white; }
 
-        .report-section { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
-        .file-item { display: flex; justify-content: space-between; align-items: center; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 13px; }
-        
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
-        .form-control:focus { border-color: var(--accent-blue); }
-        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        /* شبكة الداشبورد الرئيسية */
+        .dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 15px; }
+        .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px; }
+
+        /* سجل المتابعات Timeline */
+        .timeline-item { border-right: 3px solid var(--primary-green); padding-right: 12px; margin-bottom: 15px; position: relative; }
+        .timeline-item .date { font-size: 11px; color: var(--accent-blue); font-weight: bold; }
+        .timeline-item .weight { font-size: 15px; font-weight: bold; color: var(--text-dark); }
+        .timeline-item .note { font-size: 12px; color: var(--text-gray); margin-top: 3px; }
+
+        /* التقييم الغذائي ونمط الحياة */
+        .eval-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-bottom: 12px; }
+        .eval-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; font-size: 12px; }
+        .eval-box strong { display: block; font-size: 14px; color: var(--accent-blue); margin-top: 3px; }
+
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -75,256 +83,152 @@
     </div>
 
     <div class="main-content">
-        <div class="top-header">
-            <h1>📂 التقرير الشامل للمريض: <span id="headerPatientName">شهاب الدين حسب النبي</span></h1>
-            <a href="patients.html" style="font-size: 13px; color: var(--accent-blue); text-decoration: none; font-weight: bold;">← العودة لقائمة المرضى</a>
-        </div>
-
-        <div class="profile-layout">
-            <!-- العمود الأيمن: البيانات الأساسية والحالة المالية -->
-            <div>
-                <div class="card">
-                    <h3>👤 البيانات الأساسية</h3>
-                    <div class="info-row"><span>السن:</span> <strong id="lblAge">34 سنة</strong></div>
-                    <div class="info-row"><span>التصنيف:</span> <strong id="lblCat" style="color:var(--accent-blue);">متابعة تكميم</strong></div>
-                    <div class="info-row"><span>رقم الهاتف:</span> <strong id="lblPhone">010xxxxxxxx</strong></div>
-                    <div class="info-row"><span>الوزن الحالي:</span> <strong id="lblWeight">92 كجم</strong></div>
-                    <div class="info-row"><span>الطول:</span> <strong id="lblHeight">178 سم</strong></div>
-                    <button class="btn-action" onclick="openEditPatientModal()">تعديل بيانات المريض ⚙️</button>
-                </div>
-
-                <div class="card">
-                    <h3>💰 الحالة المالية</h3>
-                    <div class="info-row"><span>إجمالي المدفوع:</span> <strong style="color:var(--primary-green);" id="lblPaid">1,450 جنيه</strong></div>
-                    <div class="info-row"><span>آخر معاملة:</span> <strong>تم الدفع بالكامل</strong></div>
-                    <a href="payments.html" class="btn-action" style="background: var(--warning-orange); color: white;">إدارة الحسابات والمدفوعات 💰</a>
+        <!-- كارت المريض العلوي -->
+        <div class="patient-header-card">
+            <div class="patient-bio">
+                <img src="logo.jpeg" alt="Patient">
+                <div>
+                    <h2 style="margin:0; font-size: 18px;" id="pName">أحمد محمد علي <span style="font-size: 12px; color: var(--text-gray); font-weight: normal;">NUT-000125</span></h2>
+                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">28 سنة • ذكر • 175 سم</p>
                 </div>
             </div>
+            <div style="text-align: left;">
+                <span style="background: #e0f2fe; color: #0369a1; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: bold;">⚖️ تكميم المعدة (01/08/2026)</span>
+            </div>
+        </div>
 
-            <!-- العمود الأيسر: سجل المتابعات، المرفقات، والخطة النشطة -->
+        <!-- شريط المؤشرات السريعة -->
+        <div class="metrics-grid">
+            <div class="metric-box"><div class="title">المتابعة رقم</div><div class="value">5</div></div>
+            <div class="metric-box"><div class="title">الالتزام</div><div class="value" style="color:var(--primary-green);">85%</div></div>
+            <div class="metric-box"><div class="title">إجمالي النزول</div><div class="value" style="color:var(--accent-blue);">-14.6 كجم</div></div>
+            <div class="metric-box"><div class="title">BMI</div><div class="value">28.9</div></div>
+            <div class="metric-box"><div class="title">الوزن الحالي</div><div class="value">92.4 كجم</div></div>
+            <div class="metric-box"><div class="title">وزن البداية</div><div class="value">107.0 كجم</div></div>
+        </div>
+
+        <!-- شريط التبويبات -->
+        <div class="tabs-row">
+            <button class="tab-btn active">📊 ملخص الحالة</button>
+            <button class="tab-btn" onclick="location.href='meal-builder.html'">🥗 الخطط الغذائية</button>
+            <button class="tab-btn" onclick="location.href='labs.html'">🧪 التحاليل</button>
+            <button class="tab-btn" onclick="location.href='supplements.html'">💊 المكملات</button>
+        </div>
+
+        <!-- الداشبورد الرئيسية -->
+        <div class="dashboard-grid">
+            <!-- العمود الأيمن: تطور الوزن وسجل المتابعات -->
             <div>
                 <div class="card">
-                    <h3>📋 سجل المتابعات والزيارات السابقة</h3>
-                    <div style="font-size: 12px; color: var(--text-gray); margin-bottom: 10px;">تتبع تطور المقاسات والأوزان زيارة بزيارة:</div>
-                    
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>تاريخ الزيارة</th>
-                                <th>الوزن</th>
-                                <th>نسبة الدهون</th>
-                                <th>ملاحظات الطبيب / النظام</th>
-                            </tr>
-                        </thead>
-                        <tbody id="followupTableBody">
-                            <tr>
-                                <td>28 أغسطس 2026</td>
-                                <td><strong>92 كجم</strong></td>
-                                <td>22%</td>
-                                <td>ممتاز، فقدان 3.5 كجم مع الالتزام بالبروتين.</td>
-                            </tr>
-                            <tr>
-                                <td>01 أغسطس 2026</td>
-                                <td><strong>95.5 كجم</strong></td>
-                                <td>25%</td>
-                                <td>البداية بعد التكميم (مرحلة السوائل).</td>
-                            </tr>
-                        </tbody>
-                    </table>
-
-                    <button class="btn-action" style="background:var(--primary-green); margin-top:15px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة</button>
+                    <h3>📈 تطور ونزول الوزن</h3>
+                    <div style="height: 180px;"><canvas id="weightChart"></canvas></div>
                 </div>
 
                 <div class="card">
-                    <h3>📁 مرفقات الفحوصات والتحاليل الطبية</h3>
-                    <div id="files-list-container">
-                        <div class="file-item">
-                            <span>📄 تقرير التحاليل الطبية الشاملة.pdf</span>
-                            <button class="btn-edit-sm" onclick="alert('عرض المستند الطبي...')">عرض 👁️</button>
+                    <h3>📅 تاريخ المتابعات وسجل الزيارات</h3>
+                    <div id="timelineContainer">
+                        <div class="timeline-item">
+                            <div class="date">28/08/2026 - المتابعة 5 (الحالية)</div>
+                            <div class="weight">92.4 كجم</div>
+                            <div class="note">• استمرار على نفس الخطة مع تعديل بسيط.<br>• زيادة البروتين إلى 90 جم يومياً.</div>
+                        </div>
+                        <div class="timeline-item">
+                            <div class="date">12/08/2026 - المتابعة 4</div>
+                            <div class="weight">98.9 كجم</div>
+                            <div class="note">• تحسن ممتاز في الالتزام.<br>• تقليل الكربوهيدرات في العشاء.</div>
                         </div>
                     </div>
-                    <button class="btn-action" style="background:var(--accent-blue); margin-top: 10px;" onclick="openUploadModal()">+ رفع ملف أو صورة جديدة</button>
+                    <button class="btn-action" style="margin-top: 10px;" onclick="openFollowupModal()">+ تسجيل متابعة وزيارة جديدة</button>
+                </div>
+            </div>
+
+            <!-- العمود الأيسر: التقييم الغذائي ونمط الحياة وملاحظات الطبيب -->
+            <div>
+                <div class="card">
+                    <h3>🍎 التقييم الغذائي الحالي</h3>
+                    <div class="eval-grid">
+                        <div class="eval-box">السوائل والمرقة<strong>2.1 لتر</strong></div>
+                        <div class="eval-box">البروتين<strong>90 جم</strong></div>
+                        <div class="eval-box">الوجبات الرئيسية<strong>4 من 5</strong></div>
+                    </div>
                 </div>
 
                 <div class="card">
-                    <h3>🥗 الخطة الغذائية النشطة</h3>
-                    <div class="report-section">
-                        <h4>السعرات والماكروز المستهدفة: <span id="lblCalories">1400</span> سعرة حرارية</h4>
-                        <p style="margin: 4px 0;">بروتين: <span id="lblMacroPro">120 جم</span> | كاربوهيدرات: <span id="lblMacroCarb">130 جم</span> | دهون صحية: <span id="lblMacroFat">45 جم</span></p>
+                    <h3>⚡ نمط الحياة والنشاط</h3>
+                    <div class="eval-grid">
+                        <div class="eval-box">الطاقة<strong>متوسطة</strong></div>
+                        <div class="eval-box">النوم<strong>7 ساعات</strong></div>
+                        <div class="eval-box">الرياضة<strong>مشي خفيف</strong></div>
                     </div>
-                    <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue);">تعديل أو عرض خطة الأكل 🥗</a>
+                </div>
+
+                <div class="card">
+                    <h3>📝 ملاحظات د. شادي سمير</h3>
+                    <div style="font-size: 13px; line-height: 1.8; color: var(--text-gray); background: #f8fafc; padding: 12px; border-radius: 8px; border-right: 4px solid var(--primary-green);">
+                        • المريض ملتزم بشكل جيد جداً.<br>
+                        • الاستمرار على نفس الخطة مع زيادة البروتين.<br>
+                        • التركيز على شرب المياه باستمرار.<br>
+                        • المتابعة القادمة بعد أسبوعين.
+                    </div>
+                    <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue); margin-top: 15px;">تعديل أو عرض الخطة الغذائية 🥗</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تسجيل متابعة وزيارة جديدة -->
-    <div id="followupModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>➕ تسجيل زيارة ومتابعة جديدة</h3>
-            <form onsubmit="saveNewFollowup(event)">
-                <div class="form-group">
-                    <label>تاريخ الزيارة:</label>
-                    <input type="text" id="visitDate" class="form-control" value="28 أغسطس 2026" required>
-                </div>
-                <div class="form-group">
-                    <label>الوزن الحالي الجديد (كجم):</label>
-                    <input type="number" step="0.1" id="newWeight" class="form-control" placeholder="مثال: 90.5" required>
-                </div>
-                <div class="form-group">
-                    <label>نسبة الدهون (%):</label>
-                    <input type="text" id="newFat" class="form-control" placeholder="مثال: 21.5%">
-                </div>
-                <div class="form-group">
-                    <label>ملاحظات الزيارة / تفاصيل النظام الجديد:</label>
-                    <textarea id="newNote" class="form-control" rows="3" placeholder="اكتب تطور الحالة، المقاسات، والنظام الغذائي الموصوف..." required></textarea>
-                </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ الزيارة</button>
-                    <button type="button" class="btn-close-modal" onclick="closeFollowupModal()">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل بيانات المريض -->
-    <div id="editPatientModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>⚙️ تعديل بيانات المريض الأساسية</h3>
-            <form onsubmit="savePatientData(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
-                <div class="form-group"><label>السن:</label><input type="text" id="editAge" class="form-control" required></div>
-                <div class="form-group"><label>التصنيف / الحالة:</label><input type="text" id="editCat" class="form-control" required></div>
-                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control" required></div>
-                <div class="form-group"><label>الوزن (كجم):</label><input type="text" id="editWeight" class="form-control" required></div>
-                <div class="form-group"><label>الطول (سم):</label><input type="text" id="editHeight" class="form-control" required></div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ التعديلات</button>
-                    <button type="button" class="btn-close-modal" onclick="closeEditPatientModal()">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة رفع الملفات -->
-    <div id="uploadModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>📁 رفع مرفق طبي جديد</h3>
-            <form onsubmit="saveUploadedFile(event)">
-                <div class="form-group"><label>اسم المرفق:</label><input type="text" id="fileName" class="form-control" required></div>
-                <div class="form-group"><label>اختر الملف:</label><input type="file" id="fileObj" class="form-control" accept="image/*,.pdf" required></div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">رفع</button>
-                    <button type="button" class="btn-close-modal" onclick="closeUploadModal()">إلغاء</button>
+    <!-- نافذة تسجيل متابعة جديدة -->
+    <div id="followupModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
+        <div style="background:white; padding:25px; border-radius:12px; width:420px;">
+            <h3 style="margin-top:0;">➕ تسجيل متابعة جديدة</h3>
+            <form onsubmit="saveFollowup(event)">
+                <div style="margin-bottom:10px;"><label style="font-size:12px; font-weight:bold;">الوزن الجديد (كجم):</label><input type="number" step="0.1" id="newW" class="form-control" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" required></div>
+                <div style="margin-bottom:10px;"><label style="font-size:12px; font-weight:bold;">ملاحظات الزيارة والنظام:</label><textarea id="newN" rows="3" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" required></textarea></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer;">حفظ</button>
+                    <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // تحميل بيانات المريض بناءً على البحث
-        window.onload = function() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const patientParam = urlParams.get('patient');
-
-            if (patientParam === 'sara') {
-                document.getElementById('headerPatientName').innerText = 'سارة أحمد محمود';
-                document.getElementById('lblAge').innerText = '29 سنة';
-                document.getElementById('lblCat').innerText = 'سمنة مفرطة + مونجارو';
-                document.getElementById('lblPhone').innerText = '011xxxxxxxx';
-                document.getElementById('lblWeight').innerText = '108 كجم';
-                document.getElementById('lblHeight').innerText = '165 سم';
-                document.getElementById('lblPaid').innerText = '850 جنيه';
-                document.getElementById('lblCalories').innerText = '1150';
-                document.getElementById('lblMacroPro').innerText = '110 جم';
-                document.getElementById('lblMacroCarb').innerText = '80 جم';
-                document.getElementById('lblMacroFat').innerText = '30 جم';
-            } else if (patientParam === 'ahmed') {
-                document.getElementById('headerPatientName').innerText = 'أحمد محمد علي';
-                document.getElementById('lblAge').innerText = '41 سنة';
-                document.getElementById('lblCat').innerText = 'متابعة سمنة وكسر ثبات وزن';
-                document.getElementById('lblPhone').innerText = '012xxxxxxxx';
-                document.getElementById('lblWeight').innerText = '98 كجم';
-                document.getElementById('lblHeight').innerText = '174 سم';
-                document.getElementById('lblPaid').innerText = '1,200 جنيه';
-                document.getElementById('lblCalories').innerText = '1500';
-                document.getElementById('lblMacroPro').innerText = '130 جم';
-                document.getElementById('lblMacroCarb').innerText = '140 جم';
-                document.getElementById('lblMacroFat').innerText = '50 جم';
-            }
-        };
+        // رسم خط تطور الوزن
+        const ctx = document.getElementById('weightChart').getContext('2d');
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['01/08', '15/08', '22/08', '28/08'],
+                datasets: [{
+                    label: 'الوزن (كجم)',
+                    data: [107.0, 103.5, 98.9, 92.4],
+                    borderColor: '#10b981',
+                    backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
 
         function openFollowupModal() { document.getElementById('followupModal').style.display = 'flex'; }
         function closeFollowupModal() { document.getElementById('followupModal').style.display = 'none'; }
 
-        function saveNewFollowup(event) {
+        function saveFollowup(event) {
             event.preventDefault();
-            const date = document.getElementById('visitDate').value;
-            const weight = document.getElementById('newWeight').value;
-            const fat = document.getElementById('newFat').value || 'غير محدد';
-            const note = document.getElementById('newNote').value;
-
-            // تحديث الوزن الحالي في بطاقة البيانات الأساسية
-            document.getElementById('lblWeight').innerText = weight + ' كجم';
-
-            // إضافة الزيارة الجديدة لجدول المتابعات في أعلى الجدول
-            const tbody = document.getElementById('followupTableBody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td>${date}</td>
-                <td><strong>${weight} كجم</strong></td>
-                <td>${fat}</td>
-                <td>${note}</td>
+            const w = document.getElementById('newW').value;
+            const n = document.getElementById('newN').value;
+            const container = document.getElementById('timelineContainer');
+            
+            const newItem = document.createElement('div');
+            newItem.className = 'timeline-item';
+            newItem.innerHTML = `
+                <div class="date">اليوم - متابعة جديدة</div>
+                <div class="weight">${w} كجم</div>
+                <div class="note">${n}</div>
             `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-
-            alert('تم تسجيل زيارة المتابعة الجديدة وتحديث السجل بنجاح!');
+            container.insertBefore(newItem, container.firstChild);
+            alert('تم تسجيل المتابعة بنجاح!');
             closeFollowupModal();
-            document.getElementById('newWeight').value = '';
-            document.getElementById('newFat').value = '';
-            document.getElementById('newNote').value = '';
-        }
-
-        function openEditPatientModal() {
-            document.getElementById('editName').value = document.getElementById('headerPatientName').innerText;
-            document.getElementById('editAge').value = document.getElementById('lblAge').innerText;
-            document.getElementById('editCat').value = document.getElementById('lblCat').innerText;
-            document.getElementById('editPhone').value = document.getElementById('lblPhone').innerText;
-            document.getElementById('editWeight').value = document.getElementById('lblWeight').innerText;
-            document.getElementById('editHeight').value = document.getElementById('lblHeight').innerText;
-            document.getElementById('editPatientModal').style.display = 'flex';
-        }
-        function closeEditPatientModal() { document.getElementById('editPatientModal').style.display = 'none'; }
-
-        function savePatientData(event) {
-            event.preventDefault();
-            document.getElementById('headerPatientName').innerText = document.getElementById('editName').value;
-            document.getElementById('lblAge').innerText = document.getElementById('editAge').value;
-            document.getElementById('lblCat').innerText = document.getElementById('editCat').value;
-            document.getElementById('lblPhone').innerText = document.getElementById('editPhone').value;
-            document.getElementById('lblWeight').innerText = document.getElementById('editWeight').value;
-            document.getElementById('lblHeight').innerText = document.getElementById('editHeight').value;
-            alert('تم تعديل بيانات المريض بنجاح!');
-            closeEditPatientModal();
-        }
-
-        function openUploadModal() { document.getElementById('uploadModal').style.display = 'flex'; }
-        function closeUploadModal() { document.getElementById('uploadModal').style.display = 'none'; }
-
-        function saveUploadedFile(event) {
-            event.preventDefault();
-            const name = document.getElementById('fileName').value;
-            const fileInput = document.getElementById('fileObj');
-            if (fileInput.files.length > 0) {
-                const container = document.getElementById('files-list-container');
-                const newDiv = document.createElement('div');
-                newDiv.className = 'file-item';
-                newDiv.innerHTML = `<span>📎 ${name}</span><button class="btn-edit-sm" onclick="alert('معاينة الملف...')">عرض 👁️</button>`;
-                container.appendChild(newDiv);
-                alert('تم رفع الملف بنجاح!');
-                closeUploadModal();
-                event.target.reset();
-            }
         }
     </script>
 </body>
