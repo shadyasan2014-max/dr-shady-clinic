@@ -36,7 +36,7 @@
         
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
@@ -78,7 +78,6 @@
         </div>
 
         <div class="profile-layout">
-            <!-- العمود الأيمن -->
             <div>
                 <div class="card">
                     <h3>👤 البيانات الأساسية</h3>
@@ -98,7 +97,6 @@
                 </div>
             </div>
 
-            <!-- العمود الأيسر: التقارير والمرفقات -->
             <div>
                 <div class="card">
                     <h3>📋 سجل القياسات ومتابعة الوزن</h3>
@@ -115,11 +113,11 @@
                     <div id="files-list-container">
                         <div class="file-item">
                             <span>📄 تحليل صورة دم كاملة CBC.pdf (24 أغسطس)</span>
-                            <button class="btn-edit-sm" onclick="alert('جاري عرض الملف المرفق...')">عرض 👁️</button>
+                            <button class="btn-edit-sm" onclick="viewFile('تحليل صورة دم كاملة CBC', 'pdf')">عرض 👁️</button>
                         </div>
                         <div class="file-item">
                             <span>🖼️ صورة تقرير InBody الأخير.jpg (15 أغسطس)</span>
-                            <button class="btn-edit-sm" onclick="alert('جاري عرض الصورة المرفقة...')">عرض 👁️</button>
+                            <button class="btn-edit-sm" onclick="viewFile('تقرير InBody الأخير', 'image')">عرض 👁️</button>
                         </div>
                     </div>
                     <button class="btn-action" style="background:var(--accent-blue); margin-top: 10px;" onclick="openUploadModal()">+ رفع ملف أو صورة جديدة</button>
@@ -134,6 +132,17 @@
                     <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue);">تعديل أو عرض خطة الأكل 🥗</a>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <!-- نافذة معاينة الملفات المرفقة -->
+    <div id="viewFileModal" class="modal-overlay">
+        <div class="modal-box" style="width: 500px; text-align: center;">
+            <h3 id="viewFileTitle">معاينة المستند الطبي</h3>
+            <div id="viewFileContent" style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 20px; border-radius: 8px; margin-bottom: 15px; min-height: 150px; display: flex; align-items: center; justify-content: center; color: var(--text-gray);">
+                <!-- محتوى المعاينة -->
+            </div>
+            <button type="button" class="btn-close-modal" style="width: 100%;" onclick="closeViewModal()">إغلاق المعاينة</button>
         </div>
     </div>
 
@@ -174,6 +183,21 @@
         function openUploadModal() { document.getElementById('uploadModal').style.display = 'flex'; }
         function closeUploadModal() { document.getElementById('uploadModal').style.display = 'none'; }
 
+        function viewFile(title, type) {
+            document.getElementById('viewFileTitle').innerText = title;
+            const contentBox = document.getElementById('viewFileContent');
+            if (type === 'image') {
+                contentBox.innerHTML = `<div style="color: var(--accent-blue); font-weight: bold;">🖼️ معاينة صورة التقرير الطبي المرفق<br><span style="font-size:11px; color:var(--text-gray);">(تم تحميل الصورة بنجاح وجاهزة للاستعراض الطبي)</span></div>`;
+            } else {
+                contentBox.innerHTML = `<div style="color: var(--danger-red); font-weight: bold;">📄 ملف مستند PDF طبي رسمي<br><span style="font-size:11px; color:var(--text-gray);">(تم تحميل ملف الفحص وجاهز للمراجعة)</span></div>`;
+            }
+            document.getElementById('viewFileModal').style.display = 'flex';
+        }
+
+        function closeViewModal() {
+            document.getElementById('viewFileModal').style.display = 'none';
+        }
+
         function saveFollowup(event) {
             event.preventDefault();
             const weight = document.getElementById('newWeight').value;
@@ -191,12 +215,13 @@
             const fileInput = document.getElementById('fileObj');
             if (fileInput.files.length > 0) {
                 const fileNameReal = fileInput.files[0].name;
+                const fileType = fileNameReal.endsWith('.pdf') ? 'pdf' : 'image';
                 const container = document.getElementById('files-list-container');
                 const newDiv = document.createElement('div');
                 newDiv.className = 'file-item';
                 newDiv.innerHTML = `
                     <span>📎 ${name} (${fileNameReal})</span>
-                    <button class="btn-edit-sm" onclick="alert('جاري عرض المرفق الجديد...')">عرض 👁️</button>
+                    <button class="btn-edit-sm" onclick="viewFile('${name}', '${fileType}')">عرض 👁️</button>
                 `;
                 container.appendChild(newDiv);
                 alert('تم رفع وحفظ المرفق الطبي بنجاح!');
