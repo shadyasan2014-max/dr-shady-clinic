@@ -3,58 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - قسم المدفوعات والحسابات</title>
+    <title>Dr. Shady Samir - المدفوعات والإيرادات (SQL Live)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .stat-card .title { color: var(--text-gray); font-size: 12px; margin-bottom: 5px; }
-        .stat-card .number { font-size: 22px; font-weight: bold; color: var(--text-dark); }
-        .action-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .btn-add { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; }
-        .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
-        th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
-        td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .badge-paid { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
-        .badge-due { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #fef3c7; color: #92400e; }
-        .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
-        
-        /* Modal تصميم النوافذ المنبثقة */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
-        .modal-actions { display: flex; gap: 8px; margin-top: 18px; }
-        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
-        .btn-print-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
-        .btn-wa-modal { background-color: #25d366; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; font-size: 12px; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; width: 80px; font-size: 12px; }
-
-        /* تنسيق الطباعة الخفي للإيصال */
-        #printArea { display: none; }
-        @media print {
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 30px; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; background: #fff; }
-        }
     </style>
 </head>
 <body>
@@ -68,15 +45,19 @@
             <ul class="sidebar-menu">
                 <li><a href="index.html">🏠 الرئيسية</a></li>
                 <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
-                <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li class="active"><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
+                <li><a href="appointments.html">📅 المواعيد</a></li>
+                <li><a href="visits.html">📋 الزيارات</a></li>
+                <li><a href="measurements.html">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل</a></li>
+                <li><a href="supplements.html">💊 المكملات</a></li>
+                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
+                <li class="active"><a href="payments.html">💰 المدفوعات</a></li>
+                <li><a href="reports.html">📊 التقارير</a></li>
+                <li><a href="notifications.html">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -84,168 +65,97 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>💰 إدارة المدفوعات وحسابات العيادة</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">متابعة الإيرادات وحركات الدفع للكشوفات والمتابعات</div>
+            <h1>💰 إدارة المدفوعات والإيرادات (SQL Live)</h1>
+            <button class="btn-action" onclick="openModal()">+ تسجيل دفعة جديدة</button>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="title">إيرادات اليوم</div>
-                <div class="number" style="color:var(--primary-green);">8,650 جنيه</div>
-            </div>
-            <div class="stat-card">
-                <div class="title">إيرادات هذا الأسبوع</div>
-                <div class="number" style="color:var(--accent-blue);">42,300 جنيه</div>
-            </div>
-            <div class="stat-card">
-                <div class="title">حالات مستحقة الدفع</div>
-                <div class="number" style="color:var(--warning-orange);">3 حالات</div>
-            </div>
-        </div>
-
-        <div class="action-bar">
-            <div style="font-size: 14px; font-weight: bold;">سجل المعاملات المالية الحديثة</div>
-            <button class="btn-add" onclick="openPayModal()">+ تسجيل مدفوعة جديدة</button>
-        </div>
-
-        <div class="table-card">
+        <div class="card">
+            <h3>📋 سجل المعاملات المالية والكشوفات</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>إجراء الملف</th>
-                        <th>الحالة المالية</th>
-                        <th>المبلغ المدفوع</th>
-                        <th>نوع الخدمة / الزيارة</th>
-                        <th>التاريخ</th>
                         <th>اسم المريض</th>
+                        <th>نوع الخدمة</th>
+                        <th>المبلغ المدفوع (جنيه)</th>
+                        <th>تاريخ الدفع</th>
+                        <th>الإجراء</th>
                     </tr>
                 </thead>
-                <tbody id="payments-tbody">
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-paid">تم الدفع بالكامل</span></td>
-                        <td><strong>450 جنيه</strong></td>
-                        <td>متابعة دورية</td>
-                        <td>28 أغسطس 2026</td>
-                        <td><strong>أحمد محمد علي</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-due">مستحق (جزئي)</span></td>
-                        <td><strong>600 جنيه</strong> (متبقي 200)</td>
-                        <td>كشف أول زيارة (باقة شهرية)</td>
-                        <td>28 أغسطس 2026</td>
-                        <td><strong>سارة أحمد محمود</strong></td>
-                    </tr>
+                <tbody id="paymentTableBody">
+                    <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب المدفوعات من قاعدة البيانات...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- نافذة تسجيل مدفوعة جديدة -->
-    <div id="payModal" class="modal-overlay">
+    <!-- Modal -->
+    <div id="paymentModal" class="modal-overlay">
         <div class="modal-box">
-            <h3>💰 تسجيل عملية دفع جديدة</h3>
-            <form id="payForm" onsubmit="saveAndAddPayment(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="payName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
-                <div class="form-group"><label>رقم الهاتف (واتساب):</label><input type="text" id="payPhone" class="form-control" placeholder="010xxxxxxxx" required></div>
-                <div class="form-group"><label>نوع الخدمة / الزيارة:</label><input type="text" id="payService" class="form-control" placeholder="مثال: متابعة دورية / كشف جديد" required></div>
-                <div class="form-group"><label>المبلغ المدفوع:</label><input type="text" id="payAmount" class="form-control" placeholder="مثال: 500 جنيه" required></div>
-                <div class="form-group">
-                    <label>الحالة المالية:</label>
-                    <select id="payStatus" class="form-control">
-                        <option value="paid">تم الدفع بالكامل</option>
-                        <option value="due">مستحق (جزئي)</option>
-                    </select>
-                </div>
-                <div class="form-group"><label>التاريخ:</label><input type="text" id="payDate" class="form-control" value="28 أغسطس 2026" required></div>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل عملية دفع جديدة</h3>
+            <form onsubmit="savePayment(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="pPatient" class="form-control" required placeholder="اسم المريض..."></div>
+                <div class="form-group"><label>نوع الخدمة:</label><input type="text" id="pService" class="form-control" required placeholder="مثال: كشف متابعة / استشارة سمنة"></div>
+                <div class="form-group"><label>المبلغ (جنيه):</label><input type="number" step="1" id="pAmount" class="form-control" required placeholder="مثال: 500"></div>
+                <div class="form-group"><label>تاريخ الدفع:</label><input type="date" id="pDate" class="form-control" required></div>
 
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ المدفوعة</button>
-                    <button type="button" class="btn-print-modal" onclick="printPaymentReceipt()">🖨️ طباعة إيصال</button>
-                    <button type="button" class="btn-wa-modal" onclick="sendPaymentWhatsApp()">💬 واتساب</button>
-                    <button type="button" class="btn-close-modal" onclick="closePayModal()">إلغاء</button>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
+                    <button type="button" onclick="closeModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- نموذج الطباعة الخفي للإيصال المالي -->
-    <div id="printArea">
-        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
-            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-        </div>
-        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 20px;">إيصال سداد واستلام نقدية</h3>
-        <div style="font-size: 15px; line-height: 2;">
-            <p><strong>اسم المريض:</strong> <span id="rName">---</span></p>
-            <p><strong>الخدمة المقدمة:</strong> <span id="rService">---</span></p>
-            <p><strong>المبلغ المدفوع:</strong> <span id="rAmount">---</span></p>
-            <p><strong>التاريخ:</strong> <span id="rDate">---</span></p>
-        </div>
-        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
-            <p>توقيع الخزينة / العيادة</p>
-            <p>ختم العيادة</p>
-        </div>
-    </div>
-
     <script>
-        function openPayModal() { document.getElementById('payModal').style.display = 'flex'; }
-        function closePayModal() { document.getElementById('payModal').style.display = 'none'; }
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function updatePrintArea() {
-            document.getElementById('rName').innerText = document.getElementById('payName').value || 'غير محدد';
-            document.getElementById('rService').innerText = document.getElementById('payService').value || 'غير محدد';
-            document.getElementById('rAmount').innerText = document.getElementById('payAmount').value || '0 جنيه';
-            document.getElementById('rDate').innerText = document.getElementById('payDate').value || 'اليوم';
-        }
-
-        function printPaymentReceipt() {
-            updatePrintArea();
-            window.print();
-        }
-
-        function sendPaymentWhatsApp() {
-            const name = document.getElementById('payName').value;
-            const phone = document.getElementById('payPhone').value;
-            const amount = document.getElementById('payAmount').value;
-            const service = document.getElementById('payService').value;
-
-            if(!name || !phone || !amount) {
-                alert('من فضلك املأ بيانات المريض والمبلغ أولاً للإرسال عبر واتساب!');
+        async function fetchPayments() {
+            const tbody = document.getElementById('paymentTableBody');
+            const { data, error } = await supabaseClient.from('payments').select('*').order('payment_date', { ascending: false });
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الجلب (تأكد من إنشاء جدول payments).</td></tr>`;
                 return;
             }
-
-            const message = `مرحباً بك يا مريضنا العزيز ${name} 🩺\n\nتأكيد استلام الدفع من عيادة د. شادي سمير:\n\n🏷️ الخدمة: ${service}\n💵 المبلغ المدفوع: ${amount}\n\nشكراً لثقتكم بنا، ومع تمنياتنا بدوام الصحة والعافية ✨`;
-            const encodedUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
-            window.open(encodedUrl, '_blank');
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد مدفوعات مسجلة.</td></tr>`;
+                return;
+            }
+            data.forEach(p => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${p.patient_name}</strong></td>
+                        <td>${p.service_type}</td>
+                        <td><span style="background:#ecfdf5; color:#059669; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${p.amount} جنيه</span></td>
+                        <td>${p.payment_date}</td>
+                        <td><button onclick="deletePayment('${p.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer;">🗑️ حذف</button></td>
+                    </tr>
+                `;
+            });
         }
-
-        function saveAndAddPayment(event) {
-            event.preventDefault();
-            const name = document.getElementById('payName').value;
-            const phone = document.getElementById('payPhone').value;
-            const service = document.getElementById('payService').value;
-            const amount = document.getElementById('payAmount').value;
-            const status = document.getElementById('payStatus').value;
-            const date = document.getElementById('payDate').value;
-
-            let badgeHtml = status === 'paid' ? '<span class="badge-paid">تم الدفع بالكامل</span>' : '<span class="badge-due">مستحق (جزئي)</span>';
-
-            const tbody = document.getElementById('payments-tbody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                <td>${badgeHtml}</td>
-                <td><strong>${amount}</strong></td>
-                <td>${service}</td>
-                <td>${date}</td>
-                <td><strong>${name}</strong></td>
-            `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-            alert('تم تسجيل المدفوعة بنجاح!');
-            closePayModal();
-            document.getElementById('payForm').reset();
+        window.onload = fetchPayments;
+        function openModal() { document.getElementById('paymentModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('paymentModal').style.display = 'none'; }
+        async function savePayment(e) {
+            e.preventDefault();
+            const patient_name = document.getElementById('pPatient').value;
+            const service_type = document.getElementById('pService').value;
+            const amount = parseFloat(document.getElementById('pAmount').value);
+            const payment_date = document.getElementById('pDate').value;
+            const { error } = await supabaseClient.from('payments').insert([{ patient_name, service_type, amount, payment_date }]);
+            if (error) { alert('خطأ: ' + error.message); return; }
+            alert('✨ تم حفظ المدفوعات في SQL بنجاح!');
+            closeModal();
+            fetchPayments();
+            e.target.reset();
+        }
+        async function deletePayment(id) {
+            if (confirm('حذف هذه العملية المالية؟')) {
+                await supabaseClient.from('payments').delete().eq('id', id);
+                fetchPayments();
+            }
         }
     </script>
 </body>
