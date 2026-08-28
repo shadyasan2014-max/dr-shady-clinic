@@ -33,10 +33,12 @@
         .metric-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 4px; }
         .metric-box .value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
         
-        /* شريط التبويبات (Tabs) */
-        .tabs-row { display: flex; gap: 10px; margin-bottom: 15px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
+        /* شريط التبويبات (Tabs) والطباعة */
+        .top-action-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 2px solid var(--card-border); padding-bottom: 10px; }
+        .tabs-row { display: flex; gap: 10px; }
         .tab-btn { background: #e2e8f0; border: none; padding: 8px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; color: var(--text-dark); }
         .tab-btn.active { background: var(--accent-blue); color: white; }
+        .btn-print-dashboard { background-color: var(--accent-blue); color: white; border: none; padding: 8px 18px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3); }
 
         /* شبكة الداشبورد الرئيسية */
         .dashboard-grid { display: grid; grid-template-columns: 1.2fr 1fr; gap: 15px; }
@@ -60,6 +62,19 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 12px; }
+
+        /* إعدادات الطباعة الاحترافية المطابقة لشكل الصفحة */
+        @media print {
+            body * { visibility: hidden; }
+            .main-content, .main-content * { visibility: visible; }
+            .sidebar, .btn-print-dashboard, .btn-action, .tabs-row, .modal-overlay { display: none !important; }
+            
+            @page { size: A4; margin: 10mm; }
+            body { background-color: #ffffff !important; }
+            .main-content { margin: 0 !important; padding: 0 !important; width: 100% !important; }
+            .card, .patient-header-card, .metric-box { border: 1px solid #cbd5e1 !important; box-shadow: none !important; background: #ffffff !important; }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+        }
     </style>
 </head>
 <body>
@@ -102,7 +117,7 @@
             </div>
         </div>
 
-        <!-- شريط المؤشرات السريعة (البار العلوي المحدث آلياً) -->
+        <!-- شريط المؤشرات السريعة العلوي -->
         <div class="metrics-grid">
             <div class="metric-box"><div class="title">المتابعة رقم</div><div class="value" id="barVisitNum">5</div></div>
             <div class="metric-box"><div class="title">الالتزام</div><div class="value" style="color:var(--primary-green);">85%</div></div>
@@ -112,12 +127,15 @@
             <div class="metric-box"><div class="title">وزن البداية</div><div class="value" id="barStartWeight">107.0 كجم</div></div>
         </div>
 
-        <!-- شريط التبويبات -->
-        <div class="tabs-row">
-            <button class="tab-btn active">📊 ملخص الحالة</button>
-            <button class="tab-btn" onclick="location.href='meal-builder.html'">🥗 الخطط الغذائية</button>
-            <button class="tab-btn" onclick="location.href='labs.html'">🧪 التحاليل</button>
-            <button class="tab-btn" onclick="location.href='supplements.html'">💊 المكملات</button>
+        <!-- شريط التبويبات وزرار الطباعة -->
+        <div class="top-action-bar">
+            <div class="tabs-row">
+                <button class="tab-btn active">📊 ملخص الحالة</button>
+                <button class="tab-btn" onclick="location.href='meal-builder.html'">🥗 الخطط الغذائية</button>
+                <button class="tab-btn" onclick="location.href='labs.html'">🧪 التحاليل</button>
+                <button class="tab-btn" onclick="location.href='supplements.html'">💊 المكملات</button>
+            </div>
+            <button class="btn-print-dashboard" onclick="window.print()">🖨️ طباعة لوحة التحكم (PDF)</button>
         </div>
 
         <!-- الداشبورد الرئيسية -->
@@ -203,10 +221,9 @@
     </div>
 
     <script>
-        let startWeight = 107.0; // وزن البداية الثابت
+        let startWeight = 107.0; 
         let currentVisitCount = 5;
 
-        // إعداد الرسم البياني
         const ctx = document.getElementById('weightChart').getContext('2d');
         let weightChart = new Chart(ctx, {
             type: 'line',
@@ -234,7 +251,6 @@
             
             if (isNaN(newWeight)) return;
 
-            // 1. تحديث العداد والبار العلوي
             currentVisitCount++;
             document.getElementById('barVisitNum').innerText = currentVisitCount;
             document.getElementById('barCurrentWeight').innerText = newWeight + ' كجم';
@@ -242,11 +258,9 @@
             let totalLoss = (startWeight - newWeight).toFixed(1);
             document.getElementById('barTotalLoss').innerText = '-' + totalLoss + ' كجم';
 
-            // حساب الـ BMI تقريبي (الطول 175 سم = 1.75 متر)
             let newBMI = (newWeight / (1.75 * 1.75)).toFixed(1);
             document.getElementById('barBMI').innerText = newBMI;
 
-            // 2. إضافة التابع للتايملاين
             const container = document.getElementById('timelineContainer');
             const newItem = document.createElement('div');
             newItem.className = 'timeline-item';
@@ -257,7 +271,6 @@
             `;
             container.insertBefore(newItem, container.firstChild);
 
-            // 3. تحديث الرسم البياني أوتوماتيك
             weightChart.data.labels.push('اليوم');
             weightChart.data.datasets[0].data.push(newWeight);
             weightChart.update();
