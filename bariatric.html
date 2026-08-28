@@ -3,50 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - قسم جراحات السمنة</title>
+    <title>Dr. Shady Samir - جراحات السمنة والمتابعة (SQL Live)</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .stat-card .title { color: var(--text-gray); font-size: 12px; margin-bottom: 5px; }
-        .stat-card .number { font-size: 22px; font-weight: bold; color: var(--text-dark); }
-        .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
-        th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
-        td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        .badge-sleeve { background-color: #dbeafe; color: #1e40af; }
-        .badge-bypass { background-color: #f3e8ff; color: #6b21a8; }
-        .badge-sasi { background-color: #fef3c7; color: #92400e; }
-        .badge-revision { background-color: #ffedd5; color: #c2410c; }
-        .badge-other { background-color: #f1f5f9; color: #475569; }
-        .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
-        
-        /* Modal تصميم النوافذ المنبثقة */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
     </style>
 </head>
 <body>
@@ -60,15 +45,19 @@
             <ul class="sidebar-menu">
                 <li><a href="index.html">🏠 الرئيسية</a></li>
                 <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li class="active"><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
-                <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
+                <li><a href="appointments.html">📅 المواعيد</a></li>
+                <li><a href="visits.html">📋 الزيارات</a></li>
+                <li><a href="measurements.html">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل</a></li>
+                <li><a href="supplements.html">💊 المكملات</a></li>
+                <li class="active"><a href="bariatric.html">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html">💰 المدفوعات</a></li>
+                <li><a href="reports.html">📊 التقارير</a></li>
+                <li><a href="notifications.html">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -76,142 +65,108 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>⚖️ قسم جراحات السمنة والمتابعات الخاصة</h1>
-            <button class="btn-action-sm" style="background:var(--primary-green); color:white; border:none; padding:8px 15px; font-size:13px;" onclick="openBariatricModal()">+ تسجيل حالة جديدة</button>
+            <h1>🩺 متابعة جراحات السمنة (SQL Live)</h1>
+            <button class="btn-action" onclick="openModal()">+ تسجيل عملية جراحية</button>
         </div>
 
-        <div class="stats-grid">
-            <div class="stat-card"><div class="title">إجمالي حالات الجراحات</div><div class="number" style="color:var(--accent-blue);">86 مريض</div></div>
-            <div class="stat-card"><div class="title">حالات تكميم المعدة</div><div class="number" style="color:var(--primary-green);">52 مريض</div></div>
-            <div class="stat-card"><div class="title">حالات تحويل المسار والساسي</div><div class="number" style="color:var(--warning-orange);">34 مريض</div></div>
-        </div>
-
-        <div class="table-card">
-            <h3 style="margin-top:0; font-size:15px; margin-bottom:15px;">📋 سجل حالات جراحات السمنة والمتابعة</h3>
+        <div class="card">
+            <h3>📋 سجل الحالات الجراحية (تكميم وتحويل مسار)</h3>
             <table>
                 <thead>
                     <tr>
-                        <th>الملف</th>
+                        <th>اسم المريض</th>
                         <th>نوع الجراحة</th>
                         <th>تاريخ العملية</th>
-                        <th>الوزن بعد العملية</th>
-                        <th>الوزن المثالي المستهدف</th>
-                        <th>اسم المريض</th>
+                        <th>الجراح المسؤول</th>
+                        <th>ملاحظات إكلينيكية</th>
+                        <th>الإجراء</th>
                     </tr>
                 </thead>
-                <tbody id="bariatric-tbody">
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge badge-sleeve">تكميم معدة</span></td>
-                        <td>يناير 2026</td>
-                        <td><strong>92 كجم</strong> (بدءاً من 125)</td>
-                        <td>75 كجم</td>
-                        <td><strong>شهاب الدين حسب النبي</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge badge-bypass">تحويل مسار كلاسيكي</span></td>
-                        <td>نوفمبر 2025</td>
-                        <td><strong>84 كجم</strong> (بدءاً من 130)</td>
-                        <td>70 كجم</td>
-                        <td><strong>محمود حسن السيد</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge badge-sasi">عملية الساسي (SASI)</span></td>
-                        <td>مارس 2026</td>
-                        <td><strong>98 كجم</strong> (بدءاً من 140)</td>
-                        <td>80 كجم</td>
-                        <td><strong>رانيا عبد الله</strong></td>
-                    </tr>
+                <tbody id="bariatricTableBody">
+                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب السجلات من قاعدة البيانات...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- نافذة تسجيل حالة جراحية جديدة -->
+    <!-- Modal -->
     <div id="bariatricModal" class="modal-overlay">
         <div class="modal-box">
-            <h3>⚖️ تسجيل حالة جراحات سمنة جديدة</h3>
-            <form onsubmit="addNewBariatric(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="barName" class="form-control" placeholder="أدخل اسم المريض..." required></div>
-                <div class="form-group">
-                    <label>نوع الجراحة:</label>
-                    <select id="barType" class="form-control" onchange="toggleOtherInput(this)">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل حالة جراحية جديدة</h3>
+            <form onsubmit="saveBariatric(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="bPatient" class="form-control" required placeholder="اسم المريض..."></div>
+                <div class="form-group"><label>نوع الجراحة:</label>
+                    <select id="bType" class="form-control">
                         <option value="تكميم معدة">تكميم معدة</option>
                         <option value="تحويل مسار كلاسيكي">تحويل مسار كلاسيكي</option>
-                        <option value="عملية الساسي (SASI)">عملية الساسي (SASI)</option>
-                        <option value="جراحة تصحيح (Revision)">جراحة تصحيح (Revision)</option>
-                        <option value="أخرى">أخرى</option>
+                        <option value="تحويل مسار مصغر">تحويل مسار مصغر</option>
+                        <option value="إصلاح عملية سابقة">إصلاح عملية سابقة</option>
                     </select>
                 </div>
-                <!-- خانة الكتابة التي تظهر عند اختيار أخرى -->
-                <div class="form-group" id="otherTypeGroup" style="display: none;">
-                    <label>اكتب اسم الجراحة الأخرى:</label>
-                    <input type="text" id="barOtherType" class="form-control" placeholder="اكتب نوع الجراحة هنا...">
-                </div>
-                <div class="form-group"><label>تاريخ العملية:</label><input type="text" id="barDate" class="form-control" placeholder="مثال: أغسطس 2026" required></div>
-                <div class="form-group"><label>الوزن الحالي والبداية:</label><input type="text" id="barWeight" class="form-control" placeholder="مثال: 95 كجم (بدءاً من 135)" required></div>
-                <div class="form-group"><label>الوزن المثالي المستهدف:</label><input type="text" id="barTarget" class="form-control" placeholder="مثال: 75 كجم" required></div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ الحالة</button>
-                    <button type="button" class="btn-close-modal" onclick="closeBariatricModal()">إلغاء</button>
+                <div class="form-group"><label>تاريخ العملية:</label><input type="date" id="bDate" class="form-control" required></div>
+                <div class="form-group"><label>الجراح المسؤول:</label><input type="text" id="bSurgeon" class="form-control" required placeholder="اسم الطبيب الجراح..."></div>
+                <div class="form-group"><label>ملاحظات ما بعد الجراحة:</label><textarea id="bNotes" class="form-control" rows="2" placeholder="حالة المعدة، التوصيات..."></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
+                    <button type="button" onclick="closeModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function openBariatricModal() { document.getElementById('bariatricModal').style.display = 'flex'; }
-        function closeBariatricModal() { 
-            document.getElementById('bariatricModal').style.display = 'none'; 
-            document.getElementById('otherTypeGroup').style.display = 'none';
-        }
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function toggleOtherInput(selectObj) {
-            const otherGroup = document.getElementById('otherTypeGroup');
-            if (selectObj.value === 'أخرى') {
-                otherGroup.style.display = 'block';
-                document.getElementById('barOtherType').required = true;
-            } else {
-                otherGroup.style.display = 'none';
-                document.getElementById('barOtherType').required = false;
+        async function fetchBariatric() {
+            const tbody = document.getElementById('bariatricTableBody');
+            const { data, error } = await supabaseClient.from('bariatric_cases').select('*').order('surgery_date', { ascending: false });
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الجلب (تأكد من إنشاء جدول bariatric_cases).</td></tr>`;
+                return;
             }
-        }
-
-        function addNewBariatric(event) {
-            event.preventDefault();
-            const name = document.getElementById('barName').value;
-            let typeText = document.getElementById('barType').value;
-            
-            if (typeText === 'أخرى') {
-                typeText = document.getElementById('barOtherType').value;
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد حالات جراحية مسجلة.</td></tr>`;
+                return;
             }
-
-            const date = document.getElementById('barDate').value;
-            const weight = document.getElementById('barWeight').value;
-            const target = document.getElementById('barTarget').value;
-
-            let badgeClass = 'badge-other';
-            if(typeText.includes('تكميم')) badgeClass = 'badge-sleeve';
-            else if(typeText.includes('تحويل')) badgeClass = 'badge-bypass';
-            else if(typeText.includes('الساسي') || typeText.includes('SASI')) badgeClass = 'badge-sasi';
-            else if(typeText.includes('تصحيح') || typeText.includes('Revision')) badgeClass = 'badge-revision';
-
-            const tbody = document.getElementById('bariatric-tbody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                <td><span class="badge ${badgeClass}">${typeText}</span></td>
-                <td>${date}</td>
-                <td><strong>${weight}</strong></td>
-                <td>${target}</td>
-                <td><strong>${name}</strong></td>
-            `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-            alert('تم تسجيل الحالة الجراحية بنجاح!');
-            closeBariatricModal();
-            event.target.reset();
+            data.forEach(b => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${b.patient_name}</strong></td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${b.surgery_type}</span></td>
+                        <td>${b.surgery_date}</td>
+                        <td>${b.surgeon_name}</td>
+                        <td style="font-size:11px; color:var(--text-gray);">${b.notes || 'لا توجد ملاحظات'}</td>
+                        <td><button onclick="deleteBariatric('${b.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer;">🗑️ حذف</button></td>
+                    </tr>
+                `;
+            });
+        }
+        window.onload = fetchBariatric;
+        function openModal() { document.getElementById('bariatricModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('bariatricModal').style.display = 'none'; }
+        async function saveBariatric(e) {
+            e.preventDefault();
+            const patient_name = document.getElementById('bPatient').value;
+            const surgery_type = document.getElementById('bType').value;
+            const surgery_date = document.getElementById('bDate').value;
+            const surgeon_name = document.getElementById('bSurgeon').value;
+            const notes = document.getElementById('bNotes').value;
+            const { error } = await supabaseClient.from('bariatric_cases').insert([{ patient_name, surgery_type, surgery_date, surgeon_name, notes }]);
+            if (error) { alert('خطأ: ' + error.message); return; }
+            alert('✨ تم حفظ حالة جراحة السمنة في SQL بنجاح!');
+            closeModal();
+            fetchBariatric();
+            e.target.reset();
+        }
+        async function deleteBariatric(id) {
+            if (confirm('حذف هذا السجل الجراحي؟')) {
+                await supabaseClient.from('bariatric_cases').delete().eq('id', id);
+                fetchBariatric();
+            }
         }
     </script>
 </body>
