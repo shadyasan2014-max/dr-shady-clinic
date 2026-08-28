@@ -27,6 +27,17 @@
         .info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 6px; }
         .info-row span { color: var(--text-gray); }
         .btn-action { background-color: var(--accent-blue); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; margin-top: 10px; }
+        
+        /* Modal نافذة تسجيل المتابعة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
+        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
     </style>
 </head>
 <body>
@@ -53,11 +64,13 @@
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
+
     <div class="main-content">
         <div class="top-header">
             <h1>📂 ملف المريض: شهاب الدين حسب النبي</h1>
             <a href="patients.html" style="font-size: 13px; color: var(--accent-blue); text-decoration: none; font-weight: bold;">← العودة لقائمة المرضى</a>
         </div>
+
         <div class="profile-grid">
             <div>
                 <div class="card">
@@ -65,23 +78,67 @@
                     <div class="info-row"><span>السن:</span> <strong>34 سنة</strong></div>
                     <div class="info-row"><span>التصنيف:</span> <strong style="color:var(--accent-blue);">متابعة تكميم</strong></div>
                     <div class="info-row"><span>رقم الهاتف:</span> <strong>010xxxxxxxx</strong></div>
-                    <div class="info-row"><span>الوزن الحالي:</span> <strong>92 كجم</strong></div>
+                    <div class="info-row"><span>الوزن الحالي:</span> <strong id="current-weight">92 كجم</strong></div>
                     <div class="info-row"><span>الطول:</span> <strong>178 سم</strong></div>
                     <button class="btn-action" onclick="alert('فتح نافذة تعديل بيانات المريض')">تعديل بيانات المريض ⚙️</button>
                 </div>
             </div>
+
             <div>
                 <div class="card">
                     <h3>📋 سجل القياسات والمتابعات الأخيرة</h3>
-                    <div style="font-size: 13px; line-height: 1.6; color: var(--text-gray);">
-                        <p><strong>آخر زيارة:</strong> 20 أغسطس 2026</p>
-                        <p><strong>معدل نزول الوزن:</strong> ممتاز، تم فقدان 3.5 كجم في الشهر الأخير مع التزام تام بالبروتين والماء.</p>
+                    <div id="history-container" style="font-size: 13px; line-height: 1.6; color: var(--text-gray);">
+                        <p><strong>آخر زيارة:</strong> <span id="last-date">28 أغسطس 2026</span></p>
+                        <p><strong>معدل نزول الوزن:</strong> <span id="last-note">ممتاز، تم فقدان 3.5 كجم في الشهر الأخير مع التزام تام بالبروتين والماء.</span></p>
                         <p><strong>ملاحظات جراحات السمنة:</strong> لا توجد أي شكاوى من ارتجاع المريء، القدرة على تناول وجبات صغيرة منتظمة مستقرة.</p>
                     </div>
-                    <button class="btn-action" style="background:var(--primary-green);" onclick="alert('إضافة زيارة أو قياس جديد للمريض')">+ تسجيل متابعة جديدة</button>
+                    <button class="btn-action" style="background:var(--primary-green);" onclick="openModal()">+ تسجيل متابعة جديدة</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- نافذة منبثقة (Modal) لتسجيل المتابعة الجديدة -->
+    <div id="followupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>➕ تسجيل زيارة ومتابعة جديدة</h3>
+            <form onsubmit="saveFollowup(event)">
+                <div class="form-group">
+                    <label>الوزن الحالي الجديد (كجم):</label>
+                    <input type="number" step="0.1" id="newWeight" class="form-control" placeholder="مثال: 90.5" required>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات الزيارة ومعدل النزول:</label>
+                    <textarea id="newNote" class="form-control" rows="3" placeholder="أدخل تفاصيل ومعدل نزول الوزن..." required></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ المتابعة</button>
+                    <button type="button" class="btn-close-modal" onclick="closeModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        function openModal() {
+            document.getElementById('followupModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('followupModal').style.display = 'none';
+        }
+        function saveFollowup(event) {
+            event.preventDefault();
+            const weight = document.getElementById('newWeight').value;
+            const note = document.getElementById('newNote').value;
+            
+            // تحديث البيانات في الصفحة فوراً
+            document.getElementById('current-weight').innerText = weight + ' كجم';
+            document.getElementById('last-date').innerText = 'اليوم (28 أغسطس 2026)';
+            document.getElementById('last-note').innerText = note;
+            
+            alert('تم تسجيل المتابعة وتحديث وزن المريض بنجاح!');
+            closeModal();
+        }
+    </script>
 </body>
 </html>
