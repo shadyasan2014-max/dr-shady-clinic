@@ -33,8 +33,9 @@
         .macro-box strong { font-size: 14px; color: var(--accent-blue); }
         .meal-item-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; }
+        .btn-edit-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         
-        /* Modal تصميم نافذة إضافة الوجبة */
+        /* Modal تصميم النوافذ المنبثقة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
@@ -93,9 +94,38 @@
                 <div class="card">
                     <h3>🍽️ توزيع الوجبات اليومية</h3>
                     <div id="meals-list-container">
-                        <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة الإفطار:</strong><div class="meal-item-box"><span>بيضة مسلوقة + قطعة جبن قريش + رغيف سن</span><span style="font-size: 11px; color: var(--text-gray);">320 سعرة</span></div></div>
-                        <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة الغداء:</strong><div class="meal-item-box"><span>صدر دجاج مشوي (150جم) + 5 معالق أرز + سلطة خضراء</span><span style="font-size: 11px; color: var(--text-gray);">550 سعرة</span></div></div>
-                        <div style="margin-bottom: 15px;"><strong style="font-size: 13px; color: var(--accent-blue);">وجبة العشاء:</strong><div class="meal-item-box"><span>علبة زبادي يوناني + ثمرة فاكهة</span><span style="font-size: 11px; color: var(--text-gray);">230 سعرة</span></div></div>
+                        <div id="meal-1" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الإفطار:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-1')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">بيضة مسلوقة + قطعة جبن قريش + رغيف سن</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">320 سعرة</span>
+                            </div>
+                        </div>
+
+                        <div id="meal-2" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الغداء:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-2')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">صدر دجاج مشوي (150جم) + 5 معالق أرز + سلطة خضراء</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">550 سعرة</span>
+                            </div>
+                        </div>
+
+                        <div id="meal-3" style="margin-bottom: 15px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة العشاء:</strong>
+                                <button class="btn-edit-sm" onclick="openEditModal('meal-3')">تعديل ⚙️</button>
+                            </div>
+                            <div class="meal-item-box">
+                                <span class="m-desc">علبة زبادي يوناني + ثمرة فاكهة</span>
+                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">230 سعرة</span>
+                            </div>
+                        </div>
                     </div>
                     <button class="btn-action" style="background:var(--accent-blue);" onclick="openMealModal()">+ إضافة صنف أو وجبة جديدة</button>
                 </div>
@@ -103,53 +133,103 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة صنف أو وجبة -->
+    <!-- نافذة إضافة صنف أو وجبة جديدة -->
     <div id="mealModal" class="modal-overlay">
         <div class="modal-box">
             <h3>🍽️ إضافة صنف أو وجبة جديدة</h3>
             <form onsubmit="addNewMeal(event)">
-                <div class="form-group">
-                    <label>اسم الوجبة أو الصنف:</label>
-                    <input type="text" id="mealTitle" class="form-control" placeholder="مثال: وجبة خفيفة / شوفان بالحليب" required>
-                </div>
-                <div class="form-group">
-                    <label>مكونات الصنف / الوجبة:</label>
-                    <input type="text" id="mealDesc" class="form-control" placeholder="مثال: كوب حليب + 3 معالق شوفان" required>
-                </div>
-                <div class="form-group">
-                    <label>السعرات الحرارية (Calories):</label>
-                    <input type="number" id="mealCalories" class="form-control" placeholder="مثال: 250" required>
-                </div>
+                <div class="form-group"><label>اسم الوجبة:</label><input type="text" id="mealTitle" class="form-control" placeholder="مثال: وجبة خفيفة" required></div>
+                <div class="form-group"><label>المكونات:</label><input type="text" id="mealDesc" class="form-control" placeholder="مثال: كوب حليب + شوفان" required></div>
+                <div class="form-group"><label>السعرات الحرارية:</label><input type="number" id="mealCalories" class="form-control" placeholder="مثال: 250" required></div>
                 <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">إضافة للقائمة</button>
+                    <button type="submit" class="btn-save-modal">إضافة</button>
                     <button type="button" class="btn-close-modal" onclick="closeMealModal()">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
+    <!-- نافذة تعديل الوجبة -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3>✏️ تعديل محتوى الوجبة</h3>
+            <form onsubmit="saveEditedMeal(event)">
+                <input type="hidden" id="editMealId">
+                <div class="form-group"><label>اسم الوجبة:</label><input type="text" id="editTitle" class="form-control" required></div>
+                <div class="form-group"><label>المكونات:</label><input type="text" id="editDesc" class="form-control" required></div>
+                <div class="form-group"><label>السعرات الحرارية:</label><input type="number" id="editCalories" class="form-control" required></div>
+                <div class="modal-actions">
+                    <button type="submit" class="btn-save-modal">حفظ التعديل</button>
+                    <button type="button" class="btn-close-modal" onclick="closeEditModal()">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
-        function openMealModal() {
-            document.getElementById('mealModal').style.display = 'flex';
-        }
-        function closeMealModal() {
-            document.getElementById('mealModal').style.display = 'none';
-        }
+        let currentEditingId = null;
+
+        function openMealModal() { document.getElementById('mealModal').style.display = 'flex'; }
+        function closeMealModal() { document.getElementById('mealModal').style.display = 'none'; }
+
         function addNewMeal(event) {
             event.preventDefault();
             const title = document.getElementById('mealTitle').value;
             const desc = document.getElementById('mealDesc').value;
             const calories = document.getElementById('mealCalories').value;
+            const uniqueId = 'meal-' + Date.now();
 
             const container = document.getElementById('meals-list-container');
             const newDiv = document.createElement('div');
+            newDiv.id = uniqueId;
             newDiv.style.marginBottom = '15px';
-            newDiv.innerHTML = `<strong style="font-size: 13px; color: var(--accent-blue);">${title}:</strong><div class="meal-item-box"><span>${desc}</span><span style="font-size: 11px; color: var(--text-gray);">${calories} سعرة</span></div>`;
+            newDiv.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                    <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">${title}:</strong>
+                    <button class="btn-edit-sm" onclick="openEditModal('${uniqueId}')">تعديل ⚙️</button>
+                </div>
+                <div class="meal-item-box">
+                    <span class="m-desc">${desc}</span>
+                    <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">${calories} سعرة</span>
+                </div>`;
             
             container.appendChild(newDiv);
-            alert('تمت إضافة الوجبة بنجاح للخطّة الغذائية!');
+            alert('تمت إضافة الوجبة بنجاح!');
             closeMealModal();
             event.target.reset();
+        }
+
+        function openEditModal(mealId) {
+            currentEditingId = mealId;
+            const mealElement = document.getElementById(mealId);
+            const titleText = mealElement.querySelector('.m-title').innerText.replace(':', '');
+            const descText = mealElement.querySelector('.m-desc').innerText;
+            const calText = mealElement.querySelector('.m-cal').innerText.replace(' سعرة', '');
+
+            document.getElementById('editTitle').value = titleText;
+            document.getElementById('editDesc').value = descText;
+            document.getElementById('editCalories').value = calText;
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        function saveEditedMeal(event) {
+            event.preventDefault();
+            const title = document.getElementById('editTitle').value;
+            const desc = document.getElementById('editDesc').value;
+            const calories = document.getElementById('editCalories').value;
+
+            const mealElement = document.getElementById(currentEditingId);
+            mealElement.querySelector('.m-title').innerText = title + ':';
+            mealElement.querySelector('.m-desc').innerText = desc;
+            mealElement.querySelector('.m-cal').innerText = calories + ' سعرة';
+
+            alert('تم تعديل الوجبة بنجاح!');
+            closeEditModal();
         }
     </script>
 </body>
