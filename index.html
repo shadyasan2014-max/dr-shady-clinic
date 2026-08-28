@@ -6,24 +6,14 @@
     <title>Dr. Shady Samir - عيادة التغذية العلاجية</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root {
-            --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff;
-            --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6;
-            --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b;
-        }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: var(--sidebar-bg); display: flex; flex-direction: column; justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.8s ease; }
-        .splash-logo { width: 120px; height: 120px; border-radius: 50%; object-fit: contain; background-color: #ffffff; border: 3px solid var(--primary-green); box-shadow: 0 0 30px rgba(16, 185, 129, 0.4); animation: pulseLogo 1.5s infinite alternate; }
-        @keyframes pulseLogo { 0% { transform: scale(1); opacity: 0.85; } 100% { transform: scale(1.1); opacity: 1; } }
-        .splash-text { margin-top: 20px; color: #94a3b8; font-size: 15px; font-weight: 600; }
-        #main-system { display: none; width: 100%; display: flex; }
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; }
-        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); transition: all 0.3s; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
         .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
@@ -47,9 +37,6 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .card h3 { margin-top: 0; font-size: 15px; margin-bottom: 12px; }
         .alert-item { background-color: #fff5f5; border-left: 4px solid var(--danger-red); padding: 10px; border-radius: 6px; margin-bottom: 8px; font-size: 12px; }
-        .alert-item.warning { background-color: #fffbeb; border-left-color: var(--warning-orange); }
-        .alert-item.info { background-color: #eff6ff; border-left-color: var(--accent-blue); }
-        .alert-item.success { background-color: #f0fdf4; border-left-color: var(--primary-green); }
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; }
         th { color: var(--text-gray); padding: 8px; border-bottom: 1px solid var(--card-border); }
         td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; }
@@ -60,11 +47,7 @@
     </style>
 </head>
 <body>
-    <div id="splash-screen">
-        <img src="logo.jpeg" alt="Dr. Shady Logo" class="splash-logo">
-        <div class="splash-text">جاري إطلاق نظام عيادة د. شادي سمير...</div>
-    </div>
-    <div id="main-system" style="display: none; width: 100%;">
+    <div class="main-system" style="width: 100%; display: flex;">
         <div class="sidebar">
             <div>
                 <div class="sidebar-brand">
@@ -118,10 +101,7 @@
                 <div class="card">
                     <h3>🔔 التنبيهات الذكية</h3>
                     <div class="alert-item"><strong>مرضى متأخرين</strong><div style="font-size:11px; color:var(--text-gray);">9 مريض بحاجة متابعة</div></div>
-                    <div class="alert-item warning"><strong>مواعيد 24 ساعة</strong><div style="font-size:11px; color:var(--text-gray);">5 مواعيد مجدولة</div></div>
-                    <div class="alert-item warning"><strong>تحاليل مستحقة</strong><div style="font-size:11px; color:var(--text-gray);">6 حالات لم تسلم النتائج</div></div>
-                    <div class="alert-item info"><strong>مكملات تحتاج مراجعة</strong><div style="font-size:11px; color:var(--text-gray);">7 مرضى قرب انتهاء الجرعات</div></div>
-                    <div class="alert-item success"><strong>حققوا الهدف</strong><div style="font-size:11px; color:var(--text-gray);">3 حالات وصلوا للمثالي</div></div>
+                    <div class="alert-item"><strong>مواعيد 24 ساعة</strong><div style="font-size:11px; color:var(--text-gray);">5 مواعيد مجدولة</div></div>
                 </div>
                 <div class="card">
                     <h3>📅 مواعيد اليوم</h3>
@@ -140,37 +120,30 @@
                     <div style="font-size: 12px; margin-top: 10px; color: var(--text-gray);">إجمالي المرضى: <strong>86</strong></div>
                 </div>
             </div>
-            <div class="bottom-grid">
-                <div class="card"><h3>📉 تطور الوزن لآخر 7 أيام</h3><canvas id="weightChart" style="max-height: 140px;"></canvas></div>
-                <div class="card"><h3>⏰ مواعيد قادمة</h3><div style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;"><div style="background: #f8fafc; padding: 8px; border-radius: 6px; border-left: 3px solid var(--accent-blue);"><strong>متابعة سارة أحمد</strong><br><span style="color: var(--text-gray);">غداً 05:30 م</span></div></div></div>
-                <div class="card"><h3>🔔 آخر التنبيهات</h3><div style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;"><div style="background: #fef2f2; padding: 8px; border-radius: 6px; color: #991b1b;"><strong>أحمد موسى</strong><br>متأخر عن المتابعة منذ 47 يوم</div></div></div>
-            </div>
         </div>
     </div>
     <script>
-        window.setTimeout(() => {
-            const splash = document.getElementById('splash-screen');
-            splash.style.opacity = '0';
-            setTimeout(() => { splash.style.display = 'none'; document.getElementById('main-system').style.display = 'flex'; initCharts(); }, 600);
-        }, 1500);
-
         function handleSearch(event) {
             if (event.key === 'Enter') {
-                const query = document.getElementById('globalSearchInput').value.trim();
+                const query = document.getElementById('globalSearchInput').value.trim().toLowerCase();
                 if (query) {
-                    alert(`جاري البحث عن ملف المريض: "${query}"...`);
-                    // ينقلك مباشرة لصفحة الملف الشامل للمريض
-                    window.location.href = 'patient-profile.html';
+                    // إذا كتب سارة يفتح ملف سارة، لو كتب شهاب يفتح ملف شهاب، غير ذلك يفتح الملف الافتراضي
+                    if (query.includes('سارة')) {
+                        alert('تم العثور على ملف: سارة أحمد محمود');
+                        window.location.href = 'patient-profile.html?patient=sara';
+                    } else if (query.includes('أحمد')) {
+                        alert('تم العثور على ملف: أحمد محمد علي');
+                        window.location.href = 'patient-profile.html?patient=ahmed';
+                    } else {
+                        alert(`جاري البحث عن ملف المريض: "${query}"...`);
+                        window.location.href = 'patient-profile.html';
+                    }
                 }
             }
         }
 
-        function initCharts() {
-            const ctxBariatric = document.getElementById('bariatricChart').getContext('2d');
-            new Chart(ctxBariatric, { type: 'doughnut', data: { labels: ['متابعة اليوم', 'هذا الأسبوع', 'متأخرون', 'تحاليل مستحقة'], datasets: [{ data: [7, 18, 9, 6], backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'] }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
-            const ctxWeight = document.getElementById('weightChart').getContext('2d');
-            new Chart(ctxWeight, { type: 'line', data: { labels: ['22/8', '23/8', '24/8', '25/8', '26/8', '27/8', '28/8'], datasets: [{ label: 'متوسط الوزن (كجم)', data: [111, 108, 106, 107, 105, 103, 102.4], borderColor: '#10b981', backgroundColor: 'rgba(16, 185, 129, 0.1)', borderWidth: 2, fill: true, tension: 0.3 }] }, options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { beginAtZero: false } } } });
-        }
+        const ctxBariatric = document.getElementById('bariatricChart').getContext('2d');
+        new Chart(ctxBariatric, { type: 'doughnut', data: { labels: ['متابعة اليوم', 'هذا الأسبوع', 'متأخرون', 'تحاليل مستحقة'], datasets: [{ data: [7, 18, 9, 6], backgroundColor: ['#10b981', '#3b82f6', '#ef4444', '#f59e0b'] }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
     </script>
 </body>
 </html>
