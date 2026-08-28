@@ -5,46 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - قسم المدفوعات والحسابات</title>
     <style>
-        :root {
-            --sidebar-bg: #0b1329;
-            --main-bg: #f4f6f9;
-            --card-bg: #ffffff;
-            --card-border: #e2e8f0;
-            --primary-green: #10b981;
-            --accent-blue: #3b82f6;
-            --warning-orange: #f59e0b;
-            --danger-red: #ef4444;
-            --text-dark: #1e293b;
-            --text-gray: #64748b;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--main-bg);
-            color: var(--text-dark);
-            margin: 0;
-            display: flex;
-            min-height: 100vh;
-        }
-        .sidebar {
-            width: 260px; background-color: var(--sidebar-bg); color: white;
-            display: flex; flex-direction: column; justify-content: space-between;
-            padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh;
-            box-shadow: -4px 0 15px rgba(0,0,0,0.1);
-        }
-        .sidebar-brand {
-            padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
-            display: flex; flex-direction: column; align-items: center; text-align: center;
-        }
-        .brand-logo { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--primary-green); 
-            margin-bottom: 8px; 
-        }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; }
-        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
         .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
@@ -52,39 +18,25 @@
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-
         .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header {
-            display: flex; justify-content: space-between; align-items: center;
-            margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px;
-            border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03);
-        }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-
         .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .stat-card .title { color: var(--text-gray); font-size: 12px; margin-bottom: 5px; }
         .stat-card .number { font-size: 22px; font-weight: bold; color: var(--text-dark); }
-
-        .action-bar {
-            display: flex; justify-content: space-between; align-items: center;
-            background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px;
-            margin-bottom: 20px; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-        }
+        .action-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .btn-add { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; }
-
         .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
         th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
         td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        
         .badge-paid { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #d1fae5; color: #065f46; }
         .badge-due { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #fef3c7; color: #92400e; }
         .btn-action-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: bold; cursor: pointer; text-decoration: none; display: inline-block; }
     </style>
 </head>
 <body>
-
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
@@ -102,80 +54,36 @@
                 <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
                 <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
                 <li class="active"><a href="payments.html">💰 المدفوعات والحسابات</a></li>
+                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
+                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
             </ul>
         </div>
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button>
-        </div>
+        <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
-
     <div class="main-content">
         <div class="top-header">
             <h1>💰 إدارة المدفوعات وحسابات العيادة</h1>
             <div style="font-size: 13px; color: var(--text-gray);">متابعة الإيرادات وحركات الدفع للكشوفات والمتابعات</div>
         </div>
-
         <div class="stats-grid">
-            <div class="stat-card">
-                <div class="title">إيرادات اليوم</div>
-                <div class="number" style="color:var(--primary-green);">8,650 جنيه</div>
-            </div>
-            <div class="stat-card">
-                <div class="title">إيرادات هذا الأسبوع</div>
-                <div class="number" style="color:var(--accent-blue);">42,300 جنيه</div>
-            </div>
-            <div class="stat-card">
-                <div class="title">حالات مستحقة الدفع</div>
-                <div class="number" style="color:var(--warning-orange);">3 حالات</div>
-            </div>
+            <div class="stat-card"><div class="title">إيرادات اليوم</div><div class="number" style="color:var(--primary-green);">8,650 جنيه</div></div>
+            <div class="stat-card"><div class="title">إيرادات هذا الأسبوع</div><div class="number" style="color:var(--accent-blue);">42,300 جنيه</div></div>
+            <div class="stat-card"><div class="title">حالات مستحقة الدفع</div><div class="number" style="color:var(--warning-orange);">3 حالات</div></div>
         </div>
-
         <div class="action-bar">
             <div style="font-size: 14px; font-weight: bold;">سجل المعاملات المالية الحديثة</div>
             <button class="btn-add" onclick="alert('تسجيل عملية دفع جديدة')">+ تسجيل مدفوعة جديدة</button>
         </div>
-
         <div class="table-card">
             <table>
-                <thead>
-                    <tr>
-                        <th>إجراء الملف</th>
-                        <th>الحالة المالية</th>
-                        <th>المبلغ المدفوع</th>
-                        <th>نوع الخدمة / الزيارة</th>
-                        <th>التاريخ</th>
-                        <th>اسم المريض</th>
-                    </tr>
-                </thead>
+                <thead><tr><th>إجراء الملف</th><th>الحالة المالية</th><th>المبلغ المدفوع</th><th>نوع الخدمة / الزيارة</th><th>التاريخ</th><th>اسم المريض</th></tr></thead>
                 <tbody>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-paid">تم الدفع بالكامل</span></td>
-                        <td><strong>450 جنيه</strong></td>
-                        <td>متابعة دورية</td>
-                        <td>28 أغسطس 2026</td>
-                        <td><strong>أحمد محمد علي</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-due">مستحق (جزئي)</span></td>
-                        <td><strong>600 جنيه</strong> (متبقي 200)</td>
-                        <td>كشف أول زيارة (باقة شهرية)</td>
-                        <td>28 أغسطس 2026</td>
-                        <td><strong>سارة أحمد محمود</strong></td>
-                    </tr>
-                    <tr>
-                        <td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td>
-                        <td><span class="badge-paid">تم الدفع بالكامل</span></td>
-                        <td><strong>500 جنيه</strong></td>
-                        <td>استشارة ما بعد جراحات السمنة</td>
-                        <td>28 أغسطس 2026</td>
-                        <td><strong>شهاب الدين حسب النبي</strong></td>
-                    </tr>
+                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge-paid">تم الدفع بالكامل</span></td><td><strong>450 جنيه</strong></td><td>متابعة دورية</td><td>28 أغسطس 2026</td><td><strong>أحمد محمد علي</strong></td></tr>
+                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge-due">مستحق (جزئي)</span></td><td><strong>600 جنيه</strong> (متبقي 200)</td><td>كشف أول زيارة (باقة شهرية)</td><td>28 أغسطس 2026</td><td><strong>سارة أحمد محمود</strong></td></tr>
+                    <tr><td><a href="patient-profile.html" class="btn-action-sm">فتح الملف 📂</a></td><td><span class="badge-paid">تم الدفع بالكامل</span></td><td><strong>500 جنيه</strong></td><td>استشارة ما بعد جراحات السمنة</td><td>28 أغسطس 2026</td><td><strong>شهاب الدين حسب النبي</strong></td></tr>
                 </tbody>
             </table>
         </div>
     </div>
-
 </body>
 </html>
