@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - لوحة تحكم العيادة الإكلينيكية</title>
+    <title>Dr. Shady Samir - لوحة تحكم العيادة الإكلينيكية (SQL Live)</title>
     <!-- استدعاء مكتبة Supabase للربط بقاعدة بيانات SQL -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
@@ -35,6 +35,10 @@
         .dashboard-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 15px; }
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; }
+        th { color: var(--text-gray); padding: 8px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
     </style>
 </head>
 <body>
@@ -63,7 +67,7 @@
                 <img src="logo.jpeg" alt="Logo" class="welcome-logo">
                 <div>
                     <h2 style="margin:0; font-size: 18px;">مرحباً بك، د. شادي 👋 🩺</h2>
-                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (نظام إدارة العيادة الذكي)</p>
+                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (لوحة المؤشرات والتقارير الحية)</p>
                 </div>
             </div>
             <div style="text-align: left;">
@@ -74,23 +78,33 @@
         <!-- إحصائيات حية من قاعدة بيانات SQL -->
         <div class="stats-grid">
             <div class="stat-box"><div class="title">إجمالي المرضى المسجلين</div><div class="value" id="totalPatientsCount" style="color:var(--accent-blue);">0</div></div>
-            <div class="stat-box"><div class="title">مواعيد اليوم</div><div class="value" id="todayApptsCount" style="color:var(--primary-green);">0</div></div>
-            <div class="stat-box"><div class="title">متابعات اليوم</div><div class="value" id="todayFollowupsCount" style="color:var(--warning-orange);">0</div></div>
-            <div class="stat-box"><div class="title">إيرادات اليوم</div><div class="value" id="todayRevenue" style="color:var(--text-dark);">0 ج.م</div></div>
+            <div class="stat-box"><div class="title">إجمالي المواعيد المحجوزة</div><div class="value" id="totalApptsCount" style="color:var(--primary-green);">0</div></div>
+            <div class="stat-box"><div class="title">التحاليل الطبية المسجلة</div><div class="value" id="totalLabsCount" style="color:var(--warning-orange);">0</div></div>
+            <div class="stat-box"><div class="title">حالة النظام السحابي</div><div class="value" style="color:var(--primary-green); font-size: 14px; padding-top: 5px;">🟢 متصل بـ SQL</div></div>
         </div>
 
         <div class="dashboard-grid">
             <div class="card">
-                <h3>📅 مواعيد وزيارات اليوم</h3>
-                <div id="todayApptsContainer" style="text-align: center; padding: 30px; color: var(--text-gray); font-size: 12px;">
-                    لا توجد مواعيد مسجلة اليوم. السيستم جاهز ونظيف.
-                </div>
+                <h3>📅 جدول المواعيد والزيارات الحية</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المريض</th>
+                            <th>نوع الزيارة</th>
+                            <th>الوقت</th>
+                            <th>الحالة</th>
+                        </tr>
+                    </thead>
+                    <tbody id="homeApptsTableBody">
+                        <tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب مواعيد اليوم من قاعدة بيانات SQL...</td></tr>
+                    </tbody>
+                </table>
             </div>
 
             <div class="card">
-                <h3>🔔 التنبيهات الذكية وتجديد الأنظمة</h3>
-                <div id="smartAlertsContainer" style="text-align: center; padding: 30px; color: var(--text-gray); font-size: 12px;">
-                    لا توجد تنبيهات متأخرة. جميع الأنظمة سارية.
+                <h3>🔔 التنبيهات الذكية للعيادة</h3>
+                <div id="smartAlertsContainer" style="text-align: center; padding: 25px; color: var(--text-gray); font-size: 12px;">
+                    لا توجد تنبيهات متأخرة. السيستم يعمل بكفاءة تامة.
                 </div>
             </div>
         </div>
@@ -103,19 +117,45 @@
         
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function loadDashboardData() {
+        async function loadDashboardReports() {
             // عرض التاريخ الحالي
             document.getElementById('currentDateBadge').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            // جلب إجمالي عدد المرضى الحقيقيين من جدول SQL
-            const { count, error } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
-            if (!error) {
-                document.getElementById('totalPatientsCount').innerText = count || 0;
+            // 1. جلب إجمالي عدد المرضى
+            const { count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
+            document.getElementById('totalPatientsCount').innerText = patientsCount || 0;
+
+            // 2. جلب إجمالي عدد المواعيد
+            const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(5);
+            document.getElementById('totalApptsCount').innerText = apptsCount || 0;
+
+            // 3. جلب إجمالي عدد التحاليل
+            const { count: labsCount } = await supabaseClient.from('labs').select('*', { count: 'exact', head: true });
+            document.getElementById('totalLabsCount').innerText = labsCount || 0;
+
+            // 4. تعبئة جدول المواعيد في الصفحة الرئيسية
+            const tbody = document.getElementById('homeApptsTableBody');
+            if (!apptsData || apptsData.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
+                return;
             }
+
+            tbody.innerHTML = '';
+            apptsData.forEach(a => {
+                let badgeColor = a.status === 'مؤكد' ? '#10b981' : '#f59e0b';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${a.patient_name}</strong></td>
+                        <td>${a.appt_type}</td>
+                        <td>${a.appt_time}</td>
+                        <td><span style="background:${badgeColor}20; color:${badgeColor}; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:bold;">${a.status}</span></td>
+                    </tr>
+                `;
+            });
         }
 
         window.onload = function() {
-            loadDashboardData();
+            loadDashboardReports();
         };
     </script>
 </body>
