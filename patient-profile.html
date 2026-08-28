@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - لوحة تحكم المريض الإكلينيكية والتقرير الشامل</title>
+    <title>Dr. Shady Samir - لوحة تحكم المريض الإكلينيكية</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
@@ -52,7 +52,7 @@
         .timeline-item .date { font-size: 11px; color: var(--accent-blue); font-weight: bold; }
         .timeline-item .weight { font-size: 14px; font-weight: bold; color: var(--text-dark); }
         .timeline-item .note { font-size: 12px; color: var(--text-gray); margin-top: 2px; }
-        .timeline-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; margin-top: 5px; cursor: pointer; }
+        .timeline-img { width: 50px; height: 50px; border-radius: 6px; object-fit: cover; border: 1px solid #cbd5e1; margin-top: 5px; }
 
         .eval-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 8px; }
         .eval-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px; border-radius: 6px; font-size: 11px; text-align: center; }
@@ -65,22 +65,23 @@
         .modal-box { background: white; padding: 20px; border-radius: 10px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-control { width: 100%; padding: 8px; border: 1px solid var(--card-border); border-radius: 6px; font-size: 12px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 10px; }
 
-        /* نموذج الطباعة الشامل (تقرير الحالة من البداية) مخفي حتى يتم الضغط عليه */
+        /* نظام الطباعة المنفصل للتقرير الشامل */
         #printFullReportArea { display: none; }
 
         @media print {
             body * { visibility: hidden; }
-            .print-active-area, .print-active-area * { visibility: visible; }
-            .sidebar, .top-action-bar, .btn-action, .modal-overlay { display: none !important; }
+            #printFullReportArea, #printFullReportArea * { visibility: visible; }
+            .sidebar, .main-content, .modal-overlay { display: none !important; }
             
-            @page { size: A4 portrait; margin: 10mm; }
+            @page { size: A4 portrait; margin: 12mm; }
             body { background-color: #ffffff !important; }
-            .print-active-area { 
+            #printFullReportArea { 
                 position: absolute; 
                 left: 0; 
                 top: 0; 
                 width: 100% !important; 
-                padding: 15px !important;
+                display: block !important;
+                padding: 0 !important;
                 background: #ffffff !important;
             }
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
@@ -111,9 +112,8 @@
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
-    <!-- المحتوى الرئيسي -->
+    <!-- المحتوى المرئي للداشبورد -->
     <div class="main-content">
-        <!-- كارت المريض العلوي -->
         <div class="patient-header-card">
             <div class="patient-bio">
                 <img src="logo.jpeg" alt="Patient">
@@ -127,7 +127,6 @@
             </div>
         </div>
 
-        <!-- شريط المؤشرات السريعة العلوي -->
         <div class="metrics-grid">
             <div class="metric-box"><div class="title">المتابعة رقم</div><div class="value" id="barVisitNum">5</div></div>
             <div class="metric-box"><div class="title">الالتزام</div><div class="value" style="color:var(--primary-green);">85%</div></div>
@@ -137,7 +136,6 @@
             <div class="metric-box"><div class="title">وزن البداية</div><div class="value" id="barStartWeight">107.0 كجم</div></div>
         </div>
 
-        <!-- شريط التبويبات وأزرار الطباعة -->
         <div class="top-action-bar">
             <div class="tabs-row">
                 <button class="tab-btn active">📊 ملخص الحالة</button>
@@ -151,7 +149,6 @@
             </div>
         </div>
 
-        <!-- الداشبورد الرئيسية -->
         <div class="dashboard-grid">
             <div>
                 <div class="card">
@@ -235,19 +232,19 @@
         </div>
     </div>
 
-    <!-- نموذج التقرير الشامل للحالة (من البداية) المخصص للطباعة -->
+    <!-- نموذج التقرير الشامل المخصص للطباعة حصرياً -->
     <div id="printFullReportArea">
-        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 12px; margin-bottom: 20px;">
-            <h2 style="margin: 0; color: #0b1329; font-size: 26px;">د. شادي سمير</h2>
-            <p style="margin: 4px 0 0 0; color: #059669; font-size: 13px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
+        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 10px; margin-bottom: 15px;">
+            <h2 style="margin: 0; color: #0b1329; font-size: 24px;">د. شادي سمير</h2>
+            <p style="margin: 3px 0 0 0; color: #059669; font-size: 12px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
         </div>
         
-        <div style="text-align: center; margin-bottom: 15px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 15px; background: #8b5cf6; display: inline-block; padding: 6px 20px; border-radius: 20px;">📄 التقرير الطبي الشامل لرحلة المريض (من البداية)</h3>
+        <div style="text-align: center; margin-bottom: 12px;">
+            <h3 style="color: #ffffff; margin: 0; font-size: 14px; background: #8b5cf6; display: inline-block; padding: 5px 18px; border-radius: 15px;">📄 التقرير الطبي الشامل لرحلة المريض (من البداية)</h3>
         </div>
 
-        <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 12px 18px; border-radius: 10px; margin-bottom: 20px; font-size: 13px;">
-            <div style="display: flex; justify-content: space-between; margin-bottom: 6px;">
+        <div style="background: #f0fdf4; border: 2px solid #10b981; padding: 10px 15px; border-radius: 8px; margin-bottom: 15px; font-size: 12px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                 <p style="margin: 0;"><strong>👤 اسم المريض:</strong> أحمد محمد علي (NUT-000125)</p>
                 <p style="margin: 0;"><strong>⚖️ الإجراء:</strong> تكميم المعدة (01/08/2026)</p>
             </div>
@@ -257,12 +254,12 @@
             </div>
         </div>
 
-        <h4 style="color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 6px; margin-bottom: 15px;">📋 سجل الزيارات والمتابعات تفصيلياً:</h4>
-        <div id="fullReportTimelineContent" style="font-size: 12px; line-height: 1.8;">
+        <h4 style="color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 5px; margin-bottom: 10px; font-size: 13px;">📋 سجل الزيارات والمتابعات تفصيلياً:</h4>
+        <div id="fullReportTimelineContent" style="font-size: 11px; line-height: 1.6;">
             <!-- يتم تعبئته آلياً بكل الزيارات -->
         </div>
 
-        <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 13px; border-top: 2px dashed #cbd5e1; padding-top: 15px;">
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 12px; border-top: 2px dashed #cbd5e1; padding-top: 12px;">
             <p style="margin: 0; font-weight: bold;">توقيع الطبيب المعالج: د. شادي سمير</p>
             <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
         </div>
@@ -357,26 +354,22 @@
         function printFullPatientJourneyReport() {
             let htmlContent = '';
             visitsHistory.forEach(v => {
+                let imgPrintHtml = v.img ? `<br><img src="${v.img}" style="width: 80px; height: 80px; border-radius: 6px; object-fit: cover; margin-top: 5px; border: 1px solid #cbd5e1;" alt="صورة المقارنة">` : '';
                 htmlContent += `
-                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-right: 4px solid #10b981; padding: 12px; border-radius: 8px; margin-bottom: 12px;">
-                        <strong style="color: #047857; font-size: 14px;">📅 ${v.date} (${v.visitNum})</strong>
-                        <div style="margin-top: 5px; color: #1e293b;">
+                    <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-right: 4px solid #10b981; padding: 10px; border-radius: 6px; margin-bottom: 8px; page-break-inside: avoid;">
+                        <strong style="color: #047857; font-size: 13px;">📅 ${v.date} (${v.visitNum})</strong>
+                        <div style="margin-top: 4px; color: #1e293b;">
                             • <strong>الوزن المسجل:</strong> ${v.weight} كجم<br>
                             • <strong>ملاحظات وتوجيهات الطبيب:</strong> ${v.note}
+                            ${imgPrintHtml}
                         </div>
                     </div>
                 `;
             });
             document.getElementById('fullReportTimelineContent').innerHTML = htmlContent;
 
-            // تفعيل كلاس الطباعة للتقرير الشامل وإلغاء الداشبورد العادية مؤقتاً أثناء الطباعة
-            document.getElementById('printFullReportArea').style.display = 'block';
-            document.querySelector('.main-content').classList.add('print-active-area');
-            
+            // استدعاء نافذة الطباعة مباشرة للتقرير الشامل المخصص
             window.print();
-
-            document.getElementById('printFullReportArea').style.display = 'none';
-            document.querySelector('.main-content').classList.remove('print-active-area');
         }
     </script>
 </body>
