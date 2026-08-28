@@ -26,6 +26,14 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .btn-export { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-block; text-decoration: none; }
+        
+        /* تنسيق الطباعة الخفي للتقارير الرسمية */
+        #printReportArea { display: none; }
+        @media print {
+            body * { visibility: hidden; }
+            #printReportArea, #printReportArea * { visibility: visible; }
+            #printReportArea { position: absolute; left: 0; top: 0; width: 100%; display: block; padding: 30px; direction: rtl; font-family: 'Segoe UI', Tahoma, sans-serif; color: #000; background: #fff; }
+        }
     </style>
 </head>
 <body>
@@ -52,21 +60,76 @@
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
+
     <div class="main-content">
         <div class="top-header">
             <h1>📊 تقارير وإحصائيات العيادة الشاملة</h1>
-            <button class="btn-export" onclick="alert('جاري تصدير التقارير بصيغة PDF...')">📥 تصدير تقرير الشهر (PDF)</button>
+            <button class="btn-export" onclick="exportReportPDF()">📥 تصدير تقرير الشهر (PDF)</button>
         </div>
+
         <div class="reports-grid">
-            <div class="card"><h3>📈 معدل نجاح الحالات ونزول الوزن</h3><canvas id="successChart" style="max-height: 220px;"></canvas></div>
-            <div class="card"><h3>👥 توزيع أعداد الحالات حسب التخصص</h3><canvas id="typesChart" style="max-height: 220px;"></canvas></div>
+            <div class="card">
+                <h3>📈 معدل نجاح الحالات ونزول الوزن</h3>
+                <canvas id="successChart" style="max-height: 220px;"></canvas>
+            </div>
+            <div class="card">
+                <h3>👥 توزيع أعداد الحالات حسب التخصص</h3>
+                <canvas id="typesChart" style="max-height: 220px;"></canvas>
+            </div>
         </div>
     </div>
+
+    <!-- نموذج تقرير الطباعة الخفي -->
+    <div id="printReportArea">
+        <div style="text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
+            <h2 style="margin: 0; color: #0b1329;">د. شادي سمير</h2>
+            <p style="margin: 5px 0 0 0; color: #64748b; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+        </div>
+        <h3 style="text-align: center; color: #3b82f6; margin-bottom: 20px;">التقرير الإحصائي الشهري لأداء العيادة</h3>
+        <div style="font-size: 15px; line-height: 2; margin-bottom: 30px;">
+            <p><strong>فترة التقرير:</strong> أغسطس 2026</p>
+            <p><strong>إجمالي عدد المرضى المتابعين:</strong> 86 مريض</p>
+            <p><strong>متوسط معدل فقدان الوزن الشهري:</strong> 5.5 كجم لكل حالة</p>
+            <p><strong>نسبة التزام الحالات بالبرنامج الغذائي والمكملات:</strong> 92% (ممتاز)</p>
+        </div>
+        <div style="margin-top: 60px; display: flex; justify-content: space-between; font-size: 14px;">
+            <p>توقيع المدير المسؤول / الطبيب: د. شادي سمير</p>
+            <p>ختم العيادة</p>
+        </div>
+    </div>
+
     <script>
         const ctxSuccess = document.getElementById('successChart').getContext('2d');
-        new Chart(ctxSuccess, { type: 'bar', data: { labels: ['الشهر الأول', 'الشهر الثاني', 'الشهر الثالث', 'الشهر الرابع', 'الشهر الخامس', 'الشهر السادس'], datasets: [{ label: 'متوسط فقدان الوزن (كجم)', data: [5.2, 4.8, 6.1, 5.5, 4.9, 5.8], backgroundColor: '#10b981', borderRadius: 6 }] }, options: { responsive: true, plugins: { legend: { display: false } } } });
+        new Chart(ctxSuccess, {
+            type: 'bar',
+            data: {
+                labels: ['الشهر الأول', 'الشهر الثاني', 'الشهر الثالث', 'الشهر الرابع', 'الشهر الخامس', 'الشهر السادس'],
+                datasets: [{
+                    label: 'متوسط فقدان الوزن (كجم)',
+                    data: [5.2, 4.8, 6.1, 5.5, 4.9, 5.8],
+                    backgroundColor: '#10b981',
+                    borderRadius: 6
+                }]
+            },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+
         const ctxTypes = document.getElementById('typesChart').getContext('2d');
-        new Chart(ctxTypes, { type: 'pie', data: { labels: ['سمنة مفرطة', 'متابعة جراحات سمنة', 'نحافة', 'تغذية أطفال'], datasets: [{ data: [45, 30, 15, 10], backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6'] }] }, options: { responsive: true } });
+        new Chart(ctxTypes, {
+            type: 'pie',
+            data: {
+                labels: ['سمنة مفرطة', 'متابعة جراحات سمنة', 'نحافة', 'تغذية أطفال'],
+                datasets: [{
+                    data: [45, 30, 15, 10],
+                    backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#8b5cf6']
+                }]
+            },
+            options: { responsive: true }
+        });
+
+        function exportReportPDF() {
+            window.print();
+        }
     </script>
 </body>
 </html>
