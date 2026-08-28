@@ -35,7 +35,14 @@
             padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
             display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .brand-logo { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--primary-green); 
+            margin-bottom: 8px; 
+        }
         .sidebar-brand h2 { margin: 0; font-size: 15px; }
         .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
@@ -47,7 +54,6 @@
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
 
         .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px;
@@ -56,14 +62,7 @@
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
 
         .builder-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            margin-bottom: 20px;
-        }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
 
         .form-group { margin-bottom: 15px; }
@@ -76,7 +75,6 @@
         .macro-box strong { font-size: 14px; color: var(--accent-blue); }
 
         .meal-item-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; }
         .btn-action:hover { opacity: 0.9; }
     </style>
@@ -86,7 +84,7 @@
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
-                <img src="WhatsApp Image 2026-06-11 at 10.15.39 PM_3.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo.jpeg" alt="Logo" class="brand-logo">
                 <h2>د. شادي سمير</h2>
                 <p>عيادة التغذية العلاجية</p>
             </div>
@@ -94,7 +92,7 @@
                 <li><a href="index.html">🏠 الرئيسية</a></li>
                 <li><a href="patients.html">👥 المرضى</a></li>
                 <li class="active"><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="#" onclick="alert('قسم المواعيد قيد التطوير')">📅 المواعيد</a></li>
+                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
                 <li><a href="#" onclick="alert('قسم جراحات السمنة قيد التطوير')">⚖️ جراحات السمنة</a></li>
                 <li><a href="#" onclick="alert('الإعدادات قيد التطوير')">⚙️ الإعدادات</a></li>
             </ul>
@@ -105,57 +103,39 @@
     </div>
 
     <div class="main-content">
-        
         <div class="top-header">
             <h1>🥗 Smart Meal Builder - باني الوجبات والخطط الغذائية</h1>
             <div style="font-size: 13px; color: var(--text-gray);">تصميم وتخصيص السعرات والماكروز للحالات</div>
         </div>
 
         <div class="builder-grid">
-            
-            <!-- العمود الأيمن: إعدادات الخطة الحسابية -->
             <div>
                 <div class="card">
                     <h3>⚙️ إعدادات السعرات والماكروز</h3>
-                    
                     <div class="form-group">
                         <label>اختر المريض:</label>
                         <select class="form-control">
                             <option>شهاب الدين حسب النبي (تكميم)</option>
-                            <option>أنس شادي سمير (تكميم)</option>
+                            <option>أنس شادي سمير (تغذية أطفال)</option>
                             <option>سارة أحمد (سمنة مفرطة)</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label>إجمالي السعرات المستهدفة (Calories):</label>
                         <input type="number" class="form-control" value="1400">
                     </div>
-
                     <div class="macro-row">
-                        <div class="macro-box">
-                            <span>بروتين</span>
-                            <strong>120 جم</strong>
-                        </div>
-                        <div class="macro-box">
-                            <span>كاربوهيدرات</span>
-                            <strong>130 جم</strong>
-                        </div>
-                        <div class="macro-box">
-                            <span>دهون صحية</span>
-                            <strong>45 جم</strong>
-                        </div>
+                        <div class="macro-box"><span>بروتين</span><strong>120 جم</strong></div>
+                        <div class="macro-box"><span>كاربوهيدرات</span><strong>130 جم</strong></div>
+                        <div class="macro-box"><span>دهون صحية</span><strong>45 جم</strong></div>
                     </div>
-
                     <button class="btn-action" onclick="alert('تم حفظ الخطة الغذائية وتحديث حسابات المريض بنجاح!')">💾 حفظ وتصدير الخطة</button>
                 </div>
             </div>
 
-            <!-- العمود الأيسر: محتويات الوجبات اليومية -->
             <div>
                 <div class="card">
                     <h3>🍽️ توزيع الوجبات اليومية</h3>
-                    
                     <div style="margin-bottom: 15px;">
                         <strong style="font-size: 13px; color: var(--accent-blue);">وجبة الإفطار:</strong>
                         <div class="meal-item-box">
@@ -163,7 +143,6 @@
                             <span style="font-size: 11px; color: var(--text-gray);">320 سعرة</span>
                         </div>
                     </div>
-
                     <div style="margin-bottom: 15px;">
                         <strong style="font-size: 13px; color: var(--accent-blue);">وجبة الغداء:</strong>
                         <div class="meal-item-box">
@@ -171,7 +150,6 @@
                             <span style="font-size: 11px; color: var(--text-gray);">550 سعرة</span>
                         </div>
                     </div>
-
                     <div style="margin-bottom: 15px;">
                         <strong style="font-size: 13px; color: var(--accent-blue);">وجبة العشاء:</strong>
                         <div class="meal-item-box">
@@ -179,13 +157,10 @@
                             <span style="font-size: 11px; color: var(--text-gray);">230 سعرة</span>
                         </div>
                     </div>
-
                     <button class="btn-action" style="background:var(--accent-blue);" onclick="alert('فتح قاعدة بيانات الأطعمة لإضافة صنف جديد')">+ إضافة صنف أو وجبة جديدة</button>
                 </div>
             </div>
-
         </div>
-
     </div>
 
 </body>
