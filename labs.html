@@ -3,7 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - التحاليل والفحوصات الطبية</title>
+    <title>Dr. Shady Samir - التحاليل الطبية (SQL Live)</title>
+    <!-- استدعاء مكتبة Supabase للاتصال بقاعدة بيانات SQL -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -20,7 +22,7 @@
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
@@ -31,12 +33,9 @@
         
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-block; text-decoration: none; }
         
-        .status-badge-pending { background-color: #fef3c7; color: #d97706; border: 1px solid #f59e0b; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
-        .status-badge-done { background-color: #d1fae5; color: #065f46; border: 1px solid #10b981; padding: 5px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; }
-        
         /* Modal */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
@@ -55,13 +54,8 @@
                 <li><a href="patients.html">👥 المرضى</a></li>
                 <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
                 <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
-                <li><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
                 <li class="active"><a href="labs.html">🧪 التحاليل الطبية</a></li>
                 <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -69,78 +63,43 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🧪 متابعة التحاليل والفحوصات الطبية للمرضى</h1>
-            <button class="btn-action" onclick="openAddLabModal()">+ طلب تحليل جديد</button>
+            <h1>🧪 سجل التحاليل الطبية (SQL Live)</h1>
+            <button class="btn-action" onclick="openAddLabModal()">+ تسجيل تحليل جديد</button>
         </div>
 
         <div class="card">
-            <h3>📋 قائمة الفحوصات والتحاليل المطلوبة</h3>
+            <h3>📋 التحاليل الطبية المسجلة للحالات</h3>
             <table>
                 <thead>
                     <tr>
                         <th>اسم المريض</th>
-                        <th>نوع التحاليل أو الفحوصات المطلوبة</th>
-                        <th>تاريخ الطلب</th>
-                        <th>رقم التليفون</th>
-                        <th>حالة النتيجة (اضغط للتسليم والرفع)</th>
+                        <th>اسم التحليل</th>
+                        <th>النتيجة</th>
+                        <th>التاريخ</th>
+                        <th>ملاحظات الطبيب</th>
+                        <th>الإجراء</th>
                     </tr>
                 </thead>
                 <tbody id="labsTableBody">
-                    <tr>
-                        <td><strong>شهاب الدين حسب النبي</strong></td>
-                        <td>صورة دم كاملة (CBC) + حديد وفريتين</td>
-                        <td>24 أغسطس 2026</td>
-                        <td>010xxxxxxxx</td>
-                        <td><button class="status-badge-pending" onclick="openUploadModal('شهاب الدين حسب النبي', 'صورة دم كاملة (CBC)')">⏳ في انتظار التسليم (اضغط للرفع)</button></td>
-                    </tr>
-                    <tr>
-                        <td><strong>سارة أحمد محمود</strong></td>
-                        <td>وظائف الغدة الدرقية (TSH, T3, T4)</td>
-                        <td>20 أغسطس 2026</td>
-                        <td>011xxxxxxxx</td>
-                        <td><span class="status-badge-done">✅ تم التسليم والمراجعة (عرض الملف 👁️)</span></td>
-                    </tr>
+                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب التحاليل من قاعدة بيانات SQL...</td></tr>
                 </tbody>
             </table>
         </div>
     </div>
 
-    <!-- نافذة رفع نتائج الفحوصات والتحاليل -->
-    <div id="uploadLabModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">📤 تسليم ورفع نتيجة الفحص الطبي</h3>
-            <form onsubmit="submitLabResult(event)">
-                <div class="form-group">
-                    <label>المريض:</label>
-                    <input type="text" id="uploadPatientName" class="form-control" readonly style="background:#e2e8f0; font-weight:bold;">
-                </div>
-                <div class="form-group">
-                    <label>نوع الفحص:</label>
-                    <input type="text" id="uploadLabType" class="form-control" readonly style="background:#e2e8f0; font-weight:bold;">
-                </div>
-                <div class="form-group">
-                    <label>اختر ملف النتيجة (صور، PDF، مستند، أو فيديو):</label>
-                    <input type="file" id="labFileObj" class="form-control" accept="image/*,.pdf,.doc,.docx,video/*" required>
-                    <div style="font-size: 11px; color: var(--text-gray); margin-top: 4px;">يمكنك رفع صور، ملفات PDF، مستندات، أو فيديوهات الفحص بجميع الأنواع.</div>
-                </div>
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">رفع وحفظ النتيجة</button>
-                    <button type="button" onclick="closeUploadModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة طلب تحليل جديد -->
+    <!-- نافذة إضافة تحليل جديد -->
     <div id="addLabModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ طلب فحص أو تحليل جديد للمريض</h3>
-            <form onsubmit="saveNewLabRequest(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="newLabPatient" class="form-control" required placeholder="أدخل اسم المريض..."></div>
-                <div class="form-group"><label>نوع التحاليل المطلوبة:</label><input type="text" id="newLabType" class="form-control" required placeholder="مثال: وظائف كلى وكبد، سكر تراكمي..."></div>
-                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="newLabPhone" class="form-control" required placeholder="010xxxxxxxx"></div>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل تحليل طبي جديد في SQL</h3>
+            <form onsubmit="saveLabToSQL(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="labPatientName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
+                <div class="form-group"><label>اسم التحليل:</label><input type="text" id="labTestName" class="form-control" required placeholder="مثال: CBC / Ferritin / TSH"></div>
+                <div class="form-group"><label>النتيجة:</label><input type="text" id="labResult" class="form-control" required placeholder="مثال: 12.5 g/dL"></div>
+                <div class="form-group"><label>تاريخ التحليل:</label><input type="date" id="labDate" class="form-control" required></div>
+                <div class="form-group"><label>ملاحظات إكلينيكية:</label><textarea id="labNotes" class="form-control" rows="2" placeholder="ملاحظات الطبيب على النتيجة..."></textarea></div>
+
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إضافة للجدول</button>
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
                     <button type="button" onclick="closeAddLabModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
@@ -148,60 +107,82 @@
     </div>
 
     <script>
-        let selectedRowButton = null;
+        // إعدادات الاتصال بقاعدة بيانات Supabase SQL
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function openUploadModal(patientName, labType) {
-            document.getElementById('uploadPatientName').value = patientName;
-            document.getElementById('uploadLabType').value = labType;
-            document.getElementById('uploadLabModal').style.display = 'flex';
+        async function fetchLabsFromSQL() {
+            const tbody = document.getElementById('labsTableBody');
+            const { data, error } = await supabaseClient.from('labs').select('*').order('test_date', { ascending: false });
+
+            if (error) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            if (!data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد تحاليل مسجلة حالياً. السجل نظيف.</td></tr>`;
+                return;
+            }
+
+            data.forEach(l => {
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${l.patient_name}</strong></td>
+                        <td>${l.test_name}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${l.test_result}</span></td>
+                        <td>${l.test_date}</td>
+                        <td style="color:var(--text-gray); font-size:11px;">${l.notes || 'لا توجد ملاحظات'}</td>
+                        <td>
+                            <button onclick="deleteLabFromSQL('${l.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🗑️ حذف</button>
+                        </td>
+                    </tr>
+                `;
+            });
         }
-        function closeUploadModal() { document.getElementById('uploadLabModal').style.display = 'none'; }
+
+        window.onload = function() {
+            fetchLabsFromSQL();
+        };
 
         function openAddLabModal() { document.getElementById('addLabModal').style.display = 'flex'; }
         function closeAddLabModal() { document.getElementById('addLabModal').style.display = 'none'; }
 
-        function submitLabResult(event) {
+        async function saveLabToSQL(event) {
             event.preventDefault();
-            const fileInput = document.getElementById('labFileObj');
-            if (fileInput.files.length > 0) {
-                const fileName = fileInput.files[0].name;
-                
-                // البحث عن الزرار النشط وتحديث حالته إلى "تم التسليم"
-                // سيتم تحديث الصف الحالي بناءً على الاسم
-                const buttons = document.querySelectorAll('.status-badge-pending');
-                buttons.forEach(btn => {
-                    if (btn.closest('tr').querySelector('strong').innerText === document.getElementById('uploadPatientName').value) {
-                        btn.outerHTML = `<span class="status-badge-done">✅ تم التسليم (${fileName})</span>`;
-                    }
-                });
+            const patient_name = document.getElementById('labPatientName').value;
+            const test_name = document.getElementById('labTestName').value;
+            const test_result = document.getElementById('labResult').value;
+            const test_date = document.getElementById('labDate').value;
+            const notes = document.getElementById('labNotes').value;
 
-                alert('✨ تم رفع ملف الفحص بنجاح وتحديث حالة النتيجة إلى (تم التسليم والمراجعة)!');
-                closeUploadModal();
-                event.target.reset();
+            const { error } = await supabaseClient.from('labs').insert([
+                { patient_name, test_name, test_result, test_date, notes }
+            ]);
+
+            if (error) {
+                alert('خطأ أثناء حفظ التحليل: ' + error.message);
+                return;
             }
+
+            alert('✨ تم حفظ التحليل الطبي في جدول SQL بنجاح!');
+            closeAddLabModal();
+            fetchLabsFromSQL();
+            event.target.reset();
         }
 
-        function saveNewLabRequest(event) {
-            event.preventDefault();
-            const name = document.getElementById('newLabPatient').value;
-            const type = document.getElementById('newLabType').value;
-            const phone = document.getElementById('newLabPhone').value;
-            const today = '28 أغسطس 2026';
-
-            const tbody = document.getElementById('labsTableBody');
-            const newRow = document.createElement('tr');
-            newRow.innerHTML = `
-                <td><strong>${name}</strong></td>
-                <td>${type}</td>
-                <td>${today}</td>
-                <td>${phone}</td>
-                <td><button class="status-badge-pending" onclick="openUploadModal('${name}', '${type}')">⏳ في انتظار التسليم (اضغط للرفع)</button></td>
-            `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-
-            alert('✨ تمت إضافة طلب الفحص بنجاح!');
-            closeAddLabModal();
-            event.target.reset();
+        async function deleteLabFromSQL(rowId) {
+            if (confirm('هل أنت متأكد من حذف هذا التحليل نهائياً من قاعدة بيانات SQL؟')) {
+                const { error } = await supabaseClient.from('labs').delete().eq('id', rowId);
+                if (error) {
+                    alert('خطأ أثناء الحذف: ' + error.message);
+                    return;
+                }
+                fetchLabsFromSQL();
+            }
         }
     </script>
 </body>
