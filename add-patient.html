@@ -12,6 +12,7 @@
             --card-border: #e2e8f0;
             --primary-green: #10b981;
             --accent-blue: #3b82f6;
+            --warning-orange: #f59e0b;
             --danger-red: #ef4444;
             --text-dark: #1e293b;
             --text-gray: #64748b;
@@ -34,7 +35,14 @@
             padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
             display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .brand-logo { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--primary-green); 
+            margin-bottom: 8px; 
+        }
         .sidebar-brand h2 { margin: 0; font-size: 15px; }
         .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
@@ -46,7 +54,6 @@
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
 
         .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-
         .top-header {
             display: flex; justify-content: space-between; align-items: center;
             margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px;
@@ -54,57 +61,15 @@
         }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
 
-        .card {
-            background-color: var(--card-bg);
-            border: 1px solid var(--card-border);
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.02);
-            margin-bottom: 20px;
-        }
-        .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 20px; }
-
-        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
-        .form-group { margin-bottom: 10px; }
-        .form-group.full-width { grid-column: span 2; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-gray); margin-bottom: 8px; }
-        .form-control { width: 100%; padding: 11px 15px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .form-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .form-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group.full { grid-column: span 2; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
         
-        /* الأقسام التفاعلية المخفية تظهر حسب الاختيار */
-        .conditional-box { display: none; margin-top: 10px; background: #eff6ff; border: 1px solid #bfdbfe; padding: 12px; border-radius: 8px; }
-
-        .form-actions {
-            display: flex;
-            justify-content: flex-end;
-            gap: 15px;
-            margin-top: 20px;
-            border-top: 1px solid #f1f5f9;
-            padding-top: 20px;
-        }
-        .btn-submit {
-            background-color: var(--primary-green);
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-        }
-        .btn-submit:hover { opacity: 0.9; }
-        .btn-cancel {
-            background-color: #e2e8f0;
-            color: var(--text-dark);
-            border: none;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 14px;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-block;
-            text-align: center;
-        }
+        .btn-save { background-color: var(--primary-green); color: white; border: none; padding: 12px 25px; border-radius: 8px; font-weight: bold; font-size: 14px; cursor: pointer; width: 100%; }
+        .btn-save:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
@@ -112,15 +77,15 @@
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
-                <img src="WhatsApp Image 2026-06-11 at 10.15.39 PM_3.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo.jpeg" alt="Logo" class="brand-logo">
                 <h2>د. شادي سمير</h2>
                 <p>عيادة التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="index.html">🏠 الرئيسية</a></li>
                 <li class="active"><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="#" onclick="alert('قسم المواعيد قيد التطوير')">📅 المواعيد</a></li>
-                <li><a href="#" onclick="alert('قسم الخطط الغذائية قيد التطوير')">🥗 الخطط الغذائية</a></li>
+                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
+                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
                 <li><a href="#" onclick="alert('قسم جراحات السمنة قيد التطوير')">⚖️ جراحات السمنة</a></li>
                 <li><a href="#" onclick="alert('الإعدادات قيد التطوير')">⚙️ الإعدادات</a></li>
             </ul>
@@ -131,112 +96,53 @@
     </div>
 
     <div class="main-content">
-        
         <div class="top-header">
-            <h1>➕ تسجيل مريض جديد في عيادة د. شادي سمير</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">إنشاء ملف طبي جديد وتوليد كود المريض أوتوماتيكياً</div>
+            <h1>➕ إضافة ملف مريض جديد</h1>
+            <div style="font-size: 13px; color: var(--text-gray);">تسجيل البيانات الأساسية والبرنامج العلاجي</div>
         </div>
 
-        <div class="card">
-            <h3>📝 البيانات الأساسية للحالة</h3>
-            
-            <form onsubmit="event.preventDefault(); alert('تم حفظ بيانات المريض بنجاح، سيتم الانتقال لملفه الطبي الان!'); window.location.href='patient-profile.html';">
+        <div class="form-card">
+            <form onsubmit="event.preventDefault(); alert('تم حفظ بيانات المريض بنجاح!'); window.location.href='patients.html';">
                 <div class="form-grid">
-                    
                     <div class="form-group">
-                        <label>اسم المريض بالكامل:</label>
-                        <input type="text" class="form-control" placeholder="مثال: أحمد محمد علي" required>
+                        <label>اسم المريض الرباعي:</label>
+                        <input type="text" class="form-control" placeholder="أدخل اسم المريض..." required>
                     </div>
-
                     <div class="form-group">
-                        <label>رقم الهاتف / الواتساب:</label>
-                        <input type="text" class="form-control" placeholder="01xxxxxxxx" required>
+                        <label>رقم الهاتف (واتساب):</label>
+                        <input type="text" class="form-control" placeholder="010xxxxxxxx" required>
                     </div>
-
                     <div class="form-group">
-                        <label>تاريخ الميلاد / العمر:</label>
-                        <input type="text" class="form-control" placeholder="مثال: 1990 (36 سنة)">
+                        <label>السن:</label>
+                        <input type="number" class="form-control" placeholder="مثال: 35">
                     </div>
-
                     <div class="form-group">
-                        <label>النوع:</label>
+                        <label>تصنيف الحالة والبرنامج:</label>
                         <select class="form-control">
-                            <option value="male">ذكر</option>
-                            <option value="female">أنثى</option>
+                            <option>سمنة مفرطة</option>
+                            <option>متابعة ما بعد جراحات السمنة (تكميم / تحويل مسار)</option>
+                            <option>نحافة وزيادة الوزن</option>
+                            <option>تغذية رياضية</option>
+                            <option>علاج بالحقن (مونجارو / ميزوثيرابي)</option>
                         </select>
                     </div>
-
-                    <!-- نوع الحالة / البرنامج (المحدث) -->
-                    <div class="form-group full-width">
-                        <label>نوع الحالة / البرنامج العلاجي:</label>
-                        <select class="form-control" id="programSelect" onchange="handleProgramChange()">
-                            <option value="sleeve">جراحات سمنة (تكميم / تحويل مسار)</option>
-                            <option value="obesity">سمنة مفرطة / وزني زائد</option>
-                            <option value="underweight">نحافة</option>
-                            <option value="mounjaro">حقن مونجارو (Mounjaro)</option>
-                            <option value="mesotherapy">حقن ميزوثيرابي (Mesotherapy)</option>
-                            <option value="medical_case">حالات مرضية (Medical Case)</option>
-                            <option value="sports">حالات خاصة / تغذية رياضية (Sports Nutrition)</option>
-                        </select>
-
-                        <!-- خانة تفاعلية تظهر عند اختيار حالات مرضية -->
-                        <div id="medicalCaseBox" class="conditional-box">
-                            <label style="color:var(--accent-blue); margin-bottom:5px; display:block;">تفاصيل الحالة المرضية (مثال: سكري، ضغط، كلى، كبد...):</label>
-                            <textarea class="form-control" rows="2" placeholder="اكتب تفاصيل الحالة المرضية والتشخيص هنا..."></textarea>
-                        </div>
-
-                        <!-- خانة تفاعلية تظهر عند اختيار التغذية الرياضية -->
-                        <div id="sportsBox" class="conditional-box">
-                            <label style="color:var(--accent-blue); margin-bottom:5px; display:block;">نوع الرياضة المستهدفة (مثال: كمال أجسام، سباحة، كرة قدم، لياقة):</label>
-                            <input type="text" class="form-control" placeholder="اكتب نوع الرياضة ومعدل التمارين أسبوعياً...">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>الهدف المطلوب (كجم):</label>
-                        <input type="text" class="form-control" placeholder="مثال: 80 كجم">
-                    </div>
-
                     <div class="form-group">
                         <label>الوزن الحالي (كجم):</label>
-                        <input type="text" class="form-control" placeholder="مثال: 110 كجم">
+                        <input type="number" step="0.1" class="form-control" placeholder="مثال: 105">
                     </div>
-
                     <div class="form-group">
                         <label>الطول (سم):</label>
-                        <input type="text" class="form-control" placeholder="مثال: 175 سم">
+                        <input type="number" class="form-control" placeholder="مثال: 175">
                     </div>
-
+                    <div class="form-group full">
+                        <label>ملاحظات طبية أو أمراض مزمنة (سكري، ضغط، غدة):</label>
+                        <textarea class="form-control" rows="3" placeholder="أدخل أي ملاحظات صحية هامة..."></textarea>
+                    </div>
                 </div>
-
-                <div class="form-actions">
-                    <a href="patients.html" class="btn-cancel">إلغاء والعودة للمرضى</a>
-                    <button type="submit" class="btn-submit">حفظ وإنشاء الملف الطبي 📂</button>
-                </div>
+                <button type="submit" class="btn-save">💾 حفظ وتسجيل المريض</button>
             </form>
-
         </div>
-
     </div>
 
-    <!-- سكربت إظهار وإخفاء الحقول التفاعلية حسب نوع الحالة -->
-    <script>
-        function handleProgramChange() {
-            const selectedVal = document.getElementById('programSelect').value;
-            const medicalBox = document.getElementById('medicalCaseBox');
-            const sportsBox = document.getElementById('sportsBox');
-
-            // إخفاء الكل أولاً
-            medicalBox.style.display = 'none';
-            sportsBox.style.display = 'none';
-
-            // إظهار المناسب حسب الاختيار
-            if (selectedVal === 'medical_case') {
-                medicalBox.style.display = 'block';
-            } else if (selectedVal === 'sports') {
-                sportsBox.style.display = 'block';
-            }
-        }
-    </script>
 </body>
 </html>
