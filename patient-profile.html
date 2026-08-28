@@ -27,7 +27,7 @@
         .patient-bio { display: flex; align-items: center; gap: 15px; }
         .patient-bio img { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); }
         
-        /* شريط المؤشرات السريعة */
+        /* شريط المؤشرات السريعة العلوي */
         .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 15px; }
         .metric-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .metric-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 4px; }
@@ -55,6 +55,11 @@
         .eval-box strong { display: block; font-size: 14px; color: var(--accent-blue); margin-top: 3px; }
 
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
+        
+        /* Modal */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; margin-bottom: 12px; }
     </style>
 </head>
 <body>
@@ -97,14 +102,14 @@
             </div>
         </div>
 
-        <!-- شريط المؤشرات السريعة -->
+        <!-- شريط المؤشرات السريعة (البار العلوي المحدث آلياً) -->
         <div class="metrics-grid">
-            <div class="metric-box"><div class="title">المتابعة رقم</div><div class="value">5</div></div>
+            <div class="metric-box"><div class="title">المتابعة رقم</div><div class="value" id="barVisitNum">5</div></div>
             <div class="metric-box"><div class="title">الالتزام</div><div class="value" style="color:var(--primary-green);">85%</div></div>
-            <div class="metric-box"><div class="title">إجمالي النزول</div><div class="value" style="color:var(--accent-blue);">-14.6 كجم</div></div>
-            <div class="metric-box"><div class="title">BMI</div><div class="value">28.9</div></div>
-            <div class="metric-box"><div class="title">الوزن الحالي</div><div class="value">92.4 كجم</div></div>
-            <div class="metric-box"><div class="title">وزن البداية</div><div class="value">107.0 كجم</div></div>
+            <div class="metric-box"><div class="title">إجمالي النزول</div><div class="value" id="barTotalLoss" style="color:var(--accent-blue);">-14.6 كجم</div></div>
+            <div class="metric-box"><div class="title">BMI</div><div class="value" id="barBMI">28.9</div></div>
+            <div class="metric-box"><div class="title">الوزن الحالي</div><div class="value" id="barCurrentWeight">92.4 كجم</div></div>
+            <div class="metric-box"><div class="title">وزن البداية</div><div class="value" id="barStartWeight">107.0 كجم</div></div>
         </div>
 
         <!-- شريط التبويبات -->
@@ -177,24 +182,33 @@
     </div>
 
     <!-- نافذة تسجيل متابعة جديدة -->
-    <div id="followupModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); justify-content:center; align-items:center;">
-        <div style="background:white; padding:25px; border-radius:12px; width:420px;">
-            <h3 style="margin-top:0;">➕ تسجيل متابعة جديدة</h3>
+    <div id="followupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل متابعة وزيارة جديدة</h3>
             <form onsubmit="saveFollowup(event)">
-                <div style="margin-bottom:10px;"><label style="font-size:12px; font-weight:bold;">الوزن الجديد (كجم):</label><input type="number" step="0.1" id="newW" class="form-control" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" required></div>
-                <div style="margin-bottom:10px;"><label style="font-size:12px; font-weight:bold;">ملاحظات الزيارة والنظام:</label><textarea id="newN" rows="3" style="width:100%; padding:8px; border:1px solid #ccc; border-radius:6px;" required></textarea></div>
+                <div class="form-group">
+                    <label style="font-size:12px; font-weight:bold; color:var(--text-gray);">الوزن الجديد (كجم):</label>
+                    <input type="number" step="0.1" id="newW" class="form-control" placeholder="مثال: 91.0" required>
+                </div>
+                <div class="form-group">
+                    <label style="font-size:12px; font-weight:bold; color:var(--text-gray);">ملاحظات الزيارة والنظام:</label>
+                    <textarea id="newN" rows="3" class="form-control" placeholder="اكتب الملاحظات والتوجيهات..." required></textarea>
+                </div>
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer;">حفظ</button>
-                    <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:6px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ وتحديث المؤشرات</button>
+                    <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // رسم خط تطور الوزن
+        let startWeight = 107.0; // وزن البداية الثابت
+        let currentVisitCount = 5;
+
+        // إعداد الرسم البياني
         const ctx = document.getElementById('weightChart').getContext('2d');
-        new Chart(ctx, {
+        let weightChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: ['01/08', '15/08', '22/08', '28/08'],
@@ -215,20 +229,43 @@
 
         function saveFollowup(event) {
             event.preventDefault();
-            const w = document.getElementById('newW').value;
-            const n = document.getElementById('newN').value;
-            const container = document.getElementById('timelineContainer');
+            const newWeight = parseFloat(document.getElementById('newW').value);
+            const note = document.getElementById('newN').value;
             
+            if (isNaN(newWeight)) return;
+
+            // 1. تحديث العداد والبار العلوي
+            currentVisitCount++;
+            document.getElementById('barVisitNum').innerText = currentVisitCount;
+            document.getElementById('barCurrentWeight').innerText = newWeight + ' كجم';
+            
+            let totalLoss = (startWeight - newWeight).toFixed(1);
+            document.getElementById('barTotalLoss').innerText = '-' + totalLoss + ' كجم';
+
+            // حساب الـ BMI تقريبي (الطول 175 سم = 1.75 متر)
+            let newBMI = (newWeight / (1.75 * 1.75)).toFixed(1);
+            document.getElementById('barBMI').innerText = newBMI;
+
+            // 2. إضافة التابع للتايملاين
+            const container = document.getElementById('timelineContainer');
             const newItem = document.createElement('div');
             newItem.className = 'timeline-item';
             newItem.innerHTML = `
-                <div class="date">اليوم - متابعة جديدة</div>
-                <div class="weight">${w} كجم</div>
-                <div class="note">${n}</div>
+                <div class="date">اليوم - المتابعة ${currentVisitCount} (الحالية)</div>
+                <div class="weight">${newWeight} كجم</div>
+                <div class="note">${note}</div>
             `;
             container.insertBefore(newItem, container.firstChild);
-            alert('تم تسجيل المتابعة بنجاح!');
+
+            // 3. تحديث الرسم البياني أوتوماتيك
+            weightChart.data.labels.push('اليوم');
+            weightChart.data.datasets[0].data.push(newWeight);
+            weightChart.update();
+
+            alert('✨ تم تسجيل الزيارة بنجاح وتحديث المؤشرات والبار العلوي فوري!');
             closeFollowupModal();
+            document.getElementById('newW').value = '';
+            document.getElementById('newN').value = '';
         }
     </script>
 </body>
