@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - الخطط الغذائية الذكية</title>
+    <title>Dr. Shady Samir - باني الخطط الغذائية الذكية</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -21,30 +21,26 @@
         .main-content { flex: 1; margin-right: 260px; padding: 25px; }
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .builder-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .builder-grid { display: grid; grid-template-columns: 1fr 1.5fr; gap: 20px; }
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
+        .form-control:focus { border-color: var(--accent-blue); }
         .macro-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; text-align: center; margin-bottom: 15px; }
         .macro-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 8px; }
         .macro-box span { display: block; font-size: 11px; color: var(--text-gray); }
         .macro-box strong { font-size: 14px; color: var(--accent-blue); }
-        .meal-item-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
-        .btn-print { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
-        .btn-edit-sm { background-color: #eff6ff; color: var(--accent-blue); border: 1px solid #bfdbfe; padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
         
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-save-modal { background-color: var(--accent-blue); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .meal-card-ui { background: #f8fafc; border: 1px solid var(--card-border); border-right: 4px solid var(--accent-blue); padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; }
+        .meal-card-ui input { margin-top: 5px; }
+        
+        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; transition: 0.2s; }
+        .btn-action:hover { opacity: 0.9; }
+        .btn-print { background-color: var(--accent-blue); color: white; border: none; padding: 11px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; width: 100%; margin-top: 8px; }
 
-        /* تنسيق الطباعة الفخم والملون بالكامل */
+        /* نموذج الطباعة الفخم والمطابق للواجهة */
         #printMealArea { display: none; }
         @media print {
             body * { visibility: hidden; }
@@ -61,28 +57,29 @@
                 color: #1e293b; 
                 background: #ffffff; 
             }
-            .print-card {
+            .print-header {
+                text-align: center;
+                border-bottom: 3px solid #10b981;
+                padding-bottom: 15px;
+                margin-bottom: 20px;
+            }
+            .print-patient-card {
                 background: #f0fdf4 !important;
                 border: 2px solid #10b981 !important;
-                border-radius: 12px !important;
+                border-radius: 10px !important;
                 padding: 15px 20px !important;
                 margin-bottom: 20px !important;
             }
-            .print-meal-box {
+            .print-meal-item {
                 background: #f8fafc !important;
-                border-right: 6px solid #3b82f6 !important;
-                border-top: 1px solid #e2e8f0;
-                border-right-color: #3b82f6 !important;
-                border-bottom: 1px solid #e2e8f0;
-                border-left: 1px solid #e2e8f0;
+                border-right: 5px solid #3b82f6 !important;
+                border: 1px solid #e2e8f0;
+                border-right-width: 5px;
                 padding: 12px 15px !important;
                 border-radius: 8px !important;
-                margin-bottom: 12px !important;
+                margin-bottom: 10px !important;
             }
-            * { 
-                -webkit-print-color-adjust: exact !important; 
-                print-color-adjust: exact !important; 
-            }
+            * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
     </style>
 </head>
@@ -113,238 +110,189 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 باني الخطط الغذائية الذكية</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">تصميم وإدارة الأنظمة الغذائية وتصديرها للمرضى</div>
+            <h1>🥗 باني الخطط الغذائية الذكية والبرامج المخصصة</h1>
+            <div style="font-size: 13px; color: var(--text-gray);">تصميم وجدولة خطط الأكل اليومية والأسبوعية للمرضى</div>
         </div>
 
         <div class="builder-grid">
+            <!-- العمود الأيمن: إعدادات المريض والسعرات -->
             <div>
                 <div class="card">
-                    <h3>⚙️ إعدادات الخطة والسعرات</h3>
+                    <h3>⚙️ بيانات المريض وإعدادات الخطة</h3>
                     <div class="form-group">
                         <label>اختر المريض:</label>
                         <select id="patientSelect" class="form-control">
-                            <option value="شهاب الدين حسب النبي">شهاب الدين حسب النبي (تكميم)</option>
-                            <option value="سارة أحمد محمود">سارة أحمد محمود (مونجارو)</option>
-                            <option value="أنس شادي سمير">أنس شادي سمير (نحافة أطفال)</option>
+                            <option value="شهاب الدين حسب النبي (تكميم)">شهاب الدين حسب النبي (تكميم)</option>
+                            <option value="سارة أحمد محمود (مونجارو)">سارة أحمد محمود (مونجارو)</option>
+                            <option value="أنس شادي سمير (نحافة أطفال)">أنس شادي سمير (نحافة أطفال)</option>
                         </select>
                     </div>
 
-                    <div class="form-group"><label>إجمالي السعرات المستهدفة:</label><input type="number" id="targetCalories" class="form-control" value="1400"></div>
+                    <div class="form-group">
+                        <label>نظام الخطة (أيام كثيرة):</label>
+                        <select id="planDuration" class="form-control">
+                            <option value="برنامج يومي مكثف">برنامج يومي واحد</option>
+                            <option value="برنامج الأسبوع الأول (7 أيام)">برنامج الأسبوع الأول (7 أيام متكاملة)</option>
+                            <option value="برنامج أسبوعين (14 يوم)">برنامج أسبوعين (14 يوم)</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>إجمالي السعرات المستهدفة:</label>
+                        <input type="number" id="targetCalories" class="form-control" value="1400">
+                    </div>
+
                     <div class="macro-row">
                         <div class="macro-box"><span>بروتين</span><strong id="macroProt">120 جم</strong></div>
                         <div class="macro-box"><span>كارب</span><strong id="macroCarb">130 جم</strong></div>
                         <div class="macro-box"><span>دهون</span><strong id="macroFat">45 جم</strong></div>
                     </div>
-                    <button class="btn-action" onclick="alert('تم حفظ الخطة بنجاح في ملف المريض!')">💾 حفظ الخطة</button>
-                    <button class="btn-print" onclick="printPatientMealPlan()">🖨️ طباعة نظام المريض (PDF)</button>
+
+                    <button class="btn-action" onclick="alert('تم حفظ الخطة بنجاح في ملف المريض وتحديث السجلات!')">💾 حفظ الخطة بالسيستم</button>
+                    <button class="btn-print" onclick="printPatientMealPlan()">🖨️ طباعة نظام المريض الفخم (PDF)</button>
+                </div>
+
+                <!-- مكان كتابة خطة غذاء كاملة وملاحظات كبرى -->
+                <div class="card">
+                    <h3>📝 خطة الغذاء الكاملة والتوجيهات الطبية</h3>
+                    <div class="form-group">
+                        <label>اكتب التعليمات العامة وخطة الغذاء الكاملة للمريض:</label>
+                        <textarea id="fullDietNotes" class="form-control" rows="5" placeholder="اكتب هنا توجيهات الشرب، الممنوعات، بدائل الوجبات، ومواعيد المكملات...">1. الالتزام بشرب 2.5 إلى 3 لتر ماء يومياً موزعة على مدار اليوم.
+2. ممنوع السكريات والمشروبات الغازية تماماً.
+3. تناول المكملات الغذائية والفيتامينات حسب جدول المتابعة.</textarea>
+                    </div>
                 </div>
             </div>
 
+            <!-- العمود الأيسر: تفاصيل الوجبات اليومية والأسبوعية -->
             <div>
                 <div class="card">
-                    <h3>🍽️ تفاصيل الوجبات اليومية</h3>
-                    <div id="meals-list-container">
-                        <div id="meal-1" style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الإفطار:</strong>
-                                <button class="btn-edit-sm" onclick="openEditModal('meal-1')">تعديل ⚙️</button>
-                            </div>
-                            <div class="meal-item-box">
-                                <span class="m-desc">بيضة مسلوقة + نصف رغيف سن + شاي أخضر</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">180 سعرة</span>
-                            </div>
-                        </div>
-
-                        <div id="meal-2" style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة الغداء:</strong>
-                                <button class="btn-edit-sm" onclick="openEditModal('meal-2')">تعديل ⚙️</button>
-                            </div>
-                            <div class="meal-item-box">
-                                <span class="m-desc">صدور دجاج مشوية (150جم) + 4 معالق أرز + سلطة</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">420 سعرة</span>
-                            </div>
-                        </div>
-
-                        <div id="meal-3" style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة السناك:</strong>
-                                <button class="btn-edit-sm" onclick="openEditModal('meal-3')">تعديل ⚙️</button>
-                            </div>
-                            <div class="meal-item-box">
-                                <span class="m-desc">ثمرة تفاح أخضر + مكسرات</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">130 سعرة</span>
-                            </div>
-                        </div>
-
-                        <div id="meal-4" style="margin-bottom: 15px;">
-                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                                <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">وجبة العشاء:</strong>
-                                <button class="btn-edit-sm" onclick="openEditModal('meal-4')">تعديل ⚙️</button>
-                            </div>
-                            <div class="meal-item-box">
-                                <span class="m-desc">علبة زبادي لايت + جبنة قريش</span>
-                                <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">150 سعرة</span>
-                            </div>
-                        </div>
+                    <h3>🍽️ تفاصيل الوجبات والأصناف (قابلة للتعديل والطباعة)</h3>
+                    
+                    <div class="meal-card-ui">
+                        <label style="font-weight: bold; color: var(--accent-blue); font-size: 13px;">وجبة الإفطار:</label>
+                        <input type="text" id="mealBreakfast" class="form-control" value="بيضة مسلوقة + نصف رغيف سن + شاي أخضر (180 سعرة)">
                     </div>
-                    <button class="btn-action" style="background:var(--accent-blue);" onclick="openMealModal()">+ إضافة وجبة جديدة</button>
+
+                    <div class="meal-card-ui">
+                        <label style="font-weight: bold; color: var(--accent-blue); font-size: 13px;">وجبة الغداء:</label>
+                        <input type="text" id="mealLunch" class="form-control" value="صدور دجاج مشوية (150جم) + 4 معالق أرز + طبق سلطة خضراء (420 سعرة)">
+                    </div>
+
+                    <div class="meal-card-ui">
+                        <label style="font-weight: bold; color: var(--accent-blue); font-size: 13px;">وجبة السناك:</label>
+                        <input type="text" id="mealSnack" class="form-control" value="ثمرة تفاح أخضر + 10 جرام مكسرات ناعمة (130 سعرة)">
+                    </div>
+
+                    <div class="meal-card-ui">
+                        <label style="font-weight: bold; color: var(--accent-blue); font-size: 13px;">وجبة العشاء:</label>
+                        <input type="text" id="mealDinner" class="form-control" value="علبة زبادي لايت + قطعتين جبنة قريش (150 سعرة)">
+                    </div>
+
+                    <div class="meal-card-ui" style="border-right-color: var(--warning-orange);">
+                        <label style="font-weight: bold; color: var(--warning-orange); font-size: 13px;">وجبة إضافية / قبل النوم:</label>
+                        <input type="text" id="mealExtra" class="form-control" value="كوب حليب دافئ خالي الدسم بدون سكر (80 سعرة)">
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نموذج الطباعة الملون والفخم لكل مريض -->
+    <!-- نموذج الطباعة الفخم والمطابق للواجهة -->
     <div id="printMealArea">
-        <div style="text-align: center; border-bottom: 3px solid #10b981; padding-bottom: 15px; margin-bottom: 20px;">
+        <div class="print-header">
             <h2 style="margin: 0; color: #0b1329; font-size: 26px;">د. شادي سمير</h2>
             <p style="margin: 5px 0 0 0; color: #059669; font-size: 14px; font-weight: bold;">استشاري التغذية العلاجية وجراحات السمنة والنحافة</p>
         </div>
         
         <div style="text-align: center; margin-bottom: 20px;">
-            <h3 style="color: #ffffff; margin: 0; font-size: 16px; background: #3b82f6; display: inline-block; padding: 8px 25px; border-radius: 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">البرنامج الغذائي المخصص للمريض</h3>
+            <h3 style="color: #ffffff; margin: 0; font-size: 16px; background: #3b82f6; display: inline-block; padding: 8px 25px; border-radius: 20px;">البرنامج الغذائي المخصص للمريض</h3>
         </div>
 
-        <div class="print-card">
+        <div class="print-patient-card">
             <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
                 <p style="margin: 0;"><strong>👤 اسم المريض:</strong> <span id="printPatientName" style="color: #047857; font-weight: bold; font-size: 15px;">---</span></p>
-                <p style="margin: 0;"><strong>⚡ إجمالي السعرات:</strong> <span id="pCal" style="color: #1d4ed8; font-weight: bold; font-size: 15px;">1400</span> سعرة حرارية</p>
+                <p style="margin: 0;"><strong>📅 النظام:</strong> <span id="printPlanDuration" style="color: #1d4ed8; font-weight: bold;">---</span></p>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px; margin-bottom: 8px;">
+                <p style="margin: 0;"><strong>⚡ السعرات المستهدفة:</strong> <span id="printCalories" style="color: #1d4ed8; font-weight: bold;">1400</span> سعرة حرارية</p>
             </div>
             <hr style="border: 0; border-top: 1px solid #a7f3d0; margin: 10px 0;">
             <p style="margin: 0; font-size: 13px; color: #065f46; text-align: center; font-weight: bold;">
                 📊 توزيع المغذيات (Macros): 
-                بروتين: <span style="color:#047857;">120 جم</span> | 
-                كارب: <span style="color:#1d4ed8;">130 جم</span> | 
-                دهون صحية: <span style="color:#b45309;">45 جم</span>
+                بروتين: <span style="color:#047857;" id="printProt">120 جم</span> | 
+                كارب: <span style="color:#1d4ed8;" id="printCarb">130 جم</span> | 
+                دهون صحية: <span style="color:#b45309;" id="printFat">45 جم</span>
             </p>
         </div>
 
-        <div id="printMealsList" style="margin-top: 15px;">
-            <!-- يتم تعبئته آلياً -->
+        <div style="margin-bottom: 15px;">
+            <h4 style="color: #1e293b; border-bottom: 2px solid #3b82f6; padding-bottom: 5px; margin-bottom: 10px;">🍽️ جدول الوجبات اليومية والأصناف:</h4>
+            
+            <div class="print-meal-item">
+                <strong style="color: #1d4ed8; font-size: 14px;">وجبة الإفطار:</strong><br>
+                <span id="printB" style="color: #334155; font-size: 13px; display: inline-block; margin-top: 4px;">---</span>
+            </div>
+
+            <div class="print-meal-item">
+                <strong style="color: #1d4ed8; font-size: 14px;">وجبة الغداء:</strong><br>
+                <span id="printL" style="color: #334155; font-size: 13px; display: inline-block; margin-top: 4px;">---</span>
+            </div>
+
+            <div class="print-meal-item">
+                <strong style="color: #1d4ed8; font-size: 14px;">وجبة السناك:</strong><br>
+                <span id="printS" style="color: #334155; font-size: 13px; display: inline-block; margin-top: 4px;">---</span>
+            </div>
+
+            <div class="print-meal-item">
+                <strong style="color: #1d4ed8; font-size: 14px;">وجبة العشاء:</strong><br>
+                <span id="printD" style="color: #334155; font-size: 13px; display: inline-block; margin-top: 4px;">---</span>
+            </div>
+
+            <div class="print-meal-item" style="border-right-color: #f59e0b !important;">
+                <strong style="color: #b45309; font-size: 14px;">وجبة إضافية / قبل النوم:</strong><br>
+                <span id="printE" style="color: #334155; font-size: 13px; display: inline-block; margin-top: 4px;">---</span>
+            </div>
         </div>
 
-        <div style="margin-top: 50px; display: flex; justify-content: space-between; font-size: 14px; border-top: 2px dashed #e2e8f0; padding-top: 20px;">
+        <div style="margin-bottom: 20px; background: #f8fafc; border: 1px solid #cbd5e1; padding: 12px; border-radius: 8px;">
+            <h4 style="color: #0b1329; margin: 0 0 5px 0; font-size: 14px;">📝 خطة الغذاء الكاملة والتوجيهات الطبية:</h4>
+            <p id="printFullNotes" style="margin: 0; font-size: 12px; color: #475569; white-space: pre-wrap; line-height: 1.6;">---</p>
+        </div>
+
+        <div style="margin-top: 40px; display: flex; justify-content: space-between; font-size: 14px; border-top: 2px dashed #e2e8f0; padding-top: 15px;">
             <p style="margin: 0; font-weight: bold; color: #0f172a;">توقيع الطبيب المعالج: د. شادي سمير</p>
             <p style="margin: 0; color: #64748b; font-weight: bold;">ختم العيادة الرسمي</p>
         </div>
     </div>
 
-    <!-- نافذة تعديل الوجبة -->
-    <div id="editModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>✏️ تعديل الوجبة</h3>
-            <form onsubmit="saveEditedMeal(event)">
-                <div class="form-group"><label>اسم الوجبة:</label><input type="text" id="editTitle" class="form-control" required></div>
-                <div class="form-group"><label>المكونات:</label><input type="text" id="editDesc" class="form-control" required></div>
-                <div class="form-group"><label>السعرات:</label><input type="number" id="editCalories" class="form-control" required></div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">حفظ</button>
-                    <button type="button" class="btn-close-modal" onclick="closeEditModal()">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة إضافة وجبة -->
-    <div id="mealModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3>➕ إضافة وجبة جديدة</h3>
-            <form onsubmit="addNewMeal(event)">
-                <div class="form-group"><label>اسم الوجبة:</label><input type="text" id="mealTitle" class="form-control" required></div>
-                <div class="form-group"><label>المكونات:</label><input type="text" id="mealDesc" class="form-control" required></div>
-                <div class="form-group"><label>السعرات:</label><input type="number" id="mealCalories" class="form-control" required></div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">إضافة</button>
-                    <button type="button" class="btn-close-modal" onclick="closeMealModal()">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
     <script>
-        let currentEditingId = null;
-
         function printPatientMealPlan() {
+            // جلب البيانات من الواجهة
             const selectElement = document.getElementById('patientSelect');
             const patientName = selectElement.options[selectElement.selectedIndex].text;
+            const planDuration = document.getElementById('planDuration').value;
+
             document.getElementById('printPatientName').innerText = patientName;
+            document.getElementById('printPlanDuration').innerText = planDuration;
+            document.getElementById('printCalories').innerText = document.getElementById('targetCalories').value;
+            
+            document.getElementById('printProt').innerText = document.getElementById('macroProt').innerText;
+            document.getElementById('printCarb').innerText = document.getElementById('macroCarb').innerText;
+            document.getElementById('printFat').innerText = document.getElementById('macroFat').innerText;
 
-            document.getElementById('pCal').innerText = document.getElementById('targetCalories').value;
-            document.getElementById('pPro').innerText = document.getElementById('macroProt').innerText;
-            document.getElementById('pCarb').innerText = document.getElementById('macroCarb').innerText;
-            document.getElementById('pFat').innerText = document.getElementById('macroFat').innerText;
+            // الوجبات
+            document.getElementById('printB').innerText = document.getElementById('mealBreakfast').value;
+            document.getElementById('printL').innerText = document.getElementById('mealLunch').value;
+            document.getElementById('printS').innerText = document.getElementById('mealSnack').value;
+            document.getElementById('printD').innerText = document.getElementById('mealDinner').value;
+            document.getElementById('printE').innerText = document.getElementById('mealExtra').value;
 
-            const items = document.querySelectorAll('#meals-list-container > div');
-            let htmlContent = '';
-            items.forEach(item => {
-                const title = item.querySelector('.m-title').innerText;
-                const desc = item.querySelector('.m-desc').innerText;
-                const cal = item.querySelector('.m-cal').innerText;
-                htmlContent += `
-                    <div class="print-meal-box">
-                        <strong style="color: #1d4ed8; font-size: 15px;">🍽️ ${title}</strong><br>
-                        <span style="color: #334155; font-size: 13px; line-height: 1.6; display: inline-block; margin-top: 4px;">• المكونات: ${desc}</span>
-                        <span style="float: left; color: #059669; font-weight: bold; font-size: 13px;">🔥 ${cal}</span>
-                    </div>`;
-            });
-            document.getElementById('printMealsList').innerHTML = htmlContent;
+            // الخطة الكاملة
+            document.getElementById('printFullNotes').innerText = document.getElementById('fullDietNotes').value;
+
+            // تنفيذ الطباعة
             window.print();
-        }
-
-        function openMealModal() { document.getElementById('mealModal').style.display = 'flex'; }
-        function closeMealModal() { document.getElementById('mealModal').style.display = 'none'; }
-        function addNewMeal(event) {
-            event.preventDefault();
-            const title = document.getElementById('mealTitle').value;
-            const desc = document.getElementById('mealDesc').value;
-            const calories = document.getElementById('mealCalories').value;
-            const uniqueId = 'meal-' + Date.now();
-
-            const container = document.getElementById('meals-list-container');
-            const newDiv = document.createElement('div');
-            newDiv.id = uniqueId;
-            newDiv.style.marginBottom = '15px';
-            newDiv.innerHTML = `
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-                    <strong style="font-size: 13px; color: var(--accent-blue);" class="m-title">${title}:</strong>
-                    <button class="btn-edit-sm" onclick="openEditModal('${uniqueId}')">تعديل ⚙️</button>
-                </div>
-                <div class="meal-item-box">
-                    <span class="m-desc">${desc}</span>
-                    <span style="font-size: 11px; color: var(--text-gray);" class="m-cal">${calories} سعرة</span>
-                </div>`;
-            container.appendChild(newDiv);
-            alert('تمت إضافة الوجبة بنجاح!');
-            closeMealModal();
-            event.target.reset();
-        }
-
-        function openEditModal(mealId) {
-            currentEditingId = mealId;
-            const mealElement = document.getElementById(mealId);
-            const titleText = mealElement.querySelector('.m-title').innerText.replace(':', '');
-            const descText = mealElement.querySelector('.m-desc').innerText;
-            const calText = mealElement.querySelector('.m-cal').innerText.replace(' سعرة', '');
-
-            document.getElementById('editTitle').value = titleText;
-            document.getElementById('editDesc').value = descText;
-            document.getElementById('editCalories').value = calText;
-            document.getElementById('editModal').style.display = 'flex';
-        }
-        function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
-        function saveEditedMeal(event) {
-            event.preventDefault();
-            const title = document.getElementById('editTitle').value;
-            const desc = document.getElementById('editDesc').value;
-            const calories = document.getElementById('editCalories').value;
-
-            const mealElement = document.getElementById(currentEditingId);
-            mealElement.querySelector('.m-title').innerText = title + ':';
-            mealElement.querySelector('.m-desc').innerText = desc;
-            mealElement.querySelector('.m-cal').innerText = calories + ' سعرة';
-            alert('تم تعديل الوجبة بنجاح!');
-            closeEditModal();
         }
     </script>
 </body>
