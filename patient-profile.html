@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - ملف المريض الشامل</title>
+    <title>Dr. Shady Samir - التقرير الشامل للمريض</title>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
@@ -21,14 +21,18 @@
         .main-content { flex: 1; margin-right: 260px; padding: 25px; }
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .profile-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        
+        .profile-layout { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
         .info-row { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 10px; border-bottom: 1px dashed #f1f5f9; padding-bottom: 6px; }
         .info-row span { color: var(--text-gray); }
-        .btn-action { background-color: var(--accent-blue); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-action { background-color: var(--accent-blue); color: white; border: none; padding: 10px 15px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; width: 100%; margin-top: 10px; text-align: center; text-decoration: none; display: inline-block; box-sizing: border-box; }
         
-        /* Modal نافذة تسجيل المتابعة */
+        .report-section { background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px 15px; border-radius: 8px; margin-bottom: 12px; font-size: 13px; }
+        .report-section h4 { margin: 0 0 6px 0; color: var(--accent-blue); font-size: 13px; }
+        
+        /* Modal تسجيل متابعة جديدة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 400px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
@@ -67,11 +71,12 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>📂 ملف المريض: شهاب الدين حسب النبي</h1>
+            <h1>📂 التقرير الشامل للمريض: شهاب الدين حسب النبي</h1>
             <a href="patients.html" style="font-size: 13px; color: var(--accent-blue); text-decoration: none; font-weight: bold;">← العودة لقائمة المرضى</a>
         </div>
 
-        <div class="profile-grid">
+        <div class="profile-layout">
+            <!-- العمود الأيمن: البيانات والملخص -->
             <div>
                 <div class="card">
                     <h3>👤 البيانات الأساسية</h3>
@@ -82,35 +87,71 @@
                     <div class="info-row"><span>الطول:</span> <strong>178 سم</strong></div>
                     <button class="btn-action" onclick="alert('فتح نافذة تعديل بيانات المريض')">تعديل بيانات المريض ⚙️</button>
                 </div>
+
+                <div class="card">
+                    <h3>💰 الحالة المالية</h3>
+                    <div class="info-row"><span>إجمالي المدفوع:</span> <strong style="color:var(--primary-green);">1,450 جنيه</strong></div>
+                    <div class="info-row"><span>آخر معاملة:</span> <strong>تم الدفع بالكامل</strong></div>
+                    <a href="payments.html" class="btn-action" style="background: var(--warning-orange); color: white;">إدارة الحسابات والمدفوعات 💰</a>
+                </div>
             </div>
 
+            <!-- العمود الأيسر: تقارير كل الأقسام الشاملة -->
             <div>
                 <div class="card">
-                    <h3>📋 سجل القياسات والمتابعات الأخيرة</h3>
-                    <div id="history-container" style="font-size: 13px; line-height: 1.6; color: var(--text-gray);">
+                    <h3>📋 سجل القياسات ومتابعة الوزن</h3>
+                    <div id="history-container" style="font-size: 13px; line-height: 1.6; color: var(--text-gray); margin-bottom: 12px;">
                         <p><strong>آخر زيارة:</strong> <span id="last-date">28 أغسطس 2026</span></p>
                         <p><strong>معدل نزول الوزن:</strong> <span id="last-note">ممتاز، تم فقدان 3.5 كجم في الشهر الأخير مع التزام تام بالبروتين والماء.</span></p>
-                        <p><strong>ملاحظات جراحات السمنة:</strong> لا توجد أي شكاوى من ارتجاع المريء، القدرة على تناول وجبات صغيرة منتظمة مستقرة.</p>
                     </div>
-                    <button class="btn-action" style="background:var(--primary-green);" onclick="openModal()">+ تسجيل متابعة جديدة</button>
+                    <button class="btn-action" style="background:var(--primary-green); margin-top:0;" onclick="openModal()">+ تسجيل متابعة جديدة</button>
+                </div>
+
+                <div class="card">
+                    <h3>🥗 الخطة الغذائية النشطة (Smart Meal Builder)</h3>
+                    <div class="report-section">
+                        <h4>السعرات والماكروز المستهدفة: 1400 سعرة حرارية</h4>
+                        <p style="margin: 4px 0;">بروتين: 120 جم | كاربوهيدرات: 130 جم | دهون صحية: 45 جم</p>
+                    </div>
+                    <a href="meal-builder.html" class="btn-action" style="background: var(--accent-blue);">تعديل أو عرض خطة الأكل 🥗</a>
+                </div>
+
+                <div class="card">
+                    <h3>⚖️ جراحات السمنة والمتابعة الخاصة</h3>
+                    <div class="report-section">
+                        <h4>نوع الجراحة: تكميم معدة (يناير 2026)</h4>
+                        <p style="margin: 4px 0;">الوزن عند العملية: 125 كجم ➔ الحالي: 92 كجم | المستهدف: 75 كجم</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>🧪 التحاليل الطبية والفحوصات المقررة</h3>
+                    <div class="report-section">
+                        <h4>صورة دم كاملة (CBC) + حديد وفريتين</h4>
+                        <p style="margin: 4px 0; color: var(--warning-orange);">الحالة: في انتظار التسليم (تاريخ الطلب: 24 أغسطس 2026)</p>
+                    </div>
+                    <a href="labs.html" class="btn-action" style="background: #8b5cf6;">إدارة ورشتة التحاليل 🧪</a>
+                </div>
+
+                <div class="card">
+                    <h3>💊 المكملات والفيتامينات المقررة</h3>
+                    <div class="report-section">
+                        <h4>مجموعة فيتامينات ما بعد التكميم + كالسيوم</h4>
+                        <p style="margin: 4px 0; color: var(--danger-red);">تنبيه مخزون: قرب انتهاء الجرعة (متبقي 3 أيام)</p>
+                    </div>
+                    <a href="supplements.html" class="btn-action" style="background: var(--primary-green);">إدارة المكملات والروشتات 💊</a>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نافذة منبثقة (Modal) لتسجيل المتابعة الجديدة -->
+    <!-- نافذة تسجيل متابعة جديدة -->
     <div id="followupModal" class="modal-overlay">
         <div class="modal-box">
             <h3>➕ تسجيل زيارة ومتابعة جديدة</h3>
             <form onsubmit="saveFollowup(event)">
-                <div class="form-group">
-                    <label>الوزن الحالي الجديد (كجم):</label>
-                    <input type="number" step="0.1" id="newWeight" class="form-control" placeholder="مثال: 90.5" required>
-                </div>
-                <div class="form-group">
-                    <label>ملاحظات الزيارة ومعدل النزول:</label>
-                    <textarea id="newNote" class="form-control" rows="3" placeholder="أدخل تفاصيل ومعدل نزول الوزن..." required></textarea>
-                </div>
+                <div class="form-group"><label>الوزن الحالي الجديد (كجم):</label><input type="number" step="0.1" id="newWeight" class="form-control" placeholder="مثال: 90.5" required></div>
+                <div class="form-group"><label>ملاحظات الزيارة ومعدل النزول:</label><textarea id="newNote" class="form-control" rows="3" placeholder="أدخل تفاصيل ومعدل نزول الوزن..." required></textarea></div>
                 <div class="modal-actions">
                     <button type="submit" class="btn-save-modal">حفظ المتابعة</button>
                     <button type="button" class="btn-close-modal" onclick="closeModal()">إلغاء</button>
@@ -120,23 +161,18 @@
     </div>
 
     <script>
-        function openModal() {
-            document.getElementById('followupModal').style.display = 'flex';
-        }
-        function closeModal() {
-            document.getElementById('followupModal').style.display = 'none';
-        }
+        function openModal() { document.getElementById('followupModal').style.display = 'flex'; }
+        function closeModal() { document.getElementById('followupModal').style.display = 'none'; }
         function saveFollowup(event) {
             event.preventDefault();
             const weight = document.getElementById('newWeight').value;
             const note = document.getElementById('newNote').value;
             
-            // تحديث البيانات في الصفحة فوراً
             document.getElementById('current-weight').innerText = weight + ' كجم';
             document.getElementById('last-date').innerText = 'اليوم (28 أغسطس 2026)';
             document.getElementById('last-note').innerText = note;
             
-            alert('تم تسجيل المتابعة وتحديث وزن المريض بنجاح!');
+            alert('تم تسجيل المتابعة وتحديث التقرير الشامل للمريض بنجاح!');
             closeModal();
         }
     </script>
