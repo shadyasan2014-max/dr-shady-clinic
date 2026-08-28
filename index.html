@@ -38,7 +38,11 @@
             transition: opacity 0.8s ease;
         }
         .splash-logo {
-            width: 150px; height: 150px; border-radius: 50%; object-fit: cover;
+            width: 120px; 
+            height: 120px; 
+            border-radius: 50%; 
+            object-fit: contain; 
+            background-color: #ffffff;
             border: 3px solid var(--primary-green);
             box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
             animation: pulseLogo 1.5s infinite alternate;
@@ -59,7 +63,14 @@
             padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b;
             display: flex; flex-direction: column; align-items: center; text-align: center;
         }
-        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .brand-logo { 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            object-fit: cover; 
+            border: 2px solid var(--primary-green); 
+            margin-bottom: 8px; 
+        }
         .sidebar-brand h2 { margin: 0; font-size: 15px; }
         .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
@@ -120,7 +131,7 @@
 <body>
 
     <div id="splash-screen">
-        <img src="logo.jpeg" class="splash-logo">
+        <img src="logo.jpeg" alt="Dr. Shady Logo" class="splash-logo">
         <div class="splash-text">جاري إطلاق نظام عيادة د. شادي سمير...</div>
     </div>
 
@@ -130,24 +141,16 @@
         <div class="sidebar">
             <div>
                 <div class="sidebar-brand">
-                    <img src="logo.jpeg">
+                    <img src="logo.jpeg" alt="Logo" class="brand-logo">
                     <h2>د. شادي سمير</h2>
                     <p>عيادة التغذية العلاجية</p>
                 </div>
                 <ul class="sidebar-menu">
                     <li class="active"><a href="index.html">🏠 الرئيسية</a></li>
                     <li><a href="patients.html">👥 المرضى</a></li>
-                    <li><a href="#" onclick="alert('قسم المواعيد قيد التطوير')">📅 المواعيد</a></li>
-                    <li><a href="#" onclick="alert('قسم الزيارات قيد التطوير')">📋 الزيارات</a></li>
-                    <li><a href="#" onclick="alert('قسم القياسات قيد التطوير')">⚖️ القياسات</a></li>
-                    <li><a href="#" onclick="alert('قسم الخطط الغذائية قيد التطوير')">🥗 الخطط الغذائية</a></li>
-                    <li><a href="#" onclick="alert('قاعدة الأطعمة قيد التطوير')">🍎 قاعدة الأطعمة</a></li>
-                    <li><a href="#" onclick="alert('قسم التحاليل قيد التطوير')">🧪 التحاليل</a></li>
-                    <li><a href="#" onclick="alert('قسم المكملات قيد التطوير')">💊 المكملات</a></li>
+                    <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
+                    <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
                     <li><a href="#" onclick="alert('قسم جراحات السمنة قيد التطوير')">⚖️ جراحات السمنة</a></li>
-                    <li><a href="#" onclick="alert('قسم المدفوعات قيد التطوير')">💰 المدفوعات</a></li>
-                    <li><a href="#" onclick="alert('قسم التقارير قيد التطوير')">📊 التقارير</a></li>
-                    <li><a href="#" onclick="alert('لا توجد تنبيهات جديدة')">🔔 التنبيهات <span style="background:var(--danger-red); color:white; padding:1px 6px; border-radius:10px; font-size:10px; margin-left:auto;">12</span></a></li>
                     <li><a href="#" onclick="alert('الإعدادات قيد التطوير')">⚙️ الإعدادات</a></li>
                 </ul>
             </div>
@@ -164,7 +167,7 @@
                 </div>
                 <div class="doctor-profile-top">
                     <span>د. شادي سمير</span>
-                    <img src="logo.jpeg">
+                    <img src="logo.jpeg" alt="Dr Shady">
                     <span style="background:var(--danger-red); color:white; border-radius:50%; width:18px; height:18px; display:inline-flex; justify-content:center; align-items:center; font-size:10px;">12</span>
                 </div>
             </div>
