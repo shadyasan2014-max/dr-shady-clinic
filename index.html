@@ -88,10 +88,10 @@
             </div>
         </div>
 
-        <!-- شريط البحث السريع والآمن 100% -->
+        <!-- شريط البحث الشامل -->
         <div class="search-bar-box">
             <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
-            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة وابحث..." onkeydown="handleSearchKey(event)">
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة أو جزء منه للبحث..." onkeydown="handleSearchKey(event)">
             <button class="btn-search" onclick="executeGlobalSearch()">بحث 🔎</button>
         </div>
 
@@ -229,7 +229,6 @@
             }
         }
 
-        // دالة بحث ذكية وآمنة تجلب النتائج بدون أي أخطاء
         async function executeGlobalSearch() {
             let query = document.getElementById('globalSearchInput').value.trim();
             if (!query) {
@@ -238,24 +237,30 @@
             }
 
             try {
-                // جلب كل البيانات من الجدول للبحث السلس والآمن تماماً
-                const { data, error } = await supabaseClient.from('patients').select('*');
-                
-                if (error) {
-                    alert('عذراً، حدث خطأ أثناء الاتصال بقاعدة البيانات.');
-                    return;
-                }
+                const { data: patData } = await supabaseClient.from('patients').select('*');
+                const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
-                let found = data.filter(p => p.patient_name && p.patient_name.toLowerCase().includes(query.toLowerCase()));
+                let allCases = [];
+                if (patData) allCases = allCases.concat(patData);
+                if (barData) allCases = allCases.concat(barData);
+
+                let found = allCases.filter(item => {
+                    let name = item.patient_name || item.name || '';
+                    return name.toLowerCase().includes(query.toLowerCase());
+                });
 
                 if (found.length > 0) {
                     let p = found[0];
-                    alert(`✅ تم العثور على الحالة:\n\nالاسم: ${p.patient_name}\nالتليفون: ${p.phone || 'غير مسجل'}\nالتصنيف: ${p.category || 'غير محدد'}`);
+                    let name = p.patient_name || p.name || 'غير معروف';
+                    let phone = p.phone || 'غير مسجل';
+                    let category = p.category || p.surgery_type || 'غير محدد';
+                    
+                    alert(`✅ تم العثور على الحالة:\n\nالاسم: ${name}\nالتليفون: ${phone}\nالتصنيف/العملية: ${category}`);
                 } else {
-                    alert('❌ لم يتم العثور على أي حالة مطابقة بهذا الاسم.');
+                    alert('❌ لم يتم العثور على أي حالة مطابقة بهذا الاسم في السجلات.');
                 }
             } catch (err) {
-                alert('حدث خطأ غير متوقع أثناء البحث.');
+                alert('حدث خطأ أثناء عملية البحث.');
             }
         }
 
