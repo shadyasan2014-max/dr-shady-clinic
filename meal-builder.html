@@ -27,7 +27,7 @@
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
         .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue, #3b82f6); color: white; font-weight: bold; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #3b82f6; color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
@@ -35,7 +35,7 @@
         .main-content { flex: 1; margin-right: 260px; padding: 30px; box-sizing: border-box; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .top-header h1 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; }
+        .top-header h1 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px; }
         .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
@@ -45,16 +45,19 @@
         .form-control { width: 100%; padding: 12px 15px; border: 2px solid var(--card-border); border-radius: 12px; font-size: 14px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
         .form-control:focus { border-color: var(--primary-green); background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
         
+        /* تبيوّب اختيار نوع الخطة (يومي أو أسبوعي) */
+        .plan-type-selector { display: flex; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 6px; border-radius: 12px; }
+        .plan-tab { flex: 1; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; border: none; background: transparent; color: var(--text-gray); }
+        .plan-tab.active { background: white; color: var(--primary-green); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+
+        /* أيام الأسبوع */
+        .days-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        .day-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; }
+        .day-box label { font-size: 13px; color: var(--primary-green); font-weight: bold; margin-bottom: 5px; display: block; }
+
         .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
-        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
-        
         .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
-        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3); }
-
         .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
-        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3); }
-
-        .preview-box { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; padding: 20px; border-radius: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -107,17 +110,33 @@
                 <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية ومخصصة بواسطة AI</button>
             </div>
 
-            <div class="form-group">
-                <label>☀️ الخطة اليومية (السوائل، الوجبات الخفيفة، والتعليمات الصباحية):</label>
-                <textarea id="dailyPlanInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الخطة اليومية..."></textarea>
+            <!-- أزرار الاختيار بين خطة يومية أو أسبوعية -->
+            <div class="plan-type-selector">
+                <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ خطة يومية (يوم واحد)</button>
+                <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 خطة أسبوعية (7 أيام كاملة)</button>
             </div>
 
-            <div class="form-group">
-                <label>📅 الخطة الأسبوعية (الوجبات الكاملة والبدائل الذكية):</label>
-                <textarea id="weeklyPlanInput" class="form-control" rows="6" placeholder="اكتب تفاصيل الخطة الأسبوعية..."></textarea>
+            <!-- حاوية الخطة اليومية -->
+            <div id="dailyContainer" class="form-group">
+                <label>☀️ تفاصيل الخطة اليومية:</label>
+                <textarea id="dailyPlanInput" class="form-control" rows="5" placeholder="اكتب تفاصيل الوجبات والتعليمات اليومية هنا..."></textarea>
             </div>
 
-            <div class="form-group">
+            <!-- حاوية الخطة الأسبوعية (7 أيام) -->
+            <div id="weeklyContainer" class="form-group" style="display:none;">
+                <label>📅 تفاصيل الخطة الأسبوعية (7 أيام):</label>
+                <div class="days-grid">
+                    <div class="day-box"><label>السبت:</label><textarea id="day1" class="form-control" rows="2" placeholder="وجبات السبت..."></textarea></div>
+                    <div class="day-box"><label>الأحد:</label><textarea id="day2" class="form-control" rows="2" placeholder="وجبات الأحد..."></textarea></div>
+                    <div class="day-box"><label>الإثنين:</label><textarea id="day3" class="form-control" rows="2" placeholder="وجبات الإثنين..."></textarea></div>
+                    <div class="day-box"><label>الثلاثاء:</label><textarea id="day4" class="form-control" rows="2" placeholder="وجبات الثلاثاء..."></textarea></div>
+                    <div class="day-box"><label>الأربعاء:</label><textarea id="day5" class="form-control" rows="2" placeholder="وجبات الأربعاء..."></textarea></div>
+                    <div class="day-box"><label>الخميس:</label><textarea id="day6" class="form-control" rows="2" placeholder="وجبات الخميس..."></textarea></div>
+                    <div class="day-box"><label>الجمعة:</label><textarea id="day7" class="form-control" rows="2" placeholder="وجبات الجمعة..."></textarea></div>
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-top:20px;">
                 <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
                 <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
             </div>
@@ -136,6 +155,7 @@
 
         let allPatientsData = [];
         let currentSelected = null;
+        let currentPlanMode = 'daily'; // 'daily' or 'weekly'
 
         async function initMealBuilder() {
             const { data: patData } = await supabaseClient.from('patients').select('*');
@@ -155,6 +175,21 @@
             });
         }
 
+        function switchPlanType(mode) {
+            currentPlanMode = mode;
+            if (mode === 'daily') {
+                document.getElementById('tabDaily').classList.add('active');
+                document.getElementById('tabWeekly').classList.remove('active');
+                document.getElementById('dailyContainer').style.display = 'block';
+                document.getElementById('weeklyContainer').style.display = 'none';
+            } else {
+                document.getElementById('tabWeekly').classList.add('active');
+                document.getElementById('tabDaily').classList.remove('active');
+                document.getElementById('dailyContainer').style.display = 'none';
+                document.getElementById('weeklyContainer').style.display = 'block';
+            }
+        }
+
         function loadSelectedPatientPlan() {
             let idx = document.getElementById('patientSelect').value;
             if (idx === "") {
@@ -165,10 +200,14 @@
             currentSelected = allPatientsData[idx];
             document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${currentSelected.patient_name || currentSelected.name}`;
             
-            document.getElementById('dailyPlanInput').value = currentSelected.daily_plan || '';
-            document.getElementById('weeklyPlanInput').value = currentSelected.weekly_plan || '';
-            document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
+            document.getElementById('dailyPlanInput').value = currentSelected.daily_plan || currentSelected.diet_plan || '';
+            
+            // تحميل الأيام الأسبق لو متوفرة في الحقول
+            for (let i = 1; i <= 7; i++) {
+                document.getElementById(`day${i}`).value = currentSelected[`day_${i}`] || '';
+            }
 
+            document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
             document.getElementById('planEditorCard').style.display = 'block';
         }
 
@@ -176,10 +215,16 @@
             if (!currentSelected) return;
             let cat = currentSelected.category || currentSelected.surgery_type || 'تكميم';
             
-            document.getElementById('dailyPlanInput').value = `🔹 البرنامج اليومي المقترح (${cat}):\n- المياه والسوائل الشفافة: 2.5 لتر بانتظام.\n- مكملات البروتين والفيتامينات حسب الجدول الإكلينيكي.`;
-            document.getElementById('weeklyPlanInput').value = `🔹 البرنامج الأسبوعي للوجبات والبدائل:\n- الأيام الأولى: سوائل صافية ومهروس خفيف.\n- التدرج الصحي للوجبات الكاملة مع التركيز على البروتين وتجنب السكريات.`;
-            document.getElementById('doctorNotesInput').value = `الحالة مستقرة وتحتاج للالتزام بالتعليمات والجرعات المقررة.`;
+            if (currentPlanMode === 'daily') {
+                document.getElementById('dailyPlanInput').value = `🔹 البرنامج اليومي المقترح (${cat}):\n- السوائل والمياه: 2.5 لتر.\n- الوجبات: سوائل صافية وبروتين سائل مقسم على 5 وجبات خفيفة.`;
+            } else {
+                let days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                days.forEach((d, idx) => {
+                    document.getElementById(`day${idx+1}`).value = `${d}: شوربة صافية + مكمل بروتين + 2 لتر ماء موزعة طوال اليوم.`;
+                });
+            }
             
+            document.getElementById('doctorNotesInput').value = `الحالة مستقرة وتحتاج للالتزام بالتعليمات الطبية.`;
             alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح!');
         }
 
@@ -187,14 +232,27 @@
             if (!currentSelected) return;
 
             let daily = document.getElementById('dailyPlanInput').value;
-            let weekly = document.getElementById('weeklyPlanInput').value;
             let notes = document.getElementById('doctorNotesInput').value;
 
-            let payload = {};
-            if (currentSelected._table === 'patients') {
-                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n\n' + weekly, medical_history: notes };
+            let payload = {
+                daily_plan: daily,
+                medical_history: notes,
+                notes: notes
+            };
+
+            let weeklyCombined = "";
+            if (currentPlanMode === 'weekly') {
+                let daysArr = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                for (let i = 1; i <= 7; i++) {
+                    let dayVal = document.getElementById(`day${i}`).value;
+                    payload[`day_${i}`] = dayVal;
+                    weeklyCombined += `• ${daysArr[i-1]}: ${dayVal}\n`;
+                }
+                payload.weekly_plan = weeklyCombined;
+                payload.diet_plan = `📅 الخطة الأسبوعية:\n` + weeklyCombined;
             } else {
-                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n\n' + weekly, notes: notes };
+                payload.weekly_plan = "";
+                payload.diet_plan = `☀️ الخطة اليومية:\n` + daily;
             }
 
             const { error } = await supabaseClient.from(currentSelected._table).update(payload).eq('id', currentSelected.id);
@@ -203,18 +261,28 @@
                 return;
             }
 
-            alert('✨ تم حفظ الخطة الغذائية والملاحظات في قاعدة بيانات SQL بنجاح وتحديث ملف المريض!');
+            alert('✨ تم حفظ الخطة الغذائية في قاعدة بيانات SQL بنجاح!');
         }
 
         function sendPlanWhatsAppFromBuilder() {
             if (!currentSelected) return;
             let phone = currentSelected.phone;
             let name = currentSelected.patient_name || currentSelected.name || 'العزيز';
-            let daily = document.getElementById('dailyPlanInput').value;
-            let weekly = document.getElementById('weeklyPlanInput').value;
             let notes = document.getElementById('doctorNotesInput').value;
+            
+            let planText = "";
+            if (currentPlanMode === 'daily') {
+                planText = `☀️ الخطة اليومية:\n` + document.getElementById('dailyPlanInput').value;
+            } else {
+                let daysArr = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+                planText = `📅 الخطة الأسبوعية (7 أيام):\n`;
+                for (let i = 1; i <= 7; i++) {
+                    let val = document.getElementById(`day${i}`).value;
+                    if (val) planText += `• ${daysArr[i-1]}: ${val}\n`;
+                }
+            }
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير للتغذية العلاجية:\n\n☀️ الخطة اليومية:\n${daily}\n\n📅 الخطة الأسبوعية:\n${weekly}\n\n📝 ملاحظات الدكتور الإكلينيكية:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
             
             let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
