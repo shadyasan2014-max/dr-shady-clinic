@@ -4,137 +4,31 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - لوحة تحكم العيادة الإكلينيكية (SQL Live)</title>
-    <!-- استدعاء مكتبة Chart.js للرسوم البيانية ومكتبة Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { 
-            --sidebar-bg: #0b1329; 
-            --main-bg: #f4f6f9; 
-            --card-bg: #ffffff; 
-            --card-border: #e2e8f0; 
-            --primary-green: #10b981; 
-            --accent-blue: #3b82f6; 
-            --warning-orange: #f59e0b; 
-            --danger-red: #ef4444; 
-            --text-dark: #1e293b; 
-            --text-gray: #64748b; 
-        }
-
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background-color: var(--main-bg); 
-            color: var(--text-dark); 
-            margin: 0; 
-            display: flex; 
-            min-height: 100vh; 
-            direction: rtl;
-        }
-
-        /* تنسيق القائمة الجانبية الثابتة */
-        .sidebar { 
-            width: 260px; 
-            background-color: var(--sidebar-bg); 
-            color: white; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            padding: 20px 0; 
-            position: fixed; 
-            right: 0; 
-            top: 0; 
-            height: 100vh; 
-            box-shadow: -4px 0 15px rgba(0,0,0,0.1); 
-            z-index: 1000;
-        }
-
-        .sidebar-brand { 
-            padding: 0 20px 20px 20px; 
-            border-bottom: 1px solid #1e293b; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            text-align: center; 
-        }
-
-        .brand-logo { 
-            width: 45px; 
-            height: 45px; 
-            border-radius: 50%; 
-            object-fit: cover; 
-            border: 2px solid var(--primary-green); 
-            margin-bottom: 8px; 
-        }
-
-        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
-        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
-
-        .sidebar-menu { 
-            list-style: none; 
-            padding: 0 10px; 
-            margin: 0; 
-            overflow-y: auto; 
-            flex: 1; 
-        }
-
-        .sidebar-menu li { 
-            padding: 0; 
-            margin: 3px 0; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            font-size: 13px; 
-            color: var(--text-gray); 
-        }
-
-        .sidebar-menu li a { 
-            padding: 9px 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 12px; 
-            color: inherit; 
-            text-decoration: none; 
-            width: 100%; 
-            box-sizing: border-box; 
-            border-radius: 8px; 
-        }
-
-        .sidebar-menu li:hover, .sidebar-menu li.active { 
-            background-color: var(--accent-blue); 
-            color: white; 
-            font-weight: bold; 
-        }
-
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { 
-            color: white; 
-        }
-
-        .sidebar-footer { 
-            padding: 15px 20px; 
-            border-top: 1px solid #1e293b; 
-        }
-
-        .btn-logout { 
-            background: none; 
-            border: none; 
-            color: var(--danger-red); 
-            font-weight: bold; 
-            cursor: pointer; 
-            font-size: 13px; 
-            width: 100%; 
-            text-align: right; 
-        }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
+        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        /* مساحة المحتوى الرئيسي */
-        .main-content { 
-            flex: 1; 
-            margin-right: 260px; 
-            padding: 25px; 
-            box-sizing: border-box; 
-        }
-        
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
         .welcome-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .welcome-title-box { display: flex; align-items: center; gap: 15px; }
         .welcome-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
+        
+        /* شريط البحث الموحد والسريع */
+        .search-bar-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .search-input { flex: 1; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
         
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; text-align: center; }
@@ -151,7 +45,6 @@
     </style>
 </head>
 <body>
-    <!-- القائمة الجانبية الثابتة والمتكاملة -->
     <div class="sidebar">
         <div>
             <div class="sidebar-brand">
@@ -177,12 +70,9 @@
                 <li><a href="settings.html">⚙️ الإعدادات</a></li>
             </ul>
         </div>
-        <div class="sidebar-footer">
-            <button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button>
-        </div>
+        <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
-    <!-- المحتوى الرئيسي للوحة التحكم -->
     <div class="main-content">
         <div class="welcome-card">
             <div class="welcome-title-box">
@@ -195,6 +85,12 @@
             <div style="text-align: left;">
                 <span style="background: #e0f2fe; color: #0369a1; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold;" id="currentDateBadge">التاريخ: جاري التحميل...</span>
             </div>
+        </div>
+
+        <!-- شريط البحث السريع والذكي في أي حالة -->
+        <div class="search-bar-box">
+            <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة، رقم التليفون، أو الكود للبحث الفوري..." onkeyup="globalSearchPatients()">
         </div>
 
         <div class="stats-grid">
@@ -244,10 +140,11 @@
             const { data: patientsData, count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact' });
             document.getElementById('totalPatientsCount').innerText = patientsCount || 0;
 
+            // تحديث تصنيفات الحالات وجراحات السمنة للغرافيك والتحليلات الحية
             let catCounts = { 'تكميم معدة': 0, 'تحويل مسار': 0, 'سمنة مفرطة': 0, 'نحافة': 0, 'أخرى': 0 };
             if (patientsData) {
                 patientsData.forEach(p => {
-                    let c = p.category;
+                    let c = p.category || 'أخرى';
                     if (catCounts[c] !== undefined) {
                         catCounts[c]++;
                     } else {
@@ -308,6 +205,16 @@
                     }
                 }
             });
+        }
+
+        async function globalSearchPatients() {
+            let query = document.getElementById('globalSearchInput').value.trim();
+            if(!query) return;
+            // يمكنك توجيه البحث لصفحة المرضى أو إظهار النتيجة فورا
+            const { data, error } = await supabaseClient.from('patients').select('*').or(`patient_name.ilike.%${query}%,phone.ilike.%${query}%`);
+            if(data && data.length > 0) {
+                console.log("تم العثور على الحالة:", data[0]);
+            }
         }
 
         window.onload = function() {
