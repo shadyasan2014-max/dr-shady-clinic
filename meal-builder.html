@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - بناء الخطط الغذائية الذكية (SQL & AI)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <!-- مكتبة تحويل الحاوية إلى PDF بضغطة زر -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { 
             --sidebar-bg: #0b1329; 
@@ -20,7 +22,9 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
         
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        /* القائمة الجانبية: زرار منسدل دائم على الموبايل والتابلت */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; transform: translateX(100%); }
+        .sidebar.active { transform: translateX(0); }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
@@ -32,48 +36,43 @@
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 30px; box-sizing: border-box; width: calc(100% - 260px); transition: 0.3s; }
+        .main-content { flex: 1; margin-right: 0; padding: 20px; box-sizing: border-box; width: 100%; transition: 0.3s; }
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .top-header h1 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 15px 20px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .top-header h1 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
         
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px; }
-        .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
         
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
         .form-control { width: 100%; padding: 10px 12px; border: 2px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
         .form-control:focus { border-color: var(--primary-green); background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
         
-        .plan-type-selector { display: flex; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 6px; border-radius: 12px; }
-        .plan-tab { flex: 1; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; border: none; background: transparent; color: var(--text-gray); }
+        .plan-type-selector { display: flex; gap: 10px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 12px; }
+        .plan-tab { flex: 1; padding: 10px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; border: none; background: transparent; color: var(--text-gray); }
         .plan-tab.active { background: white; color: var(--primary-green); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        .meal-slot { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .meal-slot { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
         .meal-slot label { color: #0369a1; font-size: 12px; font-weight: bold; }
         
-        .day-container { background: #fff; border: 2px solid #e2e8f0; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .day-title { font-size: 15px; font-weight: bold; color: var(--primary-green); margin-bottom: 15px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; }
+        .day-container { background: #fff; border: 2px solid #e2e8f0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
+        .day-title { font-size: 14px; font-weight: bold; color: var(--primary-green); margin-bottom: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
 
-        .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
-        .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
-        .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
+        .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+        .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
+        .btn-pdf { background-color: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
 
-        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 10px 16px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        /* زرار القائمة الدائم في الأعلى للموبايل والتابلت */
+        .mobile-menu-toggle { display: flex; width: 100%; justify-content: center; align-items: center; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        @media (max-width: 950px) {
-            .sidebar { transform: translateX(100%); }
-            .sidebar.active { transform: translateX(0); }
-            .main-content { margin-right: 0 !important; width: 100% !important; padding: 15px !important; }
-            .mobile-menu-toggle { display: inline-flex; align-items: center; gap: 8px; }
-        }
-
-        @media print {
-            .sidebar, .mobile-menu-toggle, .card:first-child, .plan-type-selector, button { display: none !important; }
-            body { background: white !important; }
-            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
+        @media (min-width: 950px) {
+            .mobile-menu-toggle { display: none !important; }
+            .sidebar { transform: translateX(0) !important; }
+            .main-content { margin-right: 260px !important; width: calc(100% - 260px) !important; padding: 30px !important; }
         }
     </style>
 </head>
@@ -94,7 +93,7 @@
                 <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
                 <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
                 <li class="active"><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
-                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="food-database.html" onclick="taggedMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
                 <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
                 <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
@@ -108,55 +107,62 @@
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
+    <!-- الحاوية المخصصة للتصدير المباشر كملف PDF -->
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div class="top-header">
-            <h1>🥗 محطة بناء الخطط الغذائية الذكية (3 وجبات + 3 سناكس)</h1>
-        </div>
+        <div id="pdfExportArea">
+            <div class="top-header">
+                <h1>🥗 محطة بناء الخطط الغذائية الذكية (3 وجبات + 3 سناكس)</h1>
+            </div>
 
-        <div class="card">
-            <div class="form-group">
-                <label>👤 اختر الحالة أو المريض المستهدف:</label>
-                <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
-                    <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
-                </select>
+            <div class="card">
+                <div class="form-group">
+                    <label>👤 اختر الحالة أو المريض المستهدف:</label>
+                    <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
+                        <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="card" id="planEditorCard" style="display:none;">
+                <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
+                
+                <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;" class="no-print">
+                    <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
+                </div>
+
+                <div class="plan-type-selector no-print">
+                    <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
+                    <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
+                </div>
+
+                <div id="dailyContainer">
+                    <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
+                    <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
+                    <div class="meal-slot"><label>🍲 وجبة الغداء:</label><input type="text" id="d_l" class="form-control" placeholder="تفاصيل الغداء..."></div>
+                    <div class="meal-slot"><label>🥜 سناك 2 (خفيف عصري):</label><input type="text" id="d_s2" class="form-control" placeholder="تفاصيل سناك 2..."></div>
+                    <div class="meal-slot"><label>🥣 وجبة العشاء:</label><input type="text" id="d_d" class="form-control" placeholder="تفاصيل العشاء..."></div>
+                    <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
+                </div>
+
+                <div id="weeklyContainer" style="display:none;">
+                    <div id="sevenDaysWrapper"></div>
+                </div>
+
+                <div class="form-group" style="margin-top:15px;">
+                    <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
+                    <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
+                </div>
             </div>
         </div>
 
-        <div class="card" id="planEditorCard" style="display:none;">
-            <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
-            
-            <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
-            </div>
-
-            <div class="plan-type-selector">
-                <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
-                <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
-            </div>
-
-            <div id="dailyContainer">
-                <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
-                <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
-                <div class="meal-slot"><label>🍲 وجبة الغداء:</label><input type="text" id="d_l" class="form-control" placeholder="تفاصيل الغداء..."></div>
-                <div class="meal-slot"><label>🥜 سناك 2 (خفيف عصري):</label><input type="text" id="d_s2" class="form-control" placeholder="تفاصيل سناك 2..."></div>
-                <div class="meal-slot"><label>🥣 وجبة العشاء:</label><input type="text" id="d_d" class="form-control" placeholder="تفاصيل العشاء..."></div>
-                <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
-            </div>
-
-            <div id="weeklyContainer" style="display:none;">
-                <div id="sevenDaysWrapper"></div>
-            </div>
-
-            <div class="form-group" style="margin-top:20px;">
-                <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
-                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
-            </div>
-
-            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:25px;">
-                <button type="button" class="btn-main" onclick="savePlanToSQL()">💾 حفظ الخطة في قاعدة بيانات SQL</button>
-                <button type="button" class="btn-whatsapp" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال الخطة (واتساب + PDF)</button>
+        <!-- أزرار الحفظ والإرسال -->
+        <div class="card" id="actionsCard" style="display:none; background:#f1f5f9;">
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <button type="button" class="btn-main" onclick="savePlanToSQL()">💾 حفظ في قاعدة بيانات SQL</button>
+                <button type="button" class="btn-whatsapp" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال عبر واتساب</button>
+                <button type="button" class="btn-pdf" onclick="downloadPlanPDF()">📥 تحميل الخطة كملف PDF</button>
             </div>
         </div>
     </div>
@@ -233,6 +239,7 @@
             let idx = document.getElementById('patientSelect').value;
             if (idx === "") {
                 document.getElementById('planEditorCard').style.display = 'none';
+                document.getElementById('actionsCard').style.display = 'none';
                 return;
             }
 
@@ -271,6 +278,7 @@
 
             document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
             document.getElementById('planEditorCard').style.display = 'block';
+            document.getElementById('actionsCard').style.display = 'block';
         }
 
         function generateAIPlan() {
@@ -388,16 +396,23 @@
                 });
             }
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية المخصصة لك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
             
             let whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
+        }
 
-            setTimeout(() => {
-                if (confirm('هل تريد حفظ أو طباعة نسخة رسمية من الخطة كملف PDF؟')) {
-                    window.print();
-                }
-            }, 1000);
+        // دالة التحميل المباشر لملف الـ PDF بدون مشاكل
+        function downloadPlanPDF() {
+            const element = document.getElementById('pdfExportArea');
+            const opt = {
+                margin:       10,
+                filename:     `Dr-Shady-Nutrition-Plan.pdf`,
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().from(element).set(opt).save();
         }
 
         window.onload = initMealBuilder;
