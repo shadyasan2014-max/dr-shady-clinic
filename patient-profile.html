@@ -9,6 +9,7 @@
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
@@ -42,11 +43,31 @@
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); margin-bottom: 15px; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
 
-        /* شبكة التقيمات الصغيرة داخل الملف */
         .sub-metrics-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .sub-metric-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 10px; text-align: center; }
         .sub-metric-title { font-size: 10px; color: var(--text-gray); }
         .sub-metric-val { font-size: 14px; font-weight: bold; color: var(--text-dark); margin-top: 3px; }
+
+        /* إعدادات الطباعة الرسمية (تخفي القائمة والـ Sidebar والأزرار تماماً وتظبط الـ A4) */
+        @media print {
+            .sidebar, .patient-actions-top, .top-action-btn, button {
+                display: none !important;
+            }
+            body {
+                background-color: white !important;
+                display: block !important;
+            }
+            .main-content {
+                margin-right: 0 !important;
+                padding: 0 !important;
+                width: 100% !important;
+            }
+            .patient-header-card, .metrics-grid, .card {
+                border: 1px solid #cbd5e1 !important;
+                box-shadow: none !important;
+                break-inside: avoid;
+            }
+        }
     </style>
 </head>
 <body>
@@ -89,7 +110,7 @@
                 </div>
             </div>
             <div class="patient-actions-top">
-                <button class="top-action-btn" onclick="window.print()"><span>🖨️</span> طباعة</button>
+                <button class="top-action-btn" onclick="window.print()"><span>🖨️</span> طباعة التقرير</button>
                 <button class="top-action-btn" onclick="alert('تم إرسال الخطة بنجاح')"><span>💬</span> إرسال الخطة</button>
                 <button class="top-action-btn" onclick="alert('التنبيهات مفعلة')"><span>🔔</span> تنبيه</button>
             </div>
@@ -128,7 +149,7 @@
                 <p id="pNotes" style="font-size:12px; line-height:1.6; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">
                     المريض ملتزم بالتعليمات الإكلينيكية، الاستمرار على نفس الخطة مع زيادة نسبة البروتينات اليومية والتركيز على شرب المياه.
                 </p>
-                <button onclick="window.print()" style="background:var(--primary-green); color:white; border:none; padding:8px; border-radius:8px; font-weight:bold; cursor:pointer; width:100%; font-size:12px; margin-top:10px;">🖨️ طباعة تقرير الحالة الرسمي</button>
+                <button onclick="window.print()" class="top-action-btn" style="width:100%; margin-top:10px; background:var(--primary-green); color:white; border:none; padding:10px; font-weight:bold;">🖨️ طباعة تقرير الحالة الرسمي</button>
             </div>
         </div>
     </div>
@@ -169,7 +190,6 @@
             document.getElementById('mPhone').innerText = phone;
             document.getElementById('pNotes').innerText = notes;
 
-            // رسم منحنى تطور الوزن (Chart.js)
             renderWeightChart();
         }
 
