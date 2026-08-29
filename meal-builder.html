@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - بناء الخطط الغذائية الذكية (SQL & AI)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <!-- مكتبة تحويل الحاوية إلى PDF بضغطة زر -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { 
@@ -22,7 +21,6 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
         
-        /* القائمة الجانبية: زرار منسدل دائم على الموبايل والتابلت */
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; transform: translateX(100%); }
         .sidebar.active { transform: translateX(0); }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -36,7 +34,7 @@
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 0; padding: 20px; box-sizing: border-box; width: 100%; transition: 0.3s; }
+        .main-content { flex: 1; margin-right: 0; padding: 20px; box-sizing: border-box; width: 100%; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 15px 20px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
         .top-header h1 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
@@ -64,10 +62,13 @@
         .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
         .btn-pdf { background-color: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
 
-        /* زرار القائمة الدائم في الأعلى للموبايل والتابلت */
         .mobile-menu-toggle { display: flex; width: 100%; justify-content: center; align-items: center; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
+
+        /* رأس التقرير الرسمي المخصص للـ PDF فقط */
+        .pdf-header-banner { display: none; text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 12px; margin-bottom: 15px; }
+        .pdf-patient-info { display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #166534; }
 
         @media (min-width: 950px) {
             .mobile-menu-toggle { display: none !important; }
@@ -93,7 +94,7 @@
                 <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
                 <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
                 <li class="active"><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
-                <li><a href="food-database.html" onclick="taggedMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
                 <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
                 <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
@@ -107,53 +108,62 @@
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
-    <!-- الحاوية المخصصة للتصدير المباشر كملف PDF -->
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div id="pdfExportArea">
-            <div class="top-header">
-                <h1>🥗 محطة بناء الخطط الغذائية الذكية (3 وجبات + 3 سناكس)</h1>
+        <div class="card">
+            <div class="form-group">
+                <label>👤 اختر الحالة أو المريض المستهدف:</label>
+                <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
+                    <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- الحاوية المراد تصديرها كملف PDF مرتبة ونظيفة -->
+        <div class="card" id="pdfExportArea" style="display:none;">
+            
+            <!-- 1. بيانات الدكتور والعيادة (تظهر في الـ PDF فقط) -->
+            <div class="pdf-header-banner" id="pdfHeaderBanner">
+                <h2 style="margin:0; color:#0b1329; font-size:18px;">د. شادي سمير</h2>
+                <p style="margin:3px 0; color:#10b981; font-weight:bold; font-size:13px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                <p style="margin:0; color:#64748b; font-size:11px;">تقرير الخطة الطبية والغذائية المخصصة</p>
             </div>
 
-            <div class="card">
-                <div class="form-group">
-                    <label>👤 اختر الحالة أو المريض المستهدف:</label>
-                    <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
-                        <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
-                    </select>
-                </div>
+            <!-- 2. بيانات الحالة (تظهر في الـ PDF فقط) -->
+            <div class="pdf-patient-info" id="pdfPatientInfo">
+                <strong>👤 بيانات المريض:</strong> <span id="pdfPatName">-</span> | 
+                <strong>التصنيف:</strong> <span id="pdfPatCat">-</span> | 
+                <strong>الهاتف:</strong> <span id="pdfPatPhone">-</span>
             </div>
 
-            <div class="card" id="planEditorCard" style="display:none;">
-                <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
-                
-                <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;" class="no-print">
-                    <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
-                </div>
+            <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
+            
+            <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
+                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
+            </div>
 
-                <div class="plan-type-selector no-print">
-                    <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
-                    <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
-                </div>
+            <div class="plan-type-selector">
+                <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
+                <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
+            </div>
 
-                <div id="dailyContainer">
-                    <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
-                    <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
-                    <div class="meal-slot"><label>🍲 وجبة الغداء:</label><input type="text" id="d_l" class="form-control" placeholder="تفاصيل الغداء..."></div>
-                    <div class="meal-slot"><label>🥜 سناك 2 (خفيف عصري):</label><input type="text" id="d_s2" class="form-control" placeholder="تفاصيل سناك 2..."></div>
-                    <div class="meal-slot"><label>🥣 وجبة العشاء:</label><input type="text" id="d_d" class="form-control" placeholder="تفاصيل العشاء..."></div>
-                    <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
-                </div>
+            <div id="dailyContainer">
+                <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
+                <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
+                <div class="meal-slot"><label>🍲 وجبة الغداء:</label><input type="text" id="d_l" class="form-control" placeholder="تفاصيل الغداء..."></div>
+                <div class="meal-slot"><label>🥜 سناك 2 (خفيف عصري):</label><input type="text" id="d_s2" class="form-control" placeholder="تفاصيل سناك 2..."></div>
+                <div class="meal-slot"><label>🥣 وجبة العشاء:</label><input type="text" id="d_d" class="form-control" placeholder="تفاصيل العشاء..."></div>
+                <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
+            </div>
 
-                <div id="weeklyContainer" style="display:none;">
-                    <div id="sevenDaysWrapper"></div>
-                </div>
+            <div id="weeklyContainer" style="display:none;">
+                <div id="sevenDaysWrapper"></div>
+            </div>
 
-                <div class="form-group" style="margin-top:15px;">
-                    <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
-                    <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
-                </div>
+            <div class="form-group" style="margin-top:15px;">
+                <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
+                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
             </div>
         </div>
 
@@ -238,13 +248,22 @@
         function loadSelectedPatientPlan() {
             let idx = document.getElementById('patientSelect').value;
             if (idx === "") {
-                document.getElementById('planEditorCard').style.display = 'none';
+                document.getElementById('pdfExportArea').style.display = 'none';
                 document.getElementById('actionsCard').style.display = 'none';
                 return;
             }
 
             currentSelected = allPatientsData[idx];
-            document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${currentSelected.patient_name || currentSelected.name}`;
+            let name = currentSelected.patient_name || currentSelected.name || 'مريض بدون اسم';
+            let cat = currentSelected.category || currentSelected.surgery_type || 'تغذية';
+            let phone = currentSelected.phone || 'غير مسجل';
+
+            document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${name}`;
+            
+            // تعبئة بيانات رأس الـ PDF
+            document.getElementById('pdfPatName').innerText = name;
+            document.getElementById('pdfPatCat').innerText = cat;
+            document.getElementById('pdfPatPhone').innerText = phone;
             
             if (currentSelected.daily_meals) {
                 try {
@@ -277,7 +296,7 @@
             }
 
             document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
-            document.getElementById('planEditorCard').style.display = 'block';
+            document.getElementById('pdfExportArea').style.display = 'block';
             document.getElementById('actionsCard').style.display = 'block';
         }
 
@@ -402,17 +421,27 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // دالة التحميل المباشر لملف الـ PDF بدون مشاكل
+        // تصدير PDF منظم ومضبوط الترتيب (بيانات العيادة فوق، ثم بيانات الحالة، ثم النظام)
         function downloadPlanPDF() {
             const element = document.getElementById('pdfExportArea');
+            
+            // إظهار بانر العيادة ومعلومات المريض خصيصاً للـ PDF
+            document.getElementById('pdfHeaderBanner').style.display = 'block';
+            document.getElementById('pdfPatientInfo').style.display = 'block';
+
             const opt = {
-                margin:       10,
+                margin:       5,
                 filename:     `Dr-Shady-Nutrition-Plan.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().from(element).set(opt).save();
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                // إخفاءهم مرة أخرى للشاشة العادية لو أردت
+                document.getElementById('pdfHeaderBanner').style.display = 'none';
+                document.getElementById('pdfPatientInfo').style.display = 'none';
+            });
         }
 
         window.onload = initMealBuilder;
