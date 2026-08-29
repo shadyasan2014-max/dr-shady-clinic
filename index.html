@@ -88,10 +88,10 @@
             </div>
         </div>
 
-        <!-- شريط البحث الشامل -->
+        <!-- شريط البحث السريع والآمن -->
         <div class="search-bar-box">
             <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
-            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة، رقم التليفون، أو الكود وابحث..." onkeydown="handleSearchKey(event)">
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة وابحث..." onkeydown="handleSearchKey(event)">
             <button class="btn-search" onclick="executeGlobalSearch()">بحث 🔎</button>
         </div>
 
@@ -145,7 +145,6 @@
             let totalRecords = (patientsCount || 0) + (bariatricCount || 0);
             document.getElementById('totalPatientsCount').innerText = totalRecords;
 
-            // جلب البيانات الديناميكية وتجميعها تلقائياً بغض النظر عن المسمى المسجل
             const { data: patData } = await supabaseClient.from('patients').select('category');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('surgery_type');
 
@@ -192,7 +191,6 @@
             });
         }
 
-        // رسم بياني ديناميكي يتكيف مع كل المسميات المسجلة في SQL
         function renderDynamicChart(countsObj) {
             const ctx = document.getElementById('casesChart').getContext('2d');
             if (myChart) {
@@ -231,28 +229,30 @@
             }
         }
 
+        // دالة البحث المحدثة والآمنة 100%
         async function executeGlobalSearch() {
             let query = document.getElementById('globalSearchInput').value.trim();
             if (!query) {
-                alert('الرجاء إدخال اسم الحالة أو رقم التليفون للبحث.');
+                alert('الرجاء إدخال اسم الحالة للبحث.');
                 return;
             }
 
+            // البحث الآمن في جدول المرضى بالاسم فقط لتجنب أي أخطاء
             const { data: patientResults, error } = await supabaseClient
                 .from('patients')
                 .select('*')
-                .or(`patient_name.ilike.%${query}%,phone.ilike.%${query}%`);
+                .ilike('patient_name', `%${query}%`);
 
             if (error) {
-                alert('حدث خطأ أثناء البحث.');
+                alert('عذراً، حدث خطأ في الاتصال بقاعدة البيانات أثناء البحث.');
                 return;
             }
 
             if (patientResults && patientResults.length > 0) {
                 let p = patientResults[0];
-                alert(`✅ تم العثور على المريض:\n\nالاسم: ${p.patient_name}\nالتليفون: ${p.phone}\nالتصنيف: ${p.category || 'غير محدد'}\nالعمر: ${p.age || '-'}`);
+                alert(`✅ تم العثور على المريض:\n\nالاسم: ${p.patient_name}\nالتليفون: ${p.phone || 'غير مسجل'}\nالتصنيف: ${p.category || 'غير محدد'}`);
             } else {
-                alert('❌ لم يتم العثور على أي حالة مطابقة للبحث في قاعدة البيانات.');
+                alert('❌ لم يتم العثور على أي حالة مطابقة بهذا الاسم في قاعدة البيانات.');
             }
         }
 
