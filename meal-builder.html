@@ -20,7 +20,6 @@
         }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
         
-        /* القائمة الجانبية المتجاوبة */
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
@@ -60,10 +59,7 @@
         .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
         .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
 
-        /* زرار القائمة للموبايل والتابلت */
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 10px 16px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-
-        /* طبقة خلفية مظلمة عند فتح القائمة على الموبايل */
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
@@ -72,8 +68,12 @@
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 15px !important; }
             .mobile-menu-toggle { display: inline-flex; align-items: center; gap: 8px; }
-            .top-header { padding: 15px; }
-            .top-header h1 { font-size: 15px; }
+        }
+
+        @media print {
+            .sidebar, .mobile-menu-toggle, .card:first-child, .plan-type-selector, button { display: none !important; }
+            body { background: white !important; }
+            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
         }
     </style>
 </head>
@@ -156,7 +156,7 @@
 
             <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:25px;">
                 <button type="button" class="btn-main" onclick="savePlanToSQL()">💾 حفظ الخطة في قاعدة بيانات SQL</button>
-                <button type="button" class="btn-whatsapp" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال الخطة عبر واتساب</button>
+                <button type="button" class="btn-whatsapp" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال الخطة (واتساب + PDF)</button>
             </div>
         </div>
     </div>
@@ -388,10 +388,16 @@
                 });
             }
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الغذائية المخصصة لك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية المخصصة لك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
             
             let whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
+
+            setTimeout(() => {
+                if (confirm('هل تريد حفظ أو طباعة نسخة رسمية من الخطة كملف PDF؟')) {
+                    window.print();
+                }
+            }, 1000);
         }
 
         window.onload = initMealBuilder;
