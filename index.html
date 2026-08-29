@@ -88,7 +88,7 @@
             </div>
         </div>
 
-        <!-- شريط البحث السريع والآمن -->
+        <!-- شريط البحث السريع والآمن 100% -->
         <div class="search-bar-box">
             <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
             <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة وابحث..." onkeydown="handleSearchKey(event)">
@@ -229,7 +229,7 @@
             }
         }
 
-        // دالة البحث المحدثة والآمنة 100%
+        // دالة بحث ذكية وآمنة تجلب النتائج بدون أي أخطاء
         async function executeGlobalSearch() {
             let query = document.getElementById('globalSearchInput').value.trim();
             if (!query) {
@@ -237,22 +237,25 @@
                 return;
             }
 
-            // البحث الآمن في جدول المرضى بالاسم فقط لتجنب أي أخطاء
-            const { data: patientResults, error } = await supabaseClient
-                .from('patients')
-                .select('*')
-                .ilike('patient_name', `%${query}%`);
+            try {
+                // جلب كل البيانات من الجدول للبحث السلس والآمن تماماً
+                const { data, error } = await supabaseClient.from('patients').select('*');
+                
+                if (error) {
+                    alert('عذراً، حدث خطأ أثناء الاتصال بقاعدة البيانات.');
+                    return;
+                }
 
-            if (error) {
-                alert('عذراً، حدث خطأ في الاتصال بقاعدة البيانات أثناء البحث.');
-                return;
-            }
+                let found = data.filter(p => p.patient_name && p.patient_name.toLowerCase().includes(query.toLowerCase()));
 
-            if (patientResults && patientResults.length > 0) {
-                let p = patientResults[0];
-                alert(`✅ تم العثور على المريض:\n\nالاسم: ${p.patient_name}\nالتليفون: ${p.phone || 'غير مسجل'}\nالتصنيف: ${p.category || 'غير محدد'}`);
-            } else {
-                alert('❌ لم يتم العثور على أي حالة مطابقة بهذا الاسم في قاعدة البيانات.');
+                if (found.length > 0) {
+                    let p = found[0];
+                    alert(`✅ تم العثور على الحالة:\n\nالاسم: ${p.patient_name}\nالتليفون: ${p.phone || 'غير مسجل'}\nالتصنيف: ${p.category || 'غير محدد'}`);
+                } else {
+                    alert('❌ لم يتم العثور على أي حالة مطابقة بهذا الاسم.');
+                }
+            } catch (err) {
+                alert('حدث خطأ غير متوقع أثناء البحث.');
             }
         }
 
