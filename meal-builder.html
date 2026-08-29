@@ -6,8 +6,20 @@
     <title>Dr. Shady Samir - بناء الخطط الغذائية الذكية (SQL & AI)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { 
+            --sidebar-bg: #0b1329; 
+            --main-bg: #f8fafc; 
+            --card-bg: #ffffff; 
+            --card-border: #e2e8f0; 
+            --primary-green: #10b981; 
+            --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            --ai-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            --whatsapp-color: #25D366;
+            --text-dark: #1e293b; 
+            --text-gray: #64748b; 
+        }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
@@ -15,25 +27,34 @@
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
         .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue, #3b82f6); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        .btn-logout { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .main-content { flex: 1; margin-right: 260px; padding: 30px; box-sizing: border-box; }
         
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
+        .top-header h1 { margin: 0; font-size: 22px; display: flex; align-items: center; gap: 10px; }
         
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
-        .btn-main { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .btn-main:hover { background-color: #059669; }
-        .btn-ai { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .btn-ai:hover { background-color: #2563eb; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px; }
+        .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+        .form-control { width: 100%; padding: 12px 15px; border: 2px solid var(--card-border); border-radius: 12px; font-size: 14px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
+        .form-control:focus { border-color: var(--primary-green); background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
+        
+        .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
+        .btn-main:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(16, 185, 129, 0.3); }
+        
+        .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
+        .btn-ai:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.3); }
+
+        .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
+        .btn-whatsapp:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 211, 102, 0.3); }
+
+        .preview-box { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; padding: 20px; border-radius: 14px; margin-top: 20px; }
     </style>
 </head>
 <body>
@@ -67,12 +88,12 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 بناء وتخصيص الخطط الغذائية الذكية (SQL & AI)</h1>
+            <h1>🥗 محطة بناء وتخصيص الخطط الغذائية الذكية (SQL & AI)</h1>
         </div>
 
         <div class="card">
             <div class="form-group">
-                <label>اختر الحالة / المريض:</label>
+                <label>👤 اختر الحالة أو المريض المستهدف:</label>
                 <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
                     <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
                 </select>
@@ -82,28 +103,28 @@
         <div class="card" id="planEditorCard" style="display:none;">
             <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
             
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
+            <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
+                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية ومخصصة بواسطة AI</button>
             </div>
 
             <div class="form-group">
-                <label>☀️ الخطة اليومية (السوائل / الوجبات الخفيفة):</label>
-                <textarea id="dailyPlanInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الخطة اليومية هنا..."></textarea>
+                <label>☀️ الخطة اليومية (السوائل، الوجبات الخفيفة، والتعليمات الصباحية):</label>
+                <textarea id="dailyPlanInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الخطة اليومية..."></textarea>
             </div>
 
             <div class="form-group">
-                <label>📅 الخطة الأسبوعية (الوجبات الكاملة والبدائل):</label>
-                <textarea id="weeklyPlanInput" class="form-control" rows="6" placeholder="اكتب تفاصيل الخطة الأسبوعية هنا..."></textarea>
+                <label>📅 الخطة الأسبوعية (الوجبات الكاملة والبدائل الذكية):</label>
+                <textarea id="weeklyPlanInput" class="form-control" rows="6" placeholder="اكتب تفاصيل الخطة الأسبوعية..."></textarea>
             </div>
 
             <div class="form-group">
-                <label>📝 ملاحظات الدكتور الإكلينيكية:</label>
-                <textarea id="doctorNotesInput" class="form-control" rows="2" placeholder="ملاحظات إضافية للحالة..."></textarea>
+                <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
+                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
             </div>
 
-            <div style="display:flex; gap:10px;">
+            <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:25px;">
                 <button type="button" class="btn-main" onclick="savePlanToSQL()">💾 حفظ الخطة في قاعدة بيانات SQL</button>
-                <button type="button" style="background:#25D366; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال عبر واتساب</button>
+                <button type="button" class="btn-whatsapp" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال الخطة عبر واتساب</button>
             </div>
         </div>
     </div>
@@ -144,26 +165,22 @@
             currentSelected = allPatientsData[idx];
             document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${currentSelected.patient_name || currentSelected.name}`;
             
-            document.getElementById('dailyPlanInput').value = currentSelected.daily_plan || currentSelected.diet_plan || '';
+            document.getElementById('dailyPlanInput').value = currentSelected.daily_plan || '';
             document.getElementById('weeklyPlanInput').value = currentSelected.weekly_plan || '';
-            document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentPatientNotes() || '';
+            document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
 
             document.getElementById('planEditorCard').style.display = 'block';
-        }
-
-        function currentPatientNotes() {
-            return currentSelected.notes || '';
         }
 
         function generateAIPlan() {
             if (!currentSelected) return;
             let cat = currentSelected.category || currentSelected.surgery_type || 'تكميم';
             
-            document.getElementById('dailyPlanInput').value = `🔹 الخطة اليومية المقترحة بواسطة AI (${cat}):\n- السوائل الشفافة والمياه: 2.5 لتر موزعة طوال اليوم.\n- البروتين السائل: شوربة صافية مع مكمل بروتين.`;
-            document.getElementById('weeklyPlanInput').value = `🔹 الخطة الأسبوعية المقترحة بواسطة AI:\n- الأيام (1-3): سوائل صافية وعصائر طبيعية مخففة.\n- الأيام (4-7): هجرس ومهروس خفيف مع التركيز على جرعات البروتين اليومية (60-90 جم).`;
-            document.getElementById('doctorNotesInput').value = `المريض تحت المتابعة الإكلينيكية، الالتزام بالتعليمات وتقليل السكريات.`;
+            document.getElementById('dailyPlanInput').value = `🔹 البرنامج اليومي المقترح (${cat}):\n- المياه والسوائل الشفافة: 2.5 لتر بانتظام.\n- مكملات البروتين والفيتامينات حسب الجدول الإكلينيكي.`;
+            document.getElementById('weeklyPlanInput').value = `🔹 البرنامج الأسبوعي للوجبات والبدائل:\n- الأيام الأولى: سوائل صافية ومهروس خفيف.\n- التدرج الصحي للوجبات الكاملة مع التركيز على البروتين وتجنب السكريات.`;
+            document.getElementById('doctorNotesInput').value = `الحالة مستقرة وتحتاج للالتزام بالتعليمات والجرعات المقررة.`;
             
-            alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح! يمكنك مراجعتها وتعديلها.');
+            alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح!');
         }
 
         async function savePlanToSQL() {
@@ -175,9 +192,9 @@
 
             let payload = {};
             if (currentSelected._table === 'patients') {
-                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n' + weekly, medical_history: notes };
+                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n\n' + weekly, medical_history: notes };
             } else {
-                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n' + weekly, notes: notes };
+                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n\n' + weekly, notes: notes };
             }
 
             const { error } = await supabaseClient.from(currentSelected._table).update(payload).eq('id', currentSelected.id);
@@ -186,7 +203,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ الخطة الغذائية والملاحظات في قاعدة بيانات SQL بنجاح!');
+            alert('✨ تم حفظ الخطة الغذائية والملاحظات في قاعدة بيانات SQL بنجاح وتحديث ملف المريض!');
         }
 
         function sendPlanWhatsAppFromBuilder() {
@@ -197,7 +214,7 @@
             let weekly = document.getElementById('weeklyPlanInput').value;
             let notes = document.getElementById('doctorNotesInput').value;
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الغذائية المخصصة لك من عيادة د. شادي سمير:\n\n☀️ الخطة اليومية:\n${daily}\n\n📅 الخطة الأسبوعية:\n${weekly}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير للتغذية العلاجية:\n\n☀️ الخطة اليومية:\n${daily}\n\n📅 الخطة الأسبوعية:\n${weekly}\n\n📝 ملاحظات الدكتور الإكلينيكية:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
             
             let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
