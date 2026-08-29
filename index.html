@@ -26,7 +26,6 @@
         .welcome-title-box { display: flex; align-items: center; gap: 15px; }
         .welcome-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
         
-        /* شريط البحث المطور بالزر */
         .search-bar-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .search-input { flex: 1; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
         .btn-search { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
@@ -89,7 +88,7 @@
             </div>
         </div>
 
-        <!-- شريط البحث المطور بالزر ودعم زر Enter -->
+        <!-- شريط البحث الشامل -->
         <div class="search-bar-box">
             <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
             <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة، رقم التليفون، أو الكود وابحث..." onkeydown="handleSearchKey(event)">
@@ -146,27 +145,26 @@
             let totalRecords = (patientsCount || 0) + (bariatricCount || 0);
             document.getElementById('totalPatientsCount').innerText = totalRecords;
 
+            // جلب البيانات الديناميكية وتجميعها تلقائياً بغض النظر عن المسمى المسجل
             const { data: patData } = await supabaseClient.from('patients').select('category');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('surgery_type');
 
-            let catCounts = { 'تكميم معدة': 0, 'تحويل مسار': 0, 'سمنة مفرطة': 0, 'نحافة': 0, 'أخرى': 0 };
-            
+            let dynamicCounts = {};
+
             if (patData) {
                 patData.forEach(p => {
-                    let c = p.category || 'أخرى';
-                    if (catCounts[c] !== undefined) catCounts[c]++;
-                    else catCounts['أخرى']++;
+                    let c = p.category ? p.category.trim() : 'أخرى';
+                    dynamicCounts[c] = (dynamicCounts[c] || 0) + 1;
                 });
             }
             if (barData) {
                 barData.forEach(b => {
-                    let s = b.surgery_type || 'تكميم معدة';
-                    if (catCounts[s] !== undefined) catCounts[s]++;
-                    else catCounts['تكميم معدة']++;
+                    let s = b.surgery_type ? b.surgery_type.trim() : 'جراحة عامة';
+                    dynamicCounts[s] = (dynamicCounts[s] || 0) + 1;
                 });
             }
 
-            renderChart(catCounts);
+            renderDynamicChart(dynamicCounts);
 
             const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(4);
             document.getElementById('totalApptsCount').innerText = apptsCount || 0;
@@ -194,19 +192,24 @@
             });
         }
 
-        function renderChart(counts) {
+        // رسم بياني ديناميكي يتكيف مع كل المسميات المسجلة في SQL
+        function renderDynamicChart(countsObj) {
             const ctx = document.getElementById('casesChart').getContext('2d');
             if (myChart) {
                 myChart.destroy();
             }
 
+            const labels = Object.keys(countsObj);
+            const dataValues = Object.values(countsObj);
+            const bgColors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+
             myChart = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: ['تكميم معدة', 'تحويل مسار', 'سمنة مفرطة', 'نحافة', 'أخرى'],
+                    labels: labels.length > 0 ? labels : ['لا توجد بيانات'],
                     datasets: [{
-                        data: [counts['تكميم معدة'], counts['تحويل مسار'], counts['سمنة مفرطة'], counts['نحافة'], counts['أخرى']],
-                        backgroundColor: ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6']
+                        data: dataValues.length > 0 ? dataValues : [1],
+                        backgroundColor: bgColors.slice(0, labels.length > 0 ? labels.length : 1)
                     }]
                 },
                 options: {
@@ -222,14 +225,12 @@
             });
         }
 
-        // تفعيل البحث بزر Enter
         function handleSearchKey(event) {
             if (event.key === 'Enter') {
                 executeGlobalSearch();
             }
         }
 
-        // تنفيذ البحث الشامل في قاعدة بيانات SQL
         async function executeGlobalSearch() {
             let query = document.getElementById('globalSearchInput').value.trim();
             if (!query) {
@@ -237,7 +238,6 @@
                 return;
             }
 
-            // البحث في جدول المرضى
             const { data: patientResults, error } = await supabaseClient
                 .from('patients')
                 .select('*')
