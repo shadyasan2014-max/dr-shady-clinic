@@ -36,7 +36,6 @@
         .metric-title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
         .metric-value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
 
-        /* الترتيب العمودي: تطور الوزن فوق، وتحته الخطة والملاحظات */
         .profile-stack { display: flex; flex-direction: column; gap: 15px; }
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); width: 100%; box-sizing: border-box; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
@@ -47,7 +46,6 @@
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
 
-        /* إعدادات الطباعة النظيفة وبدون مساحات فارغة */
         @media print {
             .sidebar, .patient-actions-top, .top-action-btn, button { display: none !important; }
             body { background-color: white !important; display: block !important; margin: 0 !important; }
@@ -312,13 +310,25 @@
         function sendPlanWhatsApp() {
             if (!activePatient) return;
             let phone = activePatient.phone;
+            if (!phone) {
+                alert('الرجاء التأكد من إدخال رقم الهاتف للحالة أولاً.');
+                return;
+            }
+
+            let cleanPhone = phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) {
+                cleanPhone = '2' + cleanPhone;
+            } else if (!cleanPhone.startsWith('20')) {
+                cleanPhone = '20' + cleanPhone;
+            }
+
             let name = activePatient.patient_name || activePatient.name || 'العزيز';
             let dietPlan = activePatient.diet_plan || 'التزم بالتعليمات الطبية الموصوفة.';
             let notes = activePatient.medical_history || activePatient.notes || '';
 
             let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير:\n\n🥗 الخطة الغذائية:\n${dietPlan}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
             
-            let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
+            let whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
         }
 
