@@ -24,21 +24,18 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
         
-        /* بطاقة المريض العلوية الفخمة */
         .patient-header-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
         .patient-info-box { display: flex; align-items: center; gap: 20px; }
         .patient-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); }
-        .patient-actions-top { display: flex; gap: 12px; }
+        .patient-actions-top { display: flex; gap: 10px; }
         .top-action-btn { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 10px; font-size: 12px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 4px; color: var(--text-dark); transition: 0.2s; }
         .top-action-btn:hover { background: #e0f2fe; border-color: #3b82f6; color: #0369a1; }
 
-        /* شبكة المؤشرات العلوية */
         .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 15px; }
         .metric-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .metric-title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
         .metric-value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
 
-        /* التخطيط الثنائي */
         .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); margin-bottom: 15px; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
@@ -48,25 +45,18 @@
         .sub-metric-title { font-size: 10px; color: var(--text-gray); }
         .sub-metric-val { font-size: 14px; font-weight: bold; color: var(--text-dark); margin-top: 3px; }
 
-        /* إعدادات الطباعة الرسمية (تخفي القائمة والـ Sidebar والأزرار تماماً وتظبط الـ A4) */
+        /* نافذة التعديل المنبثقة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+
         @media print {
-            .sidebar, .patient-actions-top, .top-action-btn, button {
-                display: none !important;
-            }
-            body {
-                background-color: white !important;
-                display: block !important;
-            }
-            .main-content {
-                margin-right: 0 !important;
-                padding: 0 !important;
-                width: 100% !important;
-            }
-            .patient-header-card, .metrics-grid, .card {
-                border: 1px solid #cbd5e1 !important;
-                box-shadow: none !important;
-                break-inside: avoid;
-            }
+            .sidebar, .patient-actions-top, .top-action-btn, button { display: none !important; }
+            body { background-color: white !important; display: block !important; }
+            .main-content { margin-right: 0 !important; padding: 0 !important; width: 100% !important; }
+            .patient-header-card, .metrics-grid, .card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; break-inside: avoid; }
         }
     </style>
 </head>
@@ -103,32 +93,31 @@
         <!-- بطاقة رأس الحالة -->
         <div class="patient-header-card">
             <div class="patient-info-box">
-                <img src="logo.jpeg" alt="Patient" class="patient-avatar" id="pAvatar">
+                <img src="logo.jpeg" alt="Patient" class="patient-avatar">
                 <div>
-                    <h2 style="margin:0; font-size: 20px;" id="pName">جاري تحميل اسم الحالة...</h2>
-                    <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-gray);" id="pSubInfo">الكود: NUT-000125 | الحالة: نشط ومتتابع</p>
+                    <h2 style="margin:0; font-size: 20px;" id="pName">جاري التحميل...</h2>
+                    <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-gray);" id="pSubInfo">الكود: NUT-000125 | الحالة: نشط</p>
                 </div>
             </div>
             <div class="patient-actions-top">
+                <button class="top-action-btn" onclick="openEditModal()"><span>✏️</span> تعديل الحالة</button>
+                <button class="top-action-btn" onclick="sendPlanWhatsApp()"><span>💬</span> إرسال الخطة</button>
                 <button class="top-action-btn" onclick="window.print()"><span>🖨️</span> طباعة التقرير</button>
-                <button class="top-action-btn" onclick="alert('تم إرسال الخطة بنجاح')"><span>💬</span> إرسال الخطة</button>
-                <button class="top-action-btn" onclick="alert('التنبيهات مفعلة')"><span>🔔</span> تنبيه</button>
             </div>
         </div>
 
         <!-- مؤشرات القياسات العلوية الـ 6 -->
         <div class="metrics-grid">
-            <div class="metric-card"><div class="metric-title">نوع العملية / التصنيف</div><div class="metric-value" id="mType" style="font-size:14px; color:var(--accent-blue);">تكميم معدة</div></div>
-            <div class="metric-card"><div class="metric-title">وزن البداية</div><div class="metric-value" id="mStartWeight">107.0 كجم</div></div>
-            <div class="metric-card"><div class="metric-title">الوزن الحالي</div><div class="metric-value" id="mCurrentWeight" style="color:var(--primary-green);">92.4 كجم</div></div>
-            <div class="metric-card"><div class="metric-title">مؤشر كتلة الجسم BMI</div><div class="metric-value" id="mBMI">28.9</div></div>
-            <div class="metric-card"><div class="metric-title">إجمالي النزول</div><div class="metric-value" id="mTotalLoss" style="color:var(--primary-green);">-14.6 كجم</div></div>
+            <div class="metric-card"><div class="metric-title">نوع العملية / التصنيف</div><div class="metric-value" id="mType" style="font-size:14px; color:var(--accent-blue);">-</div></div>
+            <div class="metric-card"><div class="metric-title">وزن البداية</div><div class="metric-value" id="mStartWeight">-</div></div>
+            <div class="metric-card"><div class="metric-title">الوزن الحالي</div><div class="metric-value" id="mCurrentWeight" style="color:var(--primary-green);">-</div></div>
+            <div class="metric-card"><div class="metric-title">مؤشر كتلة الجسم BMI</div><div class="metric-value" id="mBMI">-</div></div>
+            <div class="metric-card"><div class="metric-title">إجمالي النزول</div><div class="metric-value" id="mTotalLoss" style="color:var(--primary-green);">-</div></div>
             <div class="metric-card"><div class="metric-title">رقم الهاتف</div><div class="metric-value" id="mPhone" style="font-size:13px;">-</div></div>
         </div>
 
-        <!-- اللوحة الثنائية: تطور الوزن والتقييم الإكلينيكي -->
+        <!-- اللوحة الثنائية -->
         <div class="profile-grid">
-            <!-- كارت تطور الوزن (Chart.js) -->
             <div class="card">
                 <h3>📈 تطور الوزن (منحنى المتابعة الحية)</h3>
                 <div style="height: 220px; position: relative;">
@@ -136,7 +125,6 @@
                 </div>
             </div>
 
-            <!-- كارت التقييم الغذائي ونمط الحياة -->
             <div class="card">
                 <h3>🥗 التقييم الغذائي ونمط الحياة الحالي</h3>
                 <div class="sub-metrics-grid">
@@ -146,11 +134,28 @@
                 </div>
 
                 <h3 style="margin-top:15px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية</h3>
-                <p id="pNotes" style="font-size:12px; line-height:1.6; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">
-                    المريض ملتزم بالتعليمات الإكلينيكية، الاستمرار على نفس الخطة مع زيادة نسبة البروتينات اليومية والتركيز على شرب المياه.
-                </p>
+                <p id="pNotes" style="font-size:12px; line-height:1.6; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">جاري تحميل الملاحظات...</p>
                 <button onclick="window.print()" class="top-action-btn" style="width:100%; margin-top:10px; background:var(--primary-green); color:white; border:none; padding:10px; font-weight:bold;">🖨️ طباعة تقرير الحالة الرسمي</button>
             </div>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل بيانات الحالة -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة</h3>
+            <form onsubmit="savePatientEdits(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
+                <div class="form-group"><label>التصنيف / العملية:</label><input type="text" id="editCategory" class="form-control" required></div>
+                <div class="form-group"><label>الوزن الحالي (كجم):</label><input type="number" step="0.1" id="editWeight" class="form-control" required></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control"></div>
+                <div class="form-group"><label>ملاحظات الدكتور الإكلينيكية:</label><textarea id="editNotes" class="form-control" rows="3"></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
+                    <button type="button" onclick="closeEditModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -158,6 +163,9 @@
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let activePatient = null;
+        let activeTable = 'patients';
 
         async function loadPatientProfile() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -167,30 +175,88 @@
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
             let allCases = [];
-            if (patData) allCases = allCases.concat(patData);
-            if (barData) allCases = allCases.concat(barData);
+            if (patData) patData.forEach(p => allCases.push({ ...p, _table: 'patients' }));
+            if (barData) barData.forEach(b => allCases.push({ ...b, _table: 'bariatric_cases' }));
 
             if (allCases.length === 0) return;
 
-            let currentPatient = allCases[0];
+            activePatient = allCases[0];
             if (targetName) {
                 let found = allCases.find(x => (x.patient_name || x.name || '').toLowerCase().includes(targetName.toLowerCase()));
-                if (found) currentPatient = found;
+                if (found) activePatient = found;
             }
 
-            let name = currentPatient.patient_name || currentPatient.name || 'مريض بدون اسم';
-            let category = currentPatient.category || currentPatient.surgery_type || 'متابعة تغذية';
-            let phone = currentPatient.phone || 'غير مسجل';
-            let weight = currentPatient.weight ? currentPatient.weight : '92.4';
-            let notes = currentPatient.medical_history || currentPatient.notes || 'لا توجد ملاحظات إكلينيكية مسجلة حالياً.';
+            activeTable = activePatient._table;
+
+            let name = activePatient.patient_name || activePatient.name || 'مريض بدون اسم';
+            let category = activePatient.category || activePatient.surgery_type || 'متابعة تغذية';
+            let phone = activePatient.phone || 'غير مسجل';
+            let weight = activePatient.weight ? activePatient.weight : 111;
+            let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات إكلينيكية مسجلة حالياً.';
 
             document.getElementById('pName').innerText = name;
             document.getElementById('mType').innerText = category;
             document.getElementById('mCurrentWeight').innerText = weight + ' كجم';
             document.getElementById('mPhone').innerText = phone;
             document.getElementById('pNotes').innerText = notes;
+            document.getElementById('mStartWeight').innerText = '107.0 كجم';
+            document.getElementById('mBMI').innerText = '28.9';
+            document.getElementById('mTotalLoss').innerText = '-14.6 كجم';
 
             renderWeightChart();
+        }
+
+        function openEditModal() {
+            if (!activePatient) return;
+            document.getElementById('editName').value = activePatient.patient_name || activePatient.name || '';
+            document.getElementById('editCategory').value = activePatient.category || activePatient.surgery_type || '';
+            document.getElementById('editWeight').value = activePatient.weight || '';
+            document.getElementById('editPhone').value = activePatient.phone || '';
+            document.getElementById('editNotes').value = activePatient.medical_history || activePatient.notes || '';
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function savePatientEdits(e) {
+            e.preventDefault();
+            let name = document.getElementById('editName').value;
+            let category = document.getElementById('editCategory').value;
+            let weight = parseFloat(document.getElementById('editWeight').value);
+            let phone = document.getElementById('editPhone').value;
+            let notes = document.getElementById('editNotes').value;
+
+            let payload = {};
+            if (activeTable === 'patients') {
+                payload = { patient_name: name, category: category, weight: weight, phone: phone, medical_history: notes };
+            } else {
+                payload = { patient_name: name, surgery_type: category, weight: weight, phone: phone, notes: notes };
+            }
+
+            const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
+            if (error) {
+                alert('حدث خطأ أثناء حفظ التعديلات: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم تحديث بيانات الحالة وحفظها في قاعدة بيانات SQL بنجاح!');
+            closeEditModal();
+            loadPatientProfile();
+        }
+
+        // تفعيل زر إرسال الخطة عبر واتساب
+        function sendPlanWhatsApp() {
+            if (!activePatient) return;
+            let phone = activePatient.phone;
+            let name = activePatient.patient_name || activePatient.name || 'العزيز';
+            let notes = activePatient.medical_history || activePatient.notes || 'الالتزام بالتعليمات الطبية والبروتين.';
+
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير للتغذية العلاجية وجراحات السمنة:\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
+            
+            let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, '_blank');
         }
 
         function renderWeightChart() {
@@ -201,7 +267,7 @@
                     labels: ['01/08', '15/08', '29/08', '12/09', '26/09', 'الحالي'],
                     datasets: [{
                         label: 'تطور الوزن (كجم)',
-                        data: [107.0, 103.5, 100.8, 98.9, 96.1, 92.4],
+                        data: [107.0, 103.5, 100.8, 98.9, 96.1, activePatient && activePatient.weight ? activePatient.weight : 111],
                         borderColor: '#10b981',
                         backgroundColor: 'rgba(16, 185, 129, 0.1)',
                         borderWidth: 3,
