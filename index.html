@@ -26,9 +26,12 @@
         .welcome-title-box { display: flex; align-items: center; gap: 15px; }
         .welcome-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
         
+        /* شريط البحث المطور بالزر */
         .search-bar-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .search-input { flex: 1; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
-        
+        .search-input { flex: 1; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
+        .btn-search { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-search:hover { background-color: #2563eb; }
+
         .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; text-align: center; }
         .stat-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
@@ -86,10 +89,11 @@
             </div>
         </div>
 
-        <!-- شريط البحث الشامل -->
+        <!-- شريط البحث المطور بالزر ودعم زر Enter -->
         <div class="search-bar-box">
             <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
-            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة أو رقم التليفون للبحث...">
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة، رقم التليفون، أو الكود وابحث..." onkeydown="handleSearchKey(event)">
+            <button class="btn-search" onclick="executeGlobalSearch()">بحث 🔎</button>
         </div>
 
         <div class="stats-grid">
@@ -100,7 +104,6 @@
         </div>
 
         <div class="dashboard-grid">
-            <!-- الرسم البياني الحي والمصحح -->
             <div class="card">
                 <h3>⚖️ توزيع الحالات وجراحات السمنة (تحليل حي)</h3>
                 <div style="width: 250px; height: 220px; margin: 0 auto; position: relative;">
@@ -137,14 +140,12 @@
         async function loadDashboardReports() {
             document.getElementById('currentDateBadge').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            // 1. جلب إجمالي المرضى وحالات جراحات السمنة لضمان حساب العدد الحقيقي بدقة
             const { count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
             const { count: bariatricCount } = await supabaseClient.from('bariatric_cases').select('*', { count: 'exact', head: true });
             
             let totalRecords = (patientsCount || 0) + (bariatricCount || 0);
             document.getElementById('totalPatientsCount').innerText = totalRecords;
 
-            // 2. جلب بيانات التصنيفات للـ Chart
             const { data: patData } = await supabaseClient.from('patients').select('category');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('surgery_type');
 
@@ -167,7 +168,6 @@
 
             renderChart(catCounts);
 
-            // 3. المواعيد والتحاليل
             const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(4);
             document.getElementById('totalApptsCount').innerText = apptsCount || 0;
 
@@ -220,6 +220,40 @@
                     }
                 }
             });
+        }
+
+        // تفعيل البحث بزر Enter
+        function handleSearchKey(event) {
+            if (event.key === 'Enter') {
+                executeGlobalSearch();
+            }
+        }
+
+        // تنفيذ البحث الشامل في قاعدة بيانات SQL
+        async function executeGlobalSearch() {
+            let query = document.getElementById('globalSearchInput').value.trim();
+            if (!query) {
+                alert('الرجاء إدخال اسم الحالة أو رقم التليفون للبحث.');
+                return;
+            }
+
+            // البحث في جدول المرضى
+            const { data: patientResults, error } = await supabaseClient
+                .from('patients')
+                .select('*')
+                .or(`patient_name.ilike.%${query}%,phone.ilike.%${query}%`);
+
+            if (error) {
+                alert('حدث خطأ أثناء البحث.');
+                return;
+            }
+
+            if (patientResults && patientResults.length > 0) {
+                let p = patientResults[0];
+                alert(`✅ تم العثور على المريض:\n\nالاسم: ${p.patient_name}\nالتليفون: ${p.phone}\nالتصنيف: ${p.category || 'غير محدد'}\nالعمر: ${p.age || '-'}`);
+            } else {
+                alert('❌ لم يتم العثور على أي حالة مطابقة للبحث في قاعدة البيانات.');
+            }
         }
 
         window.onload = function() {
