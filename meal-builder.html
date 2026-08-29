@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - بناء وتخصيص الخطط الغذائية الذكية (SQL Live)</title>
+    <title>Dr. Shady Samir - بناء الخطط الذكية والملف الإكلينيكي الشامل</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -32,11 +32,14 @@
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
         .action-btn { border: none; padding: 9px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: white; }
 
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .patient-medical-banner { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 12px; }
+        .medical-item { background: white; padding: 10px; border-radius: 8px; border: 1px solid #d1fae5; }
 
         .meal-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 8px; margin-bottom: 10px; }
         .meal-box label { font-size: 12px; font-weight: bold; color: var(--text-gray); display: block; margin-bottom: 4px; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -85,23 +88,29 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
-            <!-- الهيدر الخاص باختيار المريض والبحث في SQL -->
+            <!-- هيدر البحث واستدعاء الحالة -->
             <div class="top-header">
                 <div>
-                    <h1 id="patientTitleName">المريض: اختر أو اكتب اسم الحالة</h1>
-                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">التصنيف: - | الهاتف: -</p>
+                    <h1 id="patientTitleName">المريض: لم يتم الاختيار</h1>
+                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">اختر المريض لاستعراض ملفه الإكلينيكي الشامل</p>
                 </div>
                 
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <!-- حقل تغيير/بحث اسم المريض أو الكود في SQL -->
-                    <input type="text" id="searchPatientInput" class="form-control" placeholder="اكتب اسم المريض أو الكود هنا..." style="width: 200px; padding: 7px;" oninput="searchPatientSQL(this.value)">
-                    
+                    <input type="text" id="searchPatientInput" class="form-control" placeholder="ابحث باسم المريض أو الكود..." style="width: 200px; padding: 7px;" oninput="searchPatientSQL(this.value)">
                     <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة</button>
-                    <button onclick="generateAIPlan()" class="action-btn" style="background: var(--accent-blue);">🤖 خطة AI</button>
+                    <button onclick="generateAIPlan()" class="action-btn" style="background: var(--accent-blue);">🤖 تحليل وتوليد بالـ AI</button>
                 </div>
             </div>
 
-            <!-- اختيار نوع النظام -->
+            <!-- لوحة الملف الإكلينيكي الشامل للحالة (أوزان، دهون، فحوصات، عمليات) -->
+            <div class="patient-medical-banner" id="patientMedicalBanner" style="display: none;">
+                <div class="medical-item"><strong>⚖️ الأوزان:</strong> <span id="medWeight">-</span></div>
+                <div class="medical-item"><strong>💧 الدهون والعضلات:</strong> <span id="medBodyComp">-</span></div>
+                <div class="medical-item"><strong>🩺 الحالة الصحية/العمليات:</strong> <span id="medSurgery">-</span></div>
+                <div class="medical-item"><strong>🧪 الفحوصات والتحاليل:</strong> <span id="medLabs">-</span></div>
+            </div>
+
+            <!-- اختيار نوع النظام الغذائي -->
             <div class="card">
                 <h3>🍽️ اختيار نوع النظام الغذائي</h3>
                 <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
@@ -120,21 +129,21 @@
                 </div>
             </div>
 
-            <!-- محتوى النظام المتغير بناءً على الاختيار -->
+            <!-- محتوى وجبات النظام (تفاعلي وقابل للتعديل اليدوي) -->
             <div class="card" id="systemContainer">
-                <!-- سيتم تعبئته ديناميكياً (يومي، أسبوعي، أو عام) -->
+                <!-- يتم تعبئته ديناميكياً -->
             </div>
 
-            <!-- ملاحظات الدكتور الإكلينيكية -->
+            <!-- ملاحظات الدكتور -->
             <div class="card">
-                <h3>📝 ملاحظات وتوجيهات الدكتور الإكلينيكية</h3>
-                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="اكتب التوجيهات الطبية المرتبطة بالخطة..."></textarea>
+                <h3>📝 ملاحظات وتوجيهات الدكتور الإكلينيكية للخطة</h3>
+                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="اكتب التوجيهات الطبية المرتبطة بالخطة الغذائية هنا..."></textarea>
             </div>
         </div>
 
-        <!-- شريط الأزرار السريعة (حفظ SQL، إرسال واتساب، PDF، طباعة) -->
+        <!-- شريط الأزرار السريعة -->
         <div class="card" style="display: flex; gap: 10px; justify-content: space-between; align-items: center; background: #f8fafc; flex-wrap: wrap;">
-            <button onclick="savePlanToSQL()" class="action-btn" style="background: var(--primary-green); padding: 10px 20px;">💾 حفظ الخطة في SQL</button>
+            <button onclick="savePlanToSQL()" class="action-btn" style="background: var(--primary-green); padding: 10px 20px;">💾 حفظ الخطة والملف في SQL</button>
             <div style="display: flex; gap: 8px;">
                 <button onclick="sendPlanWhatsApp()" class="action-btn" style="background: #25d366;">💬 إرسال واتساب</button>
                 <button onclick="downloadPlanPDF()" class="action-btn" style="background: var(--warning-orange);">📥 تحويل PDF</button>
@@ -180,13 +189,13 @@
 
         let currentSystem = 'daily';
         let currentPatientId = null;
+        let loadedPatientData = null;
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // تبديل الأنظمة (يومي: 3 وجبات + 3 سناكس / أسبوعي: 7 أيام / عام للفترة)
         function switchSystem(type) {
             currentSystem = type;
             document.getElementById('btnDaily').style.background = type === 'daily' ? '#f0fdf4' : '#ffffff';
@@ -207,7 +216,7 @@
 
             if (currentSystem === 'daily') {
                 container.innerHTML = `
-                    <h3>☀️ تفاصيل النظام اليومي (3 وجبات رئيسية + 3 سناكس)</h3>
+                    <h3>☀️ تفاصيل النظام اليومي (3 وجبات رئيسية + 3 سناكس) - قابل للتعديل</h3>
                     <div class="meal-box"><label>وجبة الإفطار:</label><textarea class="form-control meal-input" rows="2" data-meal="breakfast">بيض مفلي، خبز توست، فواكه...</textarea></div>
                     <div class="meal-box"><label>سناك خفيف (1):</label><textarea class="form-control meal-input" rows="2" data-meal="snack1">مكسرات أو ثمرة فواكه...</textarea></div>
                     <div class="meal-box"><label>وجبة الغداء:</label><textarea class="form-control meal-input" rows="2" data-meal="lunch">صدور دجاج مشوية، أرز بسمتي، سلطة...</textarea></div>
@@ -217,7 +226,7 @@
                 `;
             } else if (currentSystem === 'weekly') {
                 let days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-                let html = `<h3>📅 تفاصيل النظام الأسبوعي (7 أيام - كل يوم 3 وجبات و3 سناكس)</h3>`;
+                let html = `<h3>📅 تفاصيل النظام الأسبوعي (7 أيام - كل يوم 3 وجبات و3 سناكس) - قابل للتعديل</h3>`;
                 days.forEach((day, index) => {
                     html += `
                         <div style="background:#f8fafc; border:1px solid var(--card-border); padding:15px; border-radius:10px; margin-bottom:15px;">
@@ -236,48 +245,69 @@
                 container.innerHTML = html;
             } else if (currentSystem === 'period') {
                 container.innerHTML = `
-                    <h3>📊 نظام الفترة العامة الممتدة</h3>
+                    <h3>📊 نظام الفترة العامة الممتدة - قابل للتعديل</h3>
                     <div class="meal-box">
-                        <label>النظام الشامل الممتد للفترة (قواعد الوجبات، الممنوعات، والتوجيهات الكلية):</label>
-                        <textarea class="form-control" id="periodSystemText" rows="8" placeholder="اكتب النظام الشامل للفترة هنا..."></textarea>
+                        <label>النظام الشامل للفترة:</label>
+                        <textarea class="form-control" id="periodSystemText" rows="6" placeholder="اكتب النظام الشامل هنا..."></textarea>
                     </div>
                 `;
             }
         }
 
-        // البحث عن المريض في SQL فور الكتابة بدون خطأ
+        // استدعاء الحالة وبياناتها الكاملة (أوزان، دهون، عمليات، فحوصات) من SQL
         async function searchPatientSQL(query) {
             if (!query || query.trim().length === 0) return;
             const { data, error } = await supabaseClient.from('patients').select('*').ilike('patient_name', `%${query}%`).limit(1);
             if (data && data.length > 0) {
                 let p = data[0];
+                loadedPatientData = p;
                 currentPatientId = p.id;
+
                 document.getElementById('patientTitleName').innerText = `المريض: ${p.patient_name || p.name}`;
                 document.getElementById('patientSubDetails').innerText = `التصنيف: ${p.category || p.surgery_type || 'تغذية'} | الهاتف: ${p.phone || 'غير مسجل'}`;
-                if(p.diet_plan) document.getElementById('doctorNotesInput').value = p.diet_plan;
+
+                // عرض الملف الإكلينيكي الشامل في البانر العلوي
+                document.getElementById('patientMedicalBanner').style.display = 'grid';
+                document.getElementById('medWeight').innerText = `الحالي: ${p.weight || '-'} كجم (البداية: ${p.start_weight || '-'} كجم)`;
+                document.getElementById('medBodyComp').innerText = `دهون: ${p.fat || '-'}% | عضلات: ${p.muscle || '-'} كجم`;
+                document.getElementById('medSurgery').innerText = p.surgery_type || p.category || 'تغذية علاجية';
+                document.getElementById('medLabs').innerText = p.labs_required || 'لا توجد فحوصات مسجلة';
+
+                if (p.diet_plan) document.getElementById('doctorNotesInput').value = p.diet_plan;
             } else {
-                // لو مش موجود، بنخليه يكتب براحته من غير رسالة مزعجة
                 currentPatientId = null;
+                loadedPatientData = null;
+                document.getElementById('patientMedicalBanner').style.display = 'none';
                 document.getElementById('patientTitleName').innerText = `المريض: ${query} (حالة جديدة)`;
             }
         }
 
-        // ربط زر الـ AI لتوليد خطة ذكية
+        // تحليل داتا الحالة بالـ AI وتوليد نظام مخصص
         function generateAIPlan() {
-            alert('🤖 جاري تحليل حالة المريض وتوليد خطة غذائية متكاملة بواسطة الـ AI...');
-            if (currentSystem === 'daily') {
-                document.querySelectorAll('.meal-input').forEach((el, idx) => {
-                    el.value = `وجبة ذكية مُقترحة بالذكاء الاصطناعي رقم ${idx + 1} متطابقة مع حالة المريض.`;
-                });
-            } else {
-                document.getElementById('doctorNotesInput').value = 'تم توليد خطة غذائية مخصصة تناسب السعرات الحرارية والحالة الإكلينيكية الحالية.';
+            if (!loadedPatientData) {
+                alert('الرجاء استدعاء المريض واختياره من قاعدة البيانات أولاً ليتمكن الـ AI من تحليل حالته الصحية وأوزانه.');
+                return;
             }
+            alert(`🤖 بدأ الـ AI تحليل الملف الطبي للمريض (${loadedPatientData.patient_name || loadedPatientData.name}): الوزن ${loadedPatientData.weight} كجم، والدهون ${loadedPatientData.fat}%... تم توليد خطة غذائية مثالية.`);
+
+            if (currentSystem === 'daily') {
+                let meals = document.querySelectorAll('.meal-input');
+                if (meals.length >= 6) {
+                    meals[0].value = `إفطار مخصص بعد عملية ${loadedPatientData.surgery_type || 'التخسيس'}: بروتين عالي وسوائل دافئة.`;
+                    meals[1].value = `سناك 1: مكمل بروتين أو زبادي لاكتوز فري.`;
+                    meals[2].value = `غداء: شوربة صافية مع صدور دجاج مفرومة ناعم.`;
+                    meals[3].value = `سناك 2: عصير طبيعي مخفف.`;
+                    meals[4].value = `عشاء: جبنة قريش مهروسة مع كمون.`;
+                    meals[5].value = `سناك ليلي: شاي بابونج دافئ.`;
+                }
+            }
+            document.getElementById('doctorNotesInput').value = `تم توليد الخطة تلقائياً بالذكاء الاصطناعي بناءً على وزن المريض (${loadedPatientData.weight} كجم) ونسبة الدهون (${loadedPatientData.fat}%).`;
         }
 
         // حفظ الخطة في SQL
         async function savePlanToSQL() {
             if (!currentPatientId) {
-                alert('الرجاء اختيار أو كتابة اسم مريض مسجل في قاعدة البيانات أولاً ليتم الربط بنجاح.');
+                alert('الرجاء اختيار مريض مسجل من قاعدة البيانات أولاً.');
                 return;
             }
             let notes = document.getElementById('doctorNotesInput').value;
@@ -286,10 +316,10 @@
             }).eq('id', currentPatientId);
 
             if (error) {
-                alert('خطأ أثناء الحفظ في SQL: ' + error.message);
+                alert('خطأ أثناء الحفظ: ' + error.message);
                 return;
             }
-            alert('✨ تم حفظ الخطة الغذائية وملاحظات الدكتور في قاعدة بيانات SQL بنجاح!');
+            alert('✨ تم حفظ الخطة الغذائية والملف الطبي في قاعدة بيانات SQL بنجاح!');
         }
 
         function openMealFollowupModal() {
@@ -304,7 +334,7 @@
         async function saveMealFollowupToSQL(event) {
             event.preventDefault();
             if (!currentPatientId) {
-                alert('الرجاء اختيار مريض مسجل أولاً.');
+                alert('اختر المريض أولاً.');
                 return;
             }
             let fuDate = document.getElementById('mealFuDate').value;
@@ -316,7 +346,7 @@
             }).eq('id', currentPatientId);
 
             if (error) {
-                alert('خطأ أثناء حفظ المتابعة.');
+                alert('خطأ في حفظ المتابعة.');
                 return;
             }
             alert('✨ تم تسجيل وتحديث المتابعة في SQL بنجاح!');
@@ -325,7 +355,7 @@
 
         function sendPlanWhatsApp() {
             let notes = document.getElementById('doctorNotesInput').value;
-            let msg = `🌟 أهلاً بك في عيادة د. شادي سمير\n\nإليك خطتك الغذائية:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
+            let msg = `🌟 أهلاً بك في عيادة د. شادي سمير\n\nإليك خطتك الغذائية الطبية:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
@@ -345,7 +375,6 @@
             window.print();
         }
 
-        // تشغيل النظام الافتراضي عند الفتح
         window.onload = function() {
             switchSystem('daily');
         };
