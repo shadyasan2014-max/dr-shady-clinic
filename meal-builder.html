@@ -88,21 +88,22 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
-            <!-- الهيدر الخاص باختيار أو استعراض كل الحالات من SQL -->
+            <!-- الهيدر الخاص باختيار الحالة وزرار البحث -->
             <div class="top-header">
                 <div>
                     <h1 id="patientTitleName">المريض: اختر الحالة المسجلة</h1>
-                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">استعراض تفصيلي لبيانات الحالة والفحوصات والأوزان</p>
+                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">استعراض تفصيلي لبيانات الحالة والفحوصات والنظام السابق</p>
                 </div>
                 
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <!-- قائمة منسدلة تجلب كل الحالات من SQL -->
-                    <select id="patientSelectDropdown" class="form-control" style="width: 220px; padding: 7px;" onchange="selectPatientFromDropdown(this.value)">
-                        <option value="">-- اختر الحالة المسجلة --</option>
+                    <select id="patientSelectDropdown" class="form-control" style="width: 180px; padding: 7px;">
+                        <option value="">-- اختر الحالة --</option>
                     </select>
+                    <!-- زرار البحث الجديد -->
+                    <button onclick="searchAndLoadPatient()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
                     
                     <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة</button>
-                    <button onclick="generateAIPlan()" class="action-btn" style="background: var(--accent-blue);">🤖 تحليل بالـ AI</button>
+                    <button onclick="generateAIPlan()" class="action-btn" style="background: var(--warning-orange);">🤖 تحليل بالـ AI</button>
                 </div>
             </div>
 
@@ -114,9 +115,15 @@
                 <div class="medical-item"><strong>🧪 الفحوصات والتحاليل:</strong> <span id="medLabs">-</span></div>
             </div>
 
+            <!-- صندوق عرض النظام السابق للمريض -->
+            <div class="card" id="previousPlanCard" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe;">
+                <h3 style="color: #1e40af; border-bottom-color: #bfdbfe;">📋 النظام الغذائي السابق المسجل للمريض</h3>
+                <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
+            </div>
+
             <!-- اختيار نوع النظام الغذائي -->
             <div class="card">
-                <h3>🍽️ اختيار نوع النظام الغذائي</h3>
+                <h3>🍽️ اختيار نوع النظام الغذائي الجديد</h3>
                 <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
                     <div id="btnDaily" style="background:#f0fdf4; border:2px solid #bbf7d0; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('daily')">
                         <strong style="color:#166534; font-size:13px; display:block; margin-bottom:3px;">☀️ نظام يومي (يوم واحد)</strong>
@@ -138,7 +145,7 @@
 
             <!-- ملاحظات الدكتور -->
             <div class="card">
-                <h3>📝 ملاحظات وتوجيهات الدكتور الإكلينيكية للخطة</h3>
+                <h3>📝 ملاحظات وتوجيهات الدكتور الإكلينيكية للخطة الجديدة</h3>
                 <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="اكتب التوجيهات الطبية المرتبطة بالخطة الغذائية هنا..."></textarea>
             </div>
         </div>
@@ -199,7 +206,6 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // جلب كل الحالات المسجلة من قواعد بيانات SQL فور فتح الصفحة
         async function loadAllPatientsFromSQL() {
             const { data: patData } = await supabaseClient.from('patients').select('*');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
@@ -209,7 +215,7 @@
             if (barData) barData.forEach(b => allPatientsList.push({ ...b, _table: 'bariatric_cases' }));
 
             let dropdown = document.getElementById('patientSelectDropdown');
-            dropdown.innerHTML = '<option value="">-- اختر الحالة المسجلة --</option>';
+            dropdown.innerHTML = '<option value="">-- اختر الحالة --</option>';
 
             allPatientsList.forEach((p, idx) => {
                 let name = p.patient_name || p.name || 'بدون اسم';
@@ -218,9 +224,15 @@
             });
         }
 
-        function selectPatientFromDropdown(index) {
-            if (index === "") return;
-            let p = allPatientsList[index];
+        // زرار البحث واستدعاء الحالة والنظام السابق
+        function searchAndLoadPatient() {
+            let dropdownIdx = document.getElementById('patientSelectDropdown').value;
+            if (dropdownIdx === "") {
+                alert('الرجاء اختيار حالة من القائمة أولاً.');
+                return;
+            }
+
+            let p = allPatientsList[dropdownIdx];
             loadedPatientData = p;
             currentPatientId = p.id;
 
@@ -234,7 +246,16 @@
             document.getElementById('medSurgery').innerText = p.surgery_type || p.category || 'تغذية علاجية';
             document.getElementById('medLabs').innerText = p.labs_required || 'لا توجد فحوصات مسجلة';
 
-            if (p.diet_plan) document.getElementById('doctorNotesInput').value = p.diet_plan;
+            // استعراض النظام السابق لو موجود
+            if (p.diet_plan) {
+                document.getElementById('previousPlanCard').style.display = 'block';
+                document.getElementById('previousPlanText').innerText = p.diet_plan;
+            } else {
+                document.getElementById('previousPlanCard').style.display = 'block';
+                document.getElementById('previousPlanText').innerText = 'لا توجد خطة سابقة مسجلة لهذا المريض.';
+            }
+
+            alert(`✨ تم استدعاء بيانات الحالة والنظام السابق للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
         function switchSystem(type) {
@@ -295,19 +316,18 @@
             }
         }
 
-        // تحليل داتا الحالة بالـ AI وتوليد نظام مخصص بناءً على الأوزان والدهون والفحوصات
         function generateAIPlan() {
             if (!loadedPatientData) {
-                alert('الرجاء اختيار مريض من القائمة أولاً ليتمكن الـ AI من تحليل ملفه الطبي وإعطاء نظام مخصص.');
+                alert('الرجاء اختيار مريض والضغط على زر البحث أولاً ليتمكن الـ AI من تحليل حالته.');
                 return;
             }
-            alert(`🤖 بدأ الـ AI تحليل الملف الطبي للمريض: الوزن ${loadedPatientData.weight} كجم، الدهون ${loadedPatientData.fat}%، الفحوصات: ${loadedPatientData.labs_required || 'لا توجد'}. تم توليد النظام بنجاح!`);
-            document.getElementById('doctorNotesInput').value = `خطة مخصصة بالذكاء الاصطناعي بناءً على حالة المريض الإكلينيكية (${loadedPatientData.patient_name}): وزن ${loadedPatientData.weight} كجم وتصنيف ${loadedPatientData.category || 'تغذية'}.`;
+            alert(`🤖 بدأ الـ AI تحليل الملف الطبي للمريض: الوزن ${loadedPatientData.weight} كجم، الدهون ${loadedPatientData.fat}%. تم توليد نظام جديد متطور!`);
+            document.getElementById('doctorNotesInput').value = `خطة جديدة بالذكاء الاصطناعي بناءً على حالة المريض الإكلينيكية (${loadedPatientData.patient_name || loadedPatientData.name}): وزن ${loadedPatientData.weight} كجم.`;
         }
 
         async function savePlanToSQL() {
             if (!currentPatientId || !loadedPatientData) {
-                alert('الرجاء اختيار مريض من القائمة أولاً.');
+                alert('الرجاء اختيار مريض والضغط على بحث أولاً.');
                 return;
             }
             let notes = document.getElementById('doctorNotesInput').value;
@@ -319,7 +339,7 @@
                 alert('خطأ أثناء الحفظ في SQL: ' + error.message);
                 return;
             }
-            alert('✨ تم حفظ الخطة الغذائية وتحديث الملف في قاعدة بيانات SQL بنجاح!');
+            alert('✨ تم حفظ الخطة الغذائية الجديدة وتحديث الملف في قاعدة بيانات SQL بنجاح!');
         }
 
         function openMealFollowupModal() {
