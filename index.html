@@ -26,7 +26,6 @@
         .welcome-title-box { display: flex; align-items: center; gap: 15px; }
         .welcome-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
         
-        /* شريط البحث الموحد والسريع */
         .search-bar-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .search-input { flex: 1; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
         
@@ -87,23 +86,24 @@
             </div>
         </div>
 
-        <!-- شريط البحث السريع والذكي في أي حالة -->
+        <!-- شريط البحث الشامل -->
         <div class="search-bar-box">
             <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
-            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة، رقم التليفون، أو الكود للبحث الفوري..." onkeyup="globalSearchPatients()">
+            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة أو رقم التليفون للبحث...">
         </div>
 
         <div class="stats-grid">
-            <div class="stat-box"><div class="title">إجمالي المرضى المسجلين</div><div class="value" id="totalPatientsCount" style="color:var(--accent-blue);">0</div></div>
+            <div class="stat-box"><div class="title">إجمالي المرضى والحالات</div><div class="value" id="totalPatientsCount" style="color:var(--accent-blue);">0</div></div>
             <div class="stat-box"><div class="title">إجمالي المواعيد المحجوزة</div><div class="value" id="totalApptsCount" style="color:var(--primary-green);">0</div></div>
             <div class="stat-box"><div class="title">التحاليل الطبية المسجلة</div><div class="value" id="totalLabsCount" style="color:var(--warning-orange);">0</div></div>
             <div class="stat-box"><div class="title">حالة النظام السحابي</div><div class="value" style="color:var(--primary-green); font-size: 13px; padding-top: 5px;">🟢 متصل بـ SQL & AI</div></div>
         </div>
 
         <div class="dashboard-grid">
+            <!-- الرسم البياني الحي والمصحح -->
             <div class="card">
                 <h3>⚖️ توزيع الحالات وجراحات السمنة (تحليل حي)</h3>
-                <div style="width: 220px; margin: 0 auto; padding: 10px;">
+                <div style="width: 250px; height: 220px; margin: 0 auto; position: relative;">
                     <canvas id="casesChart"></canvas>
                 </div>
             </div>
@@ -137,23 +137,37 @@
         async function loadDashboardReports() {
             document.getElementById('currentDateBadge').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-            const { data: patientsData, count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact' });
-            document.getElementById('totalPatientsCount').innerText = patientsCount || 0;
+            // 1. جلب إجمالي المرضى وحالات جراحات السمنة لضمان حساب العدد الحقيقي بدقة
+            const { count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
+            const { count: bariatricCount } = await supabaseClient.from('bariatric_cases').select('*', { count: 'exact', head: true });
+            
+            let totalRecords = (patientsCount || 0) + (bariatricCount || 0);
+            document.getElementById('totalPatientsCount').innerText = totalRecords;
 
-            // تحديث تصنيفات الحالات وجراحات السمنة للغرافيك والتحليلات الحية
+            // 2. جلب بيانات التصنيفات للـ Chart
+            const { data: patData } = await supabaseClient.from('patients').select('category');
+            const { data: barData } = await supabaseClient.from('bariatric_cases').select('surgery_type');
+
             let catCounts = { 'تكميم معدة': 0, 'تحويل مسار': 0, 'سمنة مفرطة': 0, 'نحافة': 0, 'أخرى': 0 };
-            if (patientsData) {
-                patientsData.forEach(p => {
+            
+            if (patData) {
+                patData.forEach(p => {
                     let c = p.category || 'أخرى';
-                    if (catCounts[c] !== undefined) {
-                        catCounts[c]++;
-                    } else {
-                        catCounts['أخرى']++;
-                    }
+                    if (catCounts[c] !== undefined) catCounts[c]++;
+                    else catCounts['أخرى']++;
                 });
             }
+            if (barData) {
+                barData.forEach(b => {
+                    let s = b.surgery_type || 'تكميم معدة';
+                    if (catCounts[s] !== undefined) catCounts[s]++;
+                    else catCounts['تكميم معدة']++;
+                });
+            }
+
             renderChart(catCounts);
 
+            // 3. المواعيد والتحاليل
             const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(4);
             document.getElementById('totalApptsCount').innerText = apptsCount || 0;
 
@@ -197,24 +211,15 @@
                 },
                 options: {
                     responsive: true,
+                    maintainAspectRatio: false,
                     plugins: {
                         legend: {
                             position: 'bottom',
-                            labels: { font: { size: 10 }, boxWidth: 12 }
+                            labels: { font: { size: 10 }, boxWidth: 10 }
                         }
                     }
                 }
             });
-        }
-
-        async function globalSearchPatients() {
-            let query = document.getElementById('globalSearchInput').value.trim();
-            if(!query) return;
-            // يمكنك توجيه البحث لصفحة المرضى أو إظهار النتيجة فورا
-            const { data, error } = await supabaseClient.from('patients').select('*').or(`patient_name.ilike.%${query}%,phone.ilike.%${query}%`);
-            if(data && data.length > 0) {
-                console.log("تم العثور على الحالة:", data[0]);
-            }
         }
 
         window.onload = function() {
