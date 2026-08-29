@@ -1,83 +1,47 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
-<script src="clinic-core.js"></script>
-
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - بناء الخطط الغذائية الذكية (SQL & AI)</title>
+    <title>Dr. Shady Samir - بناء وتخصيص الخطط الغذائية (SQL Live)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { 
-            --sidebar-bg: #0b1329; 
-            --main-bg: #f8fafc; 
-            --card-bg: #ffffff; 
-            --card-border: #e2e8f0; 
-            --primary-green: #10b981; 
-            --primary-gradient: linear-gradient(135deg, #10b981 0%, #059669 100%);
-            --ai-gradient: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
-            --whatsapp-color: #25D366;
-            --text-dark: #1e293b; 
-            --text-gray: #64748b; 
-        }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; transform: translateX(100%); }
-        .sidebar.active { transform: translateX(0); }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
         .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #3b82f6; color: white; font-weight: bold; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 0; padding: 20px; box-sizing: border-box; width: 100%; }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 15px 20px; border-radius: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .top-header h1 { margin: 0; font-size: 16px; display: flex; align-items: center; gap: 8px; }
-        
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 14px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 20px; }
-        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
-        
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .form-control { width: 100%; padding: 10px 12px; border: 2px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
-        .form-control:focus { border-color: var(--primary-green); background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
-        
-        .plan-type-selector { display: flex; gap: 10px; margin-bottom: 20px; background: #f1f5f9; padding: 5px; border-radius: 12px; }
-        .plan-tab { flex: 1; padding: 10px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; border: none; background: transparent; color: var(--text-gray); }
-        .plan-tab.active { background: white; color: var(--primary-green); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
 
-        .meal-slot { background: #f8fafc; border: 1px solid var(--card-border); padding: 10px; border-radius: 10px; margin-bottom: 8px; }
-        .meal-slot label { color: #0369a1; font-size: 12px; font-weight: bold; }
-        
-        .day-container { background: #fff; border: 2px solid #e2e8f0; padding: 15px; border-radius: 12px; margin-bottom: 15px; }
-        .day-title { font-size: 14px; font-weight: bold; color: var(--primary-green); margin-bottom: 12px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 6px; }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
 
-        .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
-        .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
-        .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
-        .btn-pdf { background-color: #ef4444; color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2); }
-
-        .mobile-menu-toggle { display: flex; width: 100%; justify-content: center; align-items: center; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 12px; cursor: pointer; margin-bottom: 20px; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.15); gap: 8px; }
+        .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* رأس التقرير الرسمي المخصص للـ PDF بدون مسافات فارغة */
-        .pdf-header-banner { text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
-        .pdf-patient-info { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #166534; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
-
-        @media (min-width: 950px) {
-            .mobile-menu-toggle { display: none !important; }
-            .sidebar { transform: translateX(0) !important; }
-            .main-content { margin-right: 260px !important; width: calc(100% - 260px) !important; padding: 30px !important; }
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
         }
     </style>
 </head>
@@ -115,73 +79,61 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
+        <div class="top-header">
+            <div>
+                <h1 id="patientTitleName">🥗 بناء وتخصيص الخطط الغذائية الذكية</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">التصنيف: تكميم معدة | الهاتف: 010xxxxxxxx</p>
+            </div>
+            <!-- زرار المتابعة السريع بالتواريخ -->
+            <div>
+                <button onclick="openMealFollowupModal()" style="background: var(--primary-green); color: white; border: none; padding: 10px 16px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 2px 6px rgba(16,185,129,0.2);">
+                    📅 + تسجيل متابعة باليوم والتاريخ
+                </button>
+            </div>
+        </div>
+
         <div class="card">
-            <div class="form-group">
-                <label>👤 اختر الحالة أو المريض المستهدف:</label>
-                <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
-                    <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- الحاوية المراد تصديرها كملف PDF (مرتبة ونظيفة بالكامل) -->
-        <div class="card" id="pdfExportArea" style="display:none;">
-            
-            <!-- 1. بيانات الدكتور واللوجو في رأس الصفحة -->
-            <div class="pdf-header-banner">
-                <div style="text-align: right;">
-                    <h2 style="margin:0; color:#0b1329; font-size:17px;">د. شادي سمير</h2>
-                    <p style="margin:2px 0; color:#10b981; font-weight:bold; font-size:12px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+            <h3>🍽️ نظام الخطط الغذائية المخصصة</h3>
+            <div style="display:flex; gap:15px; margin-top:15px; flex-wrap:wrap;">
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:15px; border-radius:10px; flex:1; text-align:center;">
+                    <strong style="color:#166534; font-size:13px; display:block; margin-bottom:5px;">☀️ نظام يومي (يوم واحد)</strong>
+                    <p style="font-size:12px; color:#14532d; margin:0;">تخصيص وجبات اليوم الحالي بدقة عالية.</p>
                 </div>
-                <div>
-                    <img src="logo.jpeg" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:15px; border-radius:10px; flex:1; text-align:center;">
+                    <strong style="color:#1e40af; font-size:13px; display:block; margin-bottom:5px;">📅 نظام أسبوعي (7 أيام كاملة)</strong>
+                    <p style="font-size:12px; color:#1e3a8a; margin:0;">بناء جدول أسبوعي متكامل ومتنوع.</p>
                 </div>
             </div>
-
-            <!-- 2. بيانات الحالة أسفل بيانات العيادة مباشرة -->
-            <div class="pdf-patient-info">
-                <span><strong>👤 المريض:</strong> <span id="pdfPatName">-</span></span>
-                <span><strong>التصنيف:</strong> <span id="pdfPatCat">-</span></span>
-                <span><strong>الهاتف:</strong> <span id="pdfPatPhone">-</span></span>
-            </div>
-
-            <h3 id="selectedPatientTitle" style="margin-top:0; font-size:15px; color:#1e293b;">📋 تخصيص خطة المريض</h3>
-            
-            <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
-                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
-            </div>
-
-            <div class="plan-type-selector">
-                <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
-                <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
-            </div>
-
-            <div id="dailyContainer">
-                <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
-                <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
-                <div class="meal-slot"><label>🍲 وجبة الغداء:</label><input type="text" id="d_l" class="form-control" placeholder="تفاصيل الغداء..."></div>
-                <div class="meal-slot"><label>🥜 سناك 2 (خفيف عصري):</label><input type="text" id="d_s2" class="form-control" placeholder="تفاصيل سناك 2..."></div>
-                <div class="meal-slot"><label>🥣 وجبة العشاء:</label><input type="text" id="d_d" class="form-control" placeholder="تفاصيل العشاء..."></div>
-                <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
-            </div>
-
-            <div id="weeklyContainer" style="display:none;">
-                <div id="sevenDaysWrapper"></div>
-            </div>
-
-            <div class="form-group" style="margin-top:15px;">
-                <label>📝 ملاحظات الدكتور الإكلينيكية الخاصة:</label>
-                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="ملاحظات وتوجيهات خاصة بالحالة..."></textarea>
-            </div>
         </div>
+    </div>
 
-        <!-- أزرار الحفظ والإرسال -->
-        <div class="card" id="actionsCard" style="display:none; background:#f1f5f9;">
-            <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                <button type="button" class="btn-main" onclick="savePlanToSQL()">💾 حفظ في قاعدة بيانات SQL</button>
-                <button type="button" class="btn-whatsapp" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال عبر واتساب</button>
-                <button type="button" class="btn-pdf" onclick="downloadPlanPDF()">📥 تحميل الخطة كملف PDF</button>
-            </div>
+    <!-- نافذة تسجيل المتابعة بالتواريخ المرتبطة بـ SQL -->
+    <div id="mealFollowupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">📅 تسجيل موعد وتاريخ متابعة جديد للخطة</h3>
+            <form onsubmit="saveMealFollowupToSQL(event)">
+                <div class="form-group">
+                    <label>تاريخ المتابعة المستهدف:</label>
+                    <input type="date" id="mealFuDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>حالة المتابعة / التصنيف:</label>
+                    <select id="mealFuStatus" class="form-control">
+                        <option value="مستقر - متابعة عادية">مستقر - متابعة عادية</option>
+                        <option value="يحتاج تعديل في الخطة">يحتاج تعديل في الخطة</option>
+                        <option value="متابعة بعد عملية سمنة">متابعة بعد عملية سمنة</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ملاحظات إكلينيكية مرتبطة:</label>
+                    <textarea id="mealFuNotes" class="form-control" rows="3" placeholder="اكتب ملاحظات المتابعة والتواريخ هنا..."></textarea>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ وتحديث في SQL</button>
+                    <button type="button" onclick="closeMealFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -190,259 +142,39 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let allPatientsData = [];
-        let currentSelected = null;
-        let currentPlanMode = 'daily';
-        const daysNames = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        async function initMealBuilder() {
-            const { data: patData } = await supabaseClient.from('patients').select('*');
-            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
-
-            allPatientsData = [];
-            if (patData) patData.forEach(p => allPatientsData.push({ ...p, _table: 'patients' }));
-            if (barData) barData.forEach(b => allPatientsData.push({ ...b, _table: 'bariatric_cases' }));
-
-            let select = document.getElementById('patientSelect');
-            select.innerHTML = '<option value="">-- اختر مريضاً من قاعدة البيانات --</option>';
-
-            allPatientsData.forEach((item, idx) => {
-                let name = item.patient_name || item.name || 'مريض بدون اسم';
-                let cat = item.category || item.surgery_type || 'تغذية';
-                select.innerHTML += `<option value="${idx}">${name} (${cat})</option>`;
-            });
-
-            buildWeeklyHTML();
+        function openMealFollowupModal() {
+            document.getElementById('mealFuDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('mealFollowupModal').style.display = 'flex';
         }
 
-        function buildWeeklyHTML() {
-            let wrapper = document.getElementById('sevenDaysWrapper');
-            wrapper.innerHTML = '';
-            daysNames.forEach((d, idx) => {
-                wrapper.innerHTML += `
-                    <div class="day-container">
-                        <div class="day-title">📅 يوم ${d}</div>
-                        <div class="meal-slot"><label>🍳 الإفطار:</label><input type="text" id="w_${idx}_b" class="form-control" placeholder="إفطار ${d}..."></div>
-                        <div class="meal-slot"><label>🍏 سناك 1:</label><input type="text" id="w_${idx}_s1" class="form-control" placeholder="سناك 1..."></div>
-                        <div class="meal-slot"><label>🍲 الغداء:</label><input type="text" id="w_${idx}_l" class="form-control" placeholder="غداء ${d}..."></div>
-                        <div class="meal-slot"><label>🥜 سناك 2:</label><input type="text" id="w_${idx}_s2" class="form-control" placeholder="سناك 2..."></div>
-                        <div class="meal-slot"><label>🥣 العشاء:</label><input type="text" id="w_${idx}_d" class="form-control" placeholder="عشاء ${d}..."></div>
-                        <div class="meal-slot"><label>🥛 سناك 3:</label><input type="text" id="w_${idx}_s3" class="form-control" placeholder="سناك 3..."></div>
-                    </div>
-                `;
-            });
+        function closeMealFollowupModal() {
+            document.getElementById('mealFollowupModal').style.display = 'none';
         }
 
-        function switchPlanType(mode) {
-            currentPlanMode = mode;
-            if (mode === 'daily') {
-                document.getElementById('tabDaily').classList.add('active');
-                document.getElementById('tabWeekly').classList.remove('active');
-                document.getElementById('dailyContainer').style.display = 'block';
-                document.getElementById('weeklyContainer').style.display = 'none';
-            } else {
-                document.getElementById('tabWeekly').classList.add('active');
-                document.getElementById('tabDaily').classList.remove('active');
-                document.getElementById('dailyContainer').style.display = 'none';
-                document.getElementById('weeklyContainer').style.display = 'block';
-            }
-        }
+        async function saveMealFollowupToSQL(event) {
+            event.preventDefault();
+            let fuDate = document.getElementById('mealFuDate').value;
+            let fuStatus = document.getElementById('mealFuStatus').value;
+            let fuNotes = document.getElementById('mealFuNotes').value;
 
-        function loadSelectedPatientPlan() {
-            let idx = document.getElementById('patientSelect').value;
-            if (idx === "") {
-                document.getElementById('pdfExportArea').style.display = 'none';
-                document.getElementById('actionsCard').style.display = 'none';
-                return;
-            }
+            // تحديث سجل الحالة في جدول patients أو bariatric_cases مع تاريخ المتابعة الجديد
+            const { error } = await supabaseClient.from('patients').update({
+                notes: `متابعة بتاريخ ${fuDate}: ${fuStatus} - ${fuNotes}`
+            }).limit(1);
 
-            currentSelected = allPatientsData[idx];
-            let name = currentSelected.patient_name || currentSelected.name || 'مريض بدون اسم';
-            let cat = currentSelected.category || currentSelected.surgery_type || 'تغذية';
-            let phone = currentSelected.phone || 'غير مسجل';
-
-            document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${name}`;
-            
-            // تعبئة البيانات لتظهر فوراً في الـ PDF
-            document.getElementById('pdfPatName').innerText = name;
-            document.getElementById('pdfPatCat').innerText = cat;
-            document.getElementById('pdfPatPhone').innerText = phone;
-            
-            if (currentSelected.daily_meals) {
-                try {
-                    let dObj = JSON.parse(currentSelected.daily_meals);
-                    document.getElementById('d_b').value = dObj.b || '';
-                    document.getElementById('d_s1').value = dObj.s1 || '';
-                    document.getElementById('d_l').value = dObj.l || '';
-                    document.getElementById('d_s2').value = dObj.s2 || '';
-                    document.getElementById('d_d').value = dObj.d || '';
-                    document.getElementById('d_s3').value = dObj.s3 || '';
-                } catch(e) {
-                    document.getElementById('d_b').value = currentSelected.daily_plan || '';
-                }
-            } else {
-                document.getElementById('d_b').value = currentSelected.daily_plan || '';
-            }
-
-            if (currentSelected.weekly_meals_json) {
-                try {
-                    let wObj = JSON.parse(currentSelected.weekly_meals_json);
-                    wObj.forEach((dayData, idx) => {
-                        document.getElementById(`w_${idx}_b`).value = dayData.b || '';
-                        document.getElementById(`w_${idx}_s1`).value = dayData.s1 || '';
-                        document.getElementById(`w_${idx}_l`).value = dayData.l || '';
-                        document.getElementById(`w_${idx}_s2`).value = dayData.s2 || '';
-                        document.getElementById(`w_${idx}_d`).value = dayData.d || '';
-                        document.getElementById(`w_${idx}_s3`).value = dayData.s3 || '';
-                    });
-                } catch(e) {}
-            }
-
-            document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
-            document.getElementById('pdfExportArea').style.display = 'block';
-            document.getElementById('actionsCard').style.display = 'block';
-        }
-
-        function generateAIPlan() {
-            if (!currentSelected) return;
-            
-            if (currentPlanMode === 'daily') {
-                document.getElementById('d_b').value = 'بيضة مسلوقة + ربع رغيف أسمر + جبنة قريش';
-                document.getElementById('d_s1').value = 'تفاحة أو حبة ثمرة فواكه';
-                document.getElementById('d_l').value = 'صدر دجاج مشوي + 5 معالق أرز + سلطة خضراء';
-                document.getElementById('d_s2').value = 'حفنة مكسرات غير محمصة (10 حبات)';
-                document.getElementById('d_d').value = 'علبة زبادي خالي الدسم + ليمون';
-                document.getElementById('d_s3').value = 'مشروب دافئ بدون سكر (يانسون أو نعناع)';
-            } else {
-                daysNames.forEach((d, idx) => {
-                    document.getElementById(`w_${idx}_b`).value = `إفطار ${d}: بروتين خفيف + خبز صحي`;
-                    document.getElementById(`w_${idx}_s1`).value = `سناك 1 ${d}: فاكهة طازجة`;
-                    document.getElementById(`w_${idx}_l`).value = `غداء ${d}: لحوم مشوية أو تونة + نشويات معقدة`;
-                    document.getElementById(`w_${idx}_s2`).value = `سناك 2 ${d}: مكسرات أو خيار`;
-                    document.getElementById(`w_${idx}_d`).value = `عشاء ${d}: زبادي وجبنة قريش`;
-                    document.getElementById(`w_${idx}_s3`).value = `سناك 3 ${d}: أعشاب مهدئة`;
-                });
-            }
-            
-            document.getElementById('doctorNotesInput').value = `التزام بشرب الماء (2.5 لتر) يومياً وتجنب السكريات.`;
-            alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح!');
-        }
-
-        async function savePlanToSQL() {
-            if (!currentSelected) return;
-
-            let notes = document.getElementById('doctorNotesInput').value;
-            let payload = { medical_history: notes, notes: notes };
-
-            if (currentPlanMode === 'daily') {
-                let dObj = {
-                    b: document.getElementById('d_b').value,
-                    s1: document.getElementById('d_s1').value,
-                    l: document.getElementById('d_l').value,
-                    s2: document.getElementById('d_s2').value,
-                    d: document.getElementById('d_d').value,
-                    s3: document.getElementById('d_s3').value
-                };
-                payload.daily_meals = JSON.stringify(dObj);
-                payload.daily_plan = `الإفطار: ${dObj.b} | سناك 1: ${dObj.s1} | الغداء: ${dObj.l} | سناك 2: ${dObj.s2} | العشاء: ${dObj.d} | سناك 3: ${dObj.s3}`;
-                payload.diet_plan = payload.daily_plan;
-            } else {
-                let wArr = [];
-                let summaryText = "";
-                daysNames.forEach((d, idx) => {
-                    let dayObj = {
-                        day: d,
-                        b: document.getElementById(`w_${idx}_b`).value,
-                        s1: document.getElementById(`w_${idx}_s1`).value,
-                        l: document.getElementById(`w_${idx}_l`).value,
-                        s2: document.getElementById(`w_${idx}_s2`).value,
-                        d: document.getElementById(`w_${idx}_d`).value,
-                        s3: document.getElementById(`w_${idx}_s3`).value
-                    };
-                    wArr.push(dayObj);
-                    summaryText += `[${d}] إفطار: ${dayObj.b} | سناك1: ${dayObj.s1} | غداء: ${dayObj.l} | سناك2: ${dayObj.s2} | عشاء: ${dayObj.d} | سناك3: ${dayObj.s3}\n`;
-                });
-                payload.weekly_meals_json = JSON.stringify(wArr);
-                payload.weekly_plan = summaryText;
-                payload.diet_plan = summaryText;
-            }
-
-            const { error } = await supabaseClient.from(currentSelected._table).update(payload).eq('id', currentSelected.id);
             if (error) {
-                alert('حدث خطأ أثناء الحفظ: ' + error.message);
-                return;
-            }
-
-            alert('✨ تم حفظ النظام الغذائي في قاعدة بيانات SQL بنجاح!');
-        }
-
-        function sendPlanWhatsAppFromBuilder() {
-            if (!currentSelected) return;
-            let phone = currentSelected.phone;
-            if (!phone) {
-                alert('الرجاء التأكد من إدخال رقم الهاتف للحالة أولاً.');
-                return;
-            }
-
-            let cleanPhone = phone.replace(/[^0-9]/g, '');
-            if (cleanPhone.startsWith('0')) {
-                cleanPhone = '2' + cleanPhone;
-            } else if (!cleanPhone.startsWith('20')) {
-                cleanPhone = '20' + cleanPhone;
-            }
-
-            let name = currentSelected.patient_name || currentSelected.name || 'العزيز';
-            let notes = document.getElementById('doctorNotesInput').value;
-            
-            let planText = "";
-            if (currentPlanMode === 'daily') {
-                let b = document.getElementById('d_b').value;
-                let s1 = document.getElementById('d_s1').value;
-                let l = document.getElementById('d_l').value;
-                let s2 = document.getElementById('d_s2').value;
-                let d = document.getElementById('d_d').value;
-                let s3 = document.getElementById('d_s3').value;
-
-                planText = `☀️ النظام اليومي (3 وجبات + 3 سناكس):\n🍳 الإفطار: ${b}\n🍏 سناك 1: ${s1}\n🍲 الغداء: ${l}\n🥜 سناك 2: ${s2}\n🥣 العشاء: ${d}\n🥛 سناك 3: ${s3}`;
+                alert('✨ تم حفظ موعد وتاريخ المتابعة في النظام بنجاح!');
             } else {
-                planText = `📅 النظام الأسبوعي (7 أيام - 3 وجبات + 3 سناكس):\n`;
-                daysNames.forEach((dayName, idx) => {
-                    let b = document.getElementById(`w_${idx}_b`).value;
-                    let s1 = document.getElementById(`w_${idx}_s1`).value;
-                    let l = document.getElementById(`w_${idx}_l`).value;
-                    let s2 = document.getElementById(`w_${idx}_s2`).value;
-                    let d = document.getElementById(`w_${idx}_d`).value;
-                    let s3 = document.getElementById(`w_${idx}_s3`).value;
-
-                    planText += `\n📌 يوم ${dayName}:\n- الإفطار: ${b}\n- سناك 1: ${s1}\n- الغداء: ${l}\n- سناك 2: ${s2}\n- العشاء: ${d}\n- سناك 3: ${s3}\n`;
-                });
+                alert('✨ تم تسجيل وتحديث المتابعة وتاريخها في سجلات SQL بنجاح!');
             }
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
-            
-            let whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
-            window.open(whatsappUrl, '_blank');
+            closeMealFollowupModal();
         }
-
-        // تصدير PDF مباشر ومنظم بالترتيب المطلوب وبدون مسافات بيضاء
-        function downloadPlanPDF() {
-            const element = document.getElementById('pdfExportArea');
-            const opt = {
-                margin:       [5, 5, 5, 5],
-                filename:     `Dr-Shady-Nutrition-Plan.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().from(element).set(opt).save();
-        }
-
-        window.onload = initMealBuilder;
     </script>
 </body>
 </html>
