@@ -1,6 +1,5 @@
-// كود موحد لكل صفحات السيستم لإدارة القائمة الجانبية والشاشات الصغيرة
 (function() {
-    // 1. حقن الـ CSS العام تلقائياً في كل صفحة
+    // 1. حقن الـ CSS العام لإخفاء القائمة افتراضياً على الموبايل والتابلت
     const style = document.createElement('style');
     style.innerHTML = `
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -32,8 +31,17 @@
     `;
     document.head.appendChild(style);
 
-    // 2. بناء وتشغيل العناصر أوتوماتيكياً عند تحميل الصفحة
-    window.addEventListener('DOMContentLoaded', () => {
+    // 2. التنفيذ الفوري عند تحميل الصفحة لإجبار القائمة على الاختفاء على الموبايل
+    function initMobileMenu() {
+        const sidebar = document.querySelector('.sidebar');
+        if (sidebar) {
+            sidebar.id = 'sidebarNav';
+            // إجبار إخفاء القائمة تلقائياً فور فتح الصفحة على الموبايل
+            if (window.innerWidth <= 950) {
+                sidebar.classList.remove('active');
+            }
+        }
+
         // إضافة الـ Overlay لو مش موجود
         if (!document.getElementById('sidebarOverlay')) {
             const overlay = document.createElement('div');
@@ -52,13 +60,13 @@
             menuBtn.onclick = toggleMobileSidebar;
             mainContent.insertBefore(menuBtn, mainContent.firstChild);
         }
+    }
 
-        // التأكد من وجود id للـ sidebar
-        const sidebar = document.querySelector('.sidebar');
-        if (sidebar && !sidebar.id) {
-            sidebar.id = 'sidebarNav';
-        }
-    });
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initMobileMenu);
+    } else {
+        initMobileMenu();
+    }
 })();
 
 // دالة فتح وإغلاق القائمة
