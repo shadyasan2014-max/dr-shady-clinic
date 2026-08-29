@@ -40,20 +40,22 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px; }
         .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
         
-        .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-        .form-control { width: 100%; padding: 12px 15px; border: 2px solid var(--card-border); border-radius: 12px; font-size: 14px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+        .form-control { width: 100%; padding: 10px 12px; border: 2px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
         .form-control:focus { border-color: var(--primary-green); background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
         
-        /* تبيوّب اختيار نوع الخطة (يومي أو أسبوعي) */
+        /* تبيوّب اختيار نوع النظام */
         .plan-type-selector { display: flex; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 6px; border-radius: 12px; }
         .plan-tab { flex: 1; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; border: none; background: transparent; color: var(--text-gray); }
         .plan-tab.active { background: white; color: var(--primary-green); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* أيام الأسبوع */
-        .days-grid { display: grid; grid-template-columns: 1fr; gap: 15px; }
-        .day-box { background: #f8fafc; border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; }
-        .day-box label { font-size: 13px; color: var(--primary-green); font-weight: bold; margin-bottom: 5px; display: block; }
+        /* تصميم بطاقات الوجبات والسناكس */
+        .meal-slot { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 10px; margin-bottom: 10px; }
+        .meal-slot label { color: #0369a1; font-size: 12px; font-weight: bold; }
+        
+        .day-container { background: #fff; border: 2px solid #e2e8f0; padding: 20px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .day-title { font-size: 15px; font-weight: bold; color: var(--primary-green); margin-bottom: 15px; border-bottom: 1px dashed #cbd5e1; padding-bottom: 8px; }
 
         .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
         .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
@@ -91,9 +93,10 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 محطة بناء وتخصيص الخطط الغذائية الذكية (SQL & AI)</h1>
+            <h1>🥗 محطة بناء الخطط الغذائية الذكية (3 وجبات + 3 سناكس)</h1>
         </div>
 
+        <!-- 1. اختيار اسم الحالة أولاً -->
         <div class="card">
             <div class="form-group">
                 <label>👤 اختر الحالة أو المريض المستهدف:</label>
@@ -103,37 +106,34 @@
             </div>
         </div>
 
+        <!-- 2. محرر الخطة يظهر بعد اختيار المريض -->
         <div class="card" id="planEditorCard" style="display:none;">
             <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
             
             <div style="display:flex; gap:12px; margin-bottom:20px; flex-wrap:wrap;">
-                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية ومخصصة بواسطة AI</button>
+                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
             </div>
 
-            <!-- أزرار الاختيار بين خطة يومية أو أسبوعية -->
+            <!-- اختيار النظام: يومي أو أسبوعي -->
             <div class="plan-type-selector">
-                <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ خطة يومية (يوم واحد)</button>
-                <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 خطة أسبوعية (7 أيام كاملة)</button>
+                <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
+                <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
             </div>
 
-            <!-- حاوية الخطة اليومية -->
-            <div id="dailyContainer" class="form-group">
-                <label>☀️ تفاصيل الخطة اليومية:</label>
-                <textarea id="dailyPlanInput" class="form-control" rows="5" placeholder="اكتب تفاصيل الوجبات والتعليمات اليومية هنا..."></textarea>
+            <!-- حاوية النظام اليومي (3 وجبات + 3 سناكس) -->
+            <div id="dailyContainer">
+                <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
+                <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
+                <div class="meal-slot"><label>🍲 وجبة الغداء:</label><input type="text" id="d_l" class="form-control" placeholder="تفاصيل الغداء..."></div>
+                <div class="meal-slot"><label>🥜 سناك 2 (خفيف عصري):</label><input type="text" id="d_s2" class="form-control" placeholder="تفاصيل سناك 2..."></div>
+                <div class="meal-slot"><label>🥣 وجبة العشاء:</label><input type="text" id="d_d" class="form-control" placeholder="تفاصيل العشاء..."></div>
+                <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
             </div>
 
-            <!-- حاوية الخطة الأسبوعية (7 أيام) -->
-            <div id="weeklyContainer" class="form-group" style="display:none;">
-                <label>📅 تفاصيل الخطة الأسبوعية (7 أيام):</label>
-                <div class="days-grid">
-                    <div class="day-box"><label>السبت:</label><textarea id="day1" class="form-control" rows="2" placeholder="وجبات السبت..."></textarea></div>
-                    <div class="day-box"><label>الأحد:</label><textarea id="day2" class="form-control" rows="2" placeholder="وجبات الأحد..."></textarea></div>
-                    <div class="day-box"><label>الإثنين:</label><textarea id="day3" class="form-control" rows="2" placeholder="وجبات الإثنين..."></textarea></div>
-                    <div class="day-box"><label>الثلاثاء:</label><textarea id="day4" class="form-control" rows="2" placeholder="وجبات الثلاثاء..."></textarea></div>
-                    <div class="day-box"><label>الأربعاء:</label><textarea id="day5" class="form-control" rows="2" placeholder="وجبات الأربعاء..."></textarea></div>
-                    <div class="day-box"><label>الخميس:</label><textarea id="day6" class="form-control" rows="2" placeholder="وجبات الخميس..."></textarea></div>
-                    <div class="day-box"><label>الجمعة:</label><textarea id="day7" class="form-control" rows="2" placeholder="وجبات الجمعة..."></textarea></div>
-                </div>
+            <!-- حاوية النظام الأسبوعي (7 أيام، كل يوم فيه 3 وجبات + 3 سناكس) -->
+            <div id="weeklyContainer" style="display:none;">
+                <!-- سيتم توليد الـ 7 أيام جافاسكريبت لتكون أنيقة ومنظمة -->
+                <div id="sevenDaysWrapper"></div>
             </div>
 
             <div class="form-group" style="margin-top:20px;">
@@ -156,6 +156,7 @@
         let allPatientsData = [];
         let currentSelected = null;
         let currentPlanMode = 'daily'; // 'daily' or 'weekly'
+        const daysNames = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
 
         async function initMealBuilder() {
             const { data: patData } = await supabaseClient.from('patients').select('*');
@@ -172,6 +173,26 @@
                 let name = item.patient_name || item.name || 'مريض بدون اسم';
                 let cat = item.category || item.surgery_type || 'تغذية';
                 select.innerHTML += `<option value="${idx}">${name} (${cat})</option>`;
+            });
+
+            buildWeeklyHTML();
+        }
+
+        function buildWeeklyHTML() {
+            let wrapper = document.getElementById('sevenDaysWrapper');
+            wrapper.innerHTML = '';
+            daysNames.forEach((d, idx) => {
+                wrapper.innerHTML += `
+                    <div class="day-container">
+                        <div class="day-title">📅 يوم ${d}</div>
+                        <div class="meal-slot"><label>🍳 الإفطار:</label><input type="text" id="w_${idx}_b" class="form-control" placeholder="إفطار ${d}..."></div>
+                        <div class="meal-slot"><label>🍏 سناك 1:</label><input type="text" id="w_${idx}_s1" class="form-control" placeholder="سناك 1..."></div>
+                        <div class="meal-slot"><label>🍲 الغداء:</label><input type="text" id="w_${idx}_l" class="form-control" placeholder="غداء ${d}..."></div>
+                        <div class="meal-slot"><label>🥜 سناك 2:</label><input type="text" id="w_${idx}_s2" class="form-control" placeholder="سناك 2..."></div>
+                        <div class="meal-slot"><label>🥣 العشاء:</label><input type="text" id="w_${idx}_d" class="form-control" placeholder="عشاء ${d}..."></div>
+                        <div class="meal-slot"><label>🥛 سناك 3:</label><input type="text" id="w_${idx}_s3" class="form-control" placeholder="سناك 3..."></div>
+                    </div>
+                `;
             });
         }
 
@@ -200,11 +221,36 @@
             currentSelected = allPatientsData[idx];
             document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${currentSelected.patient_name || currentSelected.name}`;
             
-            document.getElementById('dailyPlanInput').value = currentSelected.daily_plan || currentSelected.diet_plan || '';
-            
-            // تحميل الأيام الأسبق لو متوفرة في الحقول
-            for (let i = 1; i <= 7; i++) {
-                document.getElementById(`day${i}`).value = currentSelected[`day_${i}`] || '';
+            // تحميل اليومي لو متوفر
+            if (currentSelected.daily_meals) {
+                try {
+                    let dObj = JSON.parse(currentSelected.daily_meals);
+                    document.getElementById('d_b').value = dObj.b || '';
+                    document.getElementById('d_s1').value = dObj.s1 || '';
+                    document.getElementById('d_l').value = dObj.l || '';
+                    document.getElementById('d_s2').value = dObj.s2 || '';
+                    document.getElementById('d_d').value = dObj.d || '';
+                    document.getElementById('d_s3').value = dObj.s3 || '';
+                } catch(e) {
+                    document.getElementById('d_b').value = currentSelected.daily_plan || '';
+                }
+            } else {
+                document.getElementById('d_b').value = currentSelected.daily_plan || '';
+            }
+
+            // تحميل الأسبوعي لو متوفر
+            if (currentSelected.weekly_meals_json) {
+                try {
+                    let wObj = JSON.parse(currentSelected.weekly_meals_json);
+                    wObj.forEach((dayData, idx) => {
+                        document.getElementById(`w_${idx}_b`).value = dayData.b || '';
+                        document.getElementById(`w_${idx}_s1`).value = dayData.s1 || '';
+                        document.getElementById(`w_${idx}_l`).value = dayData.l || '';
+                        document.getElementById(`w_${idx}_s2`).value = dayData.s2 || '';
+                        document.getElementById(`w_${idx}_d`).value = dayData.d || '';
+                        document.getElementById(`w_${idx}_s3`).value = dayData.s3 || '';
+                    });
+                } catch(e) {}
             }
 
             document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentSelected.notes || '';
@@ -213,46 +259,66 @@
 
         function generateAIPlan() {
             if (!currentSelected) return;
-            let cat = currentSelected.category || currentSelected.surgery_type || 'تكميم';
             
             if (currentPlanMode === 'daily') {
-                document.getElementById('dailyPlanInput').value = `🔹 البرنامج اليومي المقترح (${cat}):\n- السوائل والمياه: 2.5 لتر.\n- الوجبات: سوائل صافية وبروتين سائل مقسم على 5 وجبات خفيفة.`;
+                document.getElementById('d_b').value = 'بيضة مسلوقة + ربع رغيف أسمر + جبنة قريش';
+                document.getElementById('d_s1').value = 'تفاحة أو حبة ثمرة فواكه';
+                document.getElementById('d_l').value = 'صدر دجاج مشوي + 5 معالق أرز + سلطة خضراء';
+                document.getElementById('d_s2').value = 'حفنة مكسرات غير محمصة (10 حبات)';
+                document.getElementById('d_d').value = 'علبة زبادي خالي الدسم + ليمون';
+                document.getElementById('d_s3').value = 'مشروب دافئ بدون سكر (يانسون أو نعناع)';
             } else {
-                let days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-                days.forEach((d, idx) => {
-                    document.getElementById(`day${idx+1}`).value = `${d}: شوربة صافية + مكمل بروتين + 2 لتر ماء موزعة طوال اليوم.`;
+                daysNames.forEach((d, idx) => {
+                    document.getElementById(`w_${idx}_b`).value = `إفطار ${d}: بروتين خفيف + خبز صحي`;
+                    document.getElementById(`w_${idx}_s1`).value = `سناك 1 ${d}: فاكهة طازجة`;
+                    document.getElementById(`w_${idx}_l`).value = `غداء ${d}: لحوم مشوية أو تونة + نشويات معقدة`;
+                    document.getElementById(`w_${idx}_s2`).value = `سناك 2 ${d}: مكسرات أو خيار`;
+                    document.getElementById(`w_${idx}_d`).value = `عشاء ${d}: زبادي وجبنة قريش`;
+                    document.getElementById(`w_${idx}_s3`).value = `سناك 3 ${d}: أعشاب مهدئة`;
                 });
             }
             
-            document.getElementById('doctorNotesInput').value = `الحالة مستقرة وتحتاج للالتزام بالتعليمات الطبية.`;
-            alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح!');
+            document.getElementById('doctorNotesInput').value = `التزام بشرب الماء (2.5 لتر) يومياً وتجنب السكريات.`;
+            alert('✨ تم توليد الخطة الذكية (3 وجبات + 3 سناكس) بواسطة AI بنجاح!');
         }
 
         async function savePlanToSQL() {
             if (!currentSelected) return;
 
-            let daily = document.getElementById('dailyPlanInput').value;
             let notes = document.getElementById('doctorNotesInput').value;
+            let payload = { medical_history: notes, notes: notes };
 
-            let payload = {
-                daily_plan: daily,
-                medical_history: notes,
-                notes: notes
-            };
-
-            let weeklyCombined = "";
-            if (currentPlanMode === 'weekly') {
-                let daysArr = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-                for (let i = 1; i <= 7; i++) {
-                    let dayVal = document.getElementById(`day${i}`).value;
-                    payload[`day_${i}`] = dayVal;
-                    weeklyCombined += `• ${daysArr[i-1]}: ${dayVal}\n`;
-                }
-                payload.weekly_plan = weeklyCombined;
-                payload.diet_plan = `📅 الخطة الأسبوعية:\n` + weeklyCombined;
+            if (currentPlanMode === 'daily') {
+                let dObj = {
+                    b: document.getElementById('d_b').value,
+                    s1: document.getElementById('d_s1').value,
+                    l: document.getElementById('d_l').value,
+                    s2: document.getElementById('d_s2').value,
+                    d: document.getElementById('d_d').value,
+                    s3: document.getElementById('d_s3').value
+                };
+                payload.daily_meals = JSON.stringify(dObj);
+                payload.daily_plan = `الإفطار: ${dObj.b} | سناك 1: ${dObj.s1} | الغداء: ${dObj.l} | سناك 2: ${dObj.s2} | العشاء: ${dObj.d} | سناك 3: ${dObj.s3}`;
+                payload.diet_plan = payload.daily_plan;
             } else {
-                payload.weekly_plan = "";
-                payload.diet_plan = `☀️ الخطة اليومية:\n` + daily;
+                let wArr = [];
+                let summaryText = "";
+                daysNames.forEach((d, idx) => {
+                    let dayObj = {
+                        day: d,
+                        b: document.getElementById(`w_${idx}_b`).value,
+                        s1: document.getElementById(`w_${idx}_s1`).value,
+                        l: document.getElementById(`w_${idx}_l`).value,
+                        s2: document.getElementById(`w_${idx}_s2`).value,
+                        d: document.getElementById(`w_${idx}_d`).value,
+                        s3: document.getElementById(`w_${idx}_s3`).value
+                    };
+                    wArr.push(dayObj);
+                    summaryText += `[${d}] إفطار: ${dayObj.b} | سناك1: ${dayObj.s1} | غداء: ${dayObj.l} | سناك2: ${dayObj.s2} | عشاء: ${dayObj.d} | سناك3: ${dayObj.s3}\n`;
+                });
+                payload.weekly_meals_json = JSON.stringify(wArr);
+                payload.weekly_plan = summaryText;
+                payload.diet_plan = summaryText;
             }
 
             const { error } = await supabaseClient.from(currentSelected._table).update(payload).eq('id', currentSelected.id);
@@ -261,7 +327,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ الخطة الغذائية في قاعدة بيانات SQL بنجاح!');
+            alert('✨ تم حفظ النظام الغذائي (3 وجبات + 3 سناكس) في قاعدة بيانات SQL بنجاح!');
         }
 
         function sendPlanWhatsAppFromBuilder() {
@@ -272,17 +338,29 @@
             
             let planText = "";
             if (currentPlanMode === 'daily') {
-                planText = `☀️ الخطة اليومية:\n` + document.getElementById('dailyPlanInput').value;
+                let b = document.getElementById('d_b').value;
+                let s1 = document.getElementById('d_s1').value;
+                let l = document.getElementById('d_l').value;
+                let s2 = document.getElementById('d_s2').value;
+                let d = document.getElementById('d_d').value;
+                let s3 = document.getElementById('d_s3').value;
+
+                planText = `☀️ النظام اليومي (3 وجبات + 3 سناكس):\n🍳 الإفطار: ${b}\n🍏 سناك 1: ${s1}\n🍲 الغداء: ${l}\n🥜 سناك 2: ${s2}\n🥣 العشاء: ${d}\n🥛 سناك 3: ${s3}`;
             } else {
-                let daysArr = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-                planText = `📅 الخطة الأسبوعية (7 أيام):\n`;
-                for (let i = 1; i <= 7; i++) {
-                    let val = document.getElementById(`day${i}`).value;
-                    if (val) planText += `• ${daysArr[i-1]}: ${val}\n`;
-                }
+                planText = `📅 النظام الأسبوعي (7 أيام - 3 وجبات + 3 سناكس):\n`;
+                daysNames.forEach((dayName, idx) => {
+                    let b = document.getElementById(`w_${idx}_b`).value;
+                    let s1 = document.getElementById(`w_${idx}_s1`).value;
+                    let l = document.getElementById(`w_${idx}_l`).value;
+                    let s2 = document.getElementById(`w_${idx}_s2`).value;
+                    let d = document.getElementById(`w_${idx}_d`).value;
+                    let s3 = document.getElementById(`w_${idx}_s3`).value;
+
+                    planText += `\n📌 يوم ${dayName}:\n- إفطار: ${b}\n- سناك 1: ${s1}\n- غداء: ${l}\n- سناك 2: ${s2}\n- عشاء: ${d}\n- سناك 3: ${s3}\n`;
+                });
             }
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الغذائية المخصصة لك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
             
             let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
