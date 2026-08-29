@@ -36,8 +36,9 @@
         .metric-title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
         .metric-value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
 
-        .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); margin-bottom: 15px; }
+        /* الترتيب العمودي: تطور الوزن فوق، وتحته الخطة والملاحظات */
+        .profile-stack { display: flex; flex-direction: column; gap: 15px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); width: 100%; box-sizing: border-box; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
@@ -46,13 +47,12 @@
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
 
-        /* إعدادات الطباعة الاحترافية: ترتيب الكاردات تحت بعضها تماماً */
+        /* إعدادات الطباعة النظيفة وبدون مساحات فارغة */
         @media print {
             .sidebar, .patient-actions-top, .top-action-btn, button { display: none !important; }
-            body { background-color: white !important; display: block !important; }
-            .main-content { margin-right: 0 !important; padding: 0 !important; width: 100% !important; }
-            .profile-grid { display: block !important; }
-            .card { width: 100% !important; margin-bottom: 20px !important; border: 1px solid #cbd5e1 !important; box-shadow: none !important; break-inside: avoid; }
+            body { background-color: white !important; display: block !important; margin: 0 !important; }
+            .main-content { margin-right: 0 !important; padding: 10px !important; width: 100% !important; }
+            .patient-header-card, .metrics-grid, .card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; break-inside: avoid; margin-bottom: 12px !important; }
             .metrics-grid { display: grid !important; grid-template-columns: repeat(3, 1fr) !important; gap: 8px !important; }
         }
     </style>
@@ -114,11 +114,11 @@
             <div class="metric-card"><div class="metric-title">رقم الهاتف</div><div class="metric-value" id="mPhone" style="font-size:13px;">-</div></div>
         </div>
 
-        <!-- اللوحة الثنائية (تصبح تحت بعضها في الطباعة) -->
-        <div class="profile-grid">
+        <!-- الترتيب العمودي: منحنى تطور الوزن فوق، وتحته الخطة والملاحظات -->
+        <div class="profile-stack">
             <div class="card">
                 <h3>📈 تطور الوزن (منحنى المتابعة الحية)</h3>
-                <div style="height: 220px; width: 100%; position: relative; display: block;">
+                <div style="height: 200px; width: 100%; position: relative;">
                     <canvas id="weightChart"></canvas>
                 </div>
             </div>
@@ -132,7 +132,7 @@
 
                 <h3 style="margin-top:10px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية</h3>
                 <p id="pNotes" style="font-size:12px; line-height:1.6; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border); white-space: pre-line;">جاري تحميل الملاحظات...</p>
-                <button onclick="window.print()" class="top-action-btn" style="width:100%; margin-top:10px; background:var(--primary-green); color:white; border:none; padding:10px; font-weight:bold;">🖨️ طباعة تقرير الحالة الرسمي</button>
+                <button onclick="window.print()" class="top-action-btn" style="width:100%; margin-top:15px; background:var(--primary-green); color:white; border:none; padding:10px; font-weight:bold;">🖨️ طباعة تقرير الحالة الرسمي</button>
             </div>
         </div>
     </div>
