@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - نظام إدارة العيادة</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        /* القائمة الجانبية ثابتة بشكل افتراضي على الكمبيوتر والشاشات الكبيرة */
+        /* القائمة الجانبية ثابتة على الكمبيوتر */
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
@@ -23,12 +24,23 @@
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        /* تنسيق الإحصائيات العلوية الـ 4 */
+        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 25px; }
+        .stat-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 14px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .stat-title { font-size: 12px; color: var(--text-gray); margin-bottom: 8px; font-weight: bold; }
+        .stat-value { font-size: 24px; font-weight: bold; color: var(--text-dark); }
 
-        /* زرار القائمة والخلفية للموبايل والتابلت فقط */
+        /* التخطيط السفلي: الرسم البياني والمواعيد */
+        .dashboard-grid { display: grid; grid-template-columns: 1fr 2fr; gap: 20px; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 14px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
+
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+        /* زرار القائمة للموبايل والتابلت */
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
@@ -38,6 +50,8 @@
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
             .mobile-menu-toggle { display: flex !important; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .dashboard-grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -75,29 +89,68 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div class="top-header">
-            <h1>أهلاً بك يا د. شادي سمير في نظام إدارة العيادة</h1>
-        </div>
-
-        <div class="card">
-            <h3>📊 نظرة عامة على العيادة</h3>
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-top: 15px;">
-                <div style="background:#f8fafc; border:1px solid var(--card-border); padding:15px; border-radius:10px; text-align:center;">
-                    <div style="font-size:12px; color:var(--text-gray);">إجمالي المرضى المسجلين</div>
-                    <div id="totalPatientsCount" style="font-size:22px; font-weight:bold; color:var(--primary-green); margin-top:5px;">2</div>
-                </div>
-                <div style="background:#f8fafc; border:1px solid var(--card-border); padding:15px; border-radius:10px; text-align:center;">
-                    <div style="font-size:12px; color:var(--text-gray);">الخطط الغذائية المفعلة</div>
-                    <div id="totalPlansCount" style="font-size:22px; font-weight:bold; color:var(--primary-green); margin-top:5px;">2</div>
-                </div>
+        <!-- الكروت الإحصائية الأربعة العلوية -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">متابعات اليوم</div>
+                <div class="stat-value" style="color: var(--primary-green);">14</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">مواعيد اليوم</div>
+                <div class="stat-value" style="color: var(--accent-blue);">18</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">مرضى اليوم</div>
+                <div class="stat-value" style="color: var(--warning-orange);">12</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-title">التصنيف / الحالات</div>
+                <div class="stat-value" style="font-size: 13px; color: var(--text-gray); margin-top: 5px;">سمنة - نحافة - تكميم</div>
             </div>
         </div>
 
-        <div class="card">
-            <h3>⚡ الإجراءات السريعة</h3>
-            <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:15px;">
-                <button onclick="location.href='meal-builder.html'" style="background:var(--accent-blue); color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:bold; cursor:pointer;">🥗 بناء وتخصيص الخطط الغذائية</button>
-                <button onclick="location.href='patients.html'" style="background:var(--primary-green); color:white; border:none; padding:10px 18px; border-radius:8px; font-weight:bold; cursor:pointer;">👥 إدارة سجلات المرضى</button>
+        <!-- التخطيط السفلي: الرسم البياني وجدول المواعيد -->
+        <div class="dashboard-grid">
+            <div class="card">
+                <h3>⚖️ جراحات السمنة والتصنيفات</h3>
+                <div style="height: 220px; position: relative;">
+                    <canvas id="bariatricChart"></canvas>
+                </div>
+                <div style="text-align: center; font-size: 12px; color: var(--text-gray); margin-top: 10px;">إجمالي المرضى: 86</div>
+            </div>
+
+            <div class="card">
+                <h3>📅 مواعيد اليوم الحالية</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>المريض</th>
+                            <th>نوع الزيارة</th>
+                            <th>الحالة</th>
+                            <th>الوقت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>أحمد محمد علي</strong></td>
+                            <td>متابعة</td>
+                            <td><span style="background:#dcfce7; color:#166534; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">مؤكد</span></td>
+                            <td>05:00 م</td>
+                        </tr>
+                        <tr>
+                            <td><strong>سارة أحمد محمود</strong></td>
+                            <td>أول زيارة</td>
+                            <td><span style="background:#fef9c3; color:#854d0e; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">في الانتظار</span></td>
+                            <td>05:30 م</td>
+                        </tr>
+                        <tr>
+                            <td><strong>محمد خميس السيد</strong></td>
+                            <td>متابعة بعد عملية</td>
+                            <td><span style="background:#dcfce7; color:#166534; padding:3px 8px; border-radius:10px; font-size:11px; font-weight:bold;">مؤكد</span></td>
+                            <td>06:00 م</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
@@ -107,6 +160,29 @@
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
+
+        // رسم دائرة جراحات السمنة
+        window.onload = function() {
+            const ctx = document.getElementById('bariatricChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['تكميم معدة', 'تحويل مسار', 'حزام معدة', 'بالون معدة'],
+                    datasets: [{
+                        data: [40, 25, 12, 9],
+                        backgroundColor: ['#3b82f6', '#10b981', '#f59e0b', '#ef4444'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
+                    }
+                }
+            });
+        };
     </script>
 </body>
 </html>
