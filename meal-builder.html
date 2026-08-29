@@ -18,9 +18,10 @@
             --text-dark: #1e293b; 
             --text-gray: #64748b; 
         }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
         
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
+        /* القائمة الجانبية المتجاوبة */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
@@ -32,10 +33,10 @@
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: #ef4444; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 30px; box-sizing: border-box; }
+        .main-content { flex: 1; margin-right: 260px; padding: 30px; box-sizing: border-box; width: calc(100% - 260px); transition: 0.3s; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 20px 30px; border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.05); }
-        .top-header h1 { margin: 0; font-size: 20px; display: flex; align-items: center; gap: 10px; }
+        .top-header h1 { margin: 0; font-size: 18px; display: flex; align-items: center; gap: 10px; }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 25px; }
         .card h3 { margin-top: 0; font-size: 16px; color: var(--text-dark); border-bottom: 2px solid #f1f5f9; padding-bottom: 12px; margin-bottom: 20px; display: flex; align-items: center; gap: 8px; }
@@ -58,10 +59,28 @@
         .btn-main { background: var(--primary-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2); }
         .btn-ai { background: var(--ai-gradient); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2); }
         .btn-whatsapp { background-color: var(--whatsapp-color); color: white; border: none; padding: 12px 24px; border-radius: 12px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.3s; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 4px 12px rgba(37, 211, 102, 0.2); }
+
+        /* زرار القائمة للموبايل والتابلت */
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 10px 16px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+
+        /* طبقة خلفية مظلمة عند فتح القائمة على الموبايل */
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 15px !important; }
+            .mobile-menu-toggle { display: inline-flex; align-items: center; gap: 8px; }
+            .top-header { padding: 15px; }
+            .top-header h1 { font-size: 15px; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
                 <img src="logo.jpeg" alt="Logo" class="brand-logo">
@@ -69,32 +88,33 @@
                 <p>عيادة التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="index.html">🏠 الرئيسية</a></li>
-                <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="appointments.html">📅 المواعيد</a></li>
-                <li><a href="visits.html">📋 الزيارات</a></li>
-                <li><a href="measurements.html">⚖️ القياسات</a></li>
-                <li class="active"><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
-                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل</a></li>
-                <li><a href="supplements.html">💊 المكملات</a></li>
-                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
-                <li><a href="payments.html">💰 المدفوعات</a></li>
-                <li><a href="reports.html">📊 التقارير</a></li>
-                <li><a href="notifications.html">🔔 التنبيهات</a></li>
-                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
-                <li><a href="settings.html">⚙️ الإعدادات</a></li>
+                <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
+                <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد</a></li>
+                <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
+                <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
+                <li class="active"><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
+                <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
+                <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
+
         <div class="top-header">
             <h1>🥗 محطة بناء الخطط الغذائية الذكية (3 وجبات + 3 سناكس)</h1>
         </div>
 
-        <!-- 1. اختيار اسم الحالة أولاً -->
         <div class="card">
             <div class="form-group">
                 <label>👤 اختر الحالة أو المريض المستهدف:</label>
@@ -104,7 +124,6 @@
             </div>
         </div>
 
-        <!-- 2. محرر الخطة يظهر بعد اختيار المريض -->
         <div class="card" id="planEditorCard" style="display:none;">
             <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
             
@@ -112,13 +131,11 @@
                 <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
             </div>
 
-            <!-- اختيار النظام: يومي أو أسبوعي -->
             <div class="plan-type-selector">
                 <button type="button" class="plan-tab active" id="tabDaily" onclick="switchPlanType('daily')">☀️ نظام يومي (يوم واحد)</button>
                 <button type="button" class="plan-tab" id="tabWeekly" onclick="switchPlanType('weekly')">📅 نظام أسبوعي (7 أيام كاملة)</button>
             </div>
 
-            <!-- حاوية النظام اليومي (3 وجبات + 3 سناكس) -->
             <div id="dailyContainer">
                 <div class="meal-slot"><label>🍳 وجبة الإفطار:</label><input type="text" id="d_b" class="form-control" placeholder="تفاصيل الإفطار..."></div>
                 <div class="meal-slot"><label>🍏 سناك 1 (خفيف صبحي):</label><input type="text" id="d_s1" class="form-control" placeholder="تفاصيل سناك 1..."></div>
@@ -128,7 +145,6 @@
                 <div class="meal-slot"><label>🥛 سناك 3 (قبل النوم):</label><input type="text" id="d_s3" class="form-control" placeholder="تفاصيل سناك 3..."></div>
             </div>
 
-            <!-- حاوية النظام الأسبوعي (7 أيام، كل يوم فيه 3 وجبات + 3 سناكس) -->
             <div id="weeklyContainer" style="display:none;">
                 <div id="sevenDaysWrapper"></div>
             </div>
@@ -152,8 +168,13 @@
 
         let allPatientsData = [];
         let currentSelected = null;
-        let currentPlanMode = 'daily'; // 'daily' or 'weekly'
+        let currentPlanMode = 'daily';
         const daysNames = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
         async function initMealBuilder() {
             const { data: patData } = await supabaseClient.from('patients').select('*');
@@ -274,7 +295,7 @@
             }
             
             document.getElementById('doctorNotesInput').value = `التزام بشرب الماء (2.5 لتر) يومياً وتجنب السكريات.`;
-            alert('✨ تم توليد الخطة الذكية (3 وجبات + 3 سناكس) بواسطة AI بنجاح!');
+            alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح!');
         }
 
         async function savePlanToSQL() {
@@ -322,7 +343,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ النظام الغذائي (3 وجبات + 3 سناكس) في قاعدة بيانات SQL بنجاح!');
+            alert('✨ تم حفظ النظام الغذائي في قاعدة بيانات SQL بنجاح!');
         }
 
         function sendPlanWhatsAppFromBuilder() {
