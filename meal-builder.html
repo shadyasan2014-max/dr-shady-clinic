@@ -3,18 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - الخطط الغذائية الذكية (SQL + AI)</title>
+    <title>Dr. Shady Samir - بناء الخطط الغذائية الذكية (SQL & AI)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
@@ -25,20 +25,15 @@
         .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .card h3 { margin-top: 0; font-size: 15px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
         
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
-        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-block; text-decoration: none; }
-        .btn-ai { background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 12px; }
-        
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.0.5); background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-dark); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
+        .btn-main { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-main:hover { background-color: #059669; }
+        .btn-ai { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
+        .btn-ai:hover { background-color: #2563eb; }
     </style>
 </head>
 <body>
@@ -52,10 +47,19 @@
             <ul class="sidebar-menu">
                 <li><a href="index.html">🏠 الرئيسية</a></li>
                 <li><a href="patients.html">👥 المرضى</a></li>
-                <li class="active"><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
+                <li><a href="appointments.html">📅 المواعيد</a></li>
+                <li><a href="visits.html">📋 الزيارات</a></li>
+                <li><a href="measurements.html">⚖️ القياسات</a></li>
+                <li class="active"><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html">🧪 التحاليل</a></li>
+                <li><a href="supplements.html">💊 المكملات</a></li>
+                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html">💰 المدفوعات</a></li>
+                <li><a href="reports.html">📊 التقارير</a></li>
+                <li><a href="notifications.html">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -63,172 +67,143 @@
 
     <div class="main-content">
         <div class="top-header">
-            <h1>🥗 الخطط الغذائية الذكية (SQL + AI)</h1>
-            <button class="btn-action" onclick="openAddMealModal()">+ إنشاء خطة غذائية جديدة</button>
+            <h1>🥗 بناء وتخصيص الخطط الغذائية الذكية (SQL & AI)</h1>
         </div>
 
         <div class="card">
-            <h3>📋 سجل الخطط الغذائية المحفوظة للحالات</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم المريض</th>
-                        <th>نوع النظام / الحالة</th>
-                        <th>السعرات المقدرة</th>
-                        <th>تفاصيل الوجبات</th>
-                        <th>ملاحظات إكلينيكية</th>
-                        <th>الإجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="mealsTableBody">
-                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب الخطط من قاعدة بيانات SQL...</td></tr>
-                </tbody>
-            </table>
+            <div class="form-group">
+                <label>اختر الحالة / المريض:</label>
+                <select id="patientSelect" class="form-control" onchange="loadSelectedPatientPlan()">
+                    <option value="">-- اختر مريضاً من قاعدة البيانات --</option>
+                </select>
+            </div>
         </div>
-    </div>
 
-    <!-- نافذة إضافة خطة غذائية -->
-    <div id="addMealModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تصميم خطة غذائية (مع مساعد AI)</h3>
+        <div class="card" id="planEditorCard" style="display:none;">
+            <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
             
-            <button type="button" class="btn-ai" onclick="generateAIMealPlan()">✨ توليد النظام الغذائي بالذكاء الاصطناعي</button>
+            <div style="display:flex; gap:10px; margin-bottom:15px;">
+                <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
+            </div>
 
-            <form onsubmit="saveMealToSQL(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="mealPatientName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
-                
-                <div class="form-group">
-                    <label>نوع النظام الإكلينيكي:</label>
-                    <select id="mealDietType" class="form-control">
-                        <option value="سوائل شفافة - تكميم">سوائل شفافة (أول أسبوع تكميم)</option>
-                        <option value="سوائل كاملة ومطحونة - تكميم">سوائل كاملة ومطحونة (أسبوع 2-4 تكميم)</option>
-                        <option value="أكل مطري وسوائل - تحويل مسار">أكل مطري وخفيف (تحويل مسار)</option>
-                        <option value="نظام السعرات المتوازنة - سمنة">نظام السعرات المتوازنة (للسمنة)</option>
-                        <option value="نظام غني بالسعرات - نحافة">نظام غني بالسعرات (للنحافة وزيادة الوزن)</option>
-                    </select>
-                </div>
+            <div class="form-group">
+                <label>☀️ الخطة اليومية (السوائل / الوجبات الخفيفة):</label>
+                <textarea id="dailyPlanInput" class="form-control" rows="4" placeholder="اكتب تفاصيل الخطة اليومية هنا..."></textarea>
+            </div>
 
-                <div class="form-group"><label>إجمالي السعرات المستهدفة:</label><input type="text" id="mealCalories" class="form-control" required placeholder="مثال: 900 - 1000 سعرة حرارية"></div>
-                <div class="form-group"><label>تفاصيل الوجبات (الفطار، الغداء، العشاء):</label><textarea id="mealDetails" class="form-control" rows="3" required placeholder="تفاصيل الوجبات المكتوبة..."></textarea></div>
-                <div class="form-group"><label>ملاحظات إكلينيكية (الأكل الواعي، السوائل):</label><textarea id="mealNotes" class="form-control" rows="2" placeholder="التركيز على شرب الماء ببطء ومضغ الطعام جيداً..."></textarea></div>
+            <div class="form-group">
+                <label>📅 الخطة الأسبوعية (الوجبات الكاملة والبدائل):</label>
+                <textarea id="weeklyPlanInput" class="form-control" rows="6" placeholder="اكتب تفاصيل الخطة الأسبوعية هنا..."></textarea>
+            </div>
 
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
-                    <button type="button" onclick="closeAddMealModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
-                </div>
-            </form>
+            <div class="form-group">
+                <label>📝 ملاحظات الدكتور الإكلينيكية:</label>
+                <textarea id="doctorNotesInput" class="form-control" rows="2" placeholder="ملاحظات إضافية للحالة..."></textarea>
+            </div>
+
+            <div style="display:flex; gap:10px;">
+                <button type="button" class="btn-main" onclick="savePlanToSQL()">💾 حفظ الخطة في قاعدة بيانات SQL</button>
+                <button type="button" style="background:#25D366; color:white; border:none; padding:10px 20px; border-radius:8px; font-weight:bold; cursor:pointer;" onclick="sendPlanWhatsAppFromBuilder()">💬 إرسال عبر واتساب</button>
+            </div>
         </div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function fetchMealsFromSQL() {
-            const tbody = document.getElementById('mealsTableBody');
-            const { data, error } = await supabaseClient.from('meals').select('*').order('created_at', { ascending: false });
+        let allPatientsData = [];
+        let currentSelected = null;
 
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
-                return;
-            }
+        async function initMealBuilder() {
+            const { data: patData } = await supabaseClient.from('patients').select('*');
+            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
-            tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد خطط غذائية مسجلة حالياً.</td></tr>`;
-                return;
-            }
+            allPatientsData = [];
+            if (patData) patData.forEach(p => allPatientsData.push({ ...p, _table: 'patients' }));
+            if (barData) barData.forEach(b => allPatientsData.push({ ...b, _table: 'bariatric_cases' }));
 
-            data.forEach(m => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${m.patient_name}</strong></td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${m.diet_type}</span></td>
-                        <td><strong>${m.calories}</strong></td>
-                        <td style="font-size:11px;">${m.meal_details}</td>
-                        <td style="color:var(--text-gray); font-size:11px;">${m.notes || 'لا توجد ملاحظات'}</td>
-                        <td>
-                            <button onclick="deleteMealFromSQL('${m.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🗑️ حذف</button>
-                        </td>
-                    </tr>
-                `;
+            let select = document.getElementById('patientSelect');
+            select.innerHTML = '<option value="">-- اختر مريضاً من قاعدة البيانات --</option>';
+
+            allPatientsData.forEach((item, idx) => {
+                let name = item.patient_name || item.name || 'مريض بدون اسم';
+                let cat = item.category || item.surgery_type || 'تغذية';
+                select.innerHTML += `<option value="${idx}">${name} (${cat})</option>`;
             });
         }
 
-        window.onload = function() {
-            fetchMealsFromSQL();
-        };
-
-        function openAddMealModal() { document.getElementById('addMealModal').style.display = 'flex'; }
-        function closeAddMealModal() { document.getElementById('addMealModal').style.display = 'none'; }
-
-        // مولد الذكاء الاصطناعي للخطط الغذائية حسب نوع العملية أو النظام
-        function generateAIMealPlan() {
-            const dietType = document.getElementById('mealDietType').value;
-            let caloriesField = document.getElementById('mealCalories');
-            let detailsField = document.getElementById('mealDetails');
-            let notesField = document.getElementById('mealNotes');
-
-            if (dietType.includes('سوائل شفافة')) {
-                caloriesField.value = '300 - 400 سعرة حرارية';
-                detailsField.value = 'مرق دجاج خالي الدسم، شوربة يانسون أو نعناع دافئة، مياه، شاي أخضر مخفف بدون سكر.';
-                notesField.value = 'تناول السوائل على رشفات صغيرة وببطء شديد (30 مل كل 10 دقائق).';
-            } else if (dietType.includes('سوائل كاملة')) {
-                caloriesField.value = '600 - 700 سعرة حرارية';
-                detailsField.value = 'حليب خالي الدسم، زبادي يوناني مخفف، شوربة عدس مطحونة ومصفاة، بروتين شيك مخصص.';
-                notesField.value = 'التركيز على الحصول على كفايتك من البروتين السائل وتجنب السكريات البسيطة.';
-            } else if (dietType.includes('أكل مطري')) {
-                caloriesField.value = '800 - 900 سعرة حرارية';
-                detailsField.value = 'بيض مسلوق مهروس جيداً، جبنة قريش مسحوقة، صدور دجاج مفرومة ومطبوخة طري جداً، بطاطس مسلوقة ومهروسة.';
-                notesField.value = 'المضغ الجيد ببطء والوقف فور الشعور بالامتناع الشديد.';
-            } else if (dietType.includes('السعرات المتوازنة')) {
-                caloriesField.value = '1500 - 1600 سعرة حرارية';
-                detailsField.value = 'الفطار: بيضتان مسلوقتان + ربع رغيف بلدي + سلطة. الغداء: قطعة لحم أو دجاج مشوي + 5 معالق أرز + أطباق خضار سوتيه. العشاء: زبادي وثمرة فاكهة.';
-                notesField.value = 'تطبيق مبادئ الأكل الواعي، وفصل شرب الماء عن الوجبات بـ 30 دقيقة.';
-            } else {
-                caloriesField.value = '2500 - 2800 سعرة حرارية';
-                detailsField.value = 'وجبات مكثفة غنية بالبروتين الصحي (تونه، لحوم حمراء، مكسرات، شوفان، زبدة بيض وزبدة فول سوداني).';
-                notesField.value = 'زيادة السعرات تدريجياً لضمان بناء الكتلة العضلية بدون تراكم دهون ضارة.';
-            }
-
-            alert('✨ تم توليد الخطة الغذائية الذكية بنجاح بواسطة الـ AI!');
-        }
-
-        async function saveMealToSQL(event) {
-            event.preventDefault();
-            const patient_name = document.getElementById('mealPatientName').value;
-            const diet_type = document.getElementById('mealDietType').value;
-            const calories = document.getElementById('mealCalories').value;
-            const meal_details = document.getElementById('mealDetails').value;
-            const notes = document.getElementById('mealNotes').value;
-
-            const { error } = await supabaseClient.from('meals').insert([
-                { patient_name, diet_type, calories, meal_details, notes }
-            ]);
-
-            if (error) {
-                alert('خطأ أثناء الحفظ: ' + error.message);
+        function loadSelectedPatientPlan() {
+            let idx = document.getElementById('patientSelect').value;
+            if (idx === "") {
+                document.getElementById('planEditorCard').style.display = 'none';
                 return;
             }
 
-            alert('✨ تم حفظ الخطة الغذائية في قاعدة بيانات SQL بنجاح دائم!');
-            closeAddMealModal();
-            fetchMealsFromSQL();
-            event.target.reset();
+            currentSelected = allPatientsData[idx];
+            document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${currentSelected.patient_name || currentSelected.name}`;
+            
+            document.getElementById('dailyPlanInput').value = currentSelected.daily_plan || currentSelected.diet_plan || '';
+            document.getElementById('weeklyPlanInput').value = currentSelected.weekly_plan || '';
+            document.getElementById('doctorNotesInput').value = currentSelected.medical_history || currentPatientNotes() || '';
+
+            document.getElementById('planEditorCard').style.display = 'block';
         }
 
-        async function deleteMealFromSQL(rowId) {
-            if (confirm('هل أنت متأكد من حذف هذه الخطة الغذائية نهائياً من قاعدة بيانات SQL؟')) {
-                const { error } = await supabaseClient.from('meals').delete().eq('id', rowId);
-                if (error) {
-                    alert('خطأ أثناء الحذف: ' + error.message);
-                    return;
-                }
-                fetchMealsFromSQL();
-            }
+        function currentPatientNotes() {
+            return currentSelected.notes || '';
         }
+
+        function generateAIPlan() {
+            if (!currentSelected) return;
+            let cat = currentSelected.category || currentSelected.surgery_type || 'تكميم';
+            
+            document.getElementById('dailyPlanInput').value = `🔹 الخطة اليومية المقترحة بواسطة AI (${cat}):\n- السوائل الشفافة والمياه: 2.5 لتر موزعة طوال اليوم.\n- البروتين السائل: شوربة صافية مع مكمل بروتين.`;
+            document.getElementById('weeklyPlanInput').value = `🔹 الخطة الأسبوعية المقترحة بواسطة AI:\n- الأيام (1-3): سوائل صافية وعصائر طبيعية مخففة.\n- الأيام (4-7): هجرس ومهروس خفيف مع التركيز على جرعات البروتين اليومية (60-90 جم).`;
+            document.getElementById('doctorNotesInput').value = `المريض تحت المتابعة الإكلينيكية، الالتزام بالتعليمات وتقليل السكريات.`;
+            
+            alert('✨ تم توليد الخطة الذكية بواسطة AI بنجاح! يمكنك مراجعتها وتعديلها.');
+        }
+
+        async function savePlanToSQL() {
+            if (!currentSelected) return;
+
+            let daily = document.getElementById('dailyPlanInput').value;
+            let weekly = document.getElementById('weeklyPlanInput').value;
+            let notes = document.getElementById('doctorNotesInput').value;
+
+            let payload = {};
+            if (currentSelected._table === 'patients') {
+                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n' + weekly, medical_history: notes };
+            } else {
+                payload = { daily_plan: daily, weekly_plan: weekly, diet_plan: daily + '\n' + weekly, notes: notes };
+            }
+
+            const { error } = await supabaseClient.from(currentSelected._table).update(payload).eq('id', currentSelected.id);
+            if (error) {
+                alert('حدث خطأ أثناء الحفظ: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم حفظ الخطة الغذائية والملاحظات في قاعدة بيانات SQL بنجاح!');
+        }
+
+        function sendPlanWhatsAppFromBuilder() {
+            if (!currentSelected) return;
+            let phone = currentSelected.phone;
+            let name = currentSelected.patient_name || currentSelected.name || 'العزيز';
+            let daily = document.getElementById('dailyPlanInput').value;
+            let weekly = document.getElementById('weeklyPlanInput').value;
+            let notes = document.getElementById('doctorNotesInput').value;
+
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الغذائية المخصصة لك من عيادة د. شادي سمير:\n\n☀️ الخطة اليومية:\n${daily}\n\n📅 الخطة الأسبوعية:\n${weekly}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
+            
+            let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+
+        window.onload = initMealBuilder;
     </script>
 </body>
 </html>
