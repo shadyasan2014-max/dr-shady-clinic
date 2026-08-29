@@ -29,6 +29,13 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
         .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
+        
+        /* Modal للتعديل */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
     </style>
 </head>
 <body>
@@ -86,23 +93,44 @@
         </div>
     </div>
 
+    <!-- نافذة التعديل المنبثقة -->
+    <div id="editModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة</h3>
+            <form onsubmit="updateRecordData(event)">
+                <input type="hidden" id="editId">
+                <input type="hidden" id="editTable">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
+                <div class="form-group"><label>التصنيف / الحالة:</label><input type="text" id="editCategory" class="form-control" required></div>
+                <div class="form-group"><label>الحالة المرضية / ملاحظات:</label><input type="text" id="editCondition" class="form-control"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control"></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
+                    <button type="button" onclick="closeEditModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let masterDataList = [];
+
         async function fetchAllPatientsAndCases() {
             const tbody = document.getElementById('patientsTableBody');
             
-            // جلب البيانات من جدول المرضى وجدول جراحات السمنة
-            const { data: patData, error: patErr } = await supabaseClient.from('patients').select('*');
-            const { data: barData, error: barErr } = await supabaseClient.from('bariatric_cases').select('*');
+            const { data: patData } = await supabaseClient.from('patients').select('*');
+            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
-            let combinedList = [];
+            masterDataList = [];
 
             if (patData) {
                 patData.forEach(p => {
-                    combinedList.push({
+                    masterDataList.push({
                         id: p.id,
                         table: 'patients',
                         name: p.patient_name || p.name || 'غير معروف',
@@ -116,7 +144,7 @@
 
             if (barData) {
                 barData.forEach(b => {
-                    combinedList.push({
+                    masterDataList.push({
                         id: b.id,
                         table: 'bariatric_cases',
                         name: b.patient_name || 'غير معروف',
@@ -129,12 +157,12 @@
             }
 
             tbody.innerHTML = '';
-            if (combinedList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد حالات مسجلة حالياً. السيستم نظيف وجاهز.</td></tr>`;
+            if (masterDataList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد حالات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
-            combinedList.forEach(item => {
+            masterDataList.forEach(item => {
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${item.name}</strong></td>
@@ -142,10 +170,58 @@
                         <td>${item.condition}</td>
                         <td>${item.weight}</td>
                         <td>${item.phone}</td>
-                        <td><button onclick="deleteRecord('${item.id}', '${item.table}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer;">🗑️ حذف</button></td>
+                        <td style="display:flex; gap:5px;">
+                            <button onclick="openEditModal('${item.id}', '${item.table}')" style="background:#e0f2fe; color:#0369a1; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:bold;">✏️ تعديل</button>
+                            <button onclick="deleteRecord('${item.id}', '${item.table}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:bold;">🗑️ حذف</button>
+                        </td>
                     </tr>
                 `;
             });
+        }
+
+        function openEditModal(id, tableName) {
+            let item = masterDataList.find(x => x.id === id && x.table === tableName);
+            if (!item) return;
+
+            document.getElementById('editId').value = item.id;
+            document.getElementById('editTable').value = item.table;
+            document.getElementById('editName').value = item.name;
+            document.getElementById('editCategory').value = item.category;
+            document.getElementById('editCondition').value = item.condition;
+            document.getElementById('editPhone').value = item.phone !== '-' ? item.phone : '';
+
+            document.getElementById('editModal').style.display = 'flex';
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').style.display = 'none';
+        }
+
+        async function updateRecordData(e) {
+            e.preventDefault();
+            let id = document.getElementById('editId').value;
+            let tableName = document.getElementById('editTable').value;
+            let name = document.getElementById('editName').value;
+            let category = document.getElementById('editCategory').value;
+            let condition = document.getElementById('editCondition').value;
+            let phone = document.getElementById('editPhone').value;
+
+            let updatePayload = {};
+            if (tableName === 'patients') {
+                updatePayload = { patient_name: name, category: category, medical_history: condition, phone: phone };
+            } else {
+                updatePayload = { patient_name: name, surgery_type: category, notes: condition };
+            }
+
+            const { error } = await supabaseClient.from(tableName).update(updatePayload).eq('id', id);
+            if (error) {
+                alert('خطأ أثناء التعديل: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم تحديث البيانات بنجاح!');
+            closeEditModal();
+            fetchAllPatientsAndCases();
         }
 
         async function deleteRecord(id, tableName) {
