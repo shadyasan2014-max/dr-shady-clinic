@@ -28,7 +28,7 @@
         .patient-info-box { display: flex; align-items: center; gap: 20px; }
         .patient-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); }
         .patient-actions-top { display: flex; gap: 8px; flex-wrap: wrap; }
-        .top-action-btn { background: #f8fafc; border: 1px solid var(--card-border); padding: 7px 12px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dark); transition: 0.2s; }
+        .top-action-btn { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dark); transition: 0.2s; }
         .top-action-btn:hover { background: #e0f2fe; border-color: #3b82f6; color: #0369a1; }
 
         .metrics-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 15px; }
@@ -40,7 +40,7 @@
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); margin-bottom: 15px; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
 
-        /* نافذة التعديل المنبثقة الشاملة */
+        /* نوافذ التعديل والمتابعة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
@@ -116,7 +116,7 @@
         <div class="profile-grid">
             <div class="card">
                 <h3>📈 تطور الوزن (منحنى المتابعة الحية)</h3>
-                <div style="height: 220px; position: relative;">
+                <div style="height: 220px; width: 100%; position: relative; display: block;">
                     <canvas id="weightChart"></canvas>
                 </div>
             </div>
@@ -125,7 +125,7 @@
                 <h3>🥗 الخطة الغذائية الحالية والملاحظات</h3>
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:12px;">
                     <strong style="font-size:12px; color:#166534; display:block; margin-bottom:5px;">🍽️ تفاصيل الخطة الغذائية المخصصة:</strong>
-                    <p id="pDietPlan" style="font-size:12px; line-height:1.6; color:#14532d; margin:0;">لم يتم كتابة خطة غذائية بعد. اضغط على تعديل الحالة لإضافتها.</p>
+                    <p id="pDietPlan" style="font-size:12px; line-height:1.6; color:#14532d; margin:0;">لم يتم كتابة خطة غذائية بعد.</p>
                 </div>
 
                 <h3 style="margin-top:10px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية</h3>
@@ -135,7 +135,7 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل بيانات الحالة الشاملة -->
+    <!-- نافذة تعديل بيانات الحالة -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة بالكامل</h3>
@@ -144,10 +144,10 @@
                 <div class="form-group"><label>التصنيف / العملية:</label><input type="text" id="editCategory" class="form-control" required></div>
                 <div class="form-group"><label>وزن البداية (كجم):</label><input type="number" step="0.1" id="editStartWeight" class="form-control" required></div>
                 <div class="form-group"><label>الوزن الحالي (كجم):</label><input type="number" step="0.1" id="editWeight" class="form-control" required></div>
-                <div class="form-group"><label>الطول (سم):</label><input type="number" step="1" id="editHeight" class="form-control" placeholder="مثال: 175"></div>
+                <div class="form-group"><label>الطول (سم):</label><input type="number" step="1" id="editHeight" class="form-control" placeholder="175"></div>
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control"></div>
-                <div class="form-group"><label>🥗 الخطة الغذائية (التي ستُرسل للحالة):</label><textarea id="editDietPlan" class="form-control" rows="3" placeholder="اكتب الخطة الغذائية هنا..."></textarea></div>
-                <div class="form-group"><label>📝 ملاحظات الدكتور الإكلينيكية:</label><textarea id="editNotes" class="form-control" rows="2"></textarea></div>
+                <div class="form-group"><label>🥗 الخطة الغذائية:</label><textarea id="editDietPlan" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label>📝 ملاحظات الدكتور:</label><textarea id="editNotes" class="form-control" rows="2"></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
@@ -163,8 +163,8 @@
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل متابعة جديدة</h3>
             <form onsubmit="saveNewFollowup(event)">
                 <div class="form-group"><label>تاريخ المتابعة:</label><input type="date" id="fuDate" class="form-control" required></div>
-                <div class="form-group"><label>الوزن المسجل في هذه المتابعة (كجم):</label><input type="number" step="0.1" id="fuWeight" class="form-control" required></div>
-                <div class="form-group"><label>ملاحظات المتابعة / الالتزام:</label><textarea id="fuNotes" class="form-control" rows="2" placeholder="أداء المريض، التزام بالتعليمات..."></textarea></div>
+                <div class="form-group"><label>الوزن الجديد (كجم):</label><input type="number" step="0.1" id="fuWeight" class="form-control" required></div>
+                <div class="form-group"><label>ملاحظات المتابعة:</label><textarea id="fuNotes" class="form-control" rows="2"></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">تسجيل المتابعة</button>
@@ -176,7 +176,7 @@
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let activePatient = null;
@@ -213,7 +213,6 @@
             let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات إكلينيكية مسجلة حالياً.';
             let dietPlan = activePatient.diet_plan || 'لم يتم كتابة خطة غذائية بعد.';
 
-            // حساب مؤشر كتلة الجسم BMI وإجمالي النزول
             let bmi = (currentWeight / Math.pow(height / 100, 2)).toFixed(1);
             let totalLoss = (startWeight - currentWeight).toFixed(1);
 
@@ -236,7 +235,7 @@
             document.getElementById('editCategory').value = activePatient.category || activePatient.surgery_type || '';
             document.getElementById('editStartWeight').value = activePatient.start_weight || activePatient.weight || '';
             document.getElementById('editWeight').value = activePatient.weight || '';
-            document.getElementById('editHeight').value = activePatient.height || '';
+            document.getElementById('editHeight').value = activePatient.height || 175;
             document.getElementById('editPhone').value = activePatient.phone || '';
             document.getElementById('editDietPlan').value = activePatient.diet_plan || '';
             document.getElementById('editNotes').value = activePatient.medical_history || activePatient.notes || '';
@@ -289,13 +288,9 @@
         async function saveNewFollowup(e) {
             e.preventDefault();
             let newWeight = parseFloat(document.getElementById('fuWeight').value);
-            let fuDate = document.getElementById('fuDate').value;
-            let fuNotes = document.getElementById('fuNotes').value;
+            let payload = { weight: newWeight };
 
-            // تحديث الوزن الحالي للحالة في جدول SQL الأساسي
-            let payload = activeTable === 'patients' ? { weight: newWeight } : { weight: newWeight };
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
-            
             if (error) {
                 alert('خطأ أثناء تسجيل المتابعة.');
                 return;
@@ -306,7 +301,6 @@
             loadPatientProfile();
         }
 
-        // إرسال الخطة الغذائية عبر واتساب بالكلمات المكتوبة بدقة
         function sendPlanWhatsApp() {
             if (!activePatient) return;
             let phone = activePatient.phone;
@@ -314,7 +308,7 @@
             let dietPlan = activePatient.diet_plan || 'التزم بالتعليمات الطبية الموصوفة.';
             let notes = activePatient.medical_history || activePatient.notes || '';
 
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير للتغذية العلاجية وجراحات السمنة:\n\n🥗 الخطة الغذائية:\n${dietPlan}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الطبية والغذائية الخاصة بك من عيادة د. شادي سمير:\n\n🥗 الخطة الغذائية:\n${dietPlan}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
             
             let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
