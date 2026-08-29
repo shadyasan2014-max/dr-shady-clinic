@@ -45,12 +45,10 @@
         .form-control { width: 100%; padding: 10px 12px; border: 2px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; transition: 0.3s; }
         .form-control:focus { border-color: var(--primary-green); background-color: #fff; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1); }
         
-        /* تبيوّب اختيار نوع النظام */
         .plan-type-selector { display: flex; gap: 15px; margin-bottom: 20px; background: #f1f5f9; padding: 6px; border-radius: 12px; }
         .plan-tab { flex: 1; padding: 12px; text-align: center; border-radius: 10px; font-weight: bold; font-size: 14px; cursor: pointer; transition: 0.2s; border: none; background: transparent; color: var(--text-gray); }
         .plan-tab.active { background: white; color: var(--primary-green); box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
 
-        /* تصميم بطاقات الوجبات والسناكس */
         .meal-slot { background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 10px; margin-bottom: 10px; }
         .meal-slot label { color: #0369a1; font-size: 12px; font-weight: bold; }
         
@@ -132,7 +130,6 @@
 
             <!-- حاوية النظام الأسبوعي (7 أيام، كل يوم فيه 3 وجبات + 3 سناكس) -->
             <div id="weeklyContainer" style="display:none;">
-                <!-- سيتم توليد الـ 7 أيام جافاسكريبت لتكون أنيقة ومنظمة -->
                 <div id="sevenDaysWrapper"></div>
             </div>
 
@@ -221,7 +218,6 @@
             currentSelected = allPatientsData[idx];
             document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${currentSelected.patient_name || currentSelected.name}`;
             
-            // تحميل اليومي لو متوفر
             if (currentSelected.daily_meals) {
                 try {
                     let dObj = JSON.parse(currentSelected.daily_meals);
@@ -238,7 +234,6 @@
                 document.getElementById('d_b').value = currentSelected.daily_plan || '';
             }
 
-            // تحميل الأسبوعي لو متوفر
             if (currentSelected.weekly_meals_json) {
                 try {
                     let wObj = JSON.parse(currentSelected.weekly_meals_json);
@@ -333,6 +328,18 @@
         function sendPlanWhatsAppFromBuilder() {
             if (!currentSelected) return;
             let phone = currentSelected.phone;
+            if (!phone) {
+                alert('الرجاء التأكد من إدخال رقم الهاتف للحالة أولاً.');
+                return;
+            }
+
+            let cleanPhone = phone.replace(/[^0-9]/g, '');
+            if (cleanPhone.startsWith('0')) {
+                cleanPhone = '2' + cleanPhone;
+            } else if (!cleanPhone.startsWith('20')) {
+                cleanPhone = '20' + cleanPhone;
+            }
+
             let name = currentSelected.patient_name || currentSelected.name || 'العزيز';
             let notes = document.getElementById('doctorNotesInput').value;
             
@@ -356,13 +363,13 @@
                     let d = document.getElementById(`w_${idx}_d`).value;
                     let s3 = document.getElementById(`w_${idx}_s3`).value;
 
-                    planText += `\n📌 يوم ${dayName}:\n- إفطار: ${b}\n- سناك 1: ${s1}\n- غداء: ${l}\n- سناك 2: ${s2}\n- عشاء: ${d}\n- سناك 3: ${s3}\n`;
+                    planText += `\n📌 يوم ${dayName}:\n- الإفطار: ${b}\n- سناك 1: ${s1}\n- الغداء: ${l}\n- سناك 2: ${s2}\n- العشاء: ${d}\n- سناك 3: ${s3}\n`;
                 });
             }
 
             let msg = `أهلاً بك يا ${name} 🌟\n\nإليك الخطة الغذائية المخصصة لك من عيادة د. شادي سمير:\n\n${planText}\n\n📝 ملاحظات الدكتور:\n${notes}\n\nنتمنى لك دوام الصحة والعافية! 🩺`;
             
-            let whatsappUrl = `https://wa.me/${phone ? phone.replace(/[^0-9]/g, '') : ''}?text=${encodeURIComponent(msg)}`;
+            let whatsappUrl = `https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`;
             window.open(whatsappUrl, '_blank');
         }
 
