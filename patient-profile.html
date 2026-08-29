@@ -38,47 +38,6 @@
         .metric-value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
 
         .profile-stack { display: flex; flex-direction: column; gap: 15px; }
-
-<!-- 6. أهداف المتابعة القادمة -->
-                <div class="card">
-                    <h3>🎯 أهداف المتابعة القادمة (محددة من الطبيب)</h3>
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; font-size: 12px;">
-                        <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">
-                            <span style="color:var(--text-gray); display:block; margin-bottom:3px;">الوزن المستهدف:</span>
-                            <strong style="color:var(--primary-green); font-size:14px;">90 كجم</strong>
-                        </div>
-                        <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">
-                            <span style="color:var(--text-gray); display:block; margin-bottom:3px;">البروتين المستهدف:</span>
-                            <strong style="color:var(--accent-blue); font-size:14px;">100 جم / يوم</strong>
-                        </div>
-                        <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">
-                            <span style="color:var(--text-gray); display:block; margin-bottom:3px;">المياه المستهدفة:</span>
-                            <strong style="color:var(--accent-blue); font-size:14px;">2 لتر / يوم</strong>
-                        </div>
-                        <div style="background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border);">
-                            <span style="color:var(--text-gray); display:block; margin-bottom:3px;">موعد المتابعة القادم:</span>
-                            <strong style="color:var(--warning-orange); font-size:14px;">خلال 14 يوم</strong>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- 7. الأدوية والمكملات والتحاليل المطلوبة -->
-                <div class="card">
-                    <h3>💊 الأدوية، المكملات، والتحاليل المطلوبة (حالات السمنة)</h3>
-                    <div style="display: flex; flex-direction: column; gap: 10px; font-size: 12px;">
-                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:8px;">
-                            <strong style="color:#166534; display:block; margin-bottom:3px;">💊 المكملات الحالية ومدى الالتزام:</strong>
-                            <p style="margin:0; color:#14532d;">فيتامين B12، كالسيتريل، ومولتي فايتمن — <span style="color:#10b981; font-weight:bold;">(ملتزم بنسبة 90%)</span></p>
-                        </div>
-                        <div style="background:#eff6ff; border:1px solid #bfdbfe; padding:10px; border-radius:8px;">
-                            <strong style="color:#1e40af; display:block; margin-bottom:3px;">🧪 التحاليل المطلوبة وإعادة الموعد:</strong>
-                            <p style="margin:0; color:#1e3a8a;">صورة دم كاملة (CBC)، مخزون حديد (Ferritin) — موعد إعادة التحليل القادم خلال شهر.</p>
-                        </div>
-                    </div>
-                </div>
-
-
-        
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); width: 100%; box-sizing: border-box; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
@@ -142,7 +101,6 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="patientPdfArea">
-            <!-- رأس بيانات العيادة (للـ PDF) -->
             <div class="pdf-header-banner">
                 <div style="text-align: right;">
                     <h2 style="margin:0; color:#0b1329; font-size:17px;">د. شادي سمير</h2>
@@ -153,7 +111,6 @@
                 </div>
             </div>
 
-            <!-- بطاقة رأس الحالة -->
             <div class="patient-header-card">
                 <div class="patient-info-box">
                     <img src="logo.jpeg" alt="Patient" class="patient-avatar">
@@ -162,7 +119,7 @@
                             <h2 style="margin:0; font-size: 18px;" id="pName">جاري التحميل...</h2>
                             <span id="pStatusBadge" style="background:#dcfce7; color:#166534; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:bold;">🟢 مستقر</span>
                         </div>
-                        <p style="margin: 4px 0 0 0; font-size: 11px; color: var(--text-gray);" id="pSubInfo">آخر زيارة: 29/08 | المتابعة القادمة: 12/09</p>
+                        <p style="margin: 4px 0 0 0; font-size: 11px; color: var(--text-gray);" id="pSubInfo">آخر زيارة وحالة المريض</p>
                     </div>
                 </div>
                 <div class="patient-actions-top">
@@ -173,15 +130,11 @@
                 </div>
             </div>
 
-            <!-- 1. الملخص الذكي للحالة -->
             <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; margin-bottom: 15px; padding: 15px;">
                 <h3 style="color: #166534; border-bottom-color: #bbf7d0; margin-bottom: 8px; font-size: 13px;">⚡ الملخص الذكي للحالة (آخر زيارة)</h3>
-                <p id="smartSummaryText" style="font-size: 12px; color: #14532d; line-height: 1.5; margin: 0; font-weight: 500;">
-                    جاري تحليل بيانات آخر زيارة وتوليد الملخص الذكي...
-                </p>
+                <p id="smartSummaryText" style="font-size: 12px; color: #14532d; line-height: 1.5; margin: 0; font-weight: 500;">جاري تحليل بيانات الحالة وتوليد الملخص الذكي...</p>
             </div>
 
-            <!-- 2. مؤشرات القياسات العلوية الـ 4 -->
             <div class="metrics-grid">
                 <div class="metric-card"><div class="metric-title">الوزن الحالي</div><div class="metric-value" id="mCurrentWeight" style="color:var(--primary-green);">-</div></div>
                 <div class="metric-card"><div class="metric-title">مؤشر كتلة الجسم BMI</div><div class="metric-value" id="mBMI">-</div></div>
@@ -189,7 +142,6 @@
                 <div class="metric-card"><div class="metric-title">كتلة العضلات</div><div class="metric-value" id="mMuscle" style="color:var(--accent-blue);">-</div></div>
             </div>
 
-            <!-- 3. جدول مقارنة القياسات (الحالي × السابق × التغيير) -->
             <div class="card" style="margin-bottom: 15px;">
                 <h3>📊 مقارنة القياسات (الحالي مقابل السابق)</h3>
                 <table>
@@ -207,43 +159,11 @@
                 </table>
             </div>
 
-            <!-- 4. مؤشرات الالتزام البصري وتنبيهات التدخل -->
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-                <div class="card" style="margin-bottom: 0;">
-                    <h3>🎯 مؤشرات الالتزام البصري</h3>
-                    <div style="font-size: 12px; display: flex; flex-direction: column; gap: 8px;">
-                        <div>الالتزام العام: <strong id="compGeneral">85%</strong></div>
-                        <div>البروتين: <strong id="compProtein">85%</strong></div>
-                        <div>المياه: <strong id="compWater">70%</strong></div>
-                        <div>النشاط البدني: <strong id="compActivity">60%</strong></div>
-                    </div>
-                </div>
-                <div class="card" style="margin-bottom: 0; background: #fef2f2; border-color: #fecaca;">
-                    <h3 style="color: #991b1b; border-bottom-color: #fecaca;">⚠️ ملاحظات تحتاج تدخل!</h3>
-                    <ul id="alertsList" style="margin: 0; padding-right: 20px; font-size: 12px; color: #7f1d1d; line-height: 1.6;">
-                        <li>المياه منخفضة (أقل من المعدل المطلوب)</li>
-                        <li>البروتين يحتاج زيادة في الوجبات</li>
-                    </ul>
-                </div>
-            </div>
-
-            <!-- 5. الترتيب العمودي: منحنى تطور الوزن، الـ Timeline، والخطة والملاحظات -->
             <div class="profile-stack">
                 <div class="card">
                     <h3>📈 تطور الوزن (منحنى المتابعة الحية)</h3>
                     <div style="height: 180px; width: 100%; position: relative;">
                         <canvas id="weightChart"></canvas>
-                    </div>
-                </div>
-
-                <!-- Timeline للمتابعات -->
-                <div class="card">
-                    <h3>📅 سجل المتابعات (Timeline)</h3>
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 5px;" id="timelineContainer">
-                        <span style="background:#e0f2fe; color:#0369a1; padding:5px 12px; border-radius:8px; font-size:12px; font-weight:bold;">01/08</span>
-                        <span style="background:#e0f2fe; color:#0369a1; padding:5px 12px; border-radius:8px; font-size:12px; font-weight:bold;">15/08</span>
-                        <span style="background:#10b981; color:white; padding:5px 12px; border-radius:8px; font-size:12px; font-weight:bold;">29/08 (الحالية)</span>
-                        <span style="background:#f1f5f9; color:var(--text-gray); padding:5px 12px; border-radius:8px; font-size:12px; font-weight:bold;">12/09 (القادمة)</span>
                     </div>
                 </div>
 
@@ -254,49 +174,45 @@
                         <p id="pDietPlan" style="font-size:12px; line-height:1.6; color:#14532d; margin:0; white-space: pre-line;">لم يتم كتابة خطة غذائية بعد.</p>
                     </div>
 
-                    <h3 style="margin-top:10px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية وسجل التغييرات</h3>
+                    <h3 style="margin-top:10px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية</h3>
                     <p id="pNotes" style="font-size:12px; line-height:1.6; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border); white-space: pre-line;">جاري تحميل الملاحظات...</p>
-                    <div style="font-size: 11px; color: var(--text-gray); margin-top: 8px; text-align: left;">آخر تعديل: د. شادي سمير – 29/08/2026 - 8:42 م</div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تعديل بيانات الحالة -->
+    <!-- نافذة تعديل بيانات الحالة (متوافقة ذكياً مع الجدول بدون أخطاء أعمدة مفقودة) -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة بالكامل</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة</h3>
             <form onsubmit="savePatientEdits(event)">
                 <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
                 <div class="form-group"><label>التصنيف / العملية:</label><input type="text" id="editCategory" class="form-control" required></div>
-                <div class="form-group"><label>وزن البداية (كجم):</label><input type="number" step="0.1" id="editStartWeight" class="form-control" required></div>
+                <div class="form-group"><label>وزن البداية (كجم):</label><input type="number" step="0.1" id="editStartWeight" class="form-control"></div>
                 <div class="form-group"><label>الوزن الحالي (كجم):</label><input type="number" step="0.1" id="editWeight" class="form-control" required></div>
-                <div class="form-group"><label>الطول (سم):</label><input type="number" step="1" id="editHeight" class="form-control" placeholder="175"></div>
-                <div class="form-group"><label>نسبة الدهون (%):</label><input type="number" step="0.1" id="editFat" class="form-control" placeholder="31"></div>
-                <div class="form-group"><label>كتلة العضلات (كجم):</label><input type="number" step="0.1" id="editMuscle" class="form-control" placeholder="31"></div>
+                <div class="form-group"><label>الطول (سم):</label><input type="number" step="1" id="editHeight" class="form-control"></div>
+                <div class="form-group"><label>نسبة الدهون (%):</label><input type="number" step="0.1" id="editFat" class="form-control"></div>
+                <div class="form-group"><label>كتلة العضلات (كجم):</label><input type="number" step="0.1" id="editMuscle" class="form-control"></div>
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control"></div>
-                <div class="form-group"><label>🥗 الخطة الغذائية:</label><textarea id="editDietPlan" class="form-control" rows="4"></textarea></div>
-                <div class="form-group"><label>📝 ملاحظات الدكتور:</label><textarea id="editNotes" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label>🥗 الخطة الغذائية:</label><textarea id="editDietPlan" class="form-control" rows="3"></textarea></div>
+                <div class="form-group"><label>📝 ملاحظات الدكتور:</label><textarea id="editNotes" class="form-control" rows="2"></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ التعديلات في SQL</button>
                     <button type="button" onclick="closeEditModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- نافذة تسجيل متابعة جديدة -->
+    <!-- نافذة تسجيل متابعة -->
     <div id="followupModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل متابعة جديدة</h3>
             <form onsubmit="saveNewFollowup(event)">
                 <div class="form-group"><label>تاريخ المتابعة:</label><input type="date" id="fuDate" class="form-control" required></div>
                 <div class="form-group"><label>الوزن الجديد (كجم):</label><input type="number" step="0.1" id="fuWeight" class="form-control" required></div>
-                <div class="form-group"><label>نسبة الدهون (%):</label><input type="number" step="0.1" id="fuFat" class="form-control"></div>
-                <div class="form-group"><label>كتلة العضلات (كجم):</label><input type="number" step="0.1" id="fuMuscle" class="form-control"></div>
-                <div class="form-group"><label>ملاحظات المتابعة والتنبيهات:</label><textarea id="fuNotes" class="form-control" rows="2"></textarea></div>
-
+                <div class="form-group"><label>ملاحظات المتابعة:</label><textarea id="fuNotes" class="form-control" rows="2"></textarea></div>
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">تسجيل المتابعة</button>
                     <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
@@ -331,7 +247,7 @@
             if (barData) barData.forEach(b => allCases.push({ ...b, _table: 'bariatric_cases' }));
 
             if (allCases.length === 0) {
-                alert('لا توجد أي حالات مسجلة في قاعدة البيانات حالياً.');
+                alert('لا توجد حالات مسجلة.');
                 return;
             }
 
@@ -348,82 +264,49 @@
 
             let name = activePatient.patient_name || activePatient.name || 'مريض بدون اسم';
             let category = activePatient.category || activePatient.surgery_type || 'متابعة تغذية';
-            let phone = activePatient.phone || 'غير مسجل';
-            let currentWeight = activePatient.weight !== undefined && activePatient.weight !== null ? activePatient.weight : 92.4;
-            let startWeight = activePatient.start_weight !== undefined && activePatient.start_weight !== null ? activePatient.start_weight : 96.5;
+            let currentWeight = activePatient.weight !== undefined && activePatient.weight !== null ? activePatient.weight : 0;
+            let startWeight = activePatient.start_weight !== undefined && activePatient.start_weight !== null ? activePatient.start_weight : currentWeight;
             let height = activePatient.height || 175;
-            let currentFat = activePatient.fat || 31;
-            let prevFat = 34;
-            let currentMuscle = activePatient.muscle || 31;
-            let prevMuscle = 31;
-            let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات إكلينيكية مسجلة حالياً.';
+            let currentFat = activePatient.fat || 0;
+            let currentMuscle = activePatient.muscle || 0;
+            let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات مسجلة.';
             let dietPlan = activePatient.diet_plan || 'لم يتم كتابة خطة غذائية بعد.';
 
-            let bmi = (currentWeight / Math.pow(height / 100, 2)).toFixed(1);
+            let bmi = height > 0 ? (currentWeight / Math.pow(height / 100, 2)).toFixed(1) : '-';
 
             document.getElementById('pName').innerText = name;
+            document.getElementById('pSubInfo').innerText = `التصنيف: ${category} | الهاتف: ${activePatient.phone || 'غير مسجل'}`;
             document.getElementById('mCurrentWeight').innerText = currentWeight + ' كجم';
             document.getElementById('mBMI').innerText = bmi;
-            document.getElementById('mFat').innerText = currentFat + '%';
-            document.getElementById('mMuscle').innerText = currentMuscle + ' كجم';
+            document.getElementById('mFat').innerText = currentFat ? currentFat + '%' : '-';
+            document.getElementById('mMuscle').innerText = currentMuscle ? currentMuscle + ' كجم' : '-';
             document.getElementById('pNotes').innerText = notes;
             document.getElementById('pDietPlan').innerText = dietPlan;
 
-            // توليد الملخص الذكي ومقارنة القياسات
-            generateSmartSummaryAndComparison({
-                weight: currentWeight,
-                fat: currentFat,
-                muscle: currentMuscle,
-                compliance: 85,
-                water: '1.5 لتر'
-            }, {
-                weight: startWeight,
-                fat: prevFat,
-                muscle: prevMuscle
-            });
-
-            renderWeightChart(startWeight, currentWeight);
-        }
-
-        function generateSmartSummaryAndComparison(current, previous) {
-            let weightDiff = (current.weight - previous.weight).toFixed(1);
-            let weightTrend = weightDiff <= 0 ? `🔻 نزول ${Math.abs(weightDiff)} كجم` : `📈 زيادة +${weightDiff} كجم`;
-            
-            let summaryHTML = `ملخص آخر متابعة: التغيير في الوزن <strong>${weightTrend}</strong>، الالتزام العام بالخطة يقدر بـ <strong>${current.compliance}%</strong>، ومستوى شرب المياه مسجل بـ <strong>${current.water}</strong>. توجد ملاحظات تحتاج تدخل (انخفاض المياه والبروتين).`;
-            document.getElementById('smartSummaryText').innerHTML = summaryHTML;
+            document.getElementById('smartSummaryText').innerHTML = `ملخص الحالة: الوزن الحالي <strong>${currentWeight} كجم</strong>، التصنيف الإكلينيكي: <strong>${category}</strong>.`;
 
             let compTable = document.getElementById('comparisonTableBody');
             compTable.innerHTML = `
                 <tr>
                     <td><strong>الوزن</strong></td>
-                    <td>${current.weight} كجم</td>
-                    <td>${previous.weight} كجم</td>
-                    <td style="color: ${weightDiff <= 0 ? '#10b981' : '#ef4444'}; font-weight: bold;">${weightDiff <= 0 ? '↓ ' + Math.abs(weightDiff) + ' kg' : '↑ ' + weightDiff + ' kg'}</td>
-                </tr>
-                <tr>
-                    <td><strong>نسبة الدهون</strong></td>
-                    <td>${current.fat}%</td>
-                    <td>${previous.fat}%</td>
-                    <td style="color: #10b981; font-weight: bold;">3% ↓</td>
-                </tr>
-                <tr>
-                    <td><strong>كتلة العضلات</strong></td>
-                    <td>${current.muscle} كجم</td>
-                    <td>${previous.muscle} كجم</td>
-                    <td style="color: #3b82f6; font-weight: bold;">ثابت 0.0</td>
+                    <td>${currentWeight} كجم</td>
+                    <td>${startWeight} كجم</td>
+                    <td style="color: #10b981; font-weight: bold;">متابعة حية</td>
                 </tr>
             `;
+
+            renderWeightChart(startWeight, currentWeight);
         }
 
         function openEditModal() {
             if (!activePatient) return;
             document.getElementById('editName').value = activePatient.patient_name || activePatient.name || '';
             document.getElementById('editCategory').value = activePatient.category || activePatient.surgery_type || '';
-            document.getElementById('editStartWeight').value = activePatient.start_weight || 96.5;
+            document.getElementById('editStartWeight').value = activePatient.start_weight || '';
             document.getElementById('editWeight').value = activePatient.weight || '';
-            document.getElementById('editHeight').value = activePatient.height || 175;
-            document.getElementById('editFat').value = activePatient.fat || 31;
-            document.getElementById('editMuscle').value = activePatient.muscle || 31;
+            document.getElementById('editHeight').value = activePatient.height || '';
+            document.getElementById('editFat').value = activePatient.fat || '';
+            document.getElementById('editMuscle').value = activePatient.muscle || '';
             document.getElementById('editPhone').value = activePatient.phone || '';
             document.getElementById('editDietPlan').value = activePatient.diet_plan || '';
             document.getElementById('editNotes').value = activePatient.medical_history || activePatient.notes || '';
@@ -432,27 +315,49 @@
 
         function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
+        // دفظ ذكي يتجاهل أي أعمدة مش موجودة في الجدول الفعلي لتفادي الأخطاء
         async function savePatientEdits(e) {
             e.preventDefault();
             let name = document.getElementById('editName').value;
             let category = document.getElementById('editCategory').value;
-            let startWeight = parseFloat(document.getElementById('editStartWeight').value);
-            let weight = parseFloat(document.getElementById('editWeight').value);
-            let height = parseFloat(document.getElementById('editHeight').value);
-            let fat = parseFloat(document.getElementById('editFat').value);
-            let muscle = parseFloat(document.getElementById('editMuscle').value);
+            let startWeight = parseFloat(document.getElementById('editStartWeight').value) || null;
+            let weight = parseFloat(document.getElementById('editWeight').value) || 0;
+            let height = parseFloat(document.getElementById('editHeight').value) || null;
+            let fat = parseFloat(document.getElementById('editFat').value) || null;
+            let muscle = parseFloat(document.getElementById('editMuscle').value) || null;
             let phone = document.getElementById('editPhone').value;
             let dietPlan = document.getElementById('editDietPlan').value;
             let notes = document.getElementById('editNotes').value;
 
-            let payload = activeTable === 'patients' ? 
-                { patient_name: name, category, start_weight: startWeight, weight, height, fat, muscle, phone, diet_plan: dietPlan, medical_history: notes } :
-                { patient_name: name, surgery_type: category, start_weight: startWeight, weight, height, fat, muscle, phone, diet_plan: dietPlan, notes };
+            // بناء الـ payload ديناميكياً حسب الأعمدة الأساسية المشتركة
+            let payload = {
+                weight,
+                phone,
+                diet_plan: dietPlan
+            };
+
+            if (startWeight !== null) payload.start_weight = startWeight;
+            if (height !== null) payload.height = height;
+            if (fat !== null) payload.fat = fat;
+            if (muscle !== null) payload.muscle = muscle;
+
+            if (activeTable === 'patients') {
+                payload.patient_name = name;
+                payload.category = category;
+                payload.medical_history = notes;
+            } else {
+                payload.patient_name = name;
+                payload.surgery_type = category;
+                payload.notes = notes;
+            }
 
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
-            if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
+            if (error) {
+                alert('خطأ أثناء الحفظ: ' + error.message);
+                return;
+            }
 
-            alert('✨ تم تحديث بيانات الحالة بنجاح!');
+            alert('✨ تم تحديث بيانات الحالة بنجاح في SQL!');
             closeEditModal();
             loadPatientProfile();
         }
@@ -460,8 +365,6 @@
         function openFollowupModal() {
             document.getElementById('fuDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('fuWeight').value = activePatient.weight || '';
-            document.getElementById('fuFat').value = activePatient.fat || '';
-            document.getElementById('fuMuscle').value = activePatient.muscle || '';
             document.getElementById('followupModal').style.display = 'flex';
         }
 
@@ -470,12 +373,13 @@
         async function saveNewFollowup(e) {
             e.preventDefault();
             let newWeight = parseFloat(document.getElementById('fuWeight').value);
-            let newFat = parseFloat(document.getElementById('fuFat').value);
-            let newMuscle = parseFloat(document.getElementById('fuMuscle').value);
             let notes = document.getElementById('fuNotes').value;
 
-            let payload = { weight: newWeight, fat: newFat, muscle: newMuscle };
-            if (notes) payload.notes = notes;
+            let payload = { weight: newWeight };
+            if (notes) {
+                if (activeTable === 'patients') payload.medical_history = notes;
+                else payload.notes = notes;
+            }
 
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) { alert('خطأ أثناء تسجيل المتابعة.'); return; }
@@ -495,21 +399,19 @@
             else if (!cleanPhone.startsWith('20')) cleanPhone = '20' + cleanPhone;
 
             let name = activePatient.patient_name || activePatient.name || 'العزيز';
-            let dietPlan = activePatient.diet_plan || 'التزم بالتعليمات الطبية الموصوفة.';
-            let notes = activePatient.medical_history || activePatient.notes || '';
-
-            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك خطتك الطبية من عيادة د. شادي سمير:\n\n🥗 الخطة:\n${dietPlan}\n\n📝 ملاحظات:\n${notes}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
+            let dietPlan = activePatient.diet_plan || 'التزم بالتعليمات الطبية.';
+            let msg = `أهلاً بك يا ${name} 🌟\n\nإليك خطتك الطبية من عيادة د. شادي سمير:\n\n🥗 الخطة:\n${dietPlan}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
         function downloadPatientPDF() {
             const element = document.getElementById('patientPdfArea');
             const opt = {
-                margin:       [5, 5, 5, 5],
-                filename:     `Dr-Shady-Patient-Report.pdf`,
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+                margin: [5, 5, 5, 5],
+                filename: 'Dr-Shady-Patient-Report.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
             html2pdf().from(element).set(opt).save();
         }
