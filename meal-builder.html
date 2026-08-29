@@ -66,9 +66,9 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* رأس التقرير الرسمي المخصص للـ PDF فقط */
-        .pdf-header-banner { display: none; text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 12px; margin-bottom: 15px; }
-        .pdf-patient-info { display: none; background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #166534; }
+        /* رأس التقرير الرسمي المخصص للـ PDF بدون مسافات فارغة */
+        .pdf-header-banner { text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .pdf-patient-info { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px 15px; border-radius: 10px; margin-bottom: 15px; font-size: 13px; color: #166534; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
 
         @media (min-width: 950px) {
             .mobile-menu-toggle { display: none !important; }
@@ -120,24 +120,28 @@
             </div>
         </div>
 
-        <!-- الحاوية المراد تصديرها كملف PDF مرتبة ونظيفة -->
+        <!-- الحاوية المراد تصديرها كملف PDF (مرتبة ونظيفة بالكامل) -->
         <div class="card" id="pdfExportArea" style="display:none;">
             
-            <!-- 1. بيانات الدكتور والعيادة (تظهر في الـ PDF فقط) -->
-            <div class="pdf-header-banner" id="pdfHeaderBanner">
-                <h2 style="margin:0; color:#0b1329; font-size:18px;">د. شادي سمير</h2>
-                <p style="margin:3px 0; color:#10b981; font-weight:bold; font-size:13px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-                <p style="margin:0; color:#64748b; font-size:11px;">تقرير الخطة الطبية والغذائية المخصصة</p>
+            <!-- 1. بيانات الدكتور واللوجو في رأس الصفحة -->
+            <div class="pdf-header-banner">
+                <div style="text-align: right;">
+                    <h2 style="margin:0; color:#0b1329; font-size:17px;">د. شادي سمير</h2>
+                    <p style="margin:2px 0; color:#10b981; font-weight:bold; font-size:12px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                </div>
+                <div>
+                    <img src="logo.jpeg" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                </div>
             </div>
 
-            <!-- 2. بيانات الحالة (تظهر في الـ PDF فقط) -->
-            <div class="pdf-patient-info" id="pdfPatientInfo">
-                <strong>👤 بيانات المريض:</strong> <span id="pdfPatName">-</span> | 
-                <strong>التصنيف:</strong> <span id="pdfPatCat">-</span> | 
-                <strong>الهاتف:</strong> <span id="pdfPatPhone">-</span>
+            <!-- 2. بيانات الحالة أسفل بيانات العيادة مباشرة -->
+            <div class="pdf-patient-info">
+                <span><strong>👤 المريض:</strong> <span id="pdfPatName">-</span></span>
+                <span><strong>التصنيف:</strong> <span id="pdfPatCat">-</span></span>
+                <span><strong>الهاتف:</strong> <span id="pdfPatPhone">-</span></span>
             </div>
 
-            <h3 id="selectedPatientTitle">📋 تخصيص خطة المريض</h3>
+            <h3 id="selectedPatientTitle" style="margin-top:0; font-size:15px; color:#1e293b;">📋 تخصيص خطة المريض</h3>
             
             <div style="display:flex; gap:10px; margin-bottom:15px; flex-wrap:wrap;">
                 <button type="button" class="btn-ai" onclick="generateAIPlan()">✨ توليد خطة ذكية بواسطة AI</button>
@@ -260,7 +264,7 @@
 
             document.getElementById('selectedPatientTitle').innerText = `📋 تخصيص خطة المريض: ${name}`;
             
-            // تعبئة بيانات رأس الـ PDF
+            // تعبئة البيانات لتظهر فوراً في الـ PDF
             document.getElementById('pdfPatName').innerText = name;
             document.getElementById('pdfPatCat').innerText = cat;
             document.getElementById('pdfPatPhone').innerText = phone;
@@ -421,27 +425,17 @@
             window.open(whatsappUrl, '_blank');
         }
 
-        // تصدير PDF منظم ومضبوط الترتيب (بيانات العيادة فوق، ثم بيانات الحالة، ثم النظام)
+        // تصدير PDF مباشر ومنظم بالترتيب المطلوب وبدون مسافات بيضاء
         function downloadPlanPDF() {
             const element = document.getElementById('pdfExportArea');
-            
-            // إظهار بانر العيادة ومعلومات المريض خصيصاً للـ PDF
-            document.getElementById('pdfHeaderBanner').style.display = 'block';
-            document.getElementById('pdfPatientInfo').style.display = 'block';
-
             const opt = {
-                margin:       5,
+                margin:       [5, 5, 5, 5],
                 filename:     `Dr-Shady-Nutrition-Plan.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true },
+                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-
-            html2pdf().from(element).set(opt).save().then(() => {
-                // إخفاءهم مرة أخرى للشاشة العادية لو أردت
-                document.getElementById('pdfHeaderBanner').style.display = 'none';
-                document.getElementById('pdfPatientInfo').style.display = 'none';
-            });
+            html2pdf().from(element).set(opt).save();
         }
 
         window.onload = initMealBuilder;
