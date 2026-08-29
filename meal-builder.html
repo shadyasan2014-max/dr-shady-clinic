@@ -82,7 +82,7 @@
         <div class="top-header">
             <div>
                 <h1 id="patientTitleName">🥗 بناء وتخصيص الخطط الغذائية الذكية</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">التصنيف: تكميم معدة | الهاتف: 010xxxxxxxx</p>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">إدارة وتصميم الأنظمة الغذائية بدقة متكاملة</p>
             </div>
             <!-- زرار المتابعة السريع بالتواريخ -->
             <div>
@@ -112,6 +112,10 @@
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">📅 تسجيل موعد وتاريخ متابعة جديد للخطة</h3>
             <form onsubmit="saveMealFollowupToSQL(event)">
+                <div class="form-group">
+                    <label>اسم المريض / الحالة:</label>
+                    <input type="text" id="mealPatientName" class="form-control" placeholder="أدخل اسم المريض..." required>
+                </div>
                 <div class="form-group">
                     <label>تاريخ المتابعة المستهدف:</label>
                     <input type="date" id="mealFuDate" class="form-control" required>
@@ -147,8 +151,16 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        function openMealFollowupModal() {
+        async function openMealFollowupModal() {
             document.getElementById('mealFuDate').value = new Date().toISOString().split('T')[0];
+            
+            // محاولة جلب اسم المريض لو الرابط فيه مريض محدد
+            const urlParams = new URLSearchParams(window.location.search);
+            let pName = urlParams.get('name') || '';
+            if (pName) {
+                document.getElementById('mealPatientName').value = pName;
+            }
+
             document.getElementById('mealFollowupModal').style.display = 'flex';
         }
 
@@ -158,21 +170,22 @@
 
         async function saveMealFollowupToSQL(event) {
             event.preventDefault();
+            let pName = document.getElementById('mealPatientName').value.trim();
             let fuDate = document.getElementById('mealFuDate').value;
             let fuStatus = document.getElementById('mealFuStatus').value;
             let fuNotes = document.getElementById('mealFuNotes').value;
 
-            // تحديث سجل الحالة في جدول patients أو bariatric_cases مع تاريخ المتابعة الجديد
+            // تحديث السجل في جدول patients المرتبط باسم المريض الحقيقي في قاعدة البيانات
             const { error } = await supabaseClient.from('patients').update({
                 notes: `متابعة بتاريخ ${fuDate}: ${fuStatus} - ${fuNotes}`
-            }).limit(1);
+            }).ilike('patient_name', `%${pName}%`);
 
             if (error) {
-                alert('✨ تم حفظ موعد وتاريخ المتابعة في النظام بنجاح!');
-            } else {
-                alert('✨ تم تسجيل وتحديث المتابعة وتاريخها في سجلات SQL بنجاح!');
+                alert('خطأ أثناء الحفظ في SQL: ' + error.message);
+                return;
             }
 
+            alert('✨ تم تسجيل وتحديث المتابعة وتاريخها في سجلات قاعدة بيانات SQL بنجاح!');
             closeMealFollowupModal();
         }
     </script>
