@@ -134,7 +134,7 @@
             <div class="metrics-grid">
                 <div class="metric-card"><div class="metric-title">نوع العملية</div><div class="metric-value" id="mSurgeryType" style="color:var(--accent-blue);">-</div></div>
                 <div class="metric-card"><div class="metric-title">تاريخ العملية</div><div class="metric-value" id="mSurgeryDate">-</div></div>
-                <div class="metric-card"><div class="metric-title">تاريخ المتابعة السابقة</div><div class="metric-value" id="mPrevFollowup">-</div></div>
+                <div class="metric-card"><div class="metric-title">تاريخ المتابعة السابقة</div><div class="metric-value" id="mPrevFollowup" style="color:var(--warning-orange);">-</div></div>
                 <div class="metric-card"><div class="metric-title">تاريخ المتابعة الحالية</div><div class="metric-value" id="mCurrFollowup" style="color:var(--primary-green);">-</div></div>
             </div>
 
@@ -253,8 +253,10 @@
 
             let name = activePatient.patient_name || activePatient.name || 'مريض بدون اسم';
             let surgeryType = activePatient.surgery_type || activePatient.category || 'تغذية علاجية';
-            let surgeryDate = activePatient.surgery_date || activePatient.date || 'غير مسجل';
-            let prevFollowup = activePatient.prev_followup_date || activePatient.last_visit || 'غير مسجل';
+            let surgeryDate = activePatient.surgery_date || activePatient.date || '-';
+            
+            // فحص أكثر من احتمال لاسم عمود المتابعة السابقة والحالية
+            let prevFollowup = activePatient.prev_followup_date || activePatient.last_visit || activePatient.previous_visit || '-';
             let currFollowup = activePatient.curr_followup_date || activePatient.updated_at || new Date().toISOString().split('T')[0];
             
             let currentWeight = activePatient.weight !== undefined && activePatient.weight !== null ? activePatient.weight : 0;
@@ -289,7 +291,7 @@
             document.getElementById('editName').value = activePatient.patient_name || activePatient.name || '';
             document.getElementById('editSurgeryType').value = activePatient.surgery_type || activePatient.category || '';
             document.getElementById('editSurgeryDate').value = activePatient.surgery_date || activePatient.date || '';
-            document.getElementById('editPrevFollowup').value = activePatient.prev_followup_date || '';
+            document.getElementById('editPrevFollowup').value = activePatient.prev_followup_date || activePatient.last_visit || activePatient.previous_visit || '';
             document.getElementById('editCurrFollowup').value = activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : '';
             document.getElementById('editStartWeight').value = activePatient.start_weight || '';
             document.getElementById('editWeight').value = activePatient.weight || '';
@@ -304,7 +306,6 @@
 
         function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
-        // حفظ ذكي يتعامل فقط مع الأعمدة الموجودة فعلياً في الجدول لمنع أي أخطاء
         async function savePatientEdits(e) {
             e.preventDefault();
             let name = document.getElementById('editName').value;
@@ -321,11 +322,13 @@
             let dietPlan = document.getElementById('editDietPlan').value;
             let notes = document.getElementById('editNotes').value;
 
-            // الأعمدة الأساسية المضمونة في كل الجداول
             let payload = {
                 weight,
                 phone,
-                diet_plan: dietPlan
+                diet_plan: dietPlan,
+                surgery_date: surgeryDate || null,
+                prev_followup_date: prevFollowup || null,
+                curr_followup_date: currFollowup || null
             };
 
             if (startWeight !== null) payload.start_weight = startWeight;
@@ -343,14 +346,13 @@
                 payload.notes = notes;
             }
 
-            // محاولة التحديث بالأعمدة الأساسية أولاً
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) {
                 alert('خطأ أثناء الحفظ: ' + error.message);
                 return;
             }
 
-            alert('✨ تم تحديث بيانات الحالة بنجاح في SQL!');
+            alert('✨ تم تحديث بيانات الحالة والتواريخ بنجاح في SQL!');
             closeEditModal();
             loadPatientProfile();
         }
@@ -366,9 +368,17 @@
         async function saveNewFollowup(e) {
             e.preventDefault();
             let newWeight = parseFloat(document.getElementById('fuWeight').value);
+            let fuDate = document.getElementById('fuDate').value;
             let notes = document.getElementById('fuNotes').value;
 
-            let payload = { weight: newWeight };
+            // عند تسجيل متابعة جديدة، التاريخ الحالي يصبح هو السابق، والتاريخ الجديد هو الحالي
+            let previousDateToSave = activePatient.curr_followup_date || new Date().toISOString().split('T')[0];
+
+            let payload = { 
+                weight: newWeight,
+                prev_followup_date: previousDateToSave,
+                curr_followup_date: fuDate
+            };
             if (notes) {
                 if (activeTable === 'patients') payload.medical_history = notes;
                 else payload.notes = notes;
@@ -377,7 +387,7 @@
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) { alert('خطأ أثناء تسجيل المتابعة.'); return; }
 
-            alert('✨ تمت إضافة المتابعة بنجاح!');
+            alert('✨ تمت إضافة المتابعة وتحديث تواريخ المتابعة بنجاح!');
             closeFollowupModal();
             loadPatientProfile();
         }
