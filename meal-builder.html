@@ -104,7 +104,7 @@
                 </div>
             </div>
 
-            <!-- لوحة الملف الإكلينيكي الشامل للحالة (شاملة تواريخ المتابعة والعملية) -->
+            <!-- لوحة الملف الإكلينيكي الشامل للحالة (شاملة تواريخ المتابعة والسابق والحالي) -->
             <div class="patient-medical-banner" id="patientMedicalBanner" style="display: none;">
                 <div class="medical-item"><strong>⚖️ الأوزان:</strong> <span id="medWeight">-</span></div>
                 <div class="medical-item"><strong>🩺 تفاصيل العملية:</strong> <span id="medSurgery">-</span></div>
@@ -136,6 +136,7 @@
                 </div>
             </div>
 
+            <!-- حاوية الوجبات والأنظمة الكاملة -->
             <div class="card" id="systemContainer"></div>
 
             <div class="card">
@@ -243,7 +244,7 @@
             document.getElementById('patientMedicalBanner').style.display = 'grid';
             document.getElementById('medWeight').innerText = `الحالي: ${p.weight || '-'} كجم (البداية: ${p.start_weight || '-'} كجم)`;
             document.getElementById('medSurgery').innerText = (p.surgery_type || p.category || 'تغذية') + (p.surgery_date ? ` (تاريخ: ${p.surgery_date})` : '');
-            document.getElementById('medPrevFu').innerText = p.prev_followup_date || p.last_visit || 'غير مسجل';
+            document.getElementById('medPrevFu').innerText = p.prev_followup_date || p.last_visit || p.previous_visit || 'غير مسجل';
             document.getElementById('medCurrFu').innerText = p.curr_followup_date ? p.curr_followup_date.split('T')[0] : 'اليوم';
 
             // استعراض النظام السابق بدقة
@@ -335,6 +336,15 @@
             if (currentSystem === 'period') {
                 let periodTextElem = document.getElementById('periodSystemText');
                 finalPlanText = periodTextElem ? periodTextElem.value : "";
+            } else if (currentSystem === 'daily') {
+                let mealInputs = document.querySelectorAll('.meal-input');
+                let parts = [];
+                mealInputs.forEach(input => {
+                    if(input.value.trim() !== "") {
+                        parts.push(input.previousElementSibling ? input.previousElementSibling.innerText + " " + input.value : input.value);
+                    }
+                });
+                finalPlanText = "النظام اليومي:\n" + parts.join("\n");
             } else {
                 let notesInput = document.getElementById('doctorNotesInput').value;
                 let periodTextElem = document.getElementById('periodSystemText');
@@ -396,7 +406,7 @@
 
         function sendPlanWhatsApp() {
             let notes = document.getElementById('previousPlanText').innerText;
-            let msg = `🌟 أهلاً بك في عيادة د. شادي سمير\n\nإليك خطتك الغذائية الطبية:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
+            let msg = `🌟 أهلاً بك في عيادة د. شادي سمير\n\nإليك خطتك الطبية:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
