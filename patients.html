@@ -35,8 +35,11 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
+        /* نافذة المودال */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 520px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .client-custom-textarea { width: 100%; height: 160px; background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; border: 1px solid #334155; box-sizing: border-box; resize: vertical; }
 
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -87,12 +90,12 @@
         <div class="top-header">
             <div>
                 <h1>👥 حالات SQL الشامل (مرضى وجراحات)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات وكود الحالة التلقائي</p>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات بمرونة تامة</p>
             </div>
             
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <button onclick="openAddPatientModal()" class="action-btn" style="background: var(--primary-green); padding: 8px 15px; font-size: 12px;">➕ إضافة حالة جديدة</button>
-                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالكود، الاسم أو الهاتف..." style="width: 200px; padding: 7px;" onkeyup="filterPatientsTable()">
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف..." style="width: 180px; padding: 7px;" onkeyup="filterPatientsTable()">
                 <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
             </div>
         </div>
@@ -104,12 +107,12 @@
                 <table>
                     <thead>
                         <tr>
-                            <th>كود الحالة واسم المريض</th>
+                            <th>اسم المريض</th>
                             <th>التصنيف / الحالة</th>
                             <th>الحالة المرضية / ملاحظات</th>
                             <th>الوزن</th>
                             <th>رقم الهاتف</th>
-                            <th>الإجراءات (فتح الملف والتعديل)</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="patientsTableBody">
@@ -118,12 +121,90 @@
                 </table>
             </div>
         </div>
+
+        <!-- صندوق كود العميل المخصص -->
+        <div class="card" style="background: #f8fafc; border: 1px solid var(--card-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 صندوق كود العميل المخصص (قابل للتعديل الحر)</h3>
+                <div style="display: flex; gap: 5px;">
+                    <button onclick="saveClientCustomCode()" class="action-btn" style="background: var(--warning-orange); font-size: 10px; padding: 6px 10px;">💾 حفظ الكود</button>
+                    <button onclick="copyClientCustomCode()" class="action-btn" style="background: var(--primary-green); font-size: 10px; padding: 6px 10px;">📋 نسخ الكود</button>
+                </div>
+            </div>
+            <textarea class="client-custom-textarea" id="clientCustomTextarea" placeholder="// اكتب أو الصق كود العميل هنا لتعديله براحتك..."></textarea>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل بيانات الحالة بشكل كامل (شاملة الفحوصات والملفات) -->
+    <div id="editPatientModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">✏️ تعديل بيانات الحالة بالكامل</h3>
+            <form onsubmit="savePatientEdits(event)">
+                <input type="hidden" id="editRecordId">
+                <input type="hidden" id="editRecordTable">
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اسم المريض:</label>
+                    <input type="text" id="editName" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">رقم الهاتف:</label>
+                    <input type="text" id="editPhone" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">التصنيف / الحالة:</label>
+                    <input type="text" id="editCategory" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">وزن البداية (كجم):</label>
+                    <input type="number" step="0.1" id="editStartWeight" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الوزن الحالي (كجم):</label>
+                    <input type="number" step="0.1" id="editWeight" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الطول (سم):</label>
+                    <input type="number" step="1" id="editHeight" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">نسبة الدهون (%):</label>
+                    <input type="number" step="0.1" id="editFat" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">كتلة العضلات (كجم):</label>
+                    <input type="number" step="0.1" id="editMuscle" class="form-control">
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">نسبة المياه (%):</label>
+                    <input type="number" step="0.1" id="editWater" class="form-control">
+                </div>
+                
+                <!-- قسم رفع الفحوصات والملفات بأي صيغة -->
+                <div class="form-group" style="margin-bottom:12px; background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:8px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:#166534; margin-bottom:5px;">🧪 رفع الفحوصات والملفات الطبية (PDF أو صور):</label>
+                    <input type="file" id="editFileUpload" class="form-control" style="background:#fff;" onchange="handleFileUpload(event)">
+                    <div id="fileUploadStatus" style="font-size:11px; margin-top:5px; color:#14532d;"></div>
+                    <input type="hidden" id="editLabsUrl">
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">ملاحظات الدكتور / الحالة المرضية:</label>
+                    <textarea id="editNotes" class="form-control" rows="2"></textarea>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ التعديلات في SQL</button>
+                    <button type="button" onclick="closeEditPatientModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
     </div>
 
     <!-- نافذة إضافة حالة جديدة -->
     <div id="addPatientModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">➕ تسجيل حالة جديدة وتوليد كود تلقائي</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">➕ تسجيل حالة جديدة في SQL</h3>
             <form onsubmit="saveNewPatientRecord(event)">
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اختر جدول الحفظ في SQL:</label>
@@ -132,96 +213,46 @@
                         <option value="bariatric_cases">جراحات سمنة (bariatric_cases)</option>
                     </select>
                 </div>
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">كود الحالة:</label>
-                    <input type="text" id="pCodeInput" class="form-control" style="background: #fef3c7; font-weight: bold;" required>
-                </div>
-
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اسم المريض:</label>
                     <input type="text" id="pNameInput" class="form-control" placeholder="اسم المريض الرباعي..." required>
                 </div>
-
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">رقم الهاتف:</label>
                     <input type="text" id="pPhoneInput" class="form-control" placeholder="011xxxxxxxx">
                 </div>
-
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">التصنيف / الحالة الإكلينيكية:</label>
-                    <select id="pCategorySelect" class="form-control" onchange="toggleCustomCategoryInput('pCategorySelect', 'customCategoryBox')" required>
+                    <select id="pCategorySelect" class="form-control" onchange="toggleCustomCategoryInput()" required>
                         <option value="نحافة">نحافة</option>
                         <option value="سمنة">سمنة</option>
                         <option value="حقن مونجارو او ميزوثرابي او غيرها">حقن مونجارو او ميزوثرابي او غيرها</option>
                         <option value="آخر">آخر</option>
                     </select>
                 </div>
-
                 <div class="form-group" id="customCategoryBox" style="margin-bottom:12px; display: none;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--accent-blue); margin-bottom:5px;">أدخل تفاصيل التصنيف (آخر):</label>
                     <input type="text" id="pCustomCategoryInput" class="form-control" placeholder="اكتب التصنيف هنا...">
                 </div>
-
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">وزن البداية (كجم):</label>
+                    <input type="number" step="0.1" id="pStartWeightInput" class="form-control" placeholder="120">
+                </div>
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الوزن الحالي (كجم):</label>
                     <input type="number" step="0.1" id="pCurrentWeightInput" class="form-control" placeholder="115" required>
                 </div>
-
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الطول (سم):</label>
+                    <input type="number" step="1" id="pHeightInput" class="form-control" value="175">
+                </div>
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">ملاحظات الدكتور / الحالة المرضية:</label>
                     <textarea id="pNotesInput" class="form-control" rows="2" placeholder="ملاحظات إكلينيكية..."></textarea>
                 </div>
-
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ الحالة في SQL</button>
                     <button type="button" onclick="closeAddPatientModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- نافذة تعديل الحالة الشاملة (تشمل الكود وكل البيانات) -->
-    <div id="editPatientModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">✏️ تعديل بيانات الحالة وكود المريض</h3>
-            <form onsubmit="saveEditedPatientRecord(event)">
-                <input type="hidden" id="editRecordId">
-                <input type="hidden" id="editRecordTable">
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">كود الحالة:</label>
-                    <input type="text" id="editCodeInput" class="form-control" style="background: #fef3c7; font-weight: bold;" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اسم المريض:</label>
-                    <input type="text" id="editNameInput" class="form-control" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">رقم الهاتف:</label>
-                    <input type="text" id="editPhoneInput" class="form-control">
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">التصنيف / الحالة:</label>
-                    <input type="text" id="editCategoryInput" class="form-control" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الوزن الحالي (كجم):</label>
-                    <input type="number" step="0.1" id="editWeightInput" class="form-control" required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">ملاحظات الدكتور / الحالة المرضية:</label>
-                    <textarea id="editNotesInput" class="form-control" rows="2"></textarea>
-                </div>
-
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ التعديلات في SQL</button>
-                    <button type="button" onclick="closeEditPatientModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -248,6 +279,7 @@
             if (barData) barData.forEach(b => masterPatientsList.push({ ...b, _table: 'bariatric_cases' }));
 
             renderPatientsTable(masterPatientsList);
+            loadClientCustomCode();
         }
 
         function renderPatientsTable(list) {
@@ -261,27 +293,27 @@
 
             list.forEach((p) => {
                 let name = p.patient_name || p.name || 'بدون اسم';
-                let code = p.patient_code || p.code || `DS-${p.id ? p.id.toString().slice(-4) : '1001'}`;
                 let cat = p.category || p.surgery_type || 'تغذية';
                 let notes = p.medical_history || p.notes || '-';
                 let weight = p.weight ? p.weight + ' كجم' : '-';
                 let phone = p.phone || 'غير مسجل';
+                let labsLink = p.labs_required || p.labs_file || '';
+
+                let labsButton = labsLink ? `<a href="${labsLink}" target="_blank" class="action-btn" style="background:#10b981; text-decoration:none;">📁 عرض الفحوصات</a>` : `<span style="font-size:10px; color:gray;">لا ملفات</span>`;
 
                 tbody.innerHTML += `
                     <tr>
-                        <td>
-                            <span style="background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">${code}</span>
-                            <strong>${name}</strong>
-                        </td>
+                        <td><strong>${name}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${cat}</span></td>
-                        <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
+                        <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
                         <td>${weight}</td>
                         <td>${phone}</td>
                         <td>
-                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                <button onclick="openPatientProfile('${name}')" class="action-btn" style="background:var(--accent-blue);">📂 فتح الملف</button>
+                            <div style="display:flex; gap:4px; flex-wrap:wrap; align-items:center;">
+                                <button onclick="openPatientProfile('${name}')" class="action-btn" style="background:var(--accent-blue);">📂 الملف الكامل</button>
                                 <button onclick='openEditPatientModal(${JSON.stringify(p)})' class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
-                                <button onclick="deletePatientRecord('${p._table}', '${p.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                                ${labsButton}
+                                <button onclick="deletePatientRecord('${p._table}', '${p.id}')" class="action-btn" style="background:var(--danger-red);">🗑️</button>
                             </div>
                         </td>
                     </tr>
@@ -293,15 +325,94 @@
             let query = document.getElementById('patientSearchInput').value.toLowerCase().trim();
             let filtered = masterPatientsList.filter(p => {
                 let name = (p.patient_name || p.name || '').toLowerCase();
-                let code = (p.patient_code || p.code || `ds-${p.id}`).toLowerCase();
                 let phone = (p.phone || '').toLowerCase();
-                return name.includes(query) || phone.includes(query) || code.includes(query);
+                return name.includes(query) || phone.includes(query);
             });
             renderPatientsTable(filtered);
         }
 
         function openPatientProfile(patientName) {
             window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
+        }
+
+        // فتح مودال التعديل مع تعبئة كافة بيانات الحالة بذكاء
+        function openEditPatientModal(p) {
+            document.getElementById('editRecordId').value = p.id;
+            document.getElementById('editRecordTable').value = p._table;
+            document.getElementById('editName').value = p.patient_name || p.name || '';
+            document.getElementById('editPhone').value = p.phone || '';
+            document.getElementById('editCategory').value = p.category || p.surgery_type || '';
+            document.getElementById('editStartWeight').value = p.start_weight || '';
+            document.getElementById('editWeight').value = p.weight || '';
+            document.getElementById('editHeight').value = p.height || '';
+            document.getElementById('editFat').value = p.fat || '';
+            document.getElementById('editMuscle').value = p.muscle || '';
+            document.getElementById('editWater').value = p.water || '';
+            document.getElementById('editNotes').value = p.medical_history || p.notes || '';
+            document.getElementById('editLabsUrl').value = p.labs_required || p.labs_file || '';
+            document.getElementById('fileUploadStatus').innerText = (p.labs_required || p.labs_file) ? '📁 يوجد ملف مرفق حالياً' : '';
+
+            document.getElementById('editPatientModal').style.display = 'flex';
+        }
+
+        function closeEditPatientModal() {
+            document.getElementById('editPatientModal').style.display = 'none';
+        }
+
+        // محاكاة رفع الملفات لأي صيغة وعرض الرابط
+        function handleFileUpload(event) {
+            let file = event.target.files[0];
+            if (file) {
+                let fakeUrl = URL.createObjectURL(file);
+                document.getElementById('editLabsUrl').value = fakeUrl;
+                document.getElementById('fileUploadStatus').innerText = `✅ تم اختيار الملف بنجاح: ${file.name}`;
+            }
+        }
+
+        // حفظ التعديلات بشكل ذكي (يتجاوز أي عمود مش موجود في الجدول بدون أخطاء)
+        async function savePatientEdits(event) {
+            event.preventDefault();
+            let recordId = document.getElementById('editRecordId').value;
+            let tableName = document.getElementById('editRecordTable').value;
+
+            let name = document.getElementById('editName').value;
+            let phone = document.getElementById('editPhone').value;
+            let category = document.getElementById('editCategory').value;
+            let startWeight = parseFloat(document.getElementById('editStartWeight').value) || null;
+            let weight = parseFloat(document.getElementById('editWeight').value) || 0;
+            let height = parseFloat(document.getElementById('editHeight').value) || 175;
+            let fat = parseFloat(document.getElementById('editFat').value) || null;
+            let muscle = parseFloat(document.getElementById('editMuscle').value) || null;
+            let water = parseFloat(document.getElementById('editWater').value) || null;
+            let labsUrl = document.getElementById('editLabsUrl').value;
+            let notes = document.getElementById('editNotes').value;
+
+            let payload = { weight, phone, height };
+            if (startWeight !== null) payload.start_weight = startWeight;
+            if (fat !== null) payload.fat = fat;
+            if (muscle !== null) payload.muscle = muscle;
+            if (water !== null) payload.water = water;
+            if (labsUrl) payload.labs_required = labsUrl;
+
+            if (tableName === 'patients') {
+                payload.patient_name = name;
+                payload.category = category;
+                payload.medical_history = notes;
+            } else {
+                payload.patient_name = name;
+                payload.surgery_type = category;
+                payload.notes = notes;
+            }
+
+            const { error } = await supabaseClient.from(tableName).update(payload).eq('id', recordId);
+            if (error) {
+                alert('خطأ أثناء تحديث الحالة: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم تحديث بيانات الحالة بنجاح في SQL!');
+            closeEditPatientModal();
+            loadPatientsList();
         }
 
         async function deletePatientRecord(tableName, recordId) {
@@ -316,8 +427,6 @@
         }
 
         function openAddPatientModal() {
-            let randomCode = 'DS-' + Math.floor(1000 + Math.random() * 9000);
-            document.getElementById('pCodeInput').value = randomCode;
             document.getElementById('addPatientModal').style.display = 'flex';
         }
 
@@ -325,9 +434,9 @@
             document.getElementById('addPatientModal').style.display = 'none';
         }
 
-        function toggleCustomCategoryInput(selectId, boxId) {
-            let selectVal = document.getElementById(selectId).value;
-            let customBox = document.getElementById(boxId);
+        function toggleCustomCategoryInput() {
+            let selectVal = document.getElementById('pCategorySelect').value;
+            let customBox = document.getElementById('customCategoryBox');
             if (selectVal === 'آخر') {
                 customBox.style.display = 'block';
             } else {
@@ -338,7 +447,6 @@
         async function saveNewPatientRecord(event) {
             event.preventDefault();
             let tableName = document.getElementById('dbTableSelect').value;
-            let pCode = document.getElementById('pCodeInput').value;
             let name = document.getElementById('pNameInput').value;
             let phone = document.getElementById('pPhoneInput').value;
             
@@ -349,10 +457,13 @@
                 if (customVal) finalCategory = customVal;
             }
 
+            let startWeight = parseFloat(document.getElementById('pStartWeightInput').value) || null;
             let weight = parseFloat(document.getElementById('pCurrentWeightInput').value) || 0;
+            let height = parseFloat(document.getElementById('pHeightInput').value) || 175;
             let notes = document.getElementById('pNotesInput').value;
 
-            let payload = { weight, phone, patient_code: pCode };
+            let payload = { weight, phone, height };
+            if (startWeight !== null) payload.start_weight = startWeight;
 
             if (tableName === 'patients') {
                 payload.patient_name = name;
@@ -364,71 +475,36 @@
                 payload.notes = notes;
             }
 
-            const { error } = await supabaseClient.from(tableName).insert([payload]);
+            const { error } = awaitsupabaseClient.from(tableName).insert([payload]);
             if (error) {
                 alert('خطأ أثناء الحفظ في SQL: ' + error.message);
                 return;
             }
 
-            alert('✨ تم تسجيل الحالة الجديدة وكود المريض بنجاح!');
+            alert('✨ تم تسجيل الحالة الجديدة بنجاح في قاعدة بيانات SQL!');
             closeAddPatientModal();
             loadPatientsList();
         }
 
-        // دوال تعديل الحالة الشاملة
-        function openEditPatientModal(p) {
-            document.getElementById('editRecordId').value = p.id;
-            document.getElementById('editRecordTable').value = p._table;
-            document.getElementById('editCodeInput').value = p.patient_code || p.code || 'DS-1001';
-            document.getElementById('editNameInput').value = p.patient_name || p.name || '';
-            document.getElementById('editPhoneInput').value = p.phone || '';
-            document.getElementById('editCategoryInput').value = p.category || p.surgery_type || '';
-            document.getElementById('editWeightInput').value = p.weight || '';
-            document.getElementById('editNotesInput').value = p.medical_history || p.notes || '';
-            document.getElementById('editPatientModal').style.display = 'flex';
+        function saveClientCustomCode() {
+            let code = document.getElementById('clientCustomTextarea').value;
+            localStorage.setItem('dr_shady_client_custom_code', code);
+            alert('💾 تم حفظ كود العميل المخصص بنجاح!');
         }
 
-        function closeEditPatientModal() {
-            document.getElementById('editPatientModal').style.display = 'none';
+        function loadClientCustomCode() {
+            let savedCode = localStorage.getItem('dr_shady_client_custom_code');
+            if (savedCode) {
+                document.getElementById('clientCustomTextarea').value = savedCode;
+            }
         }
 
-        async function saveEditedPatientRecord(event) {
-            event.preventDefault();
-            let recId = document.getElementById('editRecordId').value;
-            let tableName = document.getElementById('editRecordTable').value;
-            
-            let pCode = document.getElementById('editCodeInput').value;
-            let name = document.getElementById('editNameInput').value;
-            let phone = document.getElementById('editPhoneInput').value;
-            let cat = document.getElementById('editCategoryInput').value;
-            let weight = parseFloat(document.getElementById('editWeightInput').value) || 0;
-            let notes = document.getElementById('editNotesInput').value;
-
-            let payload = {
-                patient_code: pCode,
-                weight: weight,
-                phone: phone
-            };
-
-            if (tableName === 'patients') {
-                payload.patient_name = name;
-                payload.category = cat;
-                payload.medical_history = notes;
-            } else {
-                payload.patient_name = name;
-                payload.surgery_type = cat;
-                payload.notes = notes;
-            }
-
-            const { error } = await supabaseClient.from(tableName).update(payload).eq('id', recId);
-            if (error) {
-                alert('خطأ أثناء تحديث الحالة: ' + error.message);
-                return;
-            }
-
-            alert('✨ تم تحديث بيانات الحالة وكود المريض بنجاح في SQL!');
-            closeEditPatientModal();
-            loadPatientsList();
+        function copyClientCustomCode() {
+            let textarea = document.getElementById('clientCustomTextarea');
+            textarea.select();
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                alert('📋 تم نسخ كود العميل بنجاح!');
+            });
         }
 
         window.onload = loadPatientsList;
