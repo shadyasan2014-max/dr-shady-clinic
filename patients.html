@@ -1,17 +1,13 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
-<script src="clinic-core.js"></script>
-
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - إدارة المرضى والحالات الشاملة (SQL Live)</title>
+    <title>Dr. Shady Samir - قائمة المرضى والحالات الشاملة</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; overflow-x: hidden; }
+        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
@@ -25,51 +21,31 @@
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); transition: 0.3s; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 10px; }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; }
         .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; overflow-x: auto; }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; min-width: 500px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
-        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
-        
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
 
-        /* زرار القائمة للموبايل والتابلت */
-        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; }
+
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+        .code-view-box { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; direction: ltr; text-align: left; margin-top: 10px; }
+
+        .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
         @media (max-width: 950px) {
-            .sidebar {
-                transform: translateX(100%) !important;
-                position: fixed !important;
-                right: 0 !important;
-                top: 0 !important;
-                height: 100vh !important;
-                z-index: 9999 !important;
-                transition: transform 0.3s ease-in-out !important;
-            }
-            .sidebar.active {
-                transform: translateX(0) !important;
-            }
-            .main-content {
-                margin-right: 0 !important;
-                width: 100% !important;
-                padding: 12px !important;
-            }
-            .mobile-menu-toggle {
-                display: flex !important;
-                justify-content: center;
-                align-items: center;
-                gap: 8px;
-            }
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
         }
     </style>
 </head>
@@ -108,48 +84,50 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div class="top-header">
-            <h1>👥 سجل المرضى والحالات الشامل (SQL Live)</h1>
-            <button class="btn-action" onclick="location.href='add-patient.html'">+ إضافة مريض / حالة جديدة</button>
+            <div>
+                <h1>👥 حالات SQL الشامل (مرضى وجراحات)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات بمرونة تامة</p>
+            </div>
+            
+            <!-- زر البحث الفوري عن المريض بالاسم أو الهاتف -->
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف..." style="width: 200px; padding: 7px;" onkeyup="filterPatientsTable()">
+                <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
+            </div>
         </div>
 
+        <!-- جدول الحالات والقرارات -->
         <div class="card">
-            <h3>📋 قائمة الحالات المسجلة في قاعدة بيانات SQL (مرضى وجراحات)</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم المريض</th>
-                        <th>التصنيف / الحالة</th>
-                        <th>الحالة المرضية / ملاحظات</th>
-                        <th>الوزن</th>
-                        <th>رقم الهاتف</th>
-                        <th>الإجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="patientsTableBody">
-                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب الحالات من قاعدة البيانات...</td></tr>
-                </tbody>
-            </table>
+            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المريض</th>
+                            <th>التصنيف / الحالة</th>
+                            <th>الحالة المرضية / ملاحظات</th>
+                            <th>الوزن</th>
+                            <th>رقم الهاتف</th>
+                            <th>الإجراءات (فتح الملف الكامل)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="patientsTableBody">
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray);">جاري تحميل الحالات من قاعدة البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
-    </div>
 
-    <!-- نافذة التعديل المنبثقة -->
-    <div id="editModal" class="modal-overlay">
-        <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة</h3>
-            <form onsubmit="updateRecordData(event)">
-                <input type="hidden" id="editId">
-                <input type="hidden" id="editTable">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
-                <div class="form-group"><label>التصنيف / الحالة:</label><input type="text" id="editCategory" class="form-control" required></div>
-                <div class="form-group"><label>الحالة المرضية / ملاحظات:</label><input type="text" id="editCondition" class="form-control"></div>
-                <div class="form-group"><label>الوزن (كجم):</label><input type="text" id="editWeight" class="form-control"></div>
-                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editPhone" class="form-control"></div>
-
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ التعديلات</button>
-                    <button type="button" onclick="closeEditModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
-                </div>
-            </form>
+        <!-- مكان الكود الظاهر للتحكم والتعديل المباشر -->
+        <div class="card" style="background: #f8fafc; border: 1px solid var(--card-border);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 صندوق عرض الكود البرمجي (للتعديل والمراجعة المباشرة)</h3>
+                <button onclick="copyPageCode()" class="action-btn" style="background: var(--primary-green); font-size: 10px;">📋 نسخ كود الصفحة</button>
+            </div>
+            <p style="font-size: 11px; color: var(--text-gray); margin: 0 0 8px 0;">يمكنك الاطلاع على الكود أو تعديله ووضعه في مشروعك مباشرة:</p>
+            <div class="code-view-box" id="pageCodeContainer">
+                <!-- سيتم عرض الكود هنا تلقائياً -->
+            </div>
         </div>
     </div>
 
@@ -158,144 +136,100 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let masterDataList = [];
+        let masterPatientsList = [];
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        async function fetchAllPatientsAndCases() {
-            const tbody = document.getElementById('patientsTableBody');
-            
+        async function loadPatientsList() {
             const { data: patData } = await supabaseClient.from('patients').select('*');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
-            masterDataList = [];
+            masterPatientsList = [];
+            if (patData) patData.forEach(p => masterPatientsList.push({ ...p, _table: 'patients' }));
+            if (barData) barData.forEach(b => masterPatientsList.push({ ...b, _table: 'bariatric_cases' }));
 
-            if (patData) {
-                patData.forEach(p => {
-                    masterDataList.push({
-                        id: p.id,
-                        table: 'patients',
-                        name: p.patient_name || p.name || 'غير معروف',
-                        category: p.category || 'مرضى تغذية',
-                        condition: p.medical_history || p.notes || 'متابعة عادية',
-                        weight: p.weight ? p.weight : '-',
-                        phone: p.phone || '-'
-                    });
-                });
-            }
+            renderPatientsTable(masterPatientsList);
+            displayPageCode();
+        }
 
-            if (barData) {
-                barData.forEach(b => {
-                    masterDataList.push({
-                        id: b.id,
-                        table: 'bariatric_cases',
-                        name: b.patient_name || 'غير معروف',
-                        category: b.surgery_type || 'جراحة سمنة',
-                        condition: b.notes || 'جراحة سمنة ومتابعة',
-                        weight: b.weight ? b.weight : '-',
-                        phone: b.phone || '-'
-                    });
-                });
-            }
-
+        function renderPatientsTable(list) {
+            let tbody = document.getElementById('patientsTableBody');
             tbody.innerHTML = '';
-            if (masterDataList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد حالات مسجلة حالياً.</td></tr>`;
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray);">لا توجد حالات مسجلة مطابقة للبحث.</td></tr>`;
                 return;
             }
 
-            masterDataList.forEach(item => {
+            list.forEach((p) => {
+                let name = p.patient_name || p.name || 'بدون اسم';
+                let cat = p.category || p.surgery_type || 'تغذية';
+                let notes = p.medical_history || p.notes || '-';
+                let weight = p.weight ? p.weight + ' كجم' : '-';
+                let phone = p.phone || 'غير مسجل';
+
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${item.name}</strong></td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${item.category}</span></td>
-                        <td>${item.condition}</td>
-                        <td>${item.weight !== '-' ? item.weight + ' كجم' : '-'}</td>
-                        <td>${item.phone}</td>
-                        <td style="display:flex; gap:5px;">
-                            <button onclick="openEditModal('${item.id}', '${item.table}')" style="background:#e0f2fe; color:#0369a1; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:bold;">✏️ تعديل</button>
-                            <button onclick="deleteRecord('${item.id}', '${item.table}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer; font-weight:bold;">🗑️ حذف</button>
+                        <td><strong>${name}</strong></td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${cat}</span></td>
+                        <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
+                        <td>${weight}</td>
+                        <td>${phone}</td>
+                        <td>
+                            <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                <button onclick="openPatientProfile('${name}')" class="action-btn" style="background:var(--accent-blue);">📂 فتح الملف الكامل</button>
+                                <button onclick="deletePatientRecord('${p._table}', '${p.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        function openEditModal(id, tableName) {
-            let item = masterDataList.find(x => x.id === id && x.table === tableName);
-            if (!item) return;
-
-            document.getElementById('editId').value = item.id;
-            document.getElementById('editTable').value = item.table;
-            document.getElementById('editName').value = item.name;
-            document.getElementById('editCategory').value = item.category;
-            document.getElementById('editCondition').value = item.condition;
-            document.getElementById('editWeight').value = item.weight !== '-' ? item.weight : '';
-            document.getElementById('editPhone').value = item.phone !== '-' ? item.phone : '';
-
-            document.getElementById('editModal').style.display = 'flex';
+        // زر البحث الشامل والفلترة الفورية
+        function filterPatientsTable() {
+            let query = document.getElementById('patientSearchInput').value.toLowerCase().trim();
+            let filtered = masterPatientsList.filter(p => {
+                let name = (p.patient_name || p.name || '').toLowerCase();
+                let phone = (p.phone || '').toLowerCase();
+                return name.includes(query) || phone.includes(query);
+            });
+            renderPatientsTable(filtered);
         }
 
-        function closeEditModal() {
-            document.getElementById('editModal').style.display = 'none';
+        // الانتقال لملف المريض الكامل
+        function openPatientProfile(patientName) {
+            window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
         }
 
-        async function updateRecordData(e) {
-            e.preventDefault();
-            let id = document.getElementById('editId').value;
-            let tableName = document.getElementById('editTable').value;
-            let name = document.getElementById('editName').value;
-            let category = document.getElementById('editCategory').value;
-            let condition = document.getElementById('editCondition').value;
-            let weight = document.getElementById('editWeight').value;
-            let phone = document.getElementById('editPhone').value;
-
-            let updatePayload = {};
-            if (tableName === 'patients') {
-                updatePayload = { 
-                    patient_name: name, 
-                    category: category, 
-                    medical_history: condition, 
-                    weight: weight ? parseFloat(weight) : null, 
-                    phone: phone 
-                };
-            } else {
-                updatePayload = { 
-                    patient_name: name, 
-                    surgery_type: category, 
-                    notes: condition, 
-                    weight: weight ? parseFloat(weight) : null, 
-                    phone: phone 
-                };
-            }
-
-            const { error } = await supabaseClient.from(tableName).update(updatePayload).eq('id', id);
+        async function deletePatientRecord(tableName, recordId) {
+            if (!confirm('هل أنت متأكد من حذف هذا السجل نهائياً من قاعدة بيانات SQL؟')) return;
+            const { error } = await supabaseClient.from(tableName).delete().eq('id', recordId);
             if (error) {
-                alert('خطأ أثناء التعديل: ' + error.message);
+                alert('خطأ أثناء الحذف: ' + error.message);
                 return;
             }
-
-            alert('✨ تم تحديث البيانات بنجاح!');
-            closeEditModal();
-            fetchAllPatientsAndCases();
+            alert('✨ تم حذف السجل بنجاح!');
+            loadPatientsList();
         }
 
-        async function deleteRecord(id, tableName) {
-            if (confirm('هل أنت متأكد من حذف هذه الحالة نهائياً من السجلات؟')) {
-                const { error } = await supabaseClient.from(tableName).delete().eq('id', id);
-                if (error) {
-                    alert('حدث خطأ أثناء الحذف.');
-                    return;
-                }
-                alert('✨ تم الحذف بنجاح!');
-                fetchAllPatientsAndCases();
-            }
+        // عرض كود الصفحة الحالي في الصندوق المخصص
+        function displayPageCode() {
+            let codeBox = document.getElementById('pageCodeContainer');
+            codeBox.innerText = document.documentElement.outerHTML;
         }
 
-        window.onload = fetchAllPatientsAndCases;
+        function copyPageCode() {
+            let codeText = document.documentElement.outerHTML;
+            navigator.clipboard.writeText(codeText).then(() => {
+                alert('📋 تم نسخ كود الصفحة بالكامل بنجاح!');
+            });
+        }
+
+        window.onload = loadPatientsList;
     </script>
 </body>
 </html>
