@@ -88,7 +88,6 @@
             </div>
         </div>
 
-        <!-- نموذج تسجيل الحالة -->
         <div class="card">
             <form onsubmit="saveNewPatientRecord(event)">
                 <div class="form-group">
@@ -109,18 +108,19 @@
                     <input type="text" id="pPhoneInput" class="form-control" placeholder="011xxxxxxxx">
                 </div>
 
-                <!-- الاختيارات الجديدة المطلوبة مع شرط ظهور خانة "آخر" -->
+                <!-- الاختيارات المحدثة شاملة عمليات السمنة -->
                 <div class="form-group">
                     <label>التصنيف / الحالة الإكلينيكية:</label>
                     <select id="pCategorySelect" class="form-control" onchange="toggleCustomCategoryInput()" required>
                         <option value="نحافة">نحافة</option>
                         <option value="سمنة">سمنة</option>
                         <option value="حقن مونجارو او ميزوثرابي او غيرها">حقن مونجارو او ميزوثرابي او غيرها</option>
+                        <option value="عمليات السمنة">عمليات السمنة</option>
                         <option value="آخر">آخر</option>
                     </select>
                 </div>
 
-                <!-- خانة كتابة مخصصة تظهر فقط عند اختيار "آخر" -->
+                <!-- خانة كتابة مخصصة تظهر عند اختيار "آخر" -->
                 <div class="form-group" id="customCategoryBox" style="display: none;">
                     <label style="color: var(--accent-blue);">أدخل تفاصيل التصنيف (آخر):</label>
                     <input type="text" id="pCustomCategoryInput" class="form-control" placeholder="اكتب التصنيف هنا...">
@@ -170,7 +170,6 @@
             </form>
         </div>
 
-        <!-- صندوق عرض الكود للتحكم والتعديل المباشر -->
         <div class="card" style="background: #f8fafc; border: 1px solid var(--card-border);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 صندوق عرض الكود البرمجي (للتعديل والمراجعة المباشرة)</h3>
@@ -191,7 +190,6 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // إظهار وإخفاء خانة الكتابة عند اختيار "آخر"
         function toggleCustomCategoryInput() {
             let selectVal = document.getElementById('pCategorySelect').value;
             let customBox = document.getElementById('customCategoryBox');
