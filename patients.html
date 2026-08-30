@@ -35,8 +35,6 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-        .code-view-box { background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; direction: ltr; text-align: left; margin-top: 10px; }
-
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
@@ -89,44 +87,33 @@
                 <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات بمرونة تامة</p>
             </div>
             
-            <!-- زر البحث الفوري عن المريض بالاسم أو الهاتف -->
+            <!-- زر وشريط البحث الشامل (بالاسم، الهاتف، أو كود العميل) -->
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف..." style="width: 200px; padding: 7px;" onkeyup="filterPatientsTable()">
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم، الهاتف، أو كود العميل..." style="width: 230px; padding: 7px;" onkeyup="filterPatientsTable()">
                 <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
             </div>
         </div>
 
-        <!-- جدول الحالات والقرارات -->
+        <!-- جدول الحالات شامل كود العميل -->
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
+                            <th>كود العميل</th>
                             <th>اسم المريض</th>
                             <th>التصنيف / الحالة</th>
                             <th>الحالة المرضية / ملاحظات</th>
                             <th>الوزن</th>
                             <th>رقم الهاتف</th>
-                            <th>الإجراءات (فتح الملف الكامل)</th>
+                            <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="patientsTableBody">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray);">جاري تحميل الحالات من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:var(--text-gray);">جاري تحميل الحالات من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
-            </div>
-        </div>
-
-        <!-- مكان الكود الظاهر للتحكم والتعديل المباشر -->
-        <div class="card" style="background: #f8fafc; border: 1px solid var(--card-border);">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 صندوق عرض الكود البرمجي (للتعديل والمراجعة المباشرة)</h3>
-                <button onclick="copyPageCode()" class="action-btn" style="background: var(--primary-green); font-size: 10px;">📋 نسخ كود الصفحة</button>
-            </div>
-            <p style="font-size: 11px; color: var(--text-gray); margin: 0 0 8px 0;">يمكنك الاطلاع على الكود أو تعديله ووضعه في مشروعك مباشرة:</p>
-            <div class="code-view-box" id="pageCodeContainer">
-                <!-- سيتم عرض الكود هنا تلقائياً -->
             </div>
         </div>
     </div>
@@ -152,7 +139,6 @@
             if (barData) barData.forEach(b => masterPatientsList.push({ ...b, _table: 'bariatric_cases' }));
 
             renderPatientsTable(masterPatientsList);
-            displayPageCode();
         }
 
         function renderPatientsTable(list) {
@@ -160,11 +146,12 @@
             tbody.innerHTML = '';
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray);">لا توجد حالات مسجلة مطابقة للبحث.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray);">لا توجد حالات مسجلة مطابقة للبحث.</td></tr>`;
                 return;
             }
 
-            list.forEach((p) => {
+            list.forEach((p, index) => {
+                let clientCode = p.client_code || p.code || `SS-${1000 + index}`; // كود العميل التلقائي أو المسجل
                 let name = p.patient_name || p.name || 'بدون اسم';
                 let cat = p.category || p.surgery_type || 'تغذية';
                 let notes = p.medical_history || p.notes || '-';
@@ -173,9 +160,10 @@
 
                 tbody.innerHTML += `
                     <tr>
+                        <td><strong style="color: var(--accent-blue);">#${clientCode}</strong></td>
                         <td><strong>${name}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${cat}</span></td>
-                        <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
+                        <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
                         <td>${weight}</td>
                         <td>${phone}</td>
                         <td>
@@ -189,18 +177,18 @@
             });
         }
 
-        // زر البحث الشامل والفلترة الفورية
+        // البحث الشامل بالاسم أو الهاتف أو كود العميل
         function filterPatientsTable() {
             let query = document.getElementById('patientSearchInput').value.toLowerCase().trim();
             let filtered = masterPatientsList.filter(p => {
                 let name = (p.patient_name || p.name || '').toLowerCase();
                 let phone = (p.phone || '').toLowerCase();
-                return name.includes(query) || phone.includes(query);
+                let code = (p.client_code || p.code || '').toLowerCase();
+                return name.includes(query) || phone.includes(query) || code.includes(query);
             });
             renderPatientsTable(filtered);
         }
 
-        // الانتقال لملف المريض الكامل
         function openPatientProfile(patientName) {
             window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
         }
@@ -214,19 +202,6 @@
             }
             alert('✨ تم حذف السجل بنجاح!');
             loadPatientsList();
-        }
-
-        // عرض كود الصفحة الحالي في الصندوق المخصص
-        function displayPageCode() {
-            let codeBox = document.getElementById('pageCodeContainer');
-            codeBox.innerText = document.documentElement.outerHTML;
-        }
-
-        function copyPageCode() {
-            let codeText = document.documentElement.outerHTML;
-            navigator.clipboard.writeText(codeText).then(() => {
-                alert('📋 تم نسخ كود الصفحة بالكامل بنجاح!');
-            });
         }
 
         window.onload = loadPatientsList;
