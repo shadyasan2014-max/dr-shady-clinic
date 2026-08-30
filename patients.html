@@ -35,6 +35,11 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 520px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
+
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
@@ -87,14 +92,13 @@
                 <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات بمرونة تامة</p>
             </div>
             
-            <!-- زر وشريط البحث الشامل (بالاسم، الهاتف، أو كود العميل) -->
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم، الهاتف، أو كود العميل..." style="width: 230px; padding: 7px;" onkeyup="filterPatientsTable()">
+                <button onclick="openAddPatientModal()" class="action-btn" style="background: var(--primary-green); padding: 8px 14px; font-size: 12px;">➕ إضافة مريض جديد</button>
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم، الهاتف، أو كود العميل..." style="width: 210px; padding: 7px;" onkeyup="filterPatientsTable()">
                 <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
             </div>
         </div>
 
-        <!-- جدول الحالات شامل كود العميل -->
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
             <div style="overflow-x: auto;">
@@ -115,6 +119,42 @@
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- نافذة إضافة مريض جديد بكل التفاصيل والفحوصات والتغذية -->
+    <div id="addPatientModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">➕ إضافة ملف مريض جديد بالكامل</h3>
+            <form onsubmit="saveNewPatientToSQL(event)">
+                <div class="form-group"><label>اسم المريض:</label><input type="text" id="newPatName" class="form-control" required></div>
+                <div class="form-group"><label>كود العميل (مثال: SS-101):</label><input type="text" id="newPatCode" class="form-control"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="newPatPhone" class="form-control"></div>
+                <div class="form-group"><label>اختر جدول الحفظ في SQL:</label>
+                    <select id="newPatTable" class="form-control">
+                        <option value="patients">مرضى عامة (patients)</option>
+                        <option value="bariatric_cases">جراحات سمنة (bariatric_cases)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>التصنيف / نوع العملية:</label><input type="text" id="newPatCategory" class="form-control" placeholder="تكميم، نحافة، مونجارو..."></div>
+                <div class="form-group"><label>تاريخ إجراء العملية:</label><input type="date" id="newPatSurgeryDate" class="form-control"></div>
+                <div class="form-group"><label>وزن البداية (كجم):</label><input type="number" step="0.1" id="newPatStartWeight" class="form-control"></div>
+                <div class="form-group"><label>الوزن الحالي (كجم):</label><input type="number" step="0.1" id="newPatWeight" class="form-control" required></div>
+                <div class="form-group"><label>الطول (سم):</label><input type="number" step="1" id="newPatHeight" class="form-control" value="175"></div>
+                <div class="form-group"><label>نسبة الدهون (%):</label><input type="number" step="0.1" id="newPatFat" class="form-control"></div>
+                <div class="form-group"><label>كتلة العضلات (كجم):</label><input type="number" step="0.1" id="newPatMuscle" class="form-control"></div>
+                <div class="form-group"><label>نسبة المياه (%):</label><input type="number" step="0.1" id="newPatWater" class="form-control"></div>
+                <div class="form-group"><label>تاريخ المتابعة السابقة:</label><input type="date" id="newPatPrevDate" class="form-control"></div>
+                <div class="form-group"><label>شكاوى المتابعة السابقة:</label><textarea id="newPatPrevComplaints" class="form-control" rows="2"></textarea></div>
+                <div class="form-group"><label>موعد المتابعة القادمة (للتنبيه):</label><input type="date" id="newPatNextDate" class="form-control"></div>
+                <div class="form-group"><label>رابط أو مسار صور التحاليل:</label><input type="text" id="newPatLabs" class="form-control" placeholder="https://..."></div>
+                <div class="form-group"><label>الخطة الغذائية الأولية:</label><textarea id="newPatDietPlan" class="form-control" rows="3" placeholder="اكتب الخطة الغذائية هنا..."></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">حفظ وحجز المريض في SQL</button>
+                    <button type="button" onclick="closeAddPatientModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
+                </div>
+            </form>
         </div>
     </div>
 
@@ -151,7 +191,7 @@
             }
 
             list.forEach((p, index) => {
-                let clientCode = p.client_code || p.code || `SS-${1000 + index}`; // كود العميل التلقائي أو المسجل
+                let clientCode = p.client_code || p.code || `SS-${1000 + index}`;
                 let name = p.patient_name || p.name || 'بدون اسم';
                 let cat = p.category || p.surgery_type || 'تغذية';
                 let notes = p.medical_history || p.notes || '-';
@@ -177,7 +217,6 @@
             });
         }
 
-        // البحث الشامل بالاسم أو الهاتف أو كود العميل
         function filterPatientsTable() {
             let query = document.getElementById('patientSearchInput').value.toLowerCase().trim();
             let filtered = masterPatientsList.filter(p => {
@@ -187,6 +226,88 @@
                 return name.includes(query) || phone.includes(query) || code.includes(query);
             });
             renderPatientsTable(filtered);
+        }
+
+        function openAddPatientModal() {
+            document.getElementById('newPatName').value = '';
+            document.getElementById('newPatCode').value = 'SS-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('newPatPhone').value = '';
+            document.getElementById('newPatCategory').value = '';
+            document.getElementById('newPatSurgeryDate').value = '';
+            document.getElementById('newPatStartWeight').value = '';
+            document.getElementById('newPatWeight').value = '';
+            document.getElementById('newPatHeight').value = '175';
+            document.getElementById('newPatFat').value = '';
+            document.getElementById('newPatMuscle').value = '';
+            document.getElementById('newPatWater').value = '';
+            document.getElementById('newPatPrevDate').value = '';
+            document.getElementById('newPatPrevComplaints').value = '';
+            document.getElementById('newPatNextDate').value = '';
+            document.getElementById('newPatLabs').value = '';
+            document.getElementById('newPatDietPlan').value = '';
+            document.getElementById('addPatientModal').style.display = 'flex';
+        }
+
+        function closeAddPatientModal() {
+            document.getElementById('addPatientModal').style.display = 'none';
+        }
+
+        async function saveNewPatientToSQL(e) {
+            e.preventDefault();
+            let tableName = document.getElementById('newPatTable').value;
+            let name = document.getElementById('newPatName').value;
+            let code = document.getElementById('newPatCode').value;
+            let phone = document.getElementById('newPatPhone').value;
+            let cat = document.getElementById('newPatCategory').value;
+            let sDate = document.getElementById('newPatSurgeryDate').value;
+            let startW = parseFloat(document.getElementById('newPatStartWeight').value) || null;
+            let curW = parseFloat(document.getElementById('newPatWeight').value) || 0;
+            let h = parseFloat(document.getElementById('newPatHeight').value) || 175;
+            let fat = parseFloat(document.getElementById('newPatFat').value) || null;
+            let muscle = parseFloat(document.getElementById('newPatMuscle').value) || null;
+            let water = parseFloat(document.getElementById('newPatWater').value) || null;
+            let prevD = document.getElementById('newPatPrevDate').value;
+            let prevC = document.getElementById('newPatPrevComplaints').value;
+            let nextD = document.getElementById('newPatNextDate').value;
+            let labs = document.getElementById('newPatLabs').value;
+            let diet = document.getElementById('newPatDietPlan').value;
+
+            let payload = {
+                patient_name: name,
+                client_code: code,
+                phone: phone,
+                weight: curW,
+                height: h,
+                diet_plan: diet
+            };
+
+            if (startW !== null) payload.start_weight = startW;
+            if (fat !== null) payload.fat = fat;
+            if (muscle !== null) payload.muscle = muscle;
+            if (water !== null) payload.water = water;
+            if (sDate) payload.surgery_date = sDate;
+            if (prevD) payload.prev_followup_date = prevD;
+            if (prevC) payload.prev_complaints = prevC;
+            if (nextD) payload.next_followup_date = nextD;
+            if (labs) payload.labs_required = labs;
+
+            if (tableName === 'patients') {
+                payload.category = cat;
+                payload.medical_history = 'تسجيل جديد';
+            } else {
+                payload.surgery_type = cat;
+                payload.notes = 'تسجيل جديد';
+            }
+
+            const { error } = await supabaseClient.from(tableName).insert([payload]);
+            if (error) {
+                alert('خطأ أثناء إضافة المريض: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم إضافة المريض الجديد وحفظ كافة بياناته في SQL بنجاح!');
+            closeAddPatientModal();
+            loadPatientsList();
         }
 
         function openPatientProfile(patientName) {
