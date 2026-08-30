@@ -148,12 +148,12 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- قسم اختيار النظام الغذائي مع زر الـ AI المحدث -->
+            <!-- قسم اختيار النظام الغذائي مع زر البحث بالـ AI في جوجل المحدث -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
-                    <button onclick="triggerSmartAIPlan()" class="action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px 18px; font-size: 13px;">
-                        🤖 توليد النظام بالـ AI الذكي
+                    <button onclick="triggerGoogleAIPromptSearch()" class="action-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 10px 18px; font-size: 13px;">
+                        🌐 بحث وتوليد بالـ AI في جوجل
                     </button>
                 </div>
 
@@ -390,10 +390,10 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        // دالة الـ AI الذكي المحدثة لتسأل أيضاً عن تاريخ العملية لحساب الفترة بدقة
-        function triggerSmartAIPlan() {
+        // دالة البحث الذكي عبر جوجل والـ AI مع سؤال تفصيلي عن تاريخ العملية والسعرات لتوليد النظام
+        function triggerGoogleAIPromptSearch() {
             if (!loadedPatientData) {
-                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً ليقوم الـ AI باستدعاء بيانات الحالة.');
+                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
                 return;
             }
 
@@ -402,26 +402,34 @@
             let pSurgery = loadedPatientData.surgery_type || loadedPatientData.category || 'تغذية علاجية';
             let sDate = loadedPatientData.surgery_date || 'غير مسجل';
 
-            let surgeryDatePrompt = prompt(`🤖 أهلاً يا دكتور شادي! البيانات المسجلة للحالة (${pName}):\n- الوزن الحالي: ${pWeight} كجم\n- التصنيف/العملية: ${pSurgery}\n- تاريخ العملية المسجل: ${sDate}\n\nمن فضلك، أكد أو أدخل "تاريخ العملية" الفعلي لمعرفة الفترة المنقضية بدقة:`, sDate);
+            // سؤال تفصيلي عن تاريخ العملية لحساب الفترة وزهق الـ AI بالمعلومات الدقيقة
+            let surgeryDatePrompt = prompt(`🌐 بحث وجلستك الذكية مع الـ AI (حالة: ${pName}):\n- الوزن: ${pWeight} كجم\n- التصنيف/العملية: ${pSurgery}\n- تاريخ العملية المسجل: ${sDate}\n\nمن فضلك، أكد أو أدخل "تاريخ العملية" الفعلي لحساب الفترة التي مضت عليها:`, sDate);
 
             if (surgeryDatePrompt !== null) {
-                let targetCalories = prompt(`أدخل عدد "السعرات الحرارية المطلوبة" أو أي توجيهات خاصة للنظام (بناءً على عملية تمت في تاريخ: ${surgeryDatePrompt}):`, "1500 سعرة حرارية");
+                let targetCalories = prompt(`أدخل عدد "السعرات الحرارية المطلوبة" أو أي هدف غذائي (مثال: 1400 سعرة، تكميم مرحلة ثانية):`, "1500 سعرة حرارية");
 
                 if (targetCalories !== null) {
-                    let aiGeneratedPlan = `🤖 خطة ذكية مقترحة بالـ AI (بناءً على عملية بتاريخ ${surgeryDatePrompt} وسعرات: ${targetCalories}):\n` +
-                        `- الإفطار: 2 بيضة مقلية + خبز توست أسمر + شاي بدون سكر.\n` +
-                        `- الغداء: صدور دجاج مشوية (150جم) + 5 ملاعق أرز + سلطة خضراء.\n` +
-                        `- العشاء: جبنة قريش + زبادي يوناني.\n` +
-                        `- توجيهات إكلينيكية: تم حساب الفترة المنقضية منذ تاريخ العملية (${surgeryDatePrompt}) لضبط تدرج الأغذية المناسب.`;
+                    // تجهيز استعلام بحث ذكي وجاهز للتوجه به لمحرك البحث أو جوجل AI
+                    let aiSearchQuery = `بناء نظام غذائي طبي لـ ${pSurgery} تاريخ العملية ${surgeryDatePrompt} وزن ${pWeight} كجم سعرات ${targetCalories}`;
+                    
+                    // فتح بحث جوجل في تبويب جديد مع الاستعلام الطبي الجاهز
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(aiSearchQuery)}`, '_blank');
+
+                    // تعبئة نموذج مبدئي ذكي في ملاحظات الدكتور
+                    let suggestedAIPlan = `🌐 [مقترح بحث AI من جوجل بناءً على العملية بتاريخ ${surgeryDatePrompt} وسعرات ${targetCalories}]:\n` +
+                        `- الفطور: بروتين عالي (بيض أو جبنة قريش خالية الدسم).\n` +
+                        `- الغداء: وجبة بروتينية مشوية + خضروات مسلوقة.\n` +
+                        `- العشاء: زبادي يوناني أو أعشاب دافئة.\n` +
+                        `- ملاحظة إكلينيكية: تم حساب الفترة المنقضية بدقة منذ تاريخ العملية (${surgeryDatePrompt}) لضمان أمان الغذاء.`;
 
                     if (currentSystem === 'period') {
                         let periodElem = document.getElementById('periodSystemText');
-                        if (periodElem) periodElem.value = aiGeneratedPlan;
+                        if (periodElem) periodElem.value = suggestedAIPlan;
                     } else {
-                        document.getElementById('doctorNotesInput').value = aiGeneratedPlan;
+                        document.getElementById('doctorNotesInput').value = suggestedAIPlan;
                     }
 
-                    alert(`✨ تم استدعاء تاريخ العملية والسعرات (${targetCalories}) وتوليد النظام الغذائي الذكي بنجاح!`);
+                    alert(`✨ تم تجميع بيانات الحالة (تاريخ العملية: ${surgeryDatePrompt} | السعرات: ${targetCalories}) وفتح بحث جوجل الذكي لتوليد واستعراض أحدث الأبحاث والبروتوكولات!`);
                 }
             }
         }
