@@ -35,7 +35,7 @@
         .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .metric-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
         .metric-title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
-        .metric-value { font-size: 18px; font-weight: bold; color: var(--text-dark); }
+        .metric-value { font-size: 16px; font-weight: bold; color: var(--text-dark); }
 
         .profile-stack { display: flex; flex-direction: column; gap: 15px; }
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); width: 100%; box-sizing: border-box; }
@@ -119,7 +119,7 @@
                             <h2 style="margin:0; font-size: 18px;" id="pName">جاري التحميل...</h2>
                             <span id="pStatusBadge" style="background:#dcfce7; color:#166534; padding:3px 10px; border-radius:12px; font-size:11px; font-weight:bold;">🟢 مستقر</span>
                         </div>
-                        <p style="margin: 4px 0 0 0; font-size: 11px; color: var(--text-gray);" id="pSubInfo">آخر زيارة وحالة المريض</p>
+                        <p style="margin: 4px 0 0 0; font-size: 11px; color: var(--text-gray);" id="pSubInfo">بيانات المريض والتصنيف</p>
                     </div>
                 </div>
                 <div class="patient-actions-top">
@@ -130,33 +130,19 @@
                 </div>
             </div>
 
-            <div class="card" style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border: 1px solid #bbf7d0; margin-bottom: 15px; padding: 15px;">
-                <h3 style="color: #166534; border-bottom-color: #bbf7d0; margin-bottom: 8px; font-size: 13px;">⚡ الملخص الذكي للحالة (آخر زيارة)</h3>
-                <p id="smartSummaryText" style="font-size: 12px; color: #14532d; line-height: 1.5; margin: 0; font-weight: 500;">جاري تحليل بيانات الحالة وتوليد الملخص الذكي...</p>
+            <!-- لوحة المؤشرات وتواريخ العمليات والمتابعات -->
+            <div class="metrics-grid">
+                <div class="metric-card"><div class="metric-title">نوع العملية</div><div class="metric-value" id="mSurgeryType" style="color:var(--accent-blue);">-</div></div>
+                <div class="metric-card"><div class="metric-title">تاريخ العملية</div><div class="metric-value" id="mSurgeryDate">-</div></div>
+                <div class="metric-card"><div class="metric-title">تاريخ المتابعة السابقة</div><div class="metric-value" id="mPrevFollowup">-</div></div>
+                <div class="metric-card"><div class="metric-title">تاريخ المتابعة الحالية</div><div class="metric-value" id="mCurrFollowup" style="color:var(--primary-green);">-</div></div>
             </div>
 
-            <div class="metrics-grid">
+            <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 15px;">
                 <div class="metric-card"><div class="metric-title">الوزن الحالي</div><div class="metric-value" id="mCurrentWeight" style="color:var(--primary-green);">-</div></div>
                 <div class="metric-card"><div class="metric-title">مؤشر كتلة الجسم BMI</div><div class="metric-value" id="mBMI">-</div></div>
                 <div class="metric-card"><div class="metric-title">نسبة الدهون</div><div class="metric-value" id="mFat" style="color:var(--warning-orange);">-</div></div>
                 <div class="metric-card"><div class="metric-title">كتلة العضلات</div><div class="metric-value" id="mMuscle" style="color:var(--accent-blue);">-</div></div>
-            </div>
-
-            <div class="card" style="margin-bottom: 15px;">
-                <h3>📊 مقارنة القياسات (الحالي مقابل السابق)</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>المؤشر / القياس</th>
-                            <th>الحالي</th>
-                            <th>السابق</th>
-                            <th>التغيير / المؤشر</th>
-                        </tr>
-                    </thead>
-                    <tbody id="comparisonTableBody">
-                        <tr><td colspan="4" style="text-align:center; color:var(--text-gray);">جاري تحميل مقارنة القياسات...</td></tr>
-                    </tbody>
-                </table>
             </div>
 
             <div class="profile-stack">
@@ -168,7 +154,7 @@
                 </div>
 
                 <div class="card">
-                    <h3>🥗 الخطة الغذائية الحالية والملاحظات</h3>
+                    <h3>🥗 الخطة الغذائية والملاحظات الطبية</h3>
                     <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:12px;">
                         <strong style="font-size:12px; color:#166534; display:block; margin-bottom:5px;">🍽️ تفاصيل الخطة الغذائية المخصصة:</strong>
                         <p id="pDietPlan" style="font-size:12px; line-height:1.6; color:#14532d; margin:0; white-space: pre-line;">لم يتم كتابة خطة غذائية بعد.</p>
@@ -181,13 +167,16 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل بيانات الحالة (متوافقة ذكياً مع الجدول بدون أخطاء أعمدة مفقودة) -->
+    <!-- نافذة تعديل بيانات الحالة (فصل نوع العملية عن تاريخها وإضافة تواريخ المتابعة) -->
     <div id="editModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل تفاصيل الحالة والتواريخ</h3>
             <form onsubmit="savePatientEdits(event)">
                 <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
-                <div class="form-group"><label>التصنيف / العملية:</label><input type="text" id="editCategory" class="form-control" required></div>
+                <div class="form-group"><label>نوع العملية / التصنيف:</label><input type="text" id="editSurgeryType" class="form-control" placeholder="مثال: تكميم معدة، إصلاح عملية سابقة..."></div>
+                <div class="form-group"><label>تاريخ إجراء العملية:</label><input type="date" id="editSurgeryDate" class="form-control"></div>
+                <div class="form-group"><label>تاريخ المتابعة السابقة:</label><input type="date" id="editPrevFollowup" class="form-control"></div>
+                <div class="form-group"><label>تاريخ المتابعة الحالية:</label><input type="date" id="editCurrFollowup" class="form-control"></div>
                 <div class="form-group"><label>وزن البداية (كجم):</label><input type="number" step="0.1" id="editStartWeight" class="form-control"></div>
                 <div class="form-group"><label>الوزن الحالي (كجم):</label><input type="number" step="0.1" id="editWeight" class="form-control" required></div>
                 <div class="form-group"><label>الطول (سم):</label><input type="number" step="1" id="editHeight" class="form-control"></div>
@@ -198,7 +187,7 @@
                 <div class="form-group"><label>📝 ملاحظات الدكتور:</label><textarea id="editNotes" class="form-control" rows="2"></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ التعديلات في SQL</button>
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
                     <button type="button" onclick="closeEditModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
@@ -210,11 +199,11 @@
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل متابعة جديدة</h3>
             <form onsubmit="saveNewFollowup(event)">
-                <div class="form-group"><label>تاريخ المتابعة:</label><input type="date" id="fuDate" class="form-control" required></div>
+                <div class="form-group"><label>تاريخ المتابعة الحالية:</label><input type="date" id="fuDate" class="form-control" required></div>
                 <div class="form-group"><label>الوزن الجديد (كجم):</label><input type="number" step="0.1" id="fuWeight" class="form-control" required></div>
                 <div class="form-group"><label>ملاحظات المتابعة:</label><textarea id="fuNotes" class="form-control" rows="2"></textarea></div>
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">تسجيل المتابعة</button>
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ المتابعة</button>
                     <button type="button" onclick="closeFollowupModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
@@ -263,7 +252,11 @@
             activeTable = activePatient._table;
 
             let name = activePatient.patient_name || activePatient.name || 'مريض بدون اسم';
-            let category = activePatient.category || activePatient.surgery_type || 'متابعة تغذية';
+            let surgeryType = activePatient.surgery_type || activePatient.category || 'تغذية علاجية';
+            let surgeryDate = activePatient.surgery_date || 'غير مسجل';
+            let prevFollowup = activePatient.prev_followup_date || activePatient.last_visit || 'غير مسجل';
+            let currFollowup = activePatient.curr_followup_date || new Date().toISOString().split('T')[0];
+            
             let currentWeight = activePatient.weight !== undefined && activePatient.weight !== null ? activePatient.weight : 0;
             let startWeight = activePatient.start_weight !== undefined && activePatient.start_weight !== null ? activePatient.start_weight : currentWeight;
             let height = activePatient.height || 175;
@@ -275,7 +268,12 @@
             let bmi = height > 0 ? (currentWeight / Math.pow(height / 100, 2)).toFixed(1) : '-';
 
             document.getElementById('pName').innerText = name;
-            document.getElementById('pSubInfo').innerText = `التصنيف: ${category} | الهاتف: ${activePatient.phone || 'غير مسجل'}`;
+            document.getElementById('pSubInfo').innerText = `هاتف: ${activePatient.phone || 'غير مسجل'}`;
+            document.getElementById('mSurgeryType').innerText = surgeryType;
+            document.getElementById('mSurgeryDate').innerText = surgeryDate;
+            document.getElementById('mPrevFollowup').innerText = prevFollowup;
+            document.getElementById('mCurrFollowup').innerText = currFollowup;
+
             document.getElementById('mCurrentWeight').innerText = currentWeight + ' كجم';
             document.getElementById('mBMI').innerText = bmi;
             document.getElementById('mFat').innerText = currentFat ? currentFat + '%' : '-';
@@ -283,25 +281,16 @@
             document.getElementById('pNotes').innerText = notes;
             document.getElementById('pDietPlan').innerText = dietPlan;
 
-            document.getElementById('smartSummaryText').innerHTML = `ملخص الحالة: الوزن الحالي <strong>${currentWeight} كجم</strong>، التصنيف الإكلينيكي: <strong>${category}</strong>.`;
-
-            let compTable = document.getElementById('comparisonTableBody');
-            compTable.innerHTML = `
-                <tr>
-                    <td><strong>الوزن</strong></td>
-                    <td>${currentWeight} كجم</td>
-                    <td>${startWeight} كجم</td>
-                    <td style="color: #10b981; font-weight: bold;">متابعة حية</td>
-                </tr>
-            `;
-
             renderWeightChart(startWeight, currentWeight);
         }
 
         function openEditModal() {
             if (!activePatient) return;
             document.getElementById('editName').value = activePatient.patient_name || activePatient.name || '';
-            document.getElementById('editCategory').value = activePatient.category || activePatient.surgery_type || '';
+            document.getElementById('editSurgeryType').value = activePatient.surgery_type || activePatient.category || '';
+            document.getElementById('editSurgeryDate').value = activePatient.surgery_date || '';
+            document.getElementById('editPrevFollowup').value = activePatient.prev_followup_date || '';
+            document.getElementById('editCurrFollowup').value = activePatient.curr_followup_date || '';
             document.getElementById('editStartWeight').value = activePatient.start_weight || '';
             document.getElementById('editWeight').value = activePatient.weight || '';
             document.getElementById('editHeight').value = activePatient.height || '';
@@ -315,11 +304,13 @@
 
         function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
 
-        // دفظ ذكي يتجاهل أي أعمدة مش موجودة في الجدول الفعلي لتفادي الأخطاء
         async function savePatientEdits(e) {
             e.preventDefault();
             let name = document.getElementById('editName').value;
-            let category = document.getElementById('editCategory').value;
+            let surgeryType = document.getElementById('editSurgeryType').value;
+            let surgeryDate = document.getElementById('editSurgeryDate').value;
+            let prevFollowup = document.getElementById('editPrevFollowup').value;
+            let currFollowup = document.getElementById('editCurrFollowup').value;
             let startWeight = parseFloat(document.getElementById('editStartWeight').value) || null;
             let weight = parseFloat(document.getElementById('editWeight').value) || 0;
             let height = parseFloat(document.getElementById('editHeight').value) || null;
@@ -329,11 +320,13 @@
             let dietPlan = document.getElementById('editDietPlan').value;
             let notes = document.getElementById('editNotes').value;
 
-            // بناء الـ payload ديناميكياً حسب الأعمدة الأساسية المشتركة
             let payload = {
                 weight,
                 phone,
-                diet_plan: dietPlan
+                diet_plan: dietPlan,
+                surgery_date: surgeryDate || null,
+                prev_followup_date: prevFollowup || null,
+                curr_followup_date: currFollowup || null
             };
 
             if (startWeight !== null) payload.start_weight = startWeight;
@@ -343,11 +336,11 @@
 
             if (activeTable === 'patients') {
                 payload.patient_name = name;
-                payload.category = category;
+                payload.category = surgeryType;
                 payload.medical_history = notes;
             } else {
                 payload.patient_name = name;
-                payload.surgery_type = category;
+                payload.surgery_type = surgeryType;
                 payload.notes = notes;
             }
 
@@ -357,7 +350,7 @@
                 return;
             }
 
-            alert('✨ تم تحديث بيانات الحالة بنجاح في SQL!');
+            alert('✨ تم تحديث بيانات الحالة والتواريخ بنجاح في SQL!');
             closeEditModal();
             loadPatientProfile();
         }
@@ -373,9 +366,14 @@
         async function saveNewFollowup(e) {
             e.preventDefault();
             let newWeight = parseFloat(document.getElementById('fuWeight').value);
+            let fuDate = document.getElementById('fuDate').value;
             let notes = document.getElementById('fuNotes').value;
 
-            let payload = { weight: newWeight };
+            let payload = { 
+                weight: newWeight,
+                prev_followup_date: activePatient.curr_followup_date || new Date().toISOString().split('T')[0],
+                curr_followup_date: fuDate
+            };
             if (notes) {
                 if (activeTable === 'patients') payload.medical_history = notes;
                 else payload.notes = notes;
@@ -384,7 +382,7 @@
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) { alert('خطأ أثناء تسجيل المتابعة.'); return; }
 
-            alert('✨ تمت إضافة المتابعة بنجاح!');
+            alert('✨ تمت إضافة المتابعة وتحديث التواريخ بنجاح!');
             closeFollowupModal();
             loadPatientProfile();
         }
