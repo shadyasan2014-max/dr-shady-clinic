@@ -3,13 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - لوحة تحكم العيادة الإكلينيكية (SQL Live)</title>
+    <title>Dr. Shady Samir - لوحة التحكم الإكلينيكية</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
+        
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
         .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
@@ -21,32 +22,41 @@
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
         .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .welcome-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .welcome-title-box { display: flex; align-items: center; gap: 15px; }
-        .welcome-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .search-bar-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 20px; border-radius: 12px; margin-bottom: 15px; display: flex; gap: 10px; align-items: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .search-input { flex: 1; padding: 10px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; outline: none; background: #f8fafc; }
-        .btn-search { background-color: var(--accent-blue); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; }
-        .btn-search:hover { background-color: #2563eb; }
+        .top-welcome { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
+        
+        .search-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); position: relative; }
+        .form-control { width: 100%; padding: 11px 15px; border: 1px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+        
+        /* نتائج البحث المنسدلة الذكية */
+        .search-results-dropdown { position: absolute; top: 100%; right: 20px; left: 20px; background: white; border: 1px solid var(--card-border); border-radius: 0 0 10px 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; }
+        .search-result-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+        .search-result-item:hover { background-color: #f0fdf4; color: #166534; }
 
-        .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
-        .stat-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; text-align: center; }
-        .stat-box .title { font-size: 11px; color: var(--text-gray); margin-bottom: 5px; }
-        .stat-box .value { font-size: 20px; font-weight: bold; color: var(--text-dark); }
-        
-        .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 10px; margin-bottom: 15px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
-        .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 10px; }
-        
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 12px; }
-        th { color: var(--text-gray); padding: 8px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
-        td { padding: 10px 8px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .metrics-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .metric-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
+        .metric-value { font-size: 24px; font-weight: bold; color: var(--primary-green); margin-top: 5px; }
+
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+
+        .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
+            .metrics-grid { grid-template-columns: 1fr; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
                 <img src="logo.jpeg" alt="Logo" class="brand-logo">
@@ -54,215 +64,167 @@
                 <p>عيادة التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
-                <li class="active"><a href="index.html">🏠 الرئيسية</a></li>
-                <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="appointments.html">📅 المواعيد</a></li>
-                <li><a href="visits.html">📋 الزيارات</a></li>
-                <li><a href="measurements.html">⚖️ القياسات</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
-                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل</a></li>
-                <li><a href="supplements.html">💊 المكملات</a></li>
-                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
-                <li><a href="payments.html">💰 المدفوعات</a></li>
-                <li><a href="reports.html">📊 التقارير</a></li>
-                <li><a href="notifications.html">🔔 التنبيهات</a></li>
-                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
-                <li><a href="settings.html">⚙️ الإعدادات</a></li>
+                <li class="active"><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
+                <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد</a></li>
+                <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
+                <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
+                <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
+                <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
-        <div class="welcome-card">
-            <div class="welcome-title-box">
-                <img src="logo.jpeg" alt="Dr. Shady Logo" class="welcome-logo">
-                <div>
-                    <h2 style="margin:0; font-size: 18px;">مرحباً بك، د. شادي 👋 🩺</h2>
-                    <p style="margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (لوحة التحكم الإكلينيكية الحية)</p>
-                </div>
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
+
+        <div class="top-welcome">
+            <div>
+                <h2 style="margin:0; font-size:18px; color:var(--text-dark);">مرحباً بك، د. شادي 👨‍⚕️</h2>
+                <p style="margin:3px 0 0 0; font-size:12px; color:var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة (لوحة التحكم الإكلينيكية الحية)</p>
             </div>
-            <div style="text-align: left;">
-                <span style="background: #e0f2fe; color: #0369a1; padding: 5px 12px; border-radius: 15px; font-size: 11px; font-weight: bold;" id="currentDateBadge">التاريخ: جاري التحميل...</span>
+            <div>
+                <img src="logo.jpeg" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green);">
             </div>
         </div>
 
-        <!-- شريط البحث الشامل -->
-        <div class="search-bar-box">
-            <span style="font-weight: bold; font-size: 13px; color: var(--accent-blue);">🔍 البحث الشامل:</span>
-            <input type="text" id="globalSearchInput" class="search-input" placeholder="اكتب اسم الحالة أو جزء منه لعرض ملفه الإكلينيكي..." onkeydown="handleSearchKey(event)">
-            <button class="btn-search" onclick="executeGlobalSearch()">بحث 🔎</button>
-        </div>
-
-        <div class="stats-grid">
-            <div class="stat-box"><div class="title">إجمالي المرضى والحالات</div><div class="value" id="totalPatientsCount" style="color:var(--accent-blue);">0</div></div>
-            <div class="stat-box"><div class="title">إجمالي المواعيد المحجوزة</div><div class="value" id="totalApptsCount" style="color:var(--primary-green);">0</div></div>
-            <div class="stat-box"><div class="title">التحاليل الطبية المسجلة</div><div class="value" id="totalLabsCount" style="color:var(--warning-orange);">0</div></div>
-            <div class="stat-box"><div class="title">حالة النظام السحابي</div><div class="value" style="color:var(--primary-green); font-size: 13px; padding-top: 5px;">🟢 متصل بـ SQL & AI</div></div>
-        </div>
-
-        <div class="dashboard-grid">
-            <div class="card">
-                <h3>⚖️ توزيع الحالات وجراحات السمنة (تحليل حي)</h3>
-                <div style="width: 250px; height: 220px; margin: 0 auto; position: relative;">
-                    <canvas id="casesChart"></canvas>
-                </div>
+        <!-- شريط البحث الشامل (بالكود، الاسم، أو رقم التليفون) -->
+        <div class="search-card">
+            <h3 style="margin-top:0; font-size:13px; color:var(--text-dark); margin-bottom:10px;">🔍 البحث الشامل (ابحث بكود الحالة، أو الاسم، أو رقم التليفون)</h3>
+            <div style="position: relative;">
+                <input type="text" id="globalSearchInput" class="form-control" placeholder="اكتب كود الحالة، أو اسم المريض، أو رقم الهاتف لفتح ملفه الإكلينيكي..." onkeyup="performGlobalSearch()">
+                <div id="searchResultsDropdown" class="search-results-dropdown"></div>
             </div>
+        </div>
 
-            <div class="card">
-                <h3>📅 جدول المواعيد والزيارات الحية</h3>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>المريض</th>
-                            <th>نوع الزيارة</th>
-                            <th>الوقت</th>
-                            <th>الحالة</th>
-                        </tr>
-                    </thead>
-                    <tbody id="homeApptsTableBody">
-                        <tr><td colspan="4" style="text-align:center; padding:15px; color:var(--text-gray);">جاري جلب المواعيد من قاعدة البيانات...</td></tr>
-                    </tbody>
-                </table>
+        <div class="metrics-grid">
+            <div class="metric-card">
+                <div style="font-size:12px; color:var(--text-gray);">إجمالي المرضى والحالات</div>
+                <div class="metric-value" id="totalPatientsCount">0</div>
+            </div>
+            <div class="metric-card">
+                <div style="font-size:12px; color:var(--text-gray);">إجمالي المواعيد المحجوزة</div>
+                <div class="metric-value" id="totalAppointmentsCount" style="color:var(--accent-blue);">0</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:10px;">⚖️ توزيع الحالات وجراحات السمنة (تحليل حي)</h3>
+            <div style="height: 220px; width: 100%; position: relative;">
+                <canvas id="casesPieChart"></canvas>
             </div>
         </div>
     </div>
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
-        
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        let myChart = null;
 
-        async function loadDashboardReports() {
-            document.getElementById('currentDateBadge').innerText = new Date().toLocaleDateString('ar-EG', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        let globalPatientsMasterList = [];
+        let pieChartInstance = null;
 
-            const { count: patientsCount } = await supabaseClient.from('patients').select('*', { count: 'exact', head: true });
-            const { count: bariatricCount } = await supabaseClient.from('bariatric_cases').select('*', { count: 'exact', head: true });
-            
-            let totalRecords = (patientsCount || 0) + (bariatricCount || 0);
-            document.getElementById('totalPatientsCount').innerText = totalRecords;
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
-            const { data: patData } = await supabaseClient.from('patients').select('category');
-            const { data: barData } = await supabaseClient.from('bariatric_cases').select('surgery_type');
+        async function loadDashboardData() {
+            const { data: patData } = await supabaseClient.from('patients').select('*');
+            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
+            const { data: appData } = await supabaseClient.from('appointments').select('*');
 
-            let dynamicCounts = {};
+            globalPatientsMasterList = [];
+            if (patData) patData.forEach(p => globalPatientsMasterList.push({ ...p, _table: 'patients' }));
+            if (barData) barData.forEach(b => globalPatientsMasterList.push({ ...b, _table: 'bariatric_cases' }));
 
-            if (patData) {
-                patData.forEach(p => {
-                    let c = p.category ? p.category.trim() : 'أخرى';
-                    dynamicCounts[c] = (dynamicCounts[c] || 0) + 1;
-                });
-            }
-            if (barData) {
-                barData.forEach(b => {
-                    let s = b.surgery_type ? b.surgery_type.trim() : 'جراحة عامة';
-                    dynamicCounts[s] = (dynamicCounts[s] || 0) + 1;
-                });
-            }
+            document.getElementById('totalPatientsCount').innerText = globalPatientsMasterList.length;
+            document.getElementById('totalAppointmentsCount').innerText = appData ? appData.length : 0;
 
-            renderDynamicChart(dynamicCounts);
+            renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
+        }
 
-            const { count: apptsCount, data: apptsData } = await supabaseClient.from('appointments').select('*', { count: 'exact' }).order('appt_date', { ascending: true }).limit(4);
-            document.getElementById('totalApptsCount').innerText = apptsCount || 0;
+        // دالة البحث الشامل بالكود أو الاسم أو التليفون
+        function performGlobalSearch() {
+            let query = document.getElementById('globalSearchInput').value.toLowerCase().trim();
+            let dropdown = document.getElementById('searchResultsDropdown');
 
-            const { count: labsCount } = await supabaseClient.from('labs').select('*', { count: 'exact', head: true });
-            document.getElementById('totalLabsCount').innerText = labsCount || 0;
-
-            const tbody = document.getElementById('homeApptsTableBody');
-            if (!apptsData || apptsData.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align:center; padding:15px; color:var(--text-gray);">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
+            if (query === '') {
+                dropdown.style.display = 'none';
                 return;
             }
 
-            tbody.innerHTML = '';
-            apptsData.forEach(a => {
-                let badgeColor = a.status === 'مؤكد' ? '#10b981' : '#f59e0b';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${a.patient_name}</strong></td>
-                        <td>${a.appt_type}</td>
-                        <td>${a.appt_time}</td>
-                        <td><span style="background:${badgeColor}20; color:${badgeColor}; padding:2px 6px; border-radius:10px; font-size:10px; font-weight:bold;">${a.status}</span></td>
-                    </tr>
-                `;
+            let matches = globalPatientsMasterList.filter(p => {
+                let name = (p.patient_name || p.name || '').toLowerCase();
+                let phone = (p.phone || '').toLowerCase();
+                let code = (p.patient_code || p.code || '').toLowerCase();
+                return name.includes(query) || phone.includes(query) || code.includes(query);
             });
-        }
 
-        function renderDynamicChart(countsObj) {
-            const ctx = document.getElementById('casesChart').getContext('2d');
-            if (myChart) {
-                myChart.destroy();
+            if (matches.length === 0) {
+                dropdown.innerHTML = `<div class="search-result-item" style="color:gray;">لا توجد نتائج مطابقة لـ "${query}"</div>`;
+                dropdown.style.display = 'block';
+                return;
             }
 
-            const labels = Object.keys(countsObj);
-            const dataValues = Object.values(countsObj);
-            const bgColors = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#14b8a6'];
+            let html = '';
+            matches.forEach(p => {
+                let name = p.patient_name || p.name || 'بدون اسم';
+                let code = p.patient_code || p.code || 'بدون كود';
+                let phone = p.phone || 'غير مسجل';
+                let cat = p.category || p.surgery_type || 'تغذية';
 
-            myChart = new Chart(ctx, {
+                html += `
+                    <div class="search-result-item" onclick="openPatientFile('${name}')">
+                        <div>
+                            <strong>${name}</strong> <span style="font-size:11px; color:var(--accent-blue);">(${code})</span><br>
+                            <span style="font-size:11px; color:var(--text-gray);">الهاتف: ${phone} | التصنيف: ${cat}</span>
+                        </div>
+                        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">فتح الملف 📂</span>
+                    </div>
+                `;
+            });
+
+            dropdown.innerHTML = html;
+            dropdown.style.display = 'block';
+        }
+
+        function openPatientFile(patientName) {
+            window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
+        }
+
+        function renderPieChart(patientsCount, bariatricCount) {
+            const ctx = document.getElementById('casesPieChart').getContext('2d');
+            if (pieChartInstance) pieChartInstance.destroy();
+
+            pieChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
-                    labels: labels.length > 0 ? labels : ['لا توجد بيانات'],
+                    labels: ['مرضى عامة ونحافة', 'جراحات سمنة'],
                     datasets: [{
-                        data: dataValues.length > 0 ? dataValues : [1],
-                        backgroundColor: bgColors.slice(0, labels.length > 0 ? labels.length : 1)
+                        data: [patientsCount, bariatricCount],
+                        backgroundColor: ['#3b82f6', '#10b981'],
+                        borderWidth: 2
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'bottom',
-                            labels: { font: { size: 10 }, boxWidth: 10 }
-                        }
-                    }
+                    plugins: { legend: { position: 'bottom' } }
                 }
             });
         }
 
-        function handleSearchKey(event) {
-            if (event.key === 'Enter') {
-                executeGlobalSearch();
-            }
-        }
-
-        async function executeGlobalSearch() {
-            let query = document.getElementById('globalSearchInput').value.trim();
-            if (!query) {
-                alert('الرجاء إدخال اسم الحالة للبحث.');
-                return;
-            }
-
-            try {
-                const { data: patData } = await supabaseClient.from('patients').select('*');
-                const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
-
-                let allCases = [];
-                if (patData) allCases = allCases.concat(patData);
-                if (barData) allCases = allCases.concat(barData);
-
-                let found = allCases.find(item => {
-                    let name = item.patient_name || item.name || '';
-                    return name.toLowerCase().includes(query.toLowerCase());
-                });
-
-                if (found) {
-                    let patientName = found.patient_name || found.name;
-                    window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
-                } else {
-                    alert('❌ لم يتم العثور على أي حالة مطابقة بهذا الاسم في السجلات.');
-                }
-            } catch (err) {
-                alert('حدث خطأ أثناء عملية البحث.');
-            }
-        }
-
-        window.onload = function() {
-            loadDashboardReports();
-        };
+        window.onload = loadDashboardData;
     </script>
 </body>
 </html>
