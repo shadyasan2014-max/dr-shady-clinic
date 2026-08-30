@@ -148,12 +148,12 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- قسم اختيار النظام الغذائي مع زر البحث المطور والمضبوط بدقة -->
+            <!-- قسم اختيار النظام الغذائي مع زر الانتقال المباشر لـ Gemini بالبيانات المسجلة -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
-                    <button onclick="triggerGoogleAIPromptSearch()" class="action-btn" style="background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%); padding: 10px 18px; font-size: 13px;">
-                        🌐 بحث وتوليد بالـ AI في جوجل
+                    <button onclick="openGeminiWithPatientData()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); padding: 10px 18px; font-size: 13px;">
+                        ✨ فتح وتحليل الحالة في Gemini
                     </button>
                 </div>
 
@@ -390,47 +390,45 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        // دالة البحث المحدثة بدقة تامة لتوليد وتوجيه الاستعلام الطبي الصحيح لمحرك البحث والـ AI
-        function triggerGoogleAIPromptSearch() {
+        // دالة فتح Gemini مع نسخ بيانات الحالة كاملة (الاسم، الوزن، العملية، تاريخها، المتابعات)
+        function openGeminiWithPatientData() {
             if (!loadedPatientData) {
                 alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
                 return;
             }
 
-            let pName = loadedPatientData.patient_name || loadedPatientData.name || 'المريض';
-            let pWeight = loadedPatientData.weight || 'غير محدد';
-            let pSurgery = loadedPatientData.surgery_type || loadedPatientData.category || 'تغذية علاجية';
-            let sDate = loadedPatientData.surgery_date || 'غير مسجل';
+            let p = loadedPatientData;
+            let pName = p.patient_name || p.name || 'المريض';
+            let pWeight = p.weight || 'غير محدد';
+            let pHeight = p.height || 175;
+            let pSurgery = p.surgery_type || p.category || 'تغذية علاجية';
+            let sDate = p.surgery_date || 'غير مسجل';
+            let pComplaints = p.curr_complaints || p.notes || 'لا توجد شكاوى';
 
-            // سؤال تفصيلي دقيق عن تاريخ العملية والسعرات لتكوين استعلام بحثي مظبوط وصحيح 100%
-            let surgeryDatePrompt = prompt(`🌐 البحث الذكي لـ (${pName}):\n- الوزن الحالي: ${pWeight} كجم\n- نوع العملية: ${pSurgery}\n- تاريخ العملية المسجل: ${sDate}\n\nمن فضلك، أكد أو أدخل "تاريخ العملية" الصحيح لحساب الفترة بدقة:`, sDate);
+            // طلب السعرات المستهدفة أولاً
+            let targetCalories = prompt(`✨ تحليل وتوليد الخطة بـ Gemini (للحالة: ${pName}):\n- الوزن: ${pWeight} كجم | الطول: ${pHeight} سم\n- نوع العملية: ${pSurgery}\n- تاريخ العملية: ${sDate}\n\nمن فضلك، أدخل عدد "السعرات الحرارية المطلوبة" أو الهدف الطبي:`, "1500 سعرة حرارية");
 
-            if (surgeryDatePrompt !== null) {
-                let targetCalories = prompt(`أدخل عدد "السعرات الحرارية المطلوبة" أو الهدف الإكلينيكي (مثال: 1300 سعرة، أسبوعين بعد التكميم):`, "1500 سعرة حرارية");
+            if (targetCalories !== null) {
+                // تكوين رسالة برومبت طبية واحترافية متكاملة لنسخها وفتح Gemini بها
+                let promptMessage = `أنا استشاري تغذية علاجية، وأحتاج منك تصميم خطة غذائية طبية دقيقة ومحترفة للحالة التالية:\n` +
+                    `- اسم المريض: ${pName}\n` +
+                    `- الوزن الحالي: ${pWeight} كجم\n` +
+                    `- الطول: ${pHeight} سم\n` +
+                    `- نوع العملية/التصنيف: ${pSurgery}\n` +
+                    `- تاريخ إجراء العملية: ${sDate}\n` +
+                    `- الشكاوى أو الملاحظات الحالية: ${pComplaints}\n` +
+                    `- السعرات المستهدفة المطلوبة: ${targetCalories}\n\n` +
+                    `من فضلك اكتب نظاماً غذائياً متكاملاً (يومي أو لفترة) يناسب مرحلة المريض الصحية والمدة المنقضية منذ تاريخ العملية.`;
 
-                if (targetCalories !== null) {
-                    // استعلام طبي دقيق ومظبوط لنتائج بحث ممتازة
-                    let exactMedicalQuery = `بروتوكول تغذية طبية ${pSurgery} بعد مرور فترة من تاريخ ${surgeryDatePrompt} الوزن ${pWeight} كجم سعرات ${targetCalories}`;
-                    
-                    // فتح بحث جوجل بالاستعلام المظبوط تماماً في تبويب جديد
-                    window.open(`https://www.google.com/search?q=${encodeURIComponent(exactMedicalQuery)}`, '_blank');
+                // نسخ النص للحافظة لتسهيل اللصق الفوري في شات Gemini
+                navigator.clipboard.writeText(promptMessage).then(() => {
+                    alert(`📋 تم نسخ تفاصيل حالة المريض "${pName}" والسعرات (${targetCalories}) إلى الحافظة بنجاح!\n\nسيتم الآن فتح صفحة Gemini، فقط قم بلصق النص (Ctrl+و أو Paste) للحصول على أحدث وأدق خطة غذائية.`);
+                }).catch(() => {
+                    prompt("إليك النص الطبي الجاهز للحالة، قم بنسخه لفتحه في Gemini:", promptMessage);
+                });
 
-                    // إدراج خطة مقترحة مبدئية في ملاحظات الدكتور
-                    let suggestedAIPlan = `🌐 [استعلام بحث دقيق: ${exactMedicalQuery}]:\n` +
-                        `- وجبة الإفطار: بروتين عالي وسوائل دافئة.\n` +
-                        `- وجبة الغداء: بروتين طري مشوي مع خضروات مسلوقة.\n` +
-                        `- وجبة العشاء: زبادي أو جبنة قريش.\n` +
-                        `- ملاحظة إكلينيكية: تم توجيه البحث بالـ AI بناءً على تاريخ العملية (${surgeryDatePrompt}) والسعرات (${targetCalories}).`;
-
-                    if (currentSystem === 'period') {
-                        let periodElem = document.getElementById('periodSystemText');
-                        if (periodElem) periodElem.value = suggestedAIPlan;
-                    } else {
-                        document.getElementById('doctorNotesInput').value = suggestedAIPlan;
-                    }
-
-                    alert(`✨ تم ضبط استعلام البحث بدقة (العملية: ${pSurgery} | التاريخ: ${surgeryDatePrompt} | السعرات: ${targetCalories}) وفتح نتائج البحث الذكية في جوجل بنجاح!`);
-                }
+                // فتح موقع Gemini في تبويب جديد
+                window.open('https://gemini.google.com/', '_blank');
             }
         }
 
