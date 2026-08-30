@@ -24,11 +24,8 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .clinic-brand-header { background: linear-gradient(135deg, #0b1329 0%, #1e293b 100%); color: white; padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); flex-wrap: wrap; gap: 15px; }
-        .clinic-brand-info { display: flex; align-items: center; gap: 15px; }
-        .clinic-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); }
-
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
 
@@ -91,109 +88,36 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
-            <!-- الهيدر -->
-            <div class="clinic-brand-header">
-                <div class="clinic-brand-info">
-                    <img src="logo.jpeg" alt="Logo" class="clinic-logo">
-                    <div>
-                        <h2 style="margin:0; font-size:16px;">د. شادي سمير</h2>
-                        <p style="margin:2px 0 0 0; font-size:11px; color:#10b981; font-weight:bold;">استشاري التغذية العلاجية وجراحات السمنة</p>
-                    </div>
-                </div>
-                <div style="text-align: left; font-size: 12px;">
-                    <span>📞 هاتف العيادة: 01023828185</span>
-                </div>
-            </div>
-
-            <!-- هيدر البحث واختيار الحالة -->
             <div class="top-header">
                 <div>
                     <h1 id="patientTitleName">المريض: اختر الحالة المسجلة</h1>
-                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">استعراض تفصيلي لبيانات الحالة والفحوصات والنظام السابق</p>
+                    <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);" id="patientSubDetails">استعراض تفصيلي لبيانات الحالة وتواريخ المتابعة والنظام السابق</p>
                 </div>
                 
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                     <select id="patientSelectDropdown" class="form-control" style="width: 180px; padding: 7px;">
                         <option value="">-- اختر الحالة --</option>
                     </select>
-                    <button onclick="searchAndLoadPatient()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث وبدء المتابعة</button>
-                    <button onclick="openEditModal()" class="action-btn" style="background: var(--warning-orange);">✏️ تعديل شامل</button>
-                    <button onclick="generateAIPlan()" class="action-btn" style="background: #8b5cf6;">🤖 تحليل بالـ AI</button>
+                    <button onclick="searchAndLoadPatient()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
+                    <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة</button>
+                    <button onclick="generateAIPlan()" class="action-btn" style="background: var(--warning-orange);">🤖 تحليل بالـ AI</button>
                 </div>
             </div>
 
-            <!-- بيانات الحالة الكاملة -->
+            <!-- لوحة الملف الإكلينيكي الشامل للحالة (شاملة تواريخ المتابعة والعملية) -->
             <div class="patient-medical-banner" id="patientMedicalBanner" style="display: none;">
                 <div class="medical-item"><strong>⚖️ الأوزان:</strong> <span id="medWeight">-</span></div>
-                <div class="medical-item"><strong>💧 الدهون والعضلات:</strong> <span id="medBodyComp">-</span></div>
-                <div class="medical-item"><strong>🩺 الحالة الصحية/العمليات:</strong> <span id="medSurgery">-</span></div>
-                <div class="medical-item"><strong>🧪 الفحوصات والتحاليل:</strong> <span id="medLabs">-</span></div>
+                <div class="medical-item"><strong>🩺 تفاصيل العملية:</strong> <span id="medSurgery">-</span></div>
+                <div class="medical-item"><strong>📅 المتابعة السابقة:</strong> <span id="medPrevFu" style="color:var(--warning-orange); font-weight:bold;">-</span></div>
+                <div class="medical-item"><strong>📅 المتابعة الحالية:</strong> <span id="medCurrFu" style="color:var(--primary-green); font-weight:bold;">-</span></div>
             </div>
 
-            <!-- نوع المتابعة والتواريخ -->
-            <div class="card">
-                <h3>📌 تحديد نوع المتابعة والتواريخ</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 10px;">
-                    <div>
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-gray); display: block; margin-bottom: 4px;">نوع المتابعة:</label>
-                        <select id="followupTypeSelect" class="form-control" onchange="handleFollowupTypeChange()">
-                            <option value="سمنة">1- متابعة سمنة</option>
-                            <option value="نحافة">2- متابعة نحافة</option>
-                            <option value="مونجارو أو ميزوثيرابي">3- متابعة حقن مونجارو أو ميزوثيرابي</option>
-                            <option value="عملية">4- متابعة عملية</option>
-                            <option value="أخري">5- أخري</option>
-                        </select>
-                    </div>
-
-                    <div id="surgeryExtraFields" style="display: none;">
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-gray); display: block; margin-bottom: 4px;">نوع العملية وتاريخها:</label>
-                        <input type="text" id="surgeryTypeInput" class="form-control" placeholder="نوع العملية وتاريخها...">
-                    </div>
-
-                    <div id="otherExtraFields" style="display: none;">
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-gray); display: block; margin-bottom: 4px;">تحديد نوع المتابعة (أخري):</label>
-                        <input type="text" id="otherTypeInput" class="form-control" placeholder="اكتب نوع المتابعة...">
-                    </div>
-
-                    <div>
-                        <label style="font-size: 11px; font-weight: bold; color: var(--text-gray); display: block; margin-bottom: 4px;">تاريخ المتابعة الحالي:</label>
-                        <input type="date" id="currentFollowupDate" class="form-control">
-                    </div>
-                </div>
-            </div>
-
-            <!-- 1. قسم البيانات والخطط السابقة (مع تاريخ المتابعة السابقة) -->
+            <!-- صندوق عرض النظام الغذائي السابق -->
             <div class="card" id="previousPlanCard" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe;">
-                <h3 style="color: #1e40af; border-bottom-color: #bfdbfe;">📋 السجل السابق للحالة (بتاريخ: <span id="prevFollowupDateText">-</span>)</h3>
-                <div style="font-size: 12px; color: #1e3a8a; line-height: 1.7; display: flex; flex-direction: column; gap: 8px;">
-                    <div><strong>الخطة الغذائية السابقة:</strong> <p id="previousPlanText" style="margin: 2px 0 0 0; white-space: pre-line;">-</p></div>
-                    <div><strong>المقاسات والأوزان السابقة:</strong> <span id="prevMeasurementsText">-</span></div>
-                    <div><strong>مدى الالتزام السابق:</strong> <span id="prevComplianceText">-</span></div>
-                    <div><strong>الشكوى السابقة للحالة:</strong> <span id="prevComplaintText">-</span></div>
-                    <div><strong>الملاحظات السابقة:</strong> <span id="prevNotesText">-</span></div>
-                </div>
+                <h3 style="color: #1e40af; border-bottom-color: #bfdbfe;">📋 النظام الغذائي السابق المسجل للمريض</h3>
+                <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- 2. قسم البيانات والخطط الجديدة (مساحات كتابة واسعة ومريحة) -->
-            <div class="card" style="background: #fdfdfd; border: 1px solid #e2e8f0;">
-                <h3 style="color: var(--primary-green);">📝 توثيق المتابعة والبيانات الجديدة</h3>
-                <div style="display: flex; flex-direction: column; gap: 15px; font-size: 12px;">
-                    <div class="meal-box">
-                        <label>المقاسات والأوزان الجديدة:</label>
-                        <textarea id="newMeasurementsInput" class="form-control" rows="2" placeholder="الوزن الحالي، نسبة الدهون، العضلات..."></textarea>
-                    </div>
-                    <div class="meal-box">
-                        <label>مدى الالتزام الجديد:</label>
-                        <textarea id="newComplianceInput" class="form-control" rows="3" placeholder="اكتب تفاصيل ومدى الالتزام بالخطة..."></textarea>
-                    </div>
-                    <div class="meal-box">
-                        <label>الشكوى الجديدة للحالة:</label>
-                        <textarea id="newComplaintInput" class="form-control" rows="3" placeholder="تفاصيل الشكوى أو الأعراض الجديدة..."></textarea>
-                    </div>
-                </div>
-            </div>
-
-            <!-- اختيار نوع النظام الغذائي الجديد -->
             <div class="card">
                 <h3>🍽️ اختيار نوع النظام الغذائي الجديد</h3>
                 <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
@@ -206,8 +130,8 @@
                         <p style="font-size:11px; color:#1e3a8a; margin:0;">جدول أسبوعي متكامل.</p>
                     </div>
                     <div id="btnPeriod" style="background:#ffffff; border:1px solid #fde68a; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('period')">
-                        <strong style="color:#92400e; font-size:13px; display:block; margin-bottom:3px;">📊 نظم بشكل عام للفترة (ممتدة)</strong>
-                        <p style="font-size:11px; color:#78350f; margin:0;">خطة شاملة قابلة للتعديل.</p>
+                        <strong style="color:#92400e; font-size:13px; display:block; margin-bottom:3px;">📊 نظم بشكل عام للفترة</strong>
+                        <p style="font-size:11px; color:#78350f; margin:0;">خطة شاملة ممتدة.</p>
                     </div>
                 </div>
             </div>
@@ -216,18 +140,12 @@
 
             <div class="card">
                 <h3>📝 ملاحظات وتوجيهات الدكتور الإكلينيكية للخطة الجديدة</h3>
-                <textarea id="doctorNotesInput" class="form-control" rows="4" placeholder="اكتب التوجيهات الطبية المرتبطة بالخطة الغذائية هنا..."></textarea>
-            </div>
-
-            <!-- موعد المتابعة القادمة لتغيير النظام -->
-            <div class="card" style="background: #fffbeb; border: 1px solid #fde68a;">
-                <h3 style="color: #b45309;">⏰ موعد المتابعة القادمة لتغيير النظام (تنبيه سيستم)</h3>
-                <input type="date" id="nextFollowupDateInput" class="form-control" style="max-width: 300px;">
+                <textarea id="doctorNotesInput" class="form-control" rows="3" placeholder="اكتب التوجيهات الطبية المرتبطة بالخطة الغذائية هنا..."></textarea>
             </div>
         </div>
 
         <div class="card" style="display: flex; gap: 10px; justify-content: space-between; align-items: center; background: #f8fafc; flex-wrap: wrap;">
-            <button onclick="savePlanToSQL()" class="action-btn" style="background: var(--primary-green); padding: 10px 20px;">💾 حفظ المتابعة والخطة في SQL</button>
+            <button onclick="savePlanToSQL()" class="action-btn" style="background: var(--primary-green); padding: 10px 20px;">💾 حفظ الخطة في SQL</button>
             <div style="display: flex; gap: 8px;">
                 <button onclick="sendPlanWhatsApp()" class="action-btn" style="background: #25d366;">💬 إرسال واتساب</button>
                 <button onclick="downloadPlanPDF()" class="action-btn" style="background: var(--warning-orange);">📥 تحويل PDF</button>
@@ -236,21 +154,31 @@
         </div>
     </div>
 
-    <!-- نافذة التعديل الشامل للحالة -->
-    <div id="editPatientModal" class="modal-overlay">
-        <div class="modal-box" style="width: 550px;">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل بيانات الحالة والسجلات السابقة</h3>
-            <form onsubmit="savePatientFullEdit(event)">
-                <div class="form-group" style="margin-bottom:10px;"><label style="font-size:11px; font-weight:bold;">اسم المريض:</label><input type="text" id="modalEditName" class="form-control" required></div>
-                <div class="form-group" style="margin-bottom:10px;"><label style="font-size:11px; font-weight:bold;">الوزن الحالي:</label><input type="number" step="0.1" id="modalEditWeight" class="form-control"></div>
-                <div class="form-group" style="margin-bottom:10px;"><label style="font-size:11px; font-weight:bold;">الخطة الغذائية السابقة:</label><textarea id="modalEditDietPlan" class="form-control" rows="3"></textarea></div>
-                <div class="form-group" style="margin-bottom:10px;"><label style="font-size:11px; font-weight:bold;">مدى الالتزام السابق:</label><textarea id="modalEditCompliance" class="form-control" rows="2"></textarea></div>
-                <div class="form-group" style="margin-bottom:10px;"><label style="font-size:11px; font-weight:bold;">الشكوى السابقة:</label><textarea id="modalEditComplaint" class="form-control" rows="2"></textarea></div>
-                <div class="form-group" style="margin-bottom:10px;"><label style="font-size:11px; font-weight:bold;">الملاحظات والسجلات السابقة:</label><textarea id="modalEditNotes" class="form-control" rows="3"></textarea></div>
+    <!-- نافذة المتابعة -->
+    <div id="mealFollowupModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">📅 تسجيل موعد وتاريخ متابعة جديد</h3>
+            <form onsubmit="saveMealFollowupToSQL(event)">
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">تاريخ المتابعة الحالية:</label>
+                    <input type="date" id="mealFuDate" class="form-control" required>
+                </div>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">حالة المتابعة:</label>
+                    <select id="mealFuStatus" class="form-control">
+                        <option value="مستقر - متابعة عادية">مستقر - متابعة عادية</option>
+                        <option value="يحتاج تعديل في الخطة">يحتاج تعديل في الخطة</option>
+                        <option value="متابعة بعد عملية سمنة">متابعة بعد عملية سمنة</option>
+                    </select>
+                </div>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">ملاحظات إكلينيكية:</label>
+                    <textarea id="mealFuNotes" class="form-control" rows="2" placeholder="ملاحظات..."></textarea>
+                </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ التعديلات في SQL</button>
-                    <button type="button" onclick="closeEditModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إلغاء</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ في SQL</button>
+                    <button type="button" onclick="closeMealFollowupModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -289,12 +217,6 @@
             });
         }
 
-        function handleFollowupTypeChange() {
-            let val = document.getElementById('followupTypeSelect').value;
-            document.getElementById('surgeryExtraFields').style.display = (val === 'عملية') ? 'block' : 'none';
-            document.getElementById('otherExtraFields').style.display = (val === 'أخري') ? 'block' : 'none';
-        }
-
         async function searchAndLoadPatient() {
             let dropdownIdx = document.getElementById('patientSelectDropdown').value;
             if (dropdownIdx === "") {
@@ -304,7 +226,7 @@
 
             let selectedBasic = allPatientsList[dropdownIdx];
             
-            const { data: freshData } = await supabaseClient
+            const { data: freshData, error } = await supabaseClient
                 .from(selectedBasic._table)
                 .select('*')
                 .eq('id', selectedBasic.id)
@@ -317,75 +239,23 @@
             document.getElementById('patientTitleName').innerText = `المريض: ${p.patient_name || p.name}`;
             document.getElementById('patientSubDetails').innerText = `التصنيف: ${p.category || p.surgery_type || 'تغذية'} | الهاتف: ${p.phone || 'غير مسجل'}`;
 
+            // عرض لوحة الملف الإكلينيكي وتواريخ المتابعة السابقة والحالية
             document.getElementById('patientMedicalBanner').style.display = 'grid';
             document.getElementById('medWeight').innerText = `الحالي: ${p.weight || '-'} كجم (البداية: ${p.start_weight || '-'} كجم)`;
-            document.getElementById('medBodyComp').innerText = `دهون: ${p.fat || '-'}% | عضلات: ${p.muscle || '-'} كجم`;
-            document.getElementById('medSurgery').innerText = p.surgery_type || p.category || 'تغذية علاجية';
-            document.getElementById('medLabs').innerText = p.labs_required || 'لا توجد فحوصات مسجلة';
+            document.getElementById('medSurgery').innerText = (p.surgery_type || p.category || 'تغذية') + (p.surgery_date ? ` (تاريخ: ${p.surgery_date})` : '');
+            document.getElementById('medPrevFu').innerText = p.prev_followup_date || p.last_visit || 'غير مسجل';
+            document.getElementById('medCurrFu').innerText = p.curr_followup_date ? p.curr_followup_date.split('T')[0] : 'اليوم';
 
-            if (p.surgery_type) {
-                document.getElementById('surgeryTypeInput').value = p.surgery_type;
-            }
-
-            // عرض الأرشيف والسجل السابق مع تاريخ المتابعة
-            let previousPlan = p.diet_plan || 'لا توجد خطة سابقة مسجلة.';
+            // استعراض النظام السابق بدقة
+            let previousPlan = p.diet_plan || p.notes;
             document.getElementById('previousPlanCard').style.display = 'block';
-            document.getElementById('prevFollowupDateText').innerText = p.updated_at ? p.updated_at.split('T')[0] : 'تاريخ غير مسجل';
-            document.getElementById('previousPlanText').innerText = previousPlan;
-            document.getElementById('prevMeasurementsText').innerText = `الوزن: ${p.weight || '-'} كجم (دهون: ${p.fat || '-'}% | عضلات: ${p.muscle || '-'} كجم)`;
-            document.getElementById('prevComplianceText').innerText = p.compliance || 'غير مسجل';
-            document.getElementById('prevComplaintText').innerText = p.complaint || 'غير مسجل';
-            document.getElementById('prevNotesText').innerText = p.notes || 'لا توجد ملاحظات مسجلة';
-
-            document.getElementById('currentFollowupDate').value = new Date().toISOString().split('T')[0];
-
-            alert(`✨ تم استدعاء السجل السابق وبيانات المريض: ${p.patient_name || p.name} بنجاح!`);
-        }
-
-        function openEditModal() {
-            if (!loadedPatientData) {
-                alert('اختر الحالة أولاً.');
-                return;
-            }
-            document.getElementById('modalEditName').value = loadedPatientData.patient_name || loadedPatientData.name || '';
-            document.getElementById('modalEditWeight').value = loadedPatientData.weight || '';
-            document.getElementById('modalEditDietPlan').value = loadedPatientData.diet_plan || '';
-            document.getElementById('modalEditCompliance').value = loadedPatientData.compliance || '';
-            document.getElementById('modalEditComplaint').value = loadedPatientData.complaint || '';
-            document.getElementById('modalEditNotes').value = loadedPatientData.notes || '';
-            document.getElementById('editPatientModal').style.display = 'flex';
-        }
-
-        function closeEditModal() {
-            document.getElementById('editPatientModal').style.display = 'none';
-        }
-
-        async function savePatientFullEdit(event) {
-            event.preventDefault();
-            let name = document.getElementById('modalEditName').value;
-            let weight = parseFloat(document.getElementById('modalEditWeight').value) || null;
-            let diet_plan = document.getElementById('modalEditDietPlan').value;
-            let compliance = document.getElementById('modalEditCompliance').value;
-            let complaint = document.getElementById('modalEditComplaint').value;
-            let notes = document.getElementById('modalEditNotes').value;
-
-            const { error } = await supabaseClient.from(loadedPatientData._table).update({
-                patient_name: name,
-                weight,
-                diet_plan,
-                compliance,
-                complaint,
-                notes
-            }).eq('id', currentPatientId);
-
-            if (error) {
-                alert('خطأ أثناء التعديل: ' + error.message);
-                return;
+            if (previousPlan && previousPlan.trim() !== '') {
+                document.getElementById('previousPlanText').innerText = previousPlan;
+            } else {
+                document.getElementById('previousPlanText').innerText = 'لا توجد خطة سابقة مسجلة لهذا المريض.';
             }
 
-            alert('✨ تم تعديل بيانات الحالة والسجلات السابقة بنجاح في SQL!');
-            closeEditModal();
-            searchAndLoadPatient();
+            alert(`✨ تم استدعاء تفاصيل الحالة وتاريخ المتابعة السابقة للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
         function switchSystem(type) {
@@ -451,37 +321,32 @@
                 alert('الرجاء اختيار مريض والضغط على زر البحث أولاً ليتمكن الـ AI من تحليل حالته.');
                 return;
             }
-            alert(`🤖 بدأ الـ AI تحليل الملف الطبي للمريض: الوزن ${loadedPatientData.weight} كجم. تم توليد نظام متطور بنجاح!`);
-            document.getElementById('doctorNotesInput').value = `خطة مقترحة بالذكاء الاصطناعي بناءً على حالة المريض الإكلينيكية (${loadedPatientData.patient_name || loadedPatientData.name}).`;
+            alert(`🤖 بدأ الـ AI تحليل الملف الطبي للمريض: الوزن ${loadedPatientData.weight} كجم. تم توليد نظام جديد متطور!`);
+            document.getElementById('doctorNotesInput').value = `خطة جديدة بالذكاء الاصطناعي بناءً على حالة المريض الإكلينيكية (${loadedPatientData.patient_name || loadedPatientData.name}): وزن ${loadedPatientData.weight} كجم.`;
         }
 
         async function savePlanToSQL() {
             if (!currentPatientId || !loadedPatientData) {
-                alert('الرجاء اختيار مريض أولاً.');
+                alert('الرجاء اختيار مريض والضغط على بحث أولاً.');
                 return;
             }
 
-            let followupType = document.getElementById('followupTypeSelect').value;
-            let currentFuDate = document.getElementById('currentFollowupDate').value;
-            let newMeasurements = document.getElementById('newMeasurementsInput').value;
-            let newCompliance = document.getElementById('newComplianceInput').value;
-            let newComplaint = document.getElementById('newComplaintInput').value;
-            let nextFuDate = document.getElementById('nextFollowupDateInput').value;
-            let notes = document.getElementById('doctorNotesInput').value;
-
+            let finalPlanText = "";
             if (currentSystem === 'period') {
-                let periodText = document.getElementById('periodSystemText');
-                if (periodText && periodText.value.trim() !== "") notes = periodText.value;
+                let periodTextElem = document.getElementById('periodSystemText');
+                finalPlanText = periodTextElem ? periodTextElem.value : "";
+            } else {
+                let notesInput = document.getElementById('doctorNotesInput').value;
+                let periodTextElem = document.getElementById('periodSystemText');
+                finalPlanText = periodTextElem && periodTextElem.value.trim() !== "" ? periodTextElem.value : notesInput;
             }
 
-            let fullLogNotes = `تاريخ المتابعة: ${currentFuDate} | النوع: ${followupType} | المقاسات الجديدة: ${newMeasurements} | الشكوى: ${newComplaint} | ملاحظات: ${notes}`;
+            if (!finalPlanText || finalPlanText.trim() === "") {
+                finalPlanText = document.getElementById('doctorNotesInput').value;
+            }
 
             const { error } = await supabaseClient.from(loadedPatientData._table).update({
-                diet_plan: notes,
-                compliance: newCompliance,
-                complaint: newComplaint,
-                notes: fullLogNotes,
-                next_followup_date: nextFuDate
+                diet_plan: finalPlanText
             }).eq('id', currentPatientId);
 
             if (error) {
@@ -489,12 +354,48 @@
                 return;
             }
 
-            alert('✨ تم حفظ الخطة وتوثيق المتابعة في قاعدة بيانات SQL بنجاح!');
-            searchAndLoadPatient();
+            alert('✨ تم حفظ الخطة الغذائية الجديدة وتحديثها في SQL بنجاح!');
+            document.getElementById('previousPlanText').innerText = finalPlanText;
+            document.getElementById('previousPlanCard').style.display = 'block';
+        }
+
+        function openMealFollowupModal() {
+            document.getElementById('mealFuDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('mealFollowupModal').style.display = 'flex';
+        }
+
+        function closeMealFollowupModal() {
+            document.getElementById('mealFollowupModal').style.display = 'none';
+        }
+
+        async function saveMealFollowupToSQL(event) {
+            event.preventDefault();
+            if (!currentPatientId || !loadedPatientData) {
+                alert('اختر المريض أولاً.');
+                return;
+            }
+            let fuDate = document.getElementById('mealFuDate').value;
+            let fuStatus = document.getElementById('mealFuStatus').value;
+            let fuNotes = document.getElementById('mealFuNotes').value;
+
+            let previousDateToSave = loadedPatientData.curr_followup_date || new Date().toISOString().split('T')[0];
+
+            const { error } = await supabaseClient.from(loadedPatientData._table).update({
+                prev_followup_date: previousDateToSave,
+                curr_followup_date: fuDate,
+                notes: `متابعة بتاريخ ${fuDate}: ${fuStatus} - ${fuNotes}`
+            }).eq('id', currentPatientId);
+
+            if (error) {
+                alert('خطأ في حفظ المتابعة.');
+                return;
+            }
+            alert('✨ تم تسجيل المتابعة وتحديث تواريخ المتابعة في SQL بنجاح!');
+            closeMealFollowupModal();
         }
 
         function sendPlanWhatsApp() {
-            let notes = document.getElementById('doctorNotesInput').value;
+            let notes = document.getElementById('previousPlanText').innerText;
             let msg = `🌟 أهلاً بك في عيادة د. شادي سمير\n\nإليك خطتك الغذائية الطبية:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
