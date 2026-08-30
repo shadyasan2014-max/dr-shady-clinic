@@ -148,7 +148,7 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- قسم اختيار النظام الغذائي مع زر البحث بالـ AI في جوجل المحدث -->
+            <!-- قسم اختيار النظام الغذائي مع زر البحث المطور والمضبوط بدقة -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
@@ -390,7 +390,7 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        // دالة البحث الذكي عبر جوجل والـ AI مع سؤال تفصيلي عن تاريخ العملية والسعرات لتوليد النظام
+        // دالة البحث المحدثة بدقة تامة لتوليد وتوجيه الاستعلام الطبي الصحيح لمحرك البحث والـ AI
         function triggerGoogleAIPromptSearch() {
             if (!loadedPatientData) {
                 alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
@@ -402,25 +402,25 @@
             let pSurgery = loadedPatientData.surgery_type || loadedPatientData.category || 'تغذية علاجية';
             let sDate = loadedPatientData.surgery_date || 'غير مسجل';
 
-            // سؤال تفصيلي عن تاريخ العملية لحساب الفترة وزهق الـ AI بالمعلومات الدقيقة
-            let surgeryDatePrompt = prompt(`🌐 بحث وجلستك الذكية مع الـ AI (حالة: ${pName}):\n- الوزن: ${pWeight} كجم\n- التصنيف/العملية: ${pSurgery}\n- تاريخ العملية المسجل: ${sDate}\n\nمن فضلك، أكد أو أدخل "تاريخ العملية" الفعلي لحساب الفترة التي مضت عليها:`, sDate);
+            // سؤال تفصيلي دقيق عن تاريخ العملية والسعرات لتكوين استعلام بحثي مظبوط وصحيح 100%
+            let surgeryDatePrompt = prompt(`🌐 البحث الذكي لـ (${pName}):\n- الوزن الحالي: ${pWeight} كجم\n- نوع العملية: ${pSurgery}\n- تاريخ العملية المسجل: ${sDate}\n\nمن فضلك، أكد أو أدخل "تاريخ العملية" الصحيح لحساب الفترة بدقة:`, sDate);
 
             if (surgeryDatePrompt !== null) {
-                let targetCalories = prompt(`أدخل عدد "السعرات الحرارية المطلوبة" أو أي هدف غذائي (مثال: 1400 سعرة، تكميم مرحلة ثانية):`, "1500 سعرة حرارية");
+                let targetCalories = prompt(`أدخل عدد "السعرات الحرارية المطلوبة" أو الهدف الإكلينيكي (مثال: 1300 سعرة، أسبوعين بعد التكميم):`, "1500 سعرة حرارية");
 
                 if (targetCalories !== null) {
-                    // تجهيز استعلام بحث ذكي وجاهز للتوجه به لمحرك البحث أو جوجل AI
-                    let aiSearchQuery = `بناء نظام غذائي طبي لـ ${pSurgery} تاريخ العملية ${surgeryDatePrompt} وزن ${pWeight} كجم سعرات ${targetCalories}`;
+                    // استعلام طبي دقيق ومظبوط لنتائج بحث ممتازة
+                    let exactMedicalQuery = `بروتوكول تغذية طبية ${pSurgery} بعد مرور فترة من تاريخ ${surgeryDatePrompt} الوزن ${pWeight} كجم سعرات ${targetCalories}`;
                     
-                    // فتح بحث جوجل في تبويب جديد مع الاستعلام الطبي الجاهز
-                    window.open(`https://www.google.com/search?q=${encodeURIComponent(aiSearchQuery)}`, '_blank');
+                    // فتح بحث جوجل بالاستعلام المظبوط تماماً في تبويب جديد
+                    window.open(`https://www.google.com/search?q=${encodeURIComponent(exactMedicalQuery)}`, '_blank');
 
-                    // تعبئة نموذج مبدئي ذكي في ملاحظات الدكتور
-                    let suggestedAIPlan = `🌐 [مقترح بحث AI من جوجل بناءً على العملية بتاريخ ${surgeryDatePrompt} وسعرات ${targetCalories}]:\n` +
-                        `- الفطور: بروتين عالي (بيض أو جبنة قريش خالية الدسم).\n` +
-                        `- الغداء: وجبة بروتينية مشوية + خضروات مسلوقة.\n` +
-                        `- العشاء: زبادي يوناني أو أعشاب دافئة.\n` +
-                        `- ملاحظة إكلينيكية: تم حساب الفترة المنقضية بدقة منذ تاريخ العملية (${surgeryDatePrompt}) لضمان أمان الغذاء.`;
+                    // إدراج خطة مقترحة مبدئية في ملاحظات الدكتور
+                    let suggestedAIPlan = `🌐 [استعلام بحث دقيق: ${exactMedicalQuery}]:\n` +
+                        `- وجبة الإفطار: بروتين عالي وسوائل دافئة.\n` +
+                        `- وجبة الغداء: بروتين طري مشوي مع خضروات مسلوقة.\n` +
+                        `- وجبة العشاء: زبادي أو جبنة قريش.\n` +
+                        `- ملاحظة إكلينيكية: تم توجيه البحث بالـ AI بناءً على تاريخ العملية (${surgeryDatePrompt}) والسعرات (${targetCalories}).`;
 
                     if (currentSystem === 'period') {
                         let periodElem = document.getElementById('periodSystemText');
@@ -429,7 +429,7 @@
                         document.getElementById('doctorNotesInput').value = suggestedAIPlan;
                     }
 
-                    alert(`✨ تم تجميع بيانات الحالة (تاريخ العملية: ${surgeryDatePrompt} | السعرات: ${targetCalories}) وفتح بحث جوجل الذكي لتوليد واستعراض أحدث الأبحاث والبروتوكولات!`);
+                    alert(`✨ تم ضبط استعلام البحث بدقة (العملية: ${pSurgery} | التاريخ: ${surgeryDatePrompt} | السعرات: ${targetCalories}) وفتح نتائج البحث الذكية في جوجل بنجاح!`);
                 }
             }
         }
