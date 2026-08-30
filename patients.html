@@ -35,12 +35,12 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-        /* نافذة الإضافة (مودال إضافة حالة جديدة) */
+        /* نافذة إضافة حالة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* صندوق كود العميل القابل للتعديل بشكل نظيف ومنظم */
-        .client-code-textarea { width: 100%; height: 200px; background: #0f172a; color: #38bdf8; padding: 15px; border-radius: 10px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; border: 1px solid #334155; box-sizing: border-box; resize: vertical; }
+        /* صندوق كود العميل المخصص للتعديل الحر */
+        .client-custom-textarea { width: 100%; height: 160px; background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; border: 1px solid #334155; box-sizing: border-box; resize: vertical; }
 
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -102,7 +102,7 @@
             </div>
         </div>
 
-        <!-- جدول الحالات والقرارات -->
+        <!-- جدول الحالات -->
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
             <div style="overflow-x: auto;">
@@ -124,21 +124,21 @@
             </div>
         </div>
 
-        <!-- صندوق كود العميل الظاهر والقابل للتعديل المباشر -->
+        <!-- صندوق كود العميل المخصص للتعديل الحر والنسخ -->
         <div class="card" style="background: #f8fafc; border: 1px solid var(--card-border);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 كود العميل (يمكنك التعديل عليه ونسخه مباشرة)</h3>
+                <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 صندوق كود العميل المخصص (قابل للتعديل الحر)</h3>
                 <div style="display: flex; gap: 5px;">
-                    <button onclick="loadCodeIntoBox()" class="action-btn" style="background: var(--accent-blue); font-size: 10px; padding: 6px 10px;">🔄 تحديث الكود</button>
-                    <button onclick="copyClientCode()" class="action-btn" style="background: var(--primary-green); font-size: 10px; padding: 6px 10px;">📋 نسخ الكود</button>
+                    <button onclick="saveClientCustomCode()" class="action-btn" style="background: var(--warning-orange); font-size: 10px; padding: 6px 10px;">💾 حفظ الكود</button>
+                    <button onclick="copyClientCustomCode()" class="action-btn" style="background: var(--primary-green); font-size: 10px; padding: 6px 10px;">📋 نسخ الكود</button>
                 </div>
             </div>
-            <p style="font-size: 11px; color: var(--text-gray); margin: 0 0 8px 0;">هذا هو كود الصفحة الحالي، يمكنك تعديله مباشرة هنا ثم نسخه ووضع الملف على جيثب:</p>
-            <textarea class="client-code-textarea" id="clientCodeTextarea"></textarea>
+            <p style="font-size: 11px; color: var(--text-gray); margin: 0 0 8px 0;">يمكنك كتابة أو تعديل أي كود خاص بالعميل هنا، وسيتم حفظه محلياً في متصفحك:</p>
+            <textarea class="client-custom-textarea" id="clientCustomTextarea" placeholder="// اكتب أو الصق كود العميل هنا لتعديله براحتك..."></textarea>
         </div>
     </div>
 
-    <!-- نافذة (مودال) إضافة حالة جديدة -->
+    <!-- نافذة إضافة حالة جديدة -->
     <div id="addPatientModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">➕ تسجيل حالة جديدة في SQL</h3>
@@ -161,7 +161,6 @@
                     <input type="text" id="pPhoneInput" class="form-control" placeholder="011xxxxxxxx">
                 </div>
 
-                <!-- الاختيارات المطلوبة مع ظهور خانة الكتابة عند اختيار "آخر" -->
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">التصنيف / الحالة الإكلينيكية:</label>
                     <select id="pCategorySelect" class="form-control" onchange="toggleCustomCategoryInput()" required>
@@ -231,7 +230,7 @@
             if (barData) barData.forEach(b => masterPatientsList.push({ ...b, _table: 'bariatric_cases' }));
 
             renderPatientsTable(masterPatientsList);
-            loadCodeIntoBox();
+            loadClientCustomCode();
         }
 
         function renderPatientsTable(list) {
@@ -355,13 +354,22 @@
             loadPatientsList();
         }
 
-        function loadCodeIntoBox() {
-            let textarea = document.getElementById('clientCodeTextarea');
-            textarea.value = document.documentElement.outerHTML;
+        // حفظ كود العميل المخصص محلياً
+        function saveClientCustomCode() {
+            let code = document.getElementById('clientCustomTextarea').value;
+            localStorage.setItem('dr_shady_client_custom_code', code);
+            alert('💾 تم حفظ كود العميل المخصص بنجاح!');
         }
 
-        function copyClientCode() {
-            let textarea = document.getElementById('clientCodeTextarea');
+        function loadClientCustomCode() {
+            let savedCode = localStorage.getItem('dr_shady_client_custom_code');
+            if (savedCode) {
+                document.getElementById('clientCustomTextarea').value = savedCode;
+            }
+        }
+
+        function copyClientCustomCode() {
+            let textarea = document.getElementById('clientCustomTextarea');
             textarea.select();
             navigator.clipboard.writeText(textarea.value).then(() => {
                 alert('📋 تم نسخ كود العميل بنجاح!');
