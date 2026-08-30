@@ -23,7 +23,7 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .top-header { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
         .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
@@ -84,10 +84,19 @@
 
         <div class="top-header">
             <h1>⚙️ إعدادات النظام وتخصيص العيادة (مربوط بـ SQL)</h1>
+            <!-- شريط البحث السريع باسم الدكتور -->
+            <div style="display: flex; gap: 6px; align-items: center;">
+                <select id="doctorSearchSelect" class="form-control" style="width: 200px; padding: 7px;" onchange="selectDoctorByName(this.value)">
+                    <option value="">-- ابحث أو اختر الطبيب --</option>
+                </select>
+                <button type="button" onclick="resetNewDoctorForm()" class="action-btn" style="background: var(--accent-blue); padding: 7px 12px; font-size: 11px;">➕ طبيب جديد</button>
+            </div>
         </div>
 
         <div class="card">
             <form onsubmit="saveClinicSettingsToSQL(event)">
+                <input type="hidden" id="docRecordId">
+
                 <div class="form-group">
                     <label>اسم الطبيب ولقبه الأكاديمي:</label>
                     <input type="text" id="docName" class="form-control" placeholder="د. شادي سمير" required>
@@ -105,19 +114,19 @@
                     <input type="file" id="logoFileInput" class="form-control" style="background: #fff;" onchange="handleLogoUpload(event)">
                 </div>
 
-                <!-- أزرار وحقول متعددة لعناوين الفروع / العيادات -->
+                <!-- فروع العيادة المتعددة -->
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>📍 عناوين فروع العيادة:</span>
+                        <span>📍 عناوين فروع العيادة (مكان متعدد للعيادات):</span>
                         <button type="button" onclick="addClinicBranch()" class="action-btn" style="padding: 4px 10px; font-size: 11px;">+ إضافة عيادة أخرى</button>
                     </label>
                     <div id="branchesContainer" style="margin-top: 5px;"></div>
                 </div>
 
-                <!-- أزرار وحقول متعددة لأرقام التليفونات -->
+                <!-- أرقام التليفونات المتعددة -->
                 <div class="form-group">
                     <label style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>📞 أرقام تليفونات العيادة / الحجوزات:</span>
+                        <span>📞 أرقام تليفونات العيادة / الحجوزات (أرقام متعددة):</span>
                         <button type="button" onclick="addPhoneNumber()" class="action-btn" style="padding: 4px 10px; font-size: 11px;">+ إضافة رقم تليفون</button>
                     </label>
                     <div id="phonesContainer" style="margin-top: 5px;"></div>
@@ -128,7 +137,7 @@
                     <textarea id="sysAlerts" class="form-control" rows="3">إرسال تنبيهات المتابعة للمرضى المتأخرين بعد 30 يوم، وتنبيهات انتهاء دواء، جراحات المكملات وقفل السمنة.</textarea>
                 </div>
 
-                <button type="submit" class="action-btn" style="width: 100%; justify-content: center; padding: 12px;">💾 حفظ التعديلات والإعدادات في SQL</button>
+                <button type="submit" class="action-btn" style="width: 100%; justify-content: center; padding: 12px;">💾 حفظ أو تحديث بيانات الطبيب في SQL</button>
             </form>
         </div>
     </div>
@@ -138,14 +147,13 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let settingRecordId = null;
+        let allDoctorsSettings = [];
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // إضافة حقل فرع عيادة جديد ديناميكياً
         function addClinicBranch(value = '') {
             let container = document.getElementById('branchesContainer');
             let div = document.createElement('div');
@@ -157,7 +165,6 @@
             container.appendChild(div);
         }
 
-        // إضافة حقل رقم تليفون جديد ديناميكياً
         function addPhoneNumber(value = '') {
             let container = document.getElementById('phonesContainer');
             let div = document.createElement('div');
@@ -177,50 +184,78 @@
             }
         }
 
-        // استدعاء بيانات الإعدادات من جدول SQL
-        async function loadClinicSettingsFromSQL() {
-            const { data, error } = await supabaseClient.from('clinic_settings').select('*').limit(1);
-            
-            if (data && data.length > 0) {
-                let s = data[0];
-                settingRecordId = s.id;
-                document.getElementById('docName').value = s.doctor_name || '';
-                document.getElementById('docTitle').value = s.doctor_title || '';
-                document.getElementById('docLogo').value = s.logo_url || '';
-                document.getElementById('sysAlerts').value = s.system_alerts || '';
+        // جلب كافة بيانات الأطباء لملء قائمة البحث
+        async function loadDoctorsList() {
+            const { data, error } = await supabaseClient.from('clinic_settings').select('*');
+            if (data) {
+                allDoctorsSettings = data;
+                let select = document.getElementById('doctorSearchSelect');
+                select.innerHTML = '<option value="">-- ابحث أو اختر الطبيب --</option>';
+                data.forEach(d => {
+                    select.innerHTML += `<option value="${d.id}">${d.doctor_name || 'طبيب بدون اسم'}</option>`;
+                });
 
-                // تحميل الفروع المتعددة
-                let branches = s.branches || ['القاهرة، مصر'];
-                document.getElementById('branchesContainer').innerHTML = '';
-                branches.forEach(b => addClinicBranch(b));
-
-                // تحميل التليفونات المتعددة
-                let phones = s.phones || ['010xxxxxxxx'];
-                document.getElementById('phonesContainer').innerHTML = '';
-                phones.forEach(p => addPhoneNumber(p));
-            } else {
-                // قيم افتراضية لو الجدول فارغ
-                addClinicBranch('القاهرة، مصر');
-                addPhoneNumber('010xxxxxxxx');
+                if (data.length > 0) {
+                    fillDoctorForm(data[0]); // عرض أول طبيب افتراضياً
+                }
             }
         }
 
-        // حفظ البيانات في SQL
+        // عند اختيار طبيب من القائمة أو البحث
+        function selectDoctorByName(id) {
+            if (!id) {
+                resetNewDoctorForm();
+                return;
+            }
+            let doc = allDoctorsSettings.find(d => d.id == id);
+            if (doc) fillDoctorForm(doc);
+        }
+
+        function fillDoctorForm(doc) {
+            document.getElementById('docRecordId').value = doc.id;
+            document.getElementById('docName').value = doc.doctor_name || '';
+            document.getElementById('docTitle').value = doc.doctor_title || '';
+            document.getElementById('docLogo').value = doc.logo_url || '';
+            document.getElementById('sysAlerts').value = doc.system_alerts || '';
+
+            let branches = doc.branches || [];
+            document.getElementById('branchesContainer').innerHTML = '';
+            if (branches.length > 0) branches.forEach(b => addClinicBranch(b));
+            else addClinicBranch('');
+
+            let phones = doc.phones || [];
+            document.getElementById('phonesContainer').innerHTML = '';
+            if (phones.length > 0) phones.forEach(p => addPhoneNumber(p));
+            else addPhoneNumber('');
+        }
+
+        function resetNewDoctorForm() {
+            document.getElementById('docRecordId').value = '';
+            document.getElementById('docName').value = '';
+            document.getElementById('docTitle').value = '';
+            document.getElementById('docLogo').value = '';
+            document.getElementById('sysAlerts').value = '';
+            document.getElementById('branchesContainer').innerHTML = '';
+            document.getElementById('phonesContainer').innerHTML = '';
+            addClinicBranch('');
+            addPhoneNumber('');
+        }
+
+        // حفظ أو تعديل بيانات الطبيب في SQL
         async function saveClinicSettingsToSQL(event) {
             event.preventDefault();
 
+            let recordId = document.getElementById('docRecordId').value;
             let doctor_name = document.getElementById('docName').value;
             let doctor_title = document.getElementById('docTitle').value;
             let logo_url = document.getElementById('docLogo').value;
             let system_alerts = document.getElementById('sysAlerts').value;
 
-            // جمع الفروع
             let branches = [];
             document.querySelectorAll('.branch-input').forEach(input => {
                 if(input.value.trim() !== '') branches.push(input.value.trim());
             });
 
-            // جمع التليفونات
             let phones = [];
             document.querySelectorAll('.phone-input').forEach(input => {
                 if(input.value.trim() !== '') phones.push(input.value.trim());
@@ -236,22 +271,22 @@
             };
 
             let res;
-            if (settingRecordId) {
-                res = await supabaseClient.from('clinic_settings').update(payload).eq('id', settingRecordId);
+            if (recordId) {
+                res = await supabaseClient.from('clinic_settings').update(payload).eq('id', recordId);
             } else {
                 res = await supabaseClient.from('clinic_settings').insert([payload]);
             }
 
             if (res.error) {
-                alert('خطأ أثناء الحفظ في SQL: ' + res.error.message);
+                alert('خطأ أثناء حفظ وتعديل بيانات الطبيب في SQL: ' + res.error.message);
                 return;
             }
 
-            alert('✨ تم حفظ إعدادات العيادة، الشعار، الفروع، والأرقام بنجاح في قاعدة بيانات SQL!');
-            loadClinicSettingsFromSQL();
+            alert('✨ تم حفظ وتعديل بيانات الطبيب والعيادات والأرقام بنجاح في قاعدة بيانات SQL!');
+            loadDoctorsList();
         }
 
-        window.onload = loadClinicSettingsFromSQL;
+        window.onload = loadDoctorsList;
     </script>
 </body>
 </html>
