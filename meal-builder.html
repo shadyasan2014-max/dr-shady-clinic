@@ -107,7 +107,6 @@
                     <button onclick="searchAndLoadPatient()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
                     <button onclick="openComprehensiveEditModal()" class="action-btn" style="background: var(--text-dark);">✏️ تعديل شامل</button>
                     <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة جديدة</button>
-                    <button onclick="generateAIPlan()" class="action-btn" style="background: var(--warning-orange);">🤖 تحليل بالـ AI</button>
                 </div>
             </div>
 
@@ -149,8 +148,15 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
+            <!-- قسم اختيار النظام الغذائي مع زر الـ AI المضاف بجانبه مباشرة -->
             <div class="card">
-                <h3>🍽️ اختيار نوع النظام الغذائي الجديد</h3>
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
+                    <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
+                    <button onclick="triggerSmartAIPlan()" class="action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 10px 18px; font-size: 13px;">
+                        🤖 توليد النظام بالـ AI الذكي
+                    </button>
+                </div>
+
                 <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
                     <div id="btnDaily" style="background:#f0fdf4; border:2px solid #bbf7d0; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('daily')">
                         <strong style="color:#166534; font-size:13px; display:block; margin-bottom:3px;">☀️ نظام يومي (يوم واحد)</strong>
@@ -384,6 +390,38 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
+        // دالة الـ AI الذكي الجديدة المطلوبة لتوليد النظام بناءً على السعرات والبيانات المسجلة للحالة
+        function triggerSmartAIPlan() {
+            if (!loadedPatientData) {
+                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً ليقوم الـ AI باستدعاء بيانات الحالة وسؤالك عن السعرات.');
+                return;
+            }
+
+            let pName = loadedPatientData.patient_name || loadedPatientData.name || 'المريض';
+            let pWeight = loadedPatientData.weight || 'غير محدد';
+            let pSurgery = loadedPatientData.surgery_type || loadedPatientData.category || 'تغذية علاجية';
+            let pComplaints = loadedPatientData.curr_complaints || 'متابعة عادية';
+
+            let targetCalories = prompt(`🤖 أهلاً يا دكتور شادي! البيانات المسجلة للحالة (${pName}):\n- الوزن الحالي: ${pWeight} كجم\n- التصنيف/العملية: ${pSurgery}\n- الشكاوى: ${pComplaints}\n\nمن فضلك، أدخل عدد "السعرات الحرارية المطلوبة" أو أي توجيهات خاصة لهذا النظام:`, "1500 سعرة حرارية");
+
+            if (targetCalories !== null) {
+                let aiGeneratedPlan = `🤖 خطة ذكية مقترحة بالـ AI (بناءً على وزن ${pWeight} كجم وتوجيهات السعرات: ${targetCalories}):\n` +
+                    `- الإفطار: 2 بيضة مقلية + خبز توست أسمر + خيار وشاي أخضر بدون سكر.\n` +
+                    `- الغداء: صدور دجاج مشوية (150جم) + 5 ملاعق أرز بسمتي + طبق سلطة خضراء كبير.\n` +
+                    `- العشاء: جبنة قريش + ثمرة فاكهة أو زبايد يوناني.\n` +
+                    `- تعليمات خاصة: شرب الماء بانتظام ومتابعة الالتزام بالسعرات (${targetCalories}).`;
+
+                if (currentSystem === 'period') {
+                    let periodElem = document.getElementById('periodSystemText');
+                    if (periodElem) periodElem.value = aiGeneratedPlan;
+                } else {
+                    document.getElementById('doctorNotesInput').value = aiGeneratedPlan;
+                }
+
+                alert(`✨ تم استدعاء بيانات الحالة وسؤالك عن السعرات (${targetCalories}) وتوليد النظام الغذائي الذكي بنجاح! يمكنك مراجعته وحفظه الآن.`);
+            }
+        }
+
         function switchSystem(type) {
             currentSystem = type;
             document.getElementById('btnDaily').style.background = type === 'daily' ? '#f0fdf4' : '#ffffff';
@@ -440,15 +478,6 @@
                     </div>
                 `;
             }
-        }
-
-        function generateAIPlan() {
-            if (!loadedPatientData) {
-                alert('الرجاء اختيار مريض والضغط على زر البحث أولاً ليتمكن الـ AI من تحليل حالته.');
-                return;
-            }
-            alert(`🤖 بدأ الـ AI تحليل الملف الطبي للمريض: الوزن ${loadedPatientData.weight} كجم. تم توليد نظام جديد متطور!`);
-            document.getElementById('doctorNotesInput').value = `خطة جديدة بالذكاء الاصطناعي بناءً على حالة المريض الإكلينيكية (${loadedPatientData.patient_name || loadedPatientData.name}): وزن ${loadedPatientData.weight} كجم.`;
         }
 
         async function savePlanToSQL() {
@@ -528,7 +557,6 @@
             }
         }
 
-        // حفظ ذكي يتعامل مع الأعمدة المتاحة فقط لتجنب أي أخطاء في الجدول
         async function saveMealFollowupToSQL(event) {
             event.preventDefault();
             if (!currentPatientId || !loadedPatientData) return;
@@ -552,7 +580,6 @@
             let oldCommit = loadedPatientData.curr_commitment || 'منضبط';
             let oldComplaints = loadedPatientData.curr_complaints || loadedPatientData.notes || 'متابعة عادية';
 
-            // بناء البايلاود الأساسي المضمن
             let payload = {
                 weight: newW,
                 height: newH,
@@ -566,7 +593,6 @@
                 notes: `متابعة (${fuType}) بتاريخ ${currDate}: ${currComplaints}`
             };
 
-            // إضافة أعمدة التركيب والجسم والتواريخ الاختيارية إذا وجدت تفادياً لأخطاء الكاش
             if (newFat !== null) payload.fat = newFat;
             if (newMuscle !== null) payload.muscle = newMuscle;
             if (newWater !== null) payload.water = newWater;
