@@ -29,7 +29,6 @@
         .search-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); position: relative; }
         .form-control { width: 100%; padding: 11px 15px; border: 1px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
         
-        /* نتائج البحث المنسدلة الذكية */
         .search-results-dropdown { position: absolute; top: 100%; right: 20px; left: 20px; background: white; border: 1px solid var(--card-border); border-radius: 0 0 10px 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; }
         .search-result-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
         .search-result-item:hover { background-color: #f0fdf4; color: #166534; }
@@ -97,7 +96,7 @@
             </div>
         </div>
 
-        <!-- شريط البحث الشامل (بالكود، الاسم، أو رقم التليفون) -->
+        <!-- شريط البحث الشامل (بالكود، الاسم، أو التليفون) -->
         <div class="search-card">
             <h3 style="margin-top:0; font-size:13px; color:var(--text-dark); margin-bottom:10px;">🔍 البحث الشامل (ابحث بكود الحالة، أو الاسم، أو رقم التليفون)</h3>
             <div style="position: relative;">
@@ -127,7 +126,7 @@
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let globalPatientsMasterList = [];
@@ -139,21 +138,25 @@
         }
 
         async function loadDashboardData() {
-            const { data: patData } = await supabaseClient.from('patients').select('*');
-            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
-            const { data: appData } = await supabaseClient.from('appointments').select('*');
+            try {
+                const { data: patData, error: patErr } = await supabaseClient.from('patients').select('*');
+                const { data: barData, error: barErr } = await supabaseClient.from('bariatric_cases').select('*');
+                const { data: appData } = await supabaseClient.from('appointments').select('*');
 
-            globalPatientsMasterList = [];
-            if (patData) patData.forEach(p => globalPatientsMasterList.push({ ...p, _table: 'patients' }));
-            if (barData) barData.forEach(b => globalPatientsMasterList.push({ ...b, _table: 'bariatric_cases' }));
+                globalPatientsMasterList = [];
+                if (patData && !patErr) patData.forEach(p => globalPatientsMasterList.push({ ...p, _table: 'patients' }));
+                if (barData && !barErr) barData.forEach(b => globalPatientsMasterList.push({ ...b, _table: 'bariatric_cases' }));
 
-            document.getElementById('totalPatientsCount').innerText = globalPatientsMasterList.length;
-            document.getElementById('totalAppointmentsCount').innerText = appData ? appData.length : 0;
+                let totalPat = (patData ? patData.length : 0) + (barData ? barData.length : 0);
+                document.getElementById('totalPatientsCount').innerText = totalPat;
+                document.getElementById('totalAppointmentsCount').innerText = appData ? appData.length : 0;
 
-            renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
+                renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
+            } catch (err) {
+                console.error("Error loading dashboard data:", err);
+            }
         }
 
-        // دالة البحث الشامل بالكود أو الاسم أو التليفون
         function performGlobalSearch() {
             let query = document.getElementById('globalSearchInput').value.toLowerCase().trim();
             let dropdown = document.getElementById('searchResultsDropdown');
