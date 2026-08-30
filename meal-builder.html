@@ -111,7 +111,6 @@
                 </div>
             </div>
 
-            <!-- لوحة الملف الإكلينيكي الشامل للحالة -->
             <div class="patient-medical-banner" id="patientMedicalBanner" style="display: none;">
                 <div class="medical-item"><strong>⚖️ الوزن الحالي:</strong> <span id="medWeight">-</span></div>
                 <div class="medical-item"><strong>🩺 تفاصيل الحالة/العملية:</strong> <span id="medSurgery">-</span></div>
@@ -119,7 +118,6 @@
                 <div class="medical-item"><strong>🔔 موعد القادمة:</strong> <span id="medNextFu" style="color:var(--danger-red); font-weight:bold;">-</span></div>
             </div>
 
-            <!-- الأقسام للمتابعة السابقة والحالية -->
             <div class="followup-comparison-grid" id="followupComparisonSection" style="display: none;">
                 <div class="fu-card previous">
                     <h4 style="margin: 0 0 10px 0; color: #b45309; font-size: 14px; border-bottom: 1px solid #fde68a; padding-bottom: 6px;">
@@ -146,7 +144,6 @@
                 </div>
             </div>
 
-            <!-- صندوق عرض النظام الغذائي السابق -->
             <div class="card" id="previousPlanCard" style="display: none; background: #eff6ff; border: 1px solid #bfdbfe;">
                 <h3 style="color: #1e40af; border-bottom-color: #bfdbfe;">📋 النظام الغذائي السابق المسجل للمريض</h3>
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
@@ -188,7 +185,7 @@
         </div>
     </div>
 
-    <!-- نافذة المتابعة بالخيارات الـ 4 وزر موعد المتابعة القادمة والتنبيه -->
+    <!-- نافذة المتابعة -->
     <div id="mealFollowupModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">📅 تسجيل متابعة جديدة وموعد القادمة</h3>
@@ -213,7 +210,6 @@
                     <input type="date" id="fuCurrDate" class="form-control" required>
                 </div>
                 
-                <!-- زر موعد المتابعة القادمة والتنبيه المضاف حديثاً -->
                 <div class="form-group" style="margin-bottom:10px; background: #fffbeb; border: 1px solid #fde68a; padding: 10px; border-radius: 8px;">
                     <label style="font-size:11px; font-weight:bold; color:#b45309; display:block; margin-bottom:3px;">🔔 موعد المتابعة القادمة (للتنبيه):</label>
                     <input type="date" id="fuNextDate" class="form-control" style="background: #fff;">
@@ -341,7 +337,6 @@
             document.getElementById('patientTitleName').innerText = `المريض: ${p.patient_name || p.name}`;
             document.getElementById('patientSubDetails').innerText = `التصنيف: ${p.category || p.surgery_type || 'تغذية'} | الهاتف: ${p.phone || 'غير مسجل'}`;
 
-            // عرض لوحة الملف الإكلينيكي
             document.getElementById('patientMedicalBanner').style.display = 'grid';
             let curW = p.weight || 0;
             let startW = p.start_weight || curW;
@@ -533,6 +528,7 @@
             }
         }
 
+        // حفظ ذكي يتعامل مع الأعمدة المتاحة فقط لتجنب أي أخطاء في الجدول
         async function saveMealFollowupToSQL(event) {
             event.preventDefault();
             if (!currentPatientId || !loadedPatientData) return;
@@ -556,25 +552,28 @@
             let oldCommit = loadedPatientData.curr_commitment || 'منضبط';
             let oldComplaints = loadedPatientData.curr_complaints || loadedPatientData.notes || 'متابعة عادية';
 
+            // بناء البايلاود الأساسي المضمن
             let payload = {
                 weight: newW,
                 height: newH,
-                fat: newFat,
-                muscle: newMuscle,
-                water: newWater,
                 prev_followup_date: oldCurrDate,
                 prev_weight: oldCurrWeight,
-                prev_fat: oldFat,
-                prev_muscle: oldMuscle,
-                prev_water: oldWater,
                 prev_commitment: oldCommit,
                 prev_complaints: oldComplaints,
                 curr_followup_date: currDate,
-                next_followup_date: nextDate || null,
                 curr_commitment: currCommit,
                 curr_complaints: `${fuType}: ${currComplaints}`,
                 notes: `متابعة (${fuType}) بتاريخ ${currDate}: ${currComplaints}`
             };
+
+            // إضافة أعمدة التركيب والجسم والتواريخ الاختيارية إذا وجدت تفادياً لأخطاء الكاش
+            if (newFat !== null) payload.fat = newFat;
+            if (newMuscle !== null) payload.muscle = newMuscle;
+            if (newWater !== null) payload.water = newWater;
+            if (oldFat !== null) payload.prev_fat = oldFat;
+            if (oldMuscle !== null) payload.prev_muscle = oldMuscle;
+            if (oldWater !== null) payload.prev_water = oldWater;
+            if (nextDate) payload.next_followup_date = nextDate;
 
             const { error } = await supabaseClient.from(loadedPatientData._table).update(payload).eq('id', currentPatientId);
             if (error) {
@@ -616,19 +615,28 @@
             event.preventDefault();
             if (!currentPatientId || !loadedPatientData) return;
 
+            let fatVal = parseFloat(document.getElementById('ceFat').value) || null;
+            let muscleVal = parseFloat(document.getElementById('ceMuscle').value) || null;
+            let waterVal = parseFloat(document.getElementById('ceWater').value) || null;
+            let nextDateVal = document.getElementById('ceNextDate').value;
+            let sDateVal = document.getElementById('ceSurgeryDate').value;
+            let prevDateVal = document.getElementById('cePrevDate').value;
+            let prevCompVal = document.getElementById('cePrevComplaints').value;
+
             let payload = {
                 patient_name: document.getElementById('ceName').value,
                 phone: document.getElementById('cePhone').value,
                 weight: parseFloat(document.getElementById('ceWeight').value) || 0,
-                height: parseFloat(document.getElementById('ceHeight').value) || 175,
-                fat: parseFloat(document.getElementById('ceFat').value) || null,
-                muscle: parseFloat(document.getElementById('ceMuscle').value) || null,
-                water: parseFloat(document.getElementById('ceWater').value) || null,
-                surgery_date: document.getElementById('ceSurgeryDate').value || null,
-                next_followup_date: document.getElementById('ceNextDate').value || null,
-                prev_followup_date: document.getElementById('cePrevDate').value || null,
-                prev_complaints: document.getElementById('cePrevComplaints').value || null
+                height: parseFloat(document.getElementById('ceHeight').value) || 175
             };
+
+            if (fatVal !== null) payload.fat = fatVal;
+            if (muscleVal !== null) payload.muscle = muscleVal;
+            if (waterVal !== null) payload.water = waterVal;
+            if (nextDateVal) payload.next_followup_date = nextDateVal;
+            if (sDateVal) payload.surgery_date = sDateVal;
+            if (prevDateVal) payload.prev_followup_date = prevDateVal;
+            if (prevCompVal) payload.prev_complaints = prevCompVal;
 
             if (loadedPatientData._table === 'patients') {
                 payload.category = document.getElementById('ceSurgeryType').value;
