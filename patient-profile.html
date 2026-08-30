@@ -41,10 +41,6 @@
         .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); width: 100%; box-sizing: border-box; }
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 5px; }
-        th { color: var(--text-gray); padding: 8px 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; }
-        td { padding: 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
@@ -134,8 +130,8 @@
             <div class="metrics-grid">
                 <div class="metric-card"><div class="metric-title">نوع العملية</div><div class="metric-value" id="mSurgeryType" style="color:var(--accent-blue);">-</div></div>
                 <div class="metric-card"><div class="metric-title">تاريخ العملية</div><div class="metric-value" id="mSurgeryDate">-</div></div>
-                <div class="metric-card"><div class="metric-title">تاريخ المتابعة السابقة</div><div class="metric-value" id="mPrevFollowup" style="color:var(--warning-orange);">-</div></div>
-                <div class="metric-card"><div class="metric-title">تاريخ المتابعة الحالية</div><div class="metric-value" id="mCurrFollowup" style="color:var(--primary-green);">-</div></div>
+                <div class="metric-card"><div class="metric-title">المتابعة السابقة</div><div class="metric-value" id="mPrevFollowup" style="color:var(--warning-orange);">-</div></div>
+                <div class="metric-card"><div class="metric-title">المتابعة الحالية</div><div class="metric-value" id="mCurrFollowup" style="color:var(--primary-green);">-</div></div>
             </div>
 
             <div class="metrics-grid" style="grid-template-columns: repeat(4, 1fr); margin-bottom: 15px;">
@@ -146,6 +142,18 @@
             </div>
 
             <div class="profile-stack">
+                <!-- قسم التحاليل والفحوصات الطبية وصور التحاليل المضاف حديثاً -->
+                <div class="card" style="background: #f8fafc; border: 1px solid #e2e8f0;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <h3 style="margin: 0; color: var(--text-dark);">🧪 التحاليل والفحوصات الطبية وصور التقارير</h3>
+                        <button onclick="openLabsUploadModal()" style="background: var(--primary-green); color: white; border: none; padding: 6px 12px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer;">➕ إضافة/تحديث تحليل أو صورة</button>
+                    </div>
+                    <p id="labsTextInfo" style="font-size: 12px; color: var(--text-gray); margin: 0 0 10px 0;">لا توجد تحاليل مسجلة حالياً.</p>
+                    <div id="labsImageContainer" style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px;">
+                        <!-- صور التحاليل تظهر هنا تلقائياً -->
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3>📈 تطور الوزن (منحنى المتابعة الحية)</h3>
                     <div style="height: 180px; width: 100%; position: relative;">
@@ -173,7 +181,7 @@
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">✏️ تعديل تفاصيل الحالة والتواريخ</h3>
             <form onsubmit="savePatientEdits(event)">
                 <div class="form-group"><label>اسم المريض:</label><input type="text" id="editName" class="form-control" required></div>
-                <div class="form-group"><label>نوع العملية / التصنيف:</label><input type="text" id="editSurgeryType" class="form-control" placeholder="مثال: تكميم معدة..."></div>
+                <div class="form-group"><label>نوع العملية / التصنيف:</label><input type="text" id="editSurgeryType" class="form-control"></div>
                 <div class="form-group"><label>تاريخ إجراء العملية:</label><input type="date" id="editSurgeryDate" class="form-control"></div>
                 <div class="form-group"><label>تاريخ المتابعة السابقة:</label><input type="date" id="editPrevFollowup" class="form-control"></div>
                 <div class="form-group"><label>تاريخ المتابعة الحالية:</label><input type="date" id="editCurrFollowup" class="form-control"></div>
@@ -189,6 +197,21 @@
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
                     <button type="button" onclick="closeEditModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة رفع وتحليد صور التحاليل الطبية -->
+    <div id="labsUploadModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">🧪 إضافة تقارير وصور التحاليل</h3>
+            <form onsubmit="saveLabsImageToSQL(event)">
+                <div class="form-group"><label>اسم التحليل أو الفحص:</label><input type="text" id="labTitleInput" class="form-control" placeholder="مثال: تحليل صورة الدم الكاملة CBC" required></div>
+                <div class="form-group"><label>رابط صورة التحليل (أو مسار الصورة):</label><input type="text" id="labImageUrlInput" class="form-control" placeholder="ضع رابط الصورة هنا (مثال: https://...)" required></div>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ التحليل في SQL</button>
+                    <button type="button" onclick="closeLabsUploadModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -254,10 +277,8 @@
             let name = activePatient.patient_name || activePatient.name || 'مريض بدون اسم';
             let surgeryType = activePatient.surgery_type || activePatient.category || 'تغذية علاجية';
             let surgeryDate = activePatient.surgery_date || activePatient.date || '-';
-            
-            // فحص أكثر من احتمال لاسم عمود المتابعة السابقة والحالية
-            let prevFollowup = activePatient.prev_followup_date || activePatient.last_visit || activePatient.previous_visit || '-';
-            let currFollowup = activePatient.curr_followup_date || activePatient.updated_at || new Date().toISOString().split('T')[0];
+            let prevFollowup = activePatient.prev_followup_date || activePatient.last_visit || '-';
+            let currFollowup = activePatient.curr_followup_date || new Date().toISOString().split('T')[0];
             
             let currentWeight = activePatient.weight !== undefined && activePatient.weight !== null ? activePatient.weight : 0;
             let startWeight = activePatient.start_weight !== undefined && activePatient.start_weight !== null ? activePatient.start_weight : currentWeight;
@@ -266,6 +287,7 @@
             let currentMuscle = activePatient.muscle || 0;
             let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات مسجلة.';
             let dietPlan = activePatient.diet_plan || 'لم يتم كتابة خطة غذائية بعد.';
+            let labsData = activePatient.labs_required || activePatient.labs_images || '';
 
             let bmi = height > 0 ? (currentWeight / Math.pow(height / 100, 2)).toFixed(1) : '-';
 
@@ -283,6 +305,30 @@
             document.getElementById('pNotes').innerText = notes;
             document.getElementById('pDietPlan').innerText = dietPlan;
 
+            // عرض التحاليل وصورها بذكاء
+            let labsContainer = document.getElementById('labsImageContainer');
+            let labsText = document.getElementById('labsTextInfo');
+            labsContainer.innerHTML = '';
+
+            if (labsData && labsData.trim() !== '') {
+                labsText.innerText = 'التحاليل والتقارير المرفقة للمريض:';
+                // فحص هل النص رابط صورة أو نص عادي
+                if (labsData.startsWith('http')) {
+                    labsContainer.innerHTML = `
+                        <div style="border: 1px solid #cbd5e1; border-radius: 8px; padding: 5px; background: white; text-align: center;">
+                            <a href="${labsData}" target="_blank">
+                                <img src="${labsData}" alt="صورة التحليل" style="max-width: 150px; height: 100px; object-fit: cover; border-radius: 6px; display: block; margin-bottom: 5px;">
+                            </a>
+                            <span style="font-size: 11px; color: var(--accent-blue); font-weight: bold;">📄 تقرير طبي / تحليل</span>
+                        </div>
+                    `;
+                } else {
+                    labsContainer.innerHTML = `<p style="font-size: 12px; color: var(--text-dark); background: white; padding: 10px; border-radius: 6px; border: 1px solid #e2e8f0; margin: 0; width: 100%;">${labsData}</p>`;
+                }
+            } else {
+                labsText.innerText = 'لا توجد تحاليل أو صور مرفقة لهذا المريض حتى الآن.';
+            }
+
             renderWeightChart(startWeight, currentWeight);
         }
 
@@ -291,7 +337,7 @@
             document.getElementById('editName').value = activePatient.patient_name || activePatient.name || '';
             document.getElementById('editSurgeryType').value = activePatient.surgery_type || activePatient.category || '';
             document.getElementById('editSurgeryDate').value = activePatient.surgery_date || activePatient.date || '';
-            document.getElementById('editPrevFollowup').value = activePatient.prev_followup_date || activePatient.last_visit || activePatient.previous_visit || '';
+            document.getElementById('editPrevFollowup').value = activePatient.prev_followup_date || '';
             document.getElementById('editCurrFollowup').value = activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : '';
             document.getElementById('editStartWeight').value = activePatient.start_weight || '';
             document.getElementById('editWeight').value = activePatient.weight || '';
@@ -305,6 +351,36 @@
         }
 
         function closeEditModal() { document.getElementById('editModal').style.display = 'none'; }
+
+        function openLabsUploadModal() {
+            document.getElementById('labTitleInput').value = '';
+            document.getElementById('labImageUrlInput').value = '';
+            document.getElementById('labsUploadModal').style.display = 'flex';
+        }
+
+        function closeLabsUploadModal() {
+            document.getElementById('labsUploadModal').style.display = 'none';
+        }
+
+        async function saveLabsImageToSQL(e) {
+            e.preventDefault();
+            let title = document.getElementById('labTitleInput').value;
+            let imgUrl = document.getElementById('labImageUrlInput').value;
+
+            let combinedLabData = `${title}: ${imgUrl}`;
+
+            let payload = { labs_required: combinedLabData };
+            const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
+
+            if (error) {
+                alert('خطأ أثناء حفظ التحليل: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم حفظ تحليل المريض وصورته في SQL بنجاح!');
+            closeLabsUploadModal();
+            loadPatientProfile();
+        }
 
         async function savePatientEdits(e) {
             e.preventDefault();
@@ -368,17 +444,9 @@
         async function saveNewFollowup(e) {
             e.preventDefault();
             let newWeight = parseFloat(document.getElementById('fuWeight').value);
-            let fuDate = document.getElementById('fuDate').value;
             let notes = document.getElementById('fuNotes').value;
 
-            // عند تسجيل متابعة جديدة، التاريخ الحالي يصبح هو السابق، والتاريخ الجديد هو الحالي
-            let previousDateToSave = activePatient.curr_followup_date || new Date().toISOString().split('T')[0];
-
-            let payload = { 
-                weight: newWeight,
-                prev_followup_date: previousDateToSave,
-                curr_followup_date: fuDate
-            };
+            let payload = { weight: newWeight };
             if (notes) {
                 if (activeTable === 'patients') payload.medical_history = notes;
                 else payload.notes = notes;
@@ -387,7 +455,7 @@
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) { alert('خطأ أثناء تسجيل المتابعة.'); return; }
 
-            alert('✨ تمت إضافة المتابعة وتحديث تواريخ المتابعة بنجاح!');
+            alert('✨ تمت إضافة المتابعة بنجاح!');
             closeFollowupModal();
             loadPatientProfile();
         }
