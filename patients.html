@@ -92,19 +92,19 @@
             
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <button onclick="openAddPatientModal()" class="action-btn" style="background: var(--primary-green); padding: 8px 15px; font-size: 12px;">➕ إضافة حالة جديدة</button>
-                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف..." style="width: 180px; padding: 7px;" onkeyup="filterPatientsTable()">
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف أو الكود..." style="width: 200px; padding: 7px;" onkeyup="filterPatientsTable()">
                 <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
             </div>
         </div>
 
-        <!-- جدول الحالات مع ظهور كود المريض بجانب اسمه -->
+        <!-- جدول الحالات مع ظهور كود العميل الحقيقي بجانب الاسم -->
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>اسم المريض والكود</th>
+                            <th>اسم المريض وكود العميل</th>
                             <th>التصنيف / الحالة</th>
                             <th>الحالة المرضية / ملاحظات</th>
                             <th>الوزن</th>
@@ -123,11 +123,15 @@
     <!-- نافذة تعديل بيانات الحالة -->
     <div id="editPatientModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">✏️ تعديل بيانات الحالة بالكامل</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">✏️ تعديل بيانات الحالة وكود العميل</h3>
             <form onsubmit="savePatientEdits(event)">
                 <input type="hidden" id="editRecordId">
                 <input type="hidden" id="editRecordTable">
 
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">كود العميل (Patient Code):</label>
+                    <input type="text" id="editPatientCode" class="form-control" placeholder="مثال: PG-0001">
+                </div>
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اسم المريض:</label>
                     <input type="text" id="editName" class="form-control" required>
@@ -184,6 +188,10 @@
                         <option value="patients">مرضى عامة (patients)</option>
                         <option value="bariatric_cases">جراحات سمنة (bariatric_cases)</option>
                     </select>
+                </div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">كود العميل (Patient Code):</label>
+                    <input type="text" id="pCodeInput" class="form-control" placeholder="مثال: PG-0001">
                 </div>
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اسم المريض:</label>
@@ -262,9 +270,9 @@
                 return;
             }
 
-            list.forEach((p, index) => {
+            list.forEach((p) => {
                 let name = p.patient_name || p.name || 'بدون اسم';
-                let code = p.patient_code || `PG-${String(index + 1).padStart(4, '0')}`;
+                let code = p.patient_code || p.code || 'بدون كود';
                 let cat = p.category || p.surgery_type || 'تغذية';
                 let notes = p.medical_history || p.notes || '-';
                 let weight = p.weight ? p.weight + ' كجم' : '-';
@@ -277,7 +285,7 @@
                     <tr>
                         <td>
                             <strong>${name}</strong><br>
-                            <span style="font-size:10px; color:var(--accent-blue); font-weight:bold;">كود: ${code}</span>
+                            <span style="font-size:10px; color:var(--accent-blue); font-weight:bold;">كود العميل: ${code}</span>
                         </td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${cat}</span></td>
                         <td style="max-width:180px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
@@ -301,7 +309,8 @@
             let filtered = masterPatientsList.filter(p => {
                 let name = (p.patient_name || p.name || '').toLowerCase();
                 let phone = (p.phone || '').toLowerCase();
-                return name.includes(query) || phone.includes(query);
+                let code = (p.patient_code || p.code || '').toLowerCase();
+                return name.includes(query) || phone.includes(query) || code.includes(query);
             });
             renderPatientsTable(filtered);
         }
@@ -313,6 +322,7 @@
         function openEditPatientModal(p) {
             document.getElementById('editRecordId').value = p.id;
             document.getElementById('editRecordTable').value = p._table;
+            document.getElementById('editPatientCode').value = p.patient_code || p.code || '';
             document.getElementById('editName').value = p.patient_name || p.name || '';
             document.getElementById('editPhone').value = p.phone || '';
             document.getElementById('editCategory').value = p.category || p.surgery_type || '';
@@ -344,6 +354,7 @@
             let recordId = document.getElementById('editRecordId').value;
             let tableName = document.getElementById('editRecordTable').value;
 
+            let code = document.getElementById('editPatientCode').value;
             let name = document.getElementById('editName').value;
             let phone = document.getElementById('editPhone').value;
             let category = document.getElementById('editCategory').value;
@@ -354,6 +365,7 @@
             let notes = document.getElementById('editNotes').value;
 
             let payload = { weight, phone, height };
+            if (code) payload.patient_code = code;
             if (startWeight !== null) payload.start_weight = startWeight;
             if (labsUrl) payload.labs_required = labsUrl;
 
@@ -373,7 +385,7 @@
                 return;
             }
 
-            alert('✨ تم تحديث بيانات الحالة بنجاح في SQL!');
+            alert('✨ تم تحديث بيانات الحالة وكود العميل بنجاح في SQL!');
             closeEditPatientModal();
             loadPatientsList();
         }
@@ -410,6 +422,7 @@
         async function saveNewPatientRecord(event) {
             event.preventDefault();
             let tableName = document.getElementById('dbTableSelect').value;
+            let code = document.getElementById('pCodeInput').value;
             let name = document.getElementById('pNameInput').value;
             let phone = document.getElementById('pPhoneInput').value;
             
@@ -426,6 +439,7 @@
             let notes = document.getElementById('pNotesInput').value;
 
             let payload = { weight, phone, height };
+            if (code) payload.patient_code = code;
             if (startWeight !== null) payload.start_weight = startWeight;
 
             if (tableName === 'patients') {
@@ -444,7 +458,7 @@
                 return;
             }
 
-            alert('✨ تم تسجيل الحالة الجديدة بنجاح في قاعدة بيانات SQL!');
+            alert('✨ تم تسجيل الحالة وكود العميل بنجاح في قاعدة بيانات SQL!');
             closeAddPatientModal();
             loadPatientsList();
         }
