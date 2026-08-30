@@ -97,7 +97,6 @@
             </div>
         </div>
 
-        <!-- جدول الحالات مع ظهور كود العميل الحقيقي بجانب الاسم -->
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
             <div style="overflow-x: auto;">
@@ -120,7 +119,7 @@
         </div>
     </div>
 
-    <!-- نافذة تعديل بيانات الحالة -->
+    <!-- نافذة التعديل الشامل -->
     <div id="editPatientModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">✏️ تعديل بيانات الحالة وكود العميل</h3>
@@ -143,10 +142,6 @@
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">التصنيف / الحالة:</label>
                     <input type="text" id="editCategory" class="form-control">
-                </div>
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">وزن البداية (كجم):</label>
-                    <input type="number" step="0.1" id="editStartWeight" class="form-control">
                 </div>
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الوزن الحالي (كجم):</label>
@@ -213,10 +208,6 @@
                 <div class="form-group" id="customCategoryBox" style="margin-bottom:12px; display: none;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--accent-blue); margin-bottom:5px;">أدخل تفاصيل التصنيف (آخر):</label>
                     <input type="text" id="pCustomCategoryInput" class="form-control" placeholder="اكتب التصنيف هنا...">
-                </div>
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">وزن البداية (كجم):</label>
-                    <input type="number" step="0.1" id="pStartWeightInput" class="form-control" placeholder="120">
                 </div>
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">الوزن الحالي (كجم):</label>
@@ -304,6 +295,7 @@
             });
         }
 
+        // البحث الشامل الذي يشمل كود العميل واسم المريض ورقم الهاتف
         function filterPatientsTable() {
             let query = document.getElementById('patientSearchInput').value.toLowerCase().trim();
             let filtered = masterPatientsList.filter(p => {
@@ -326,7 +318,6 @@
             document.getElementById('editName').value = p.patient_name || p.name || '';
             document.getElementById('editPhone').value = p.phone || '';
             document.getElementById('editCategory').value = p.category || p.surgery_type || '';
-            document.getElementById('editStartWeight').value = p.start_weight || '';
             document.getElementById('editWeight').value = p.weight || '';
             document.getElementById('editHeight').value = p.height || '';
             document.getElementById('editNotes').value = p.medical_history || p.notes || '';
@@ -358,25 +349,22 @@
             let name = document.getElementById('editName').value;
             let phone = document.getElementById('editPhone').value;
             let category = document.getElementById('editCategory').value;
-            let startWeight = parseFloat(document.getElementById('editStartWeight').value) || null;
             let weight = parseFloat(document.getElementById('editWeight').value) || 0;
             let height = parseFloat(document.getElementById('editHeight').value) || 175;
             let labsUrl = document.getElementById('editLabsUrl').value;
-            let notes = document.getElementById('editNotes').value;
 
             let payload = { weight, phone, height };
             if (code) payload.patient_code = code;
-            if (startWeight !== null) payload.start_weight = startWeight;
             if (labsUrl) payload.labs_required = labsUrl;
 
             if (tableName === 'patients') {
                 payload.patient_name = name;
                 payload.category = category;
-                payload.medical_history = notes;
+                payload.medical_history = document.getElementById('editNotes').value;
             } else {
                 payload.patient_name = name;
                 payload.surgery_type = category;
-                payload.notes = notes;
+                payload.notes = document.getElementById('editNotes').value;
             }
 
             const { error } = await supabaseClient.from(tableName).update(payload).eq('id', recordId);
@@ -433,14 +421,12 @@
                 if (customVal) finalCategory = customVal;
             }
 
-            let startWeight = parseFloat(document.getElementById('pStartWeightInput').value) || null;
             let weight = parseFloat(document.getElementById('pCurrentWeightInput').value) || 0;
             let height = parseFloat(document.getElementById('pHeightInput').value) || 175;
             let notes = document.getElementById('pNotesInput').value;
 
             let payload = { weight, phone, height };
             if (code) payload.patient_code = code;
-            if (startWeight !== null) payload.start_weight = startWeight;
 
             if (tableName === 'patients') {
                 payload.patient_name = name;
