@@ -148,7 +148,7 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- قسم اختيار النظام الغذائي مع زر الـ AI المضاف بجانبه مباشرة -->
+            <!-- قسم اختيار النظام الغذائي مع زر الـ AI المحدث -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
@@ -390,35 +390,39 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        // دالة الـ AI الذكي الجديدة المطلوبة لتوليد النظام بناءً على السعرات والبيانات المسجلة للحالة
+        // دالة الـ AI الذكي المحدثة لتسأل أيضاً عن تاريخ العملية لحساب الفترة بدقة
         function triggerSmartAIPlan() {
             if (!loadedPatientData) {
-                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً ليقوم الـ AI باستدعاء بيانات الحالة وسؤالك عن السعرات.');
+                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً ليقوم الـ AI باستدعاء بيانات الحالة.');
                 return;
             }
 
             let pName = loadedPatientData.patient_name || loadedPatientData.name || 'المريض';
             let pWeight = loadedPatientData.weight || 'غير محدد';
             let pSurgery = loadedPatientData.surgery_type || loadedPatientData.category || 'تغذية علاجية';
-            let pComplaints = loadedPatientData.curr_complaints || 'متابعة عادية';
+            let sDate = loadedPatientData.surgery_date || 'غير مسجل';
 
-            let targetCalories = prompt(`🤖 أهلاً يا دكتور شادي! البيانات المسجلة للحالة (${pName}):\n- الوزن الحالي: ${pWeight} كجم\n- التصنيف/العملية: ${pSurgery}\n- الشكاوى: ${pComplaints}\n\nمن فضلك، أدخل عدد "السعرات الحرارية المطلوبة" أو أي توجيهات خاصة لهذا النظام:`, "1500 سعرة حرارية");
+            let surgeryDatePrompt = prompt(`🤖 أهلاً يا دكتور شادي! البيانات المسجلة للحالة (${pName}):\n- الوزن الحالي: ${pWeight} كجم\n- التصنيف/العملية: ${pSurgery}\n- تاريخ العملية المسجل: ${sDate}\n\nمن فضلك، أكد أو أدخل "تاريخ العملية" الفعلي لمعرفة الفترة المنقضية بدقة:`, sDate);
 
-            if (targetCalories !== null) {
-                let aiGeneratedPlan = `🤖 خطة ذكية مقترحة بالـ AI (بناءً على وزن ${pWeight} كجم وتوجيهات السعرات: ${targetCalories}):\n` +
-                    `- الإفطار: 2 بيضة مقلية + خبز توست أسمر + خيار وشاي أخضر بدون سكر.\n` +
-                    `- الغداء: صدور دجاج مشوية (150جم) + 5 ملاعق أرز بسمتي + طبق سلطة خضراء كبير.\n` +
-                    `- العشاء: جبنة قريش + ثمرة فاكهة أو زبايد يوناني.\n` +
-                    `- تعليمات خاصة: شرب الماء بانتظام ومتابعة الالتزام بالسعرات (${targetCalories}).`;
+            if (surgeryDatePrompt !== null) {
+                let targetCalories = prompt(`أدخل عدد "السعرات الحرارية المطلوبة" أو أي توجيهات خاصة للنظام (بناءً على عملية تمت في تاريخ: ${surgeryDatePrompt}):`, "1500 سعرة حرارية");
 
-                if (currentSystem === 'period') {
-                    let periodElem = document.getElementById('periodSystemText');
-                    if (periodElem) periodElem.value = aiGeneratedPlan;
-                } else {
-                    document.getElementById('doctorNotesInput').value = aiGeneratedPlan;
+                if (targetCalories !== null) {
+                    let aiGeneratedPlan = `🤖 خطة ذكية مقترحة بالـ AI (بناءً على عملية بتاريخ ${surgeryDatePrompt} وسعرات: ${targetCalories}):\n` +
+                        `- الإفطار: 2 بيضة مقلية + خبز توست أسمر + شاي بدون سكر.\n` +
+                        `- الغداء: صدور دجاج مشوية (150جم) + 5 ملاعق أرز + سلطة خضراء.\n` +
+                        `- العشاء: جبنة قريش + زبادي يوناني.\n` +
+                        `- توجيهات إكلينيكية: تم حساب الفترة المنقضية منذ تاريخ العملية (${surgeryDatePrompt}) لضبط تدرج الأغذية المناسب.`;
+
+                    if (currentSystem === 'period') {
+                        let periodElem = document.getElementById('periodSystemText');
+                        if (periodElem) periodElem.value = aiGeneratedPlan;
+                    } else {
+                        document.getElementById('doctorNotesInput').value = aiGeneratedPlan;
+                    }
+
+                    alert(`✨ تم استدعاء تاريخ العملية والسعرات (${targetCalories}) وتوليد النظام الغذائي الذكي بنجاح!`);
                 }
-
-                alert(`✨ تم استدعاء بيانات الحالة وسؤالك عن السعرات (${targetCalories}) وتوليد النظام الغذائي الذكي بنجاح! يمكنك مراجعته وحفظه الآن.`);
             }
         }
 
