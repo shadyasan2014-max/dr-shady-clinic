@@ -35,12 +35,10 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-        /* نافذة إضافة حالة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* صندوق كود العميل المخصص للتعديل الحر */
-        .client-custom-textarea { width: 100%; height: 160px; background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; border: 1px solid #334155; box-sizing: border-box; resize: vertical; }
+        .client-custom-textarea { width: 100%; height: 150px; background: #0f172a; color: #38bdf8; padding: 12px; border-radius: 8px; font-family: monospace; font-size: 12px; direction: ltr; text-align: left; border: 1px solid #334155; box-sizing: border-box; resize: vertical; }
 
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -91,25 +89,24 @@
         <div class="top-header">
             <div>
                 <h1>👥 حالات SQL الشامل (مرضى وجراحات)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات بمرونة تامة</p>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة واستعراض ملفات الحالات وكود الحالة التلقائي</p>
             </div>
             
-            <!-- أزرار البحث وإضافة حالة جديدة -->
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <button onclick="openAddPatientModal()" class="action-btn" style="background: var(--primary-green); padding: 8px 15px; font-size: 12px;">➕ إضافة حالة جديدة</button>
-                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف..." style="width: 180px; padding: 7px;" onkeyup="filterPatientsTable()">
+                <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالكود، الاسم أو الهاتف..." style="width: 200px; padding: 7px;" onkeyup="filterPatientsTable()">
                 <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
             </div>
         </div>
 
-        <!-- جدول الحالات -->
+        <!-- جدول الحالات (يشمل كود الحالة بجانب الاسم) -->
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">قائمة الحالات المسجلة في قاعدة بيانات SQL</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>اسم المريض</th>
+                            <th>كود الحالة واسم المريض</th>
                             <th>التصنيف / الحالة</th>
                             <th>الحالة المرضية / ملاحظات</th>
                             <th>الوزن</th>
@@ -124,7 +121,7 @@
             </div>
         </div>
 
-        <!-- صندوق كود العميل المخصص للتعديل الحر والنسخ -->
+        <!-- صندوق كود العميل المخصص للتعديل الحر -->
         <div class="card" style="background: #f8fafc; border: 1px solid var(--card-border);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
                 <h3 style="margin:0; font-size:13px; color:var(--text-dark);">💻 صندوق كود العميل المخصص (قابل للتعديل الحر)</h3>
@@ -141,7 +138,7 @@
     <!-- نافذة إضافة حالة جديدة -->
     <div id="addPatientModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">➕ تسجيل حالة جديدة في SQL</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px;">➕ تسجيل حالة جديدة وتوليد كود تلقائي</h3>
             <form onsubmit="saveNewPatientRecord(event)">
                 <div class="form-group" style="margin-bottom:12px;">
                     <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">اختر جدول الحفظ في SQL:</label>
@@ -149,6 +146,11 @@
                         <option value="patients">مرضى عامة (patients)</option>
                         <option value="bariatric_cases">جراحات سمنة (bariatric_cases)</option>
                     </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="display:block; font-size:12px; font-weight:bold; color:var(--text-gray); margin-bottom:5px;">كود الحالة (يُولد تلقائياً ويمكن تعديله):</label>
+                    <input type="text" id="pCodeInput" class="form-control" style="background: #fef3c7; font-weight: bold;" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom:12px;">
@@ -244,6 +246,7 @@
 
             list.forEach((p) => {
                 let name = p.patient_name || p.name || 'بدون اسم';
+                let code = p.patient_code || p.code || `DS-${p.id ? p.id.toString().slice(-4) : '1001'}`;
                 let cat = p.category || p.surgery_type || 'تغذية';
                 let notes = p.medical_history || p.notes || '-';
                 let weight = p.weight ? p.weight + ' كجم' : '-';
@@ -251,7 +254,10 @@
 
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${name}</strong></td>
+                        <td>
+                            <span style="background:#fef3c7; color:#d97706; padding:2px 6px; border-radius:4px; font-size:11px; font-weight:bold; margin-left:6px;">${code}</span>
+                            <strong>${name}</strong>
+                        </td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${cat}</span></td>
                         <td style="max-width:200px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${notes}</td>
                         <td>${weight}</td>
@@ -271,8 +277,9 @@
             let query = document.getElementById('patientSearchInput').value.toLowerCase().trim();
             let filtered = masterPatientsList.filter(p => {
                 let name = (p.patient_name || p.name || '').toLowerCase();
+                let code = (p.patient_code || p.code || `ds-${p.id}`).toLowerCase();
                 let phone = (p.phone || '').toLowerCase();
-                return name.includes(query) || phone.includes(query);
+                return name.includes(query) || phone.includes(query) || code.includes(query);
             });
             renderPatientsTable(filtered);
         }
@@ -293,6 +300,9 @@
         }
 
         function openAddPatientModal() {
+            // توليد كود تلقائي فوري للحالة الجديدة مثل DS-8492
+            let randomCode = 'DS-' + Math.floor(1000 + Math.random() * 9000);
+            document.getElementById('pCodeInput').value = randomCode;
             document.getElementById('addPatientModal').style.display = 'flex';
         }
 
@@ -313,6 +323,7 @@
         async function saveNewPatientRecord(event) {
             event.preventDefault();
             let tableName = document.getElementById('dbTableSelect').value;
+            let pCode = document.getElementById('pCodeInput').value;
             let name = document.getElementById('pNameInput').value;
             let phone = document.getElementById('pPhoneInput').value;
             
@@ -329,7 +340,7 @@
             let height = parseFloat(document.getElementById('pHeightInput').value) || 175;
             let notes = document.getElementById('pNotesInput').value;
 
-            let payload = { weight, phone, height };
+            let payload = { weight, phone, height, patient_code: pCode };
             if (startWeight !== null) payload.start_weight = startWeight;
             if (surgeryDate) payload.surgery_date = surgeryDate;
 
@@ -349,12 +360,11 @@
                 return;
             }
 
-            alert('✨ تم تسجيل الحالة الجديدة بنجاح في قاعدة بيانات SQL!');
+            alert('✨ تم تسجيل الحالة الجديدة وكود المريض بنجاح في قاعدة بيانات SQL!');
             closeAddPatientModal();
             loadPatientsList();
         }
 
-        // حفظ كود العميل المخصص محلياً
         function saveClientCustomCode() {
             let code = document.getElementById('clientCustomTextarea').value;
             localStorage.setItem('dr_shady_client_custom_code', code);
