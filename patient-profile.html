@@ -407,7 +407,7 @@
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة الـ PDF الشاملة والمضمونة 100% لعرض اللوجو، التليفون، المربعات، والمنحنى بدقة
+        // دالة الـ PDF الشاملة والمحدثة بالكامل لضمان ظهور اللوجو وكل بيانات التواريخ والقياسات والمنحنى
         async function downloadPatientPDF() {
             let docInfo = { 
                 name: "د. شادي سمير", 
@@ -423,7 +423,7 @@
                     let s = settingsData[0];
                     if (s.doctor_name) docInfo.name = s.doctor_name;
                     if (s.doctor_title) docInfo.title = s.doctor_title;
-                    if (s.logo_url) docInfo.logo = s.logo_url;
+                    if (s.logo_url && s.logo_url.trim() !== '') docInfo.logo = s.logo_url;
                     if (s.branches && s.branches.length > 0) docInfo.branch = s.branches[0];
                     if (s.phones && s.phones.length > 0) docInfo.phone = s.phones[0];
                 }
@@ -465,7 +465,7 @@
                             <p style="margin: 0; font-size: 10px; color: #64748b;">الفرع: ${docInfo.branch} | هاتف العيادة: ${docInfo.phone}</p>
                         </td>
                         <td style="text-align: left; vertical-align: middle;">
-                            <img src="${docInfo.logo}" crossorigin="anonymous" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                            <img src="${docInfo.logo}" crossorigin="anonymous" onerror="this.onerror=null; this.src='logo.jpeg';" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
                         </td>
                     </tr>
                 </table>
@@ -486,7 +486,7 @@
                     </tr>
                 </table>
 
-                <!-- مربع التواريخ والمتابعة -->
+                <!-- مربع التواريخ والمتابعة (المحدد بالأسود) -->
                 <table style="width: 100%; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px; border-radius: 6px; margin-bottom: 12px; direction: rtl; font-size: 10px; text-align: center;">
                     <tr>
                         <td style="border-left: 1px solid #cbd5e1; padding: 4px;"><strong>تاريخ المتابعة الحالية</strong><br><span style="color: #10b981; font-weight: bold;">${currFollowup}</span></td>
@@ -523,7 +523,7 @@
                 margin:       [8, 8, 8, 8],
                 filename:     `Patient-Report-${patientCode}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
+                html2canvas:  { scale: 2, useCORS: true, allowTaint: true, scrollY: 0 },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
