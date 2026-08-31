@@ -39,6 +39,9 @@
         .results-box { background: #f0fdf4; border: 1px solid #bbf7d0; padding: 15px; border-radius: 10px; margin-top: 15px; display: none; }
         .macro-badge { background: white; border: 1px solid #86efac; padding: 8px 12px; border-radius: 8px; text-align: center; font-size: 12px; font-weight: bold; color: #166534; }
 
+        /* رأس الصفحة المخصص لبيانات الدكتور في الـ PDF */
+        .pdf-doctor-banner { display: none; text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 12px; margin-bottom: 15px; }
+
         .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
@@ -77,7 +80,7 @@
                 <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
                 <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
                 <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
-                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
+                <li><a href="settings.html" onclick="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -95,13 +98,35 @@
         </div>
 
         <div id="printableArea">
+            <!-- رأس بيانات الدكتور والعيادة (يظهر بوضوح عند تصدير الـ PDF) -->
+            <div id="pdfDoctorBanner" class="pdf-doctor-banner">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="text-align: right;">
+                        <h2 style="margin: 0; color: #0b1329; font-size: 18px;">د. شادي سمير</h2>
+                        <p style="margin: 2px 0; color: #10b981; font-weight: bold; font-size: 12px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                        <p style="margin: 0; font-size: 10px; color: var(--text-gray);">فرع القاهرة | هاتف: 010xxxxxxxx</p>
+                    </div>
+                    <div>
+                        <img src="logo.jpeg" alt="Logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                    </div>
+                </div>
+            </div>
+
             <form onsubmit="calculateAndGenerateAIPlan(event)">
-                <!-- قسم البيانات الأساسية -->
+                <!-- قسم البيانات الأساسية (متضمنة النوع: ذكر - انثى - اخر) -->
                 <div class="card">
                     <h3 class="section-title">1️⃣ البيانات الأساسية والقياسات الشخصية</h3>
                     <div class="form-grid">
                         <div class="form-group"><label>١- الاسم:</label><input type="text" id="pName" class="form-control" placeholder="الاسم الرباعي..." required></div>
                         <div class="form-group"><label>٢- السن:</label><input type="number" id="pAge" class="form-control" value="30" required></div>
+                        <div class="form-group">
+                            <label>النوع:</label>
+                            <select id="pGender" class="form-control">
+                                <option value="male">ذكر (Male)</option>
+                                <option value="female">أنثى (Female)</option>
+                                <option value="other">آخر (Other)</option>
+                            </select>
+                        </div>
                         <div class="form-group"><label>٣- الطول (سم):</label><input type="number" id="pHeight" class="form-control" value="175" required></div>
                         <div class="form-group"><label>٤- الوزن الحالي (كجم):</label><input type="number" step="0.1" id="pWeight" class="form-control" value="85" required></div>
                         <div class="form-group"><label>٥- الحالة الاجتماعية:</label><input type="text" id="pMarital" class="form-control" placeholder="متزوج / أعزب..."></div>
@@ -116,7 +141,7 @@
                         <div class="form-group"><label>٦- الحالة الصحية والأدوية:</label><input type="text" id="pHealth" class="form-control" placeholder="أمراض مزمنة، أدوية منتظمة..."></div>
                         <div class="form-group"><label>٨- ممارسة الرياضة:</label><input type="text" id="pSport" class="form-control" placeholder="نوعها ومعدلها أسبوعياً..."></div>
                         <div class="form-group"><label>٩- تناول أدوية الدايت السابقة:</label><input type="text" id="pDietPills" class="form-control" placeholder="أدوية تخسيس سابقة..."></div>
-                        <div class="form-group"><label>١٠- طبيعة العمل والحركة:</label><input type="text" id="pWork" class="form-control" placeholder="مكتبي، حركي، واقف..."></div>
+                        <div class="form-group"><label>١٠- طبيعة العمل والحركه:</label><input type="text" id="pWork" class="form-control" placeholder="مكتبي، حركي، واقف..."></div>
                         <div class="form-group"><label>١٧- هل يوجد انيميا و تساقط شعر؟</label><input type="text" id="pHairAnemia" class="form-control" placeholder="نعم / لا والتفاصيل..."></div>
                     </div>
                 </div>
@@ -127,7 +152,7 @@
                     <div class="form-grid">
                         <div class="form-group"><label>١١- مواعيد تناول الوجبات:</label><input type="text" id="pMealTimes" class="form-control" placeholder="أوقات الوجبات..."></div>
                         <div class="form-group"><label>١٢- هل اتبعت أى أنظمة من قبل؟</label><input type="text" id="pPrevDiets" class="form-control" placeholder="نعم / لا..."></div>
-                        <div class="form-group"><label>١٣- نوع الدايت السابق وكم النزول والفترة:</label><input type="text" id="pPrevDietDetails" class="form-control" placeholder="كيتو، صيام، 10 كجم..."></div>
+                        <div class="form-group"><label>١٣- نوع الدايت الذى اتبعته من قبل وكم النزول والفترة:</label><input type="text" id="pPrevDietDetails" class="form-control" placeholder="كيتو، صيام، 10 كجم..."></div>
                         <div class="form-group"><label>١٤- هل السمنه وراثية؟</label><input type="text" id="pGenetic" class="form-control" placeholder="نعم / لا..."></div>
                         <div class="form-group"><label>١٥- أماكن السمنه فى الجسم (علوى او سفلى):</label><input type="text" id="pFatDistrib" class="form-control" placeholder="بطن، أرداف، متناسق..."></div>
                     </div>
@@ -139,23 +164,35 @@
                     <div class="form-grid">
                         <div class="form-group"><label>١٦- المشكلة بالنسبة للطعام (كمية كبيرة أو قليلة):</label><input type="text" id="pFoodProblem" class="form-control" placeholder="أكل عاطفي، وجبات كبيرة..."></div>
                         <div class="form-group"><label>١٨- والحرق بالنسبالك كتير ولا قليل؟</label><input type="text" id="pMetabolism" class="form-control" placeholder="إحساسك بمعدل الحرق..."></div>
-                        <div class="form-group"><label>١٩- تناول الشاى، القهوة، النسكافيه، الألبان:</label><input type="text" id="pDrinks" class="form-control" placeholder="المعدل اليومي..."></div>
+                        <div class="form-group"><label>١٩- تناول الشاى، القهوه، النسكافيه، الالبان:</label><input type="text" id="pDrinks" class="form-control" placeholder="المعدل اليومي..."></div>
                         <div class="form-group"><label>٢٠- شراهة النشويات والحلويات:</label><input type="text" id="pCravings" class="form-control" placeholder="أوقات الرغبة في السكريات..."></div>
                         <div class="form-group"><label>٢١- تناول اللحوم أم الفراخ؟</label><input type="text" id="pMeatPref" class="form-control" placeholder="لحوم / فراخ / كلاهما..."></div>
                         <div class="form-group"><label>٢٢- الوزن المستهدف (كجم):</label><input type="number" step="0.1" id="pTargetWeight" class="form-control" placeholder="70"></div>
                         <div class="form-group"><label>٢٣- الغرض من النزول فى الوزن:</label><input type="text" id="pGoalReason" class="form-control" placeholder="صحي، شكل، زواج..."></div>
-                        <div class="form-group"><label>٢٤- هل يمكن التحكم فى الشهية أم لا؟</label><input type="text" id="pAppetiteControl" class="form-control" placeholder="نعم / لا..."></div>
+                        <div class="form-group"><label>٢٤- هل يمكن التحكم فى الشهية ام لا؟</label><input type="text" id="pAppetiteControl" class="form-control" placeholder="نعم / لا..."></div>
                         <div class="form-group"><label>٢٥ و ٢٦- الهدف من المتابعة (نحافة، سمنة، تغذية مرضية، ثبات، ايف ستايل):</label><input type="text" id="pMainGoal" class="form-control" placeholder="الهدف الأساسي..."></div>
-                        <div class="form-group"><label>٢٧- معدل السعرات المأخوذ اليومى تقريباً:</label><input type="text" id="pCurrCalories" class="form-control" placeholder="السعرات الحالية..."></div>
-                        <div class="form-group"><label>٢٨- معدل نزولك فى آخر دايت:</label><input type="text" id="pPrevLossRate" class="form-control" placeholder="معدل النزول الأسبوعي..."></div>
+                        <div class="form-group"><label>٢٧- معدل السعرات المأخوذ اليومى تقريبا:</label><input type="text" id="pCurrCalories" class="form-control" placeholder="السعرات الحالية..."></div>
+                        <div class="form-group"><label>٢٨- معدل نزولك فى اخر دايت:</label><input type="text" id="pPrevLossRate" class="form-control" placeholder="معدل النزول الأسبوعي..."></div>
                         <div class="form-group"><label>٢٨ مكرر- الوزن من سنتين (كجم):</label><input type="number" step="0.1" id="pWeight2Years" class="form-control" placeholder="الوزن السابق..."></div>
-                        <div class="form-group"><label>٢٩- السمنة او النحافه منذ الصغر ام فى مرحلة الشباب؟</label><input type="text" id="pSinceWhen" class="form-control" placeholder="منذ الصغر / مرحلة الشباب..."></div>
+                        <div class="form-group"><label>٢٩- السمنه او النحافه منذ الصغر ام فى مرحلة الشباب؟</label><input type="text" id="pSinceWhen" class="form-control" placeholder="منذ الصغر / مرحلة الشباب..."></div>
                     </div>
                 </div>
 
-                <!-- قسم اللايف ستايل اليومي التفصيلي (النقطة 30) -->
+                <!-- قسم اللايف ستايل اليومي التفصيلي ونظام الدايت المقترح -->
                 <div class="card">
-                    <h3 class="section-title">5️⃣ اللايف ستايل اليومي التفصيلي (النقطة ٣٠)</h3>
+                    <h3 class="section-title">5️⃣ اللايف ستايل اليومي واختيار نظام الدايت (النقطة ٣٠)</h3>
+                    <div class="form-group" style="margin-bottom: 15px;">
+                        <label style="font-weight: bold; color: var(--accent-blue);">🥗 اختيار نوع النظام الغذائي الجديد (مطابق للمخطط الغذائي):</label>
+                        <select id="pSelectedDietType" class="form-control" style="background: #fff; font-weight: bold; color: var(--primary-green);">
+                            <option value="balanced">نظام غذائي متوازن (Balanced Diet)</option>
+                            <option value="low_carb">نظام قليل النشويات (Low-Carb Diet)</option>
+                            <option value="keto">نظام الكيتو دايت (Keto Diet)</option>
+                            <option value="intermittent">نظام الصيام المتقطع (Intermittent Fasting)</option>
+                            <option value="high_protein">نظام عالي البروتين (High-Protein / Muscle Building)</option>
+                            <option value="bariatric">نظام ما بعد جراحات السمنة (Bariatric Post-Op)</option>
+                        </select>
+                    </div>
+
                     <div class="form-group">
                         <label>٣٠- اكتب اخر لايف ستايل يوم كامل ليك (مثال: رغيف بلدى، قهوة بلبن، مواعيد الوجبات، التفكير في الأكل أو الحلويات):</label>
                         <textarea id="pDailyLifestyle" class="form-control" rows="4" placeholder="اكتب تفاصيل يومك الغذائي هنا بالتفصيل (مثل الوجبات والمواعيد وشعورك بالجوع الليلي والحلويات)..."></textarea>
@@ -214,13 +251,21 @@
 
             let name = document.getElementById('pName').value;
             let age = parseFloat(document.getElementById('pAge').value) || 30;
+            let gender = document.getElementById('pGender').value;
             let weight = parseFloat(document.getElementById('pWeight').value) || 75;
             let height = parseFloat(document.getElementById('pHeight').value) || 170;
             let lifestyle = document.getElementById('pDailyLifestyle').value;
+            let dietTypeSelect = document.getElementById('pSelectedDietType');
+            let selectedDietName = dietTypeSelect.options[dietTypeSelect.selectedIndex].text;
             let mainGoal = document.getElementById('pMainGoal').value || 'خسارة وزن';
             let meatPref = document.getElementById('pMeatPref').value || 'كلاهما';
 
-            let bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            // معادلة BMR دقيقة حسب النوع
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
+            if (gender === 'male') bmr += 5;
+            else if (gender === 'female') bmr -= 161;
+            else bmr -= 78; // متوسط لـ "آخر"
+
             let tdee = bmr * 1.375;
             let targetCalories = Math.round(tdee - 500);
 
@@ -228,18 +273,19 @@
             let fatGrams = Math.round((targetCalories * 0.25) / 9);
             let carbGrams = Math.round((targetCalories - (proteinGrams * 4) - (fatGrams * 9)) / 4);
 
-            let aiPlanText = `🌟 تقرير وتحليل اللايف ستايل للحالة: ${name}
+            let aiPlanText = `🌟 تقرير وتحليل اللايف ستايل والنظام المختار: ${name}
+- نظام الدايت المختار: ${selectedDietName}
 - الهدف: ${mainGoal} | التفضيل البروتيني: ${meatPref}
-- تحليل يومك الغذائي: تم رصد نمط الأكل المتأخر بالليل والرغبة في السكريات، وتم وضع استراتيجية لتوزيع النشويات ومواجهة الجوع الليلي ببدائل صحية.
+- تحليل يومك الغذائي: تم دراسة اللايف ستايل اليومي وتوزيع الماكروز لتتناسب تماماً مع طبيعة حياتك ومواعيدك.
 
 ☀️ وجبة الإفطار:
-- رغيف بلدي صغير (أو 2 توست) + بيضتان أو جبنة قريش + قهوة بالحليب حسب الرغبة.
+- خيارات الإفطار المتوافقة مع نظام (${selectedDietName}): خبز أسمر أو توست + بروتين صحي (بيض أو جبنة قريش) + مشروب مفضل.
 
 🌙 وجبة الغداء:
-- مصدر البروتين المفضل (${meatPref}) مشوي أو مسلوق + 5 ملاعق أرز أو مسطردة وبطاطس + سلطة خضراء غنية.
+- طبق متكامل يحتوي على بروتين (${meatPref}) + نشويات صحية + سلطة خضراء غنية.
 
-🍫 سناك ليلي (لمواجهة الرغبة في المسكرات والتفكير في الأكل):
-- زبادي يوناني مع قرفة أو ثمرة فاكهة مع بضع حبات لوز، أو مكعبي شوكولاتة داكنة.
+🍫 سناك ومقاومة الجوع الليلي:
+- خيارات خفيفة لتعديل المزاج ومقاومة شراهة السكريات ليلاً.
 `;
 
             document.getElementById('resBmr').innerText = Math.round(bmr);
@@ -260,10 +306,10 @@
                 height: height,
                 category: mainGoal,
                 diet_plan: aiPlanText,
-                notes: `التقييم الشامل (30 نقطة): ${lifestyle}`
+                notes: `التقييم الشامل (30 نقطة) - النظام (${selectedDietName}): ${lifestyle}`
             };
 
-            alert('✨ تم تحليل الـ 30 نقطة وحساب السعرات وتوليد الخطة الذكية بنجاح!');
+            alert('✨ تم تحليل الـ 30 نقطة واختيار نظام الدايت وتوليد الخطة الذكية بنجاح!');
         }
 
         async function saveIntakeToSQL() {
@@ -274,9 +320,22 @@
         }
 
         function downloadIntakePDF() {
+            // إظهار رأس بيانات الدكتور في الـ PDF فقط عند التحميل
+            document.getElementById('pdfDoctorBanner').style.display = 'block';
+
             const element = document.getElementById('printableArea');
-            const opt = { margin: 5, filename: 'Patient-Assessment-Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
-            html2pdf().from(element).set(opt).save();
+            const opt = { 
+                margin: 5, 
+                filename: 'Patient-Assessment-Report.pdf', 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                // إخفاء رأس الدكتور مرة أخرى بعد الانتهاء من التحميل
+                document.getElementById('pdfDoctorBanner').style.display = 'none';
+            });
         }
 
         function sendIntakeWhatsApp() {
