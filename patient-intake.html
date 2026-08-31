@@ -41,7 +41,6 @@
 
         .pdf-doctor-banner { display: none; text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 12px; margin-bottom: 15px; }
 
-        /* نافذة اختيار نوع النظام (يومي، أسبوعي، شامل) */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; max-width: 90%; box-shadow: 0 4px 15px rgba(0,0,0,0.2); text-align: center; }
         .plan-option-btn { width: 100%; background: #f8fafc; border: 1px solid var(--card-border); padding: 12px; border-radius: 10px; font-weight: bold; font-size: 13px; color: var(--text-dark); cursor: pointer; margin-bottom: 10px; transition: 0.2s; text-align: right; display: flex; align-items: center; gap: 10px; }
@@ -99,7 +98,10 @@
                 <h1>📋 استمارة التاريخ المرضي والتغذوي الشامل (30 نقطة)</h1>
                 <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">الاستمارة الإكلينيكية الكاملة لجمع بيانات الحالة وتوليد النظام بالـ AI</p>
             </div>
-            <button onclick="window.location.href='patients.html'" class="action-btn" style="background: var(--text-dark);">👥 العودة للمرضى</button>
+            <div style="display: flex; gap: 8px;">
+                <button onclick="enableFullEditMode()" class="action-btn" style="background: var(--warning-orange);">✏️ تفعيل التعديل الكامل</button>
+                <button onclick="window.location.href='patients.html'" class="action-btn" style="background: var(--text-dark);">👥 العودة للمرضى</button>
+            </div>
         </div>
 
         <div id="printableArea">
@@ -117,10 +119,11 @@
             </div>
 
             <form onsubmit="openPlanTypeModal(event)">
-                <!-- 1. البيانات الأساسية -->
+                <!-- 1. البيانات الأساسية متضمنة كود المريض -->
                 <div class="card">
                     <h3 class="section-title">1️⃣ البيانات الأساسية والقياسات الشخصية</h3>
                     <div class="form-grid">
+                        <div class="form-group"><label>🏷️ كود المريض (Patient Code):</label><input type="text" id="pCode" class="form-control" placeholder="مثال: SS-0001" required></div>
                         <div class="form-group"><label>١- الاسم:</label><input type="text" id="pName" class="form-control" placeholder="الاسم الرباعي..." required></div>
                         <div class="form-group"><label>٢- السن:</label><input type="number" id="pAge" class="form-control" value="30" required></div>
                         <div class="form-group">
@@ -138,7 +141,7 @@
                     </div>
                 </div>
 
-                <!-- 2. الحالة الصحية -->
+                <!-- 2. الحالة الصحية والأدوية والنشاط -->
                 <div class="card">
                     <h3 class="section-title">2️⃣ الحالة الصحية والأدوية والنشاط اليومي</h3>
                     <div class="form-grid">
@@ -162,7 +165,7 @@
                     </div>
                 </div>
 
-                <!-- 4. السلوك الغذائي -->
+                <!-- 4. السلوك الغذائي والمشروبات والأهداف -->
                 <div class="card">
                     <h3 class="section-title">4️⃣ السلوك الغذائي والمشروبات والأهداف</h3>
                     <div class="form-grid">
@@ -229,7 +232,7 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
-                    <button onclick="saveIntakeToSQL()" class="action-btn" style="background: var(--primary-green); flex:1; justify-content:center;">💾 حفظ الحالة والتقييم في SQL</button>
+                    <button onclick="saveIntakeToSQL()" class="action-btn" style="background: var(--primary-green); flex:1; justify-content:center;">💾 حفظ أو تحديث الحالة في SQL</button>
                     <button onclick="downloadIntakePDF()" class="action-btn" style="background: var(--warning-orange); flex:1; justify-content:center;">📥 تحميل وتصدير PDF (A4)</button>
                     <button onclick="sendIntakeWhatsApp()" class="action-btn" style="background: #25d366; flex:1; justify-content:center;">💬 إرسال واتساب</button>
                 </div>
@@ -237,7 +240,7 @@
         </div>
     </div>
 
-    <!-- نافذة اختيار نوع النظام (يومي، أسبوعي، شامل) -->
+    <!-- نافذة اختيار نطاق النظام -->
     <div id="planTypeModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; color:var(--text-dark); border-bottom:1px solid #eee; padding-bottom:10px;">🎯 اختر نطاق النظام الغذائي المطلوب</h3>
@@ -277,13 +280,64 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let generatedPlanPayload = null;
+        let existingRecordId = null;
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // الخطوة الأولى: فتح نافذة الاختيار عند الضغط على زر التوليد
+        // عند فتح الصفحة، لو مبعوث كود أو اسم مريض في الـ URL، بنستدعي بياناته من SQL للتعديل
+        async function loadPatientDataForEditing() {
+            const urlParams = new URLSearchParams(window.location.search);
+            let codeParam = urlParams.get('code') || urlParams.get('name');
+            if (!codeParam) return;
+
+            const { data, error } = await supabaseClient.from('patients').select('*').or(`patient_code.eq.${codeParam},patient_name.ilike.%${codeParam}%`).limit(1);
+            if (data && data.length > 0) {
+                let p = data[0];
+                existingRecordId = p.id;
+                document.getElementById('pCode').value = p.patient_code || '';
+                document.getElementById('pName').value = p.patient_name || '';
+                document.getElementById('pAge').value = p.age || 30;
+                document.getElementById('pGender').value = p.gender || 'male';
+                document.getElementById('pHeight').value = p.height || 175;
+                document.getElementById('pWeight').value = p.weight || 85;
+                document.getElementById('pMarital').value = p.marital_status || '';
+                document.getElementById('pBlood').value = p.blood_type || '';
+                document.getElementById('pHealth').value = p.health_status || '';
+                document.getElementById('pSport').value = p.sport_activity || '';
+                document.getElementById('pDietPills').value = p.diet_pills || '';
+                document.getElementById('pWork').value = p.work_nature || '';
+                document.getElementById('pHairAnemia').value = p.hair_loss_anemia || '';
+                document.getElementById('pMealTimes').value = p.meal_times || '';
+                document.getElementById('pPrevDiets').value = p.prev_diets || '';
+                document.getElementById('pPrevDietDetails').value = p.prev_diet_details || '';
+                document.getElementById('pGenetic').value = p.genetic_obesity || '';
+                document.getElementById('pFatDistrib').value = p.fat_distribution || '';
+                document.getElementById('pFoodProblem').value = p.food_problem || '';
+                document.getElementById('pMetabolism').value = p.metabolism_feeling || '';
+                document.getElementById('pDrinks').value = p.drinks_habits || '';
+                document.getElementById('pCravings').value = p.cravings || '';
+                document.getElementById('pMeatPref').value = p.meat_preference || '';
+                document.getElementById('pTargetWeight').value = p.target_weight || '';
+                document.getElementById('pGoalReason').value = p.weight_loss_goal || '';
+                document.getElementById('pAppetiteControl').value = p.appetite_control || '';
+                document.getElementById('pMainGoal').value = p.main_goal || '';
+                document.getElementById('pCurrCalories').value = p.curr_calories || '';
+                document.getElementById('pPrevLossRate').value = p.prev_loss_rate || '';
+                document.getElementById('pWeight2Years').value = p.weight_2_years || '';
+                document.getElementById('pSinceWhen').value = p.obesity_since || '';
+                document.getElementById('pDailyLifestyle').value = p.daily_lifestyle || '';
+                
+                alert(`✨ تم استدعاء بيانات المريض (${p.patient_name}) بنجاح من SQL للتعديل المباشر!`);
+            }
+        }
+
+        function enableFullEditMode() {
+            alert('✏️ وضع التعديل الكامل مفعل. قم بتعديل البيانات التي تريدها ثم اضغط على زر التوليد والحفظ.');
+        }
+
         function openPlanTypeModal(event) {
             event.preventDefault();
             document.getElementById('planTypeModal').style.display = 'flex';
@@ -293,10 +347,10 @@
             document.getElementById('planTypeModal').style.display = 'none';
         }
 
-        // الخطوة الثانية: توليد النظام بناءً على الاختيار (يومي، أسبوعي، شامل)
         function generateSelectedPlan(planType) {
             closePlanTypeModal();
 
+            let code = document.getElementById('pCode').value || 'SS-' + Math.floor(1000 + Math.random() * 9000);
             let name = document.getElementById('pName').value || 'المريض';
             let age = parseFloat(document.getElementById('pAge').value) || 30;
             let gender = document.getElementById('pGender').value;
@@ -325,7 +379,7 @@
 
             if (planType === 'daily') {
                 planTitle = "☀️ نظام يومي (يوم واحد - 3 وجبات رئيسية + 3 سناكس)";
-                aiPlanText = `🌟 تقرير وتحليل اللايف ستايل (نظام يومي مخصص): ${name}
+                aiPlanText = `🌟 تقرير وتحليل اللايف ستايل (نظام يومي مخصص): ${name} (كود: ${code})
 - النظام المختار: ${selectedDietName} | الهدف: ${mainGoal}
 
 🍳 وجبة الإفطار (1):
@@ -349,35 +403,34 @@
 `;
             } else if (planType === 'weekly') {
                 planTitle = "📅 جدول أسبوعي متكامل (7 أيام)";
-                aiPlanText = `🌟 تقرير وتحليل اللايف ستايل (نظام أسبوعي 7 أيام): ${name}
+                aiPlanText = `🌟 تقرير وتحليل اللايف ستايل (نظام أسبوعي 7 أيام): ${name} (كود: ${code})
 - النظام المختار: ${selectedDietName} | الهدف: ${mainGoal}
 
 📅 اليوم الأول والثاني (بداية الأسبوع):
 - إفطار: توست أسمر + بيض أومليت بالخضار.
 - غداء: صدور دجاج مشوية + أرز بسمتي + سلطة.
 - عشاء: زبادي يوناني وثمرة فاكهة.
-- السناكس: مكسرات وفاكهة.
 
 📅 اليوم الثالث والرابع (منتصف الأسبوع):
 - إفطار: فول زيت وليمون + نصف رغيف بلدي.
 - غداء: لحم مفروم مشوي أو تونة مصفاة + بطاطس مسلوقة + خضار سوتيه.
 - عشاء: جبنة قريش وطماطم وخيار.
 
-📅 اليوم الخامس والسادس والسابع (نهاية الأسبوع والأوبن ميال):
+📅 اليوم الخامس والسادس والسابع (نهاية الأسبوع):
 - إفطار: شوفان بالحليب أو بينت برجر وتوست.
-- غداء: أسماك مشوية (سيموني أو بوري) + أرز أبيض أو سلطة بحرية.
+- غداء: أسماك مشوية + أرز أبيض أو سلطة بحرية.
 - عشاء: بيض مقلي بزيت الزيتون وخضار.
 `;
             } else {
                 planTitle = "📊 خطة شاملة وممتدة للفترة الحالية";
-                aiPlanText = `🌟 تقرير وتحليل اللايف ستايل (خطة شاملة وممتدة): ${name}
+                aiPlanText = `🌟 تقرير وتحليل اللايف ستايل (خطة شاملة وممتدة): ${name} (كود: ${code})
 - النظام المختار: ${selectedDietName} | الهدف: ${mainGoal}
 
 1️⃣ استراتيجية الأسبوع الأول والثاني (مرحلة التهيئة):
-- التركيز على الالتزام بالمواعيد، إلغاء السكريات المصنعة تماماً، والتركيز على الوجبات الرئيسية ومواجهة الجوع الليلي ببدائل بروتينية (زبادي وقريش).
+- التركيز على الالتزام بالمواعيد، إلغاء السكريات المصنعة تماماً، ومواجهة الجوع الليلي ببدائل بروتينية.
 
 2️⃣ استراتيجية الأسبوع الثالث والرابع (مرحلة التكثيف):
-- إدخال نظام الصيام المتقطع أو تقليل النشويات تدريجياً لكسر ثبات الوزن وزيادة معدل الحرق بناءً على اللايف ستايل اليومي المسجل.
+- تقليل النشويات تدريجياً لكسر ثبات الوزن وزيادة معدل الحرق بناءً على اللايف ستايل المسجل.
 
 3️⃣ استراتيجية الثبات والمتابعة:
 - شرب الماء بانتظام (3 لترات يومياً) وممارسة الرياضة الخفيفة (مشي 30 دقيقة يومياً).
@@ -395,25 +448,66 @@
 
             document.getElementById('resultsCard').style.display = 'block';
 
+            // تجهيز الباي لود الكامل المتضمن الـ 30 نقطة وكود العميل للـ SQL
             generatedPlanPayload = {
+                patient_code: code,
                 patient_name: name,
-                patient_code: 'SS-' + Math.floor(1000 + Math.random() * 9000),
+                age: age,
+                gender: gender,
+                height: height,
                 weight: weight,
                 start_weight: weight,
-                height: height,
-                category: mainGoal,
+                marital_status: document.getElementById('pMarital').value,
+                blood_type: document.getElementById('pBlood').value,
+                health_status: document.getElementById('pHealth').value,
+                sport_activity: document.getElementById('pSport').value,
+                diet_pills: document.getElementById('pDietPills').value,
+                work_nature: document.getElementById('pWork').value,
+                hair_loss_anemia: document.getElementById('pHairAnemia').value,
+                meal_times: document.getElementById('pMealTimes').value,
+                prev_diets: document.getElementById('pPrevDiets').value,
+                prev_diet_details: document.getElementById('pPrevDietDetails').value,
+                genetic_obesity: document.getElementById('pGenetic').value,
+                fat_distribution: document.getElementById('pFatDistrib').value,
+                food_problem: document.getElementById('pFoodProblem').value,
+                metabolism_feeling: document.getElementById('pMetabolism').value,
+                drinks_habits: document.getElementById('pDrinks').value,
+                cravings: document.getElementById('pCravings').value,
+                meat_preference: meatPref,
+                target_weight: parseFloat(document.getElementById('pTargetWeight').value) || null,
+                weight_loss_goal: document.getElementById('pGoalReason').value,
+                appetite_control: document.getElementById('pAppetiteControl').value,
+                main_goal: mainGoal,
+                curr_calories: document.getElementById('pCurrCalories').value,
+                prev_loss_rate: document.getElementById('pPrevLossRate').value,
+                weight_2_years: parseFloat(document.getElementById('pWeight2Years').value) || null,
+                obesity_since: document.getElementById('pSinceWhen').value,
+                daily_lifestyle: lifestyle,
                 diet_plan: aiPlanText,
-                notes: `التقييم الشامل (30 نقطة) - نطاق (${planType}) - النظام (${selectedDietName}): ${lifestyle}`
+                category: mainGoal,
+                notes: `التقييم الشامل (30 نقطة) - نطاق (${planType}) - النظام (${selectedDietName})`
             };
 
             alert('✨ تم توليد النظام الغذائي واختيار النطاق المطلوب بنجاح!');
         }
 
+        // حفظ أو تحديث بيانات المريض والـ 30 نقطة في SQL
         async function saveIntakeToSQL() {
             if (!generatedPlanPayload) return;
-            const { error } = await supabaseClient.from('patients').insert([generatedPlanPayload]);
-            if (error) { alert('خطأ في الحفظ: ' + error.message); return; }
-            alert('✨ تم حفظ الحالة في قاعدة بيانات SQL بنجاح!');
+
+            let res;
+            if (existingRecordId) {
+                res = await supabaseClient.from('patients').update(generatedPlanPayload).eq('id', existingRecordId);
+            } else {
+                res = await supabaseClient.from('patients').insert([generatedPlanPayload]);
+            }
+
+            if (res.error) {
+                alert('خطأ أثناء الحفظ في SQL: ' + res.error.message);
+                return;
+            }
+
+            alert('✨ تم حفظ أو تحديث بيانات المريض والـ 30 نقطة بالكامل بنجاح في قاعدة بيانات SQL!');
         }
 
         function downloadIntakePDF() {
@@ -433,9 +527,11 @@
 
         function sendIntakeWhatsApp() {
             if (!generatedPlanPayload) return;
-            let msg = `🌟 أهلاً بك يا ${generatedPlanPayload.patient_name}\n\nإليك تقييمك الشامل وخطتك الغذائية:\n\n${generatedPlanPayload.diet_plan}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
+            let msg = `🌟 أهلاً بك يا ${generatedPlanPayload.patient_name} (كود: ${generatedPlanPayload.patient_code})\n\nإليك تقييمك الشامل وخطتك الغذائية:\n\n${generatedPlanPayload.diet_plan}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
+
+        window.onload = loadPatientDataForEditing;
     </script>
 </body>
 </html>
