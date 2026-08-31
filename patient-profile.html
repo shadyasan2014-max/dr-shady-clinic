@@ -407,9 +407,16 @@
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة الـ PDF الشاملة والمظبوطة باللوجو، التليفون، الرسم البياني، وباقي البيانات
+        // دالة الـ PDF الشاملة والمضمونة 100% لعرض اللوجو، التليفون، المربعات، والمنحنى بدقة
         async function downloadPatientPDF() {
-            let docInfo = { name: "د. شادي سمير", title: "استشاري التغذية العلاجية وجراحات السمنة", branch: "القاهرة، مصر", phone: "010xxxxxxxx", logo: "logo.jpeg" };
+            let docInfo = { 
+                name: "د. شادي سمير", 
+                title: "استشاري التغذية العلاجية وجراحات السمنة", 
+                branch: "القاهرة، مصر", 
+                phone: "010xxxxxxxx", 
+                logo: "logo.jpeg" 
+            };
+
             try {
                 const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
                 if (settingsData && settingsData.length > 0) {
@@ -425,20 +432,23 @@
             let patientName = document.getElementById('pName').innerText;
             let patientCode = document.getElementById('pCodeBadge').innerText;
             let patientPhone = activePatient.phone || 'غير مسجل';
+            
             let surgeryType = document.getElementById('mSurgeryType').innerText;
             let surgeryDate = document.getElementById('mSurgeryDate').innerText;
+            let prevFollowup = document.getElementById('mPrevFollowup').innerText;
+            let currFollowup = document.getElementById('mCurrFollowup').innerText;
             let currWeight = document.getElementById('mCurrentWeight').innerText;
             let bmiValue = document.getElementById('mBMI').innerText;
             let fatVal = document.getElementById('mFat').innerText;
             let muscleVal = document.getElementById('mMuscle').innerText;
+            
             let dietPlanText = document.getElementById('pDietPlan').innerText;
             let notesText = document.getElementById('pNotes').innerText;
 
-            // تحويل الرسم البياني (Chart) إلى صورة Base64 لضمان ظهوره في الـ PDF
             let chartImageHtml = '';
             if (weightChartInstance) {
                 let chartBase64 = weightChartInstance.toBase64Image();
-                chartImageHtml = `<div style="margin-bottom: 15px; text-align: center;"><h4 style="color: #0b1329; font-size: 12px; margin-bottom: 5px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 150px; object-fit: contain;" /></div>`;
+                chartImageHtml = `<div style="margin-bottom: 12px; text-align: center;"><h4 style="color: #0b1329; font-size: 12px; margin-bottom: 4px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 130px; object-fit: contain;" /></div>`;
             }
 
             let printContainer = document.createElement('div');
@@ -446,33 +456,42 @@
             printContainer.style.cssText = "direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 15px; background: #ffffff; color: #1e293b; width: 190mm; box-sizing: border-box;";
 
             printContainer.innerHTML = `
-                <!-- رأس بيانات الدكتور والعيادة والشعار ورقم التليفون من SQL -->
-                <table style="width: 100%; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px; direction: rtl;">
+                <!-- رأس بيانات الدكتور والعيادة والشعار ورقم التليفون -->
+                <table style="width: 100%; border-bottom: 2px solid #10b981; padding-bottom: 8px; margin-bottom: 12px; direction: rtl;">
                     <tr>
                         <td style="text-align: right; vertical-align: middle;">
-                            <h2 style="margin: 0; color: #0b1329; font-size: 18px;">${docInfo.name}</h2>
+                            <h2 style="margin: 0; color: #0b1329; font-size: 17px;">${docInfo.name}</h2>
                             <p style="margin: 2px 0; color: #10b981; font-weight: bold; font-size: 11px;">${docInfo.title}</p>
                             <p style="margin: 0; font-size: 10px; color: #64748b;">الفرع: ${docInfo.branch} | هاتف العيادة: ${docInfo.phone}</p>
                         </td>
                         <td style="text-align: left; vertical-align: middle;">
-                            <img src="${docInfo.logo}" crossorigin="anonymous" style="width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                            <img src="${docInfo.logo}" crossorigin="anonymous" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
                         </td>
                     </tr>
                 </table>
 
                 <!-- بيانات الحالة الشاملة -->
-                <table style="width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 15px; direction: rtl;">
+                <table style="width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px; margin-bottom: 10px; direction: rtl; font-size: 11px;">
                     <tr>
-                        <td style="text-align: right; vertical-align: middle;">
-                            <h3 style="margin: 0 0 3px 0; font-size: 14px; color: #0b1329;">اسم المريض: ${patientName}</h3>
-                            <p style="margin: 0; font-size: 11px; color: #64748b;">كود الحالة: <strong>${patientCode}</strong> | الهاتف: ${patientPhone}</p>
-                            <p style="margin: 2px 0 0 0; font-size: 11px; color: #64748b;">التصنيف / العملية: ${surgeryType} (تاريخ: ${surgeryDate})</p>
+                        <td style="text-align: right; vertical-align: middle; width: 50%;">
+                            <h3 style="margin: 0 0 3px 0; font-size: 13px; color: #0b1329;">اسم المريض: ${patientName}</h3>
+                            <p style="margin: 0 0 2px 0; color: #64748b;">كود الحالة: <strong>${patientCode}</strong> | الهاتف: ${patientPhone}</p>
+                            <p style="margin: 0; color: #64748b;">التصنيف: ${surgeryType}</p>
                         </td>
-                        <td style="text-align: left; vertical-align: middle;">
-                            <p style="margin: 0; font-size: 11px; color: #10b981; font-weight: bold;">الوزن الحالي: ${currWeight}</p>
-                            <p style="margin: 2px 0; font-size: 10px; color: #64748b;">مؤشر الكتلة BMI: ${bmiValue}</p>
-                            <p style="margin: 0; font-size: 10px; color: #64748b;">الدهون: ${fatVal} | العضلات: ${muscleVal}</p>
+                        <td style="text-align: right; vertical-align: middle; width: 50%; border-right: 1px solid #e2e8f0; padding-right: 10px;">
+                            <p style="margin: 0 0 2px 0; color: #10b981; font-weight: bold;">الوزن الحالي: ${currWeight} | BMI: ${bmiValue}</p>
+                            <p style="margin: 0 0 2px 0; color: #64748b;">الدهون: ${fatVal} | العضلات: ${muscleVal}</p>
+                            <p style="margin: 0; color: #64748b;">تاريخ العملية: ${surgeryDate}</p>
                         </td>
+                    </tr>
+                </table>
+
+                <!-- مربع التواريخ والمتابعة -->
+                <table style="width: 100%; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px; border-radius: 6px; margin-bottom: 12px; direction: rtl; font-size: 10px; text-align: center;">
+                    <tr>
+                        <td style="border-left: 1px solid #cbd5e1; padding: 4px;"><strong>تاريخ المتابعة الحالية</strong><br><span style="color: #10b981; font-weight: bold;">${currFollowup}</span></td>
+                        <td style="border-left: 1px solid #cbd5e1; padding: 4px;"><strong>تاريخ المتابعة السابقة</strong><br><span style="color: #f59e0b; font-weight: bold;">${prevFollowup}</span></td>
+                        <td style="padding: 4px;"><strong>تاريخ العملية</strong><br><span style="color: #3b82f6; font-weight: bold;">${surgeryDate}</span></td>
                     </tr>
                 </table>
 
@@ -480,28 +499,28 @@
                 ${chartImageHtml}
 
                 <!-- الخطة الغذائية والملاحظات الطبية -->
-                <div style="margin-bottom: 15px;">
-                    <h4 style="color: #166534; border-bottom: 1px solid #bbf7d0; padding-bottom: 4px; margin-bottom: 8px; font-size: 13px;">🥗 الخطة الغذائية المخصصة:</h4>
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; font-size: 11px; line-height: 1.7; white-space: pre-line; color: #14532d; text-align: right;">
+                <div style="margin-bottom: 12px;">
+                    <h4 style="color: #166534; border-bottom: 1px solid #bbf7d0; padding-bottom: 3px; margin-bottom: 6px; font-size: 12px;">🥗 الخطة الغذائية المخصصة:</h4>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.6; white-space: pre-line; color: #14532d; text-align: right;">
                         ${dietPlanText}
                     </div>
                 </div>
 
-                <div style="margin-bottom: 15px;">
-                    <h4 style="color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 8px; font-size: 13px;">📝 ملاحظات وتوصيات الطبيب:</h4>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.6; white-space: pre-line; color: #334155; text-align: right;">
+                <div style="margin-bottom: 10px;">
+                    <h4 style="color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-bottom: 6px; font-size: 12px;">📝 ملاحظات وتوصيات الطبيب:</h4>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 6px; font-size: 11px; line-height: 1.5; white-space: pre-line; color: #334155; text-align: right;">
                         ${notesText}
                     </div>
                 </div>
 
-                <!-- تذييل الصفحة (Footer) -->
-                <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 25px; font-size: 9px; color: #94a3b8;">
+                <!-- تذييل الصفحة -->
+                <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 20px; font-size: 9px; color: #94a3b8;">
                     تم إصدار هذا التقرير إلكترونياً من نظام عيادات ${docInfo.name} للتغذية العلاجية وجراحات السمنة.
                 </div>
             `;
 
             const opt = {
-                margin:       [10, 10, 10, 10],
+                margin:       [8, 8, 8, 8],
                 filename:     `Patient-Report-${patientCode}.pdf`,
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, scrollY: 0 },
