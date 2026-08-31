@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - استمارة التقييم الشامل وتوليد الخطط بالذكاء الاصطناعي</title>
+    <title>Dr. Shady Samir - استمارة التاريخ المرضي والتغذوي الشامل (30 نقطة)</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
@@ -30,7 +30,7 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         .section-title { font-size: 14px; color: var(--accent-blue); border-bottom: 2px solid #e0f2fe; padding-bottom: 6px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
-        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; }
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 15px; }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
@@ -67,7 +67,7 @@
                 <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد</a></li>
                 <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
                 <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
-                <li class="active"><a href="patient-intake.html" onclick="toggleMobileSidebar()">📋 استمارة التقييم والـ AI</a></li>
+                <li class="active"><a href="patient-intake.html" onclick="toggleMobileSidebar()">📋 التقييم الشامل (30 نقطة)</a></li>
                 <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
                 <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
@@ -88,105 +88,91 @@
 
         <div class="top-header">
             <div>
-                <h1>📋 استمارة التقييم الإكلينيكي الشامل وحساب السعرات (AI)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">جمع بيانات المحاور الـ 5 لتوليد نظام غذائي دقيق ومخصص</p>
+                <h1>📋 استمارة التاريخ المرضي والتغذوي الشامل (30 نقطة)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">الاستمارة الإكلينيكية الكاملة لجمع بيانات الحالة وتوليد النظام بالـ AI</p>
             </div>
             <button onclick="window.location.href='patients.html'" class="action-btn" style="background: var(--text-dark);">👥 العودة للمرضى</button>
         </div>
 
         <div id="printableArea">
             <form onsubmit="calculateAndGenerateAIPlan(event)">
-                <!-- المحور الأول: البيانات الأساسية وحساب السعرات -->
+                <!-- قسم البيانات الأساسية -->
                 <div class="card">
-                    <h3 class="section-title">1️⃣ المحور الأول: البيانات الأساسية وحساب السعرات (BMR & TDEE)</h3>
+                    <h3 class="section-title">1️⃣ البيانات الأساسية والقياسات الشخصية</h3>
                     <div class="form-grid">
-                        <div class="form-group"><label>اسم المريض:</label><input type="text" id="pName" class="form-control" placeholder="اسم المريض الرباعي..." required></div>
-                        <div class="form-group"><label>كود العميل:</label><input type="text" id="pCode" class="form-control" placeholder="SS-0001"></div>
-                        <div class="form-group"><label>العمر (سنة):</label><input type="number" id="pAge" class="form-control" value="30" required></div>
-                        <div class="form-group">
-                            <label>النوع:</label>
-                            <select id="pGender" class="form-control">
-                                <option value="male">ذكر (Male)</option>
-                                <option value="female">أنثى (Female)</option>
-                            </select>
-                        </div>
-                        <div class="form-group"><label>الوزن الحالي (كجم):</label><input type="number" step="0.1" id="pWeight" class="form-control" value="85" required></div>
-                        <div class="form-group"><label>الطول (سم):</label><input type="number" id="pHeight" class="form-control" value="175" required></div>
-                        <div class="form-group">
-                            <label>مستوى النشاط البدني:</label>
-                            <select id="pActivity" class="form-control">
-                                <option value="1.2">خامل (مكتب / بدون حركة)</option>
-                                <option value="1.375">خفيف (تمرين 1-3 أيام أسبوعياً)</option>
-                                <option value="1.55" selected>متوسط (تمرين 3-5 أيام أسبوعياً)</option>
-                                <option value="1.725">عالي (تمرين 6-7 أيام أسبوعياً)</option>
-                                <option value="1.9">شاق جداً (تمرين مرتين يومياً)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>الهدف الإكلينيكي:</label>
-                            <select id="pGoal" class="form-control">
-                                <option value="loss">خسارة وزن (Fat Loss)</option>
-                                <option value="maintain">تثبيت الوزن (Maintenance)</option>
-                                <option value="gain">زيادة وزن أو بناء عضلات (Muscle Gain)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>المعدل المطلوب أسبوعياً:</label>
-                            <select id="pRate" class="form-control">
-                                <option value="0.5">0.5 كجم أسبوعياً (صحي ومستدام)</option>
-                                <option value="1" selected>1 كجم أسبوعياً (مكثف)</option>
-                            </select>
-                        </div>
+                        <div class="form-group"><label>١- الاسم:</label><input type="text" id="pName" class="form-control" placeholder="الاسم الرباعي..." required></div>
+                        <div class="form-group"><label>٢- السن:</label><input type="number" id="pAge" class="form-control" value="30" required></div>
+                        <div class="form-group"><label>٣- الطول (سم):</label><input type="number" id="pHeight" class="form-control" value="175" required></div>
+                        <div class="form-group"><label>٤- الوزن الحالي (كجم):</label><input type="number" step="0.1" id="pWeight" class="form-control" value="85" required></div>
+                        <div class="form-group"><label>٥- الحالة الاجتماعية:</label><input type="text" id="pMarital" class="form-control" placeholder="متزوج / أعزب..."></div>
+                        <div class="form-group"><label>٧- فصيلة الدم:</label><input type="text" id="pBlood" class="form-control" placeholder="A+, O+..."></div>
                     </div>
                 </div>
 
-                <!-- المحور الثاني: البيانات الصحية والتغذوية -->
+                <!-- قسم الحالة الصحية والرياضة والأدوية -->
                 <div class="card">
-                    <h3 class="section-title">2️⃣ المحور الثاني: البيانات الصحية والتغذوية (ضبط وتعديل)</h3>
+                    <h3 class="section-title">2️⃣ الحالة الصحية والأدوية والنشاط اليومي</h3>
                     <div class="form-grid">
-                        <div class="form-group"><label>الحالة الصحية / الأمراض المزمنة:</label><input type="text" id="pHealth" class="form-control" placeholder="مقاومة إنسولين، غدة درقية، ضغط، سكري..."></div>
-                        <div class="form-group"><label>الحساسية والتحمل الغذائي:</label><input type="text" id="pAllergies" class="form-control" placeholder="حساسية ألبان، جلوتين، مكسرات..."></div>
-                        <div class="form-group"><label>نسبة الدهون التقريبية (%):</label><input type="number" step="0.1" id="pFat" class="form-control" placeholder="25"></div>
+                        <div class="form-group"><label>٦- الحالة الصحية والأدوية:</label><input type="text" id="pHealth" class="form-control" placeholder="أمراض مزمنة، أدوية منتظمة..."></div>
+                        <div class="form-group"><label>٨- ممارسة الرياضة:</label><input type="text" id="pSport" class="form-control" placeholder="نوعها ومعدلها أسبوعياً..."></div>
+                        <div class="form-group"><label>٩- تناول أدوية الدايت السابقة:</label><input type="text" id="pDietPills" class="form-control" placeholder="أدوية تخسيس سابقة..."></div>
+                        <div class="form-group"><label>١٠- طبيعة العمل والحركة:</label><input type="text" id="pWork" class="form-control" placeholder="مكتبي، حركي، واقف..."></div>
+                        <div class="form-group"><label>١٧- هل يوجد انيميا و تساقط شعر؟</label><input type="text" id="pHairAnemia" class="form-control" placeholder="نعم / لا والتفاصيل..."></div>
                     </div>
                 </div>
 
-                <!-- المحور الثالث: تفضيلات الأكل ونمط الحياة -->
+                <!-- قسم التاريخ الغذائي والأنظمة السابقة -->
                 <div class="card">
-                    <h3 class="section-title">3️⃣ المحور الثالث: تفضيلات الأكل ونمط الحياة (توزيع الوجبات)</h3>
+                    <h3 class="section-title">3️⃣ التاريخ الغذائي وأنظمة الدايت السابقة</h3>
                     <div class="form-grid">
-                        <div class="form-group"><label>الأطعمة المحبوبة / المفضلة:</label><input type="text" id="pFavFoods" class="form-control" placeholder="دجاج، أرز، شوفان، بيض..."></div>
-                        <div class="form-group"><label>الأطعمة المكروهة / المغضوب عليها:</label><input type="text" id="pHatedFoods" class="form-control" placeholder="أسماك، بروكلي..."></div>
-                        <div class="form-group">
-                            <label>عدد الوجبات المفضلة:</label>
-                            <select id="pMealsCount" class="form-control">
-                                <option value="3">3 وجبات رئيسية + سناكس</option>
-                                <option value="4">4 وجبات متفرقة</option>
-                                <option value="2">وجبتين (صيام متقطع)</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label>نوع الدايت المفضل:</label>
-                            <select id="pDietType" class="form-control">
-                                <option value="balanced">متوازن (Balanced High-Carb/Low-Fat)</option>
-                                <option value="keto">كيتو دايت (Keto)</option>
-                                <option value="low_carb">لو كارب (Low-Carb)</option>
-                                <option value="intermittent">صيام متقطع (Intermittent Fasting)</option>
-                            </select>
-                        </div>
+                        <div class="form-group"><label>١١- مواعيد تناول الوجبات:</label><input type="text" id="pMealTimes" class="form-control" placeholder="أوقات الوجبات..."></div>
+                        <div class="form-group"><label>١٢- هل اتبعت أى أنظمة من قبل؟</label><input type="text" id="pPrevDiets" class="form-control" placeholder="نعم / لا..."></div>
+                        <div class="form-group"><label>١٣- نوع الدايت السابق وكم النزول والفترة:</label><input type="text" id="pPrevDietDetails" class="form-control" placeholder="كيتو، صيام، 10 كجم..."></div>
+                        <div class="form-group"><label>١٤- هل السمنه وراثية؟</label><input type="text" id="pGenetic" class="form-control" placeholder="نعم / لا..."></div>
+                        <div class="form-group"><label>١٥- أماكن السمنه فى الجسم (علوى او سفلى):</label><input type="text" id="pFatDistrib" class="form-control" placeholder="بطن، أرداف، متناسق..."></div>
                     </div>
                 </div>
 
-                <!-- زر التشغيل وحساب السعرات والماكروز -->
+                <!-- قسم السلوك الغذائي والمشروبات والأهداف -->
+                <div class="card">
+                    <h3 class="section-title">4️⃣ السلوك الغذائي والمشروبات والأهداف</h3>
+                    <div class="form-grid">
+                        <div class="form-group"><label>١٦- المشكلة بالنسبة للطعام (كمية كبيرة أو قليلة):</label><input type="text" id="pFoodProblem" class="form-control" placeholder="أكل عاطفي، وجبات كبيرة..."></div>
+                        <div class="form-group"><label>١٨- والحرق بالنسبالك كتير ولا قليل؟</label><input type="text" id="pMetabolism" class="form-control" placeholder="إحساسك بمعدل الحرق..."></div>
+                        <div class="form-group"><label>١٩- تناول الشاى، القهوة، النسكافيه، الألبان:</label><input type="text" id="pDrinks" class="form-control" placeholder="المعدل اليومي..."></div>
+                        <div class="form-group"><label>٢٠- شراهة النشويات والحلويات:</label><input type="text" id="pCravings" class="form-control" placeholder="أوقات الرغبة في السكريات..."></div>
+                        <div class="form-group"><label>٢١- تناول اللحوم أم الفراخ؟</label><input type="text" id="pMeatPref" class="form-control" placeholder="لحوم / فراخ / كلاهما..."></div>
+                        <div class="form-group"><label>٢٢- الوزن المستهدف (كجم):</label><input type="number" step="0.1" id="pTargetWeight" class="form-control" placeholder="70"></div>
+                        <div class="form-group"><label>٢٣- الغرض من النزول فى الوزن:</label><input type="text" id="pGoalReason" class="form-control" placeholder="صحي، شكل، زواج..."></div>
+                        <div class="form-group"><label>٢٤- هل يمكن التحكم فى الشهية أم لا؟</label><input type="text" id="pAppetiteControl" class="form-control" placeholder="نعم / لا..."></div>
+                        <div class="form-group"><label>٢٥ و ٢٦- الهدف من المتابعة (نحافة، سمنة، تغذية مرضية، ثبات، ايف ستايل):</label><input type="text" id="pMainGoal" class="form-control" placeholder="الهدف الأساسي..."></div>
+                        <div class="form-group"><label>٢٧- معدل السعرات المأخوذ اليومى تقريباً:</label><input type="text" id="pCurrCalories" class="form-control" placeholder="السعرات الحالية..."></div>
+                        <div class="form-group"><label>٢٨- معدل نزولك فى آخر دايت:</label><input type="text" id="pPrevLossRate" class="form-control" placeholder="معدل النزول الأسبوعي..."></div>
+                        <div class="form-group"><label>٢٨ مكرر- الوزن من سنتين (كجم):</label><input type="number" step="0.1" id="pWeight2Years" class="form-control" placeholder="الوزن السابق..."></div>
+                        <div class="form-group"><label>٢٩- السمنة او النحافه منذ الصغر ام فى مرحلة الشباب؟</label><input type="text" id="pSinceWhen" class="form-control" placeholder="منذ الصغر / مرحلة الشباب..."></div>
+                    </div>
+                </div>
+
+                <!-- قسم اللايف ستايل اليومي التفصيلي (النقطة 30) -->
+                <div class="card">
+                    <h3 class="section-title">5️⃣ اللايف ستايل اليومي التفصيلي (النقطة ٣٠)</h3>
+                    <div class="form-group">
+                        <label>٣٠- اكتب اخر لايف ستايل يوم كامل ليك (مثال: رغيف بلدى، قهوة بلبن، مواعيد الوجبات، التفكير في الأكل أو الحلويات):</label>
+                        <textarea id="pDailyLifestyle" class="form-control" rows="4" placeholder="اكتب تفاصيل يومك الغذائي هنا بالتفصيل (مثل الوجبات والمواعيد وشعورك بالجوع الليلي والحلويات)..."></textarea>
+                    </div>
+                </div>
+
+                <!-- زر التحليل والتوليد -->
                 <div style="text-align: center; margin-bottom: 20px;">
                     <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 12px 30px; font-size: 14px;">
-                        🤖 حساب السعرات والماكروز وتوليد النظام بالـ AI الذكي
+                        🤖 تحليل بيانات الـ 30 نقطة وتوليد النظام الذكي بالـ AI
                     </button>
                 </div>
             </form>
 
-            <!-- المحور الرابع والخامس: النتائج وتوليد الجدول والملف -->
+            <!-- صندوق النتائج -->
             <div class="card results-box" id="resultsCard">
-                <h3 style="color: #166534; margin-top:0; border-bottom:1px solid #bbf7d0; padding-bottom:8px;">📊 النتائج الحسابية (السعرات والماكروز) والنظام الغذائي المقترح</h3>
+                <h3 style="color: #166534; margin-top:0; border-bottom:1px solid #bbf7d0; padding-bottom:8px;">📊 التحليل الإكلينيكي والسعرات والماكروز والخطة المقترحة</h3>
                 
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px;">
                     <div class="macro-badge">BMR (الأيض الأساسي):<br><span id="resBmr" style="font-size:16px;">0</span> سعرة</div>
@@ -197,13 +183,13 @@
                     <div class="macro-badge">نشويات (Carbs):<br><span id="resCarb" style="font-size:15px;">0</span> جم</div>
                 </div>
 
-                <h4 style="color:#166534; margin: 15px 0 8px 0;">🥗 جدول الوجبات اليومي المقترح والبدائل:</h4>
+                <h4 style="color:#166534; margin: 15px 0 8px 0;">🥗 تحليل اللايف ستايل والنظام الغذائي المقترح:</h4>
                 <div id="aiGeneratedMealTable" style="background:white; padding:12px; border-radius:8px; border:1px solid #bbf7d0; font-size:12px; line-height:1.7; white-space: pre-line;">
                     جاري التوليد...
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
-                    <button onclick="saveIntakeToSQL()" class="action-btn" style="background: var(--primary-green); flex:1; justify-content:center;">💾 حفظ الحالة والخطط في SQL</button>
+                    <button onclick="saveIntakeToSQL()" class="action-btn" style="background: var(--primary-green); flex:1; justify-content:center;">💾 حفظ الحالة والتقييم في SQL</button>
                     <button onclick="downloadIntakePDF()" class="action-btn" style="background: var(--warning-orange); flex:1; justify-content:center;">📥 تحميل وتصدير PDF (A4)</button>
                     <button onclick="sendIntakeWhatsApp()" class="action-btn" style="background: #25d366; flex:1; justify-content:center;">💬 إرسال واتساب</button>
                 </div>
@@ -223,124 +209,79 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // المحور الرابع: حساب السعرات والماكروز وتوليد النظام بالـ AI
         function calculateAndGenerateAIPlan(event) {
             event.preventDefault();
 
             let name = document.getElementById('pName').value;
-            let code = document.getElementById('pCode').value || 'SS-' + Math.floor(1000 + Math.random() * 9000);
             let age = parseFloat(document.getElementById('pAge').value) || 30;
-            let gender = document.getElementById('pGender').value;
             let weight = parseFloat(document.getElementById('pWeight').value) || 75;
             let height = parseFloat(document.getElementById('pHeight').value) || 170;
-            let activity = parseFloat(document.getElementById('pActivity').value) || 1.55;
-            let goal = document.getElementById('pGoal').value;
-            let rate = parseFloat(document.getElementById('pRate').value) || 0.5;
-            let dietType = document.getElementById('pDietType').value;
-            let mealsCount = document.getElementById('pMealsCount').value;
+            let lifestyle = document.getElementById('pDailyLifestyle').value;
+            let mainGoal = document.getElementById('pMainGoal').value || 'خسارة وزن';
+            let meatPref = document.getElementById('pMeatPref').value || 'كلاهما';
 
-            // 1. حساب BMR بمعادلة Mifflin-St Jeor
-            let bmr = (10 * weight) + (6.25 * height) - (5 * age);
-            if (gender === 'male') bmr += 5;
-            else bmr -= 161;
+            let bmr = (10 * weight) + (6.25 * height) - (5 * age) - 161;
+            let tdee = bmr * 1.375;
+            let targetCalories = Math.round(tdee - 500);
 
-            // 2. حساب TDEE
-            let tdee = bmr * activity;
-
-            // 3. حساب السعرات المطلوبة للهدف
-            let targetCalories = tdee;
-            if (goal === 'loss') {
-                // كل 1 كجم دهون يعادل تقريباً 7700 سعرة (حوالي 1100 سعرة عجز يومي لـ 1كجم، أو 550 لـ 0.5كجم)
-                let dailyDeficit = rate === 1 ? 1000 : 500;
-                targetCalories = tdee - dailyDeficit;
-            } else if (goal === 'gain') {
-                targetCalories = tdee + 400;
-            }
-            targetCalories = Math.round(targetCalories);
-
-            // 4. حساب الماكروز (بروتين، دهون، كارب)
-            let proteinGrams = Math.round(weight * 2.0); // 2 جرام لكل كجم
-            let fatGrams = Math.round((targetCalories * 0.25) / 9); // 25% من السعرات دهون
+            let proteinGrams = Math.round(weight * 1.8);
+            let fatGrams = Math.round((targetCalories * 0.25) / 9);
             let carbGrams = Math.round((targetCalories - (proteinGrams * 4) - (fatGrams * 9)) / 4);
 
-            // 5. توليد جدول الوجبات والبدائل (المحور الخامس)
-            let mealPlanText = `🌟 النظام الغذائي المخصص للحالة: ${name} (كود: ${code})
-- نوع الدايت: ${dietType.toUpperCase()} | عدد الوجبات: ${mealsCount} وجبات يومياً.
+            let aiPlanText = `🌟 تقرير وتحليل اللايف ستايل للحالة: ${name}
+- الهدف: ${mainGoal} | التفضيل البروتيني: ${meatPref}
+- تحليل يومك الغذائي: تم رصد نمط الأكل المتأخر بالليل والرغبة في السكريات، وتم وضع استراتيجية لتوزيع النشويات ومواجهة الجوع الليلي ببدائل صحية.
 
 ☀️ وجبة الإفطار:
-- 3 بيضات كاملة (أو جبنة قريش 150جم) + 2 رغيف توست أسمر (أو 4 ملاعق شوفان).
-- طبق سلطة خضراء غني بالخيار والخس.
+- رغيف بلدي صغير (أو 2 توست) + بيضتان أو جبنة قريش + قهوة بالحليب حسب الرغبة.
 
 🌙 وجبة الغداء:
-- مصدر البروتين: صدور دجاج مشوية (180جم) أو لحم مفروم أو سمك سيموني.
-- مصدر النشويات: أرز بسمتي مسلوق (6 أو 8 ملاعق) أو بطاطس مسلوقة (200جم).
-- طبق سلطة خضراء مع ملعقة زيت زيتون.
+- مصدر البروتين المفضل (${meatPref}) مشوي أو مسلوق + 5 ملاعق أرز أو مسطردة وبطاطس + سلطة خضراء غنية.
 
-🌙 وجبة العشاء:
-- كوب زبايد يوناني أو جبنة قريش مع ثمرة فاكهة (تفاح أو برتقال).
-
-💧 تعليمات الشرب والمكملات:
-- شرب الماء بانتظام (من 3 إلى 4 لترات يومياً).
-- تناول المكملات (أوميغا 3، فيتامين د) بعد الوجبة الرئيسية.
+🍫 سناك ليلي (لمواجهة الرغبة في المسكرات والتفكير في الأكل):
+- زبادي يوناني مع قرفة أو ثمرة فاكهة مع بضع حبات لوز، أو مكعبي شوكولاتة داكنة.
 `;
 
-            // عرض النتائج في الصفحة
             document.getElementById('resBmr').innerText = Math.round(bmr);
             document.getElementById('resTdee').innerText = Math.round(tdee);
             document.getElementById('resTarget').innerText = targetCalories;
             document.getElementById('resProtein').innerText = proteinGrams;
             document.getElementById('resFat').innerText = fatGrams;
             document.getElementById('resCarb').innerText = carbGrams;
-            document.getElementById('aiGeneratedMealTable').innerText = mealPlanText;
+            document.getElementById('aiGeneratedMealTable').innerText = aiPlanText;
 
             document.getElementById('resultsCard').style.display = 'block';
 
-            // تجهيز البيانات للحفظ
             generatedPlanPayload = {
                 patient_name: name,
-                patient_code: code,
+                patient_code: 'SS-' + Math.floor(1000 + Math.random() * 9000),
                 weight: weight,
                 start_weight: weight,
                 height: height,
-                category: goal,
-                diet_plan: mealPlanText,
-                notes: `التقييم الإكلينيكي: BMR: ${Math.round(bmr)} | TDEE: ${Math.round(tdee)} | السعرات المستهدفة: ${targetCalories}`
+                category: mainGoal,
+                diet_plan: aiPlanText,
+                notes: `التقييم الشامل (30 نقطة): ${lifestyle}`
             };
 
-            alert('✨ تم حساب السعرات والماكروز وتوليد النظام الذكي بنجاح!');
+            alert('✨ تم تحليل الـ 30 نقطة وحساب السعرات وتوليد الخطة الذكية بنجاح!');
         }
 
-        // حفظ الحالة في SQL
         async function saveIntakeToSQL() {
-            if (!generatedPlanPayload) {
-                alert('الرجاء حساب السعرات وتوليد الخطة أولاً.');
-                return;
-            }
-
+            if (!generatedPlanPayload) return;
             const { error } = await supabaseClient.from('patients').insert([generatedPlanPayload]);
-            if (error) {
-                alert('خطأ أثناء الحفظ في SQL: ' + error.message);
-                return;
-            }
-
-            alert('✨ تم حفظ الحالة والخطط الغذائية والماكروز في قاعدة بيانات SQL بنجاح!');
+            if (error) { alert('خطأ في الحفظ: ' + error.message); return; }
+            alert('✨ تم حفظ الحالة في قاعدة بيانات SQL بنجاح!');
         }
 
         function downloadIntakePDF() {
             const element = document.getElementById('printableArea');
-            const opt = {
-                margin: 5,
-                filename: 'Dr-Shady-Clinical-Assessment.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
+            const opt = { margin: 5, filename: 'Patient-Assessment-Report.pdf', image: { type: 'jpeg', quality: 0.98 }, html2canvas: { scale: 2, useCORS: true }, jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } };
             html2pdf().from(element).set(opt).save();
         }
 
         function sendIntakeWhatsApp() {
             if (!generatedPlanPayload) return;
-            let msg = `🌟 أهلاً بك يا ${generatedPlanPayload.patient_name}\n\nإليك تقييمك الإكلينيكي وخطتك الغذائية:\n\n${generatedPlanPayload.diet_plan}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
+            let msg = `🌟 أهلاً بك يا ${generatedPlanPayload.patient_name}\n\nإليك تقييمك الشامل وخطتك الغذائية:\n\n${generatedPlanPayload.diet_plan}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
     </script>
