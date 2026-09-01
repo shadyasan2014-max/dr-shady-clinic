@@ -1,112 +1,175 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
-<script src="clinic-core.js"></script>
-
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - القياسات الحيوية وتطور الوزن (SQL Live)</title>
+    <title>Dr. Shady Samir - سجل القياسات الحيوية وتطور الوزن</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي للـ Select والـ Active */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
+        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي المطلوب */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; border: 1px solid var(--card-border); }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
+        
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
+        
+        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
+        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
+
+        .action-btn { border: none; padding: 9px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: white; background: var(--primary-green); }
+
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
+
+        /* نافذة تسجيل قياس جديد مع استدعاء الحالة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
                 <p>عيادة التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="index.html">🏠 الرئيسية</a></li>
-                <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="appointments.html">📅 المواعيد</a></li>
-                <li><a href="visits.html">📋 الزيارات</a></li>
-                <li class="active"><a href="measurements.html">⚖️ القياسات</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية</a></li>
-                <li><a href="food-database.html">🍲 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل</a></li>
-                <li><a href="supplements.html">💊 المكملات</a></li>
-                <li><a href="bariatric.html">🩺 جراحات السمنة</a></li>
-                <li><a href="payments.html">💰 المدفوعات</a></li>
-                <li><a href="reports.html">📊 التقارير</a></li>
-                <li><a href="notifications.html">🔔 التنبيهات</a></li>
-                <li><a href="doctors.html">👨‍⚕️ الأطباء والطاقم</a></li>
-                <li><a href="settings.html">⚙️ الإعدادات</a></li>
+                <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
+                <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد</a></li>
+                <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
+                <li class="active"><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
+                <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
+                <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
+
         <div class="top-header">
-            <h1>⚖️ سجل القياسات الحيوية وتطور الوزن (SQL Live)</h1>
-            <button class="btn-action" onclick="openModal()">+ تسجيل قياس جديد</button>
+            <div>
+                <h1>⚖️ سجل القياسات الحيوية وتطور الوزن (SQL Live)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">استعراض وتسجيل القياسات الجديدة للمرضى المسجلين</p>
+            </div>
+            <button onclick="openNewMeasurementModal()" class="action-btn" style="background: var(--primary-green);">➕ تسجيل قياس جديد (استدعاء حالة)</button>
         </div>
 
         <div class="card">
-            <h3>📋 جدول أوزان وقياسات الحالات</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم المريض</th>
-                        <th>الوزن الحالي (كجم)</th>
-                        <th>نسبة الدهون (%)</th>
-                        <th>كتلة العضلات (كجم)</th>
-                        <th>تاريخ القياس</th>
-                        <th>الإجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="measureTableBody">
-                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب القياسات من قاعدة البيانات...</td></tr>
-                </tbody>
-            </table>
+            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📋 جدول أوزان وقياسات الحالات</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المريض وكود العميل</th>
+                            <th>الوزن الحالي (كجم)</th>
+                            <th>نسبة الدهون (%)</th>
+                            <th>كتلة العضلات (كجم)</th>
+                            <th>تاريخ القياس</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="measurementsTableBody">
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray);">جاري تحميل القياسات من قاعدة البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- Modal -->
-    <div id="measureModal" class="modal-overlay">
+    <!-- نافذة تسجيل قياس جديد مع استدعاء الحالة -->
+    <div id="newMeasurementModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل قياس حيوي جديد</h3>
-            <form onsubmit="saveMeasurement(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="mPatient" class="form-control" required placeholder="اسم المريض..."></div>
-                <div class="form-group"><label>الوزن (كجم):</label><input type="number" step="0.1" id="mWeight" class="form-control" required placeholder="مثال: 85.5"></div>
-                <div class="form-group"><label>نسبة الدهون (%):</label><input type="number" step="0.1" id="mFat" class="form-control" placeholder="مثال: 24.5"></div>
-                <div class="form-group"><label>كتلة العضلات (كجم):</label><input type="number" step="0.1" id="mMuscle" class="form-control" placeholder="مثال: 38.0"></div>
-                <div class="form-group"><label>تاريخ القياس:</label><input type="date" id="mDate" class="form-control" required></div>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">⚖️ تسجيل قياس جديد للحالة</h3>
+            <form onsubmit="saveNewMeasurementToSQL(event)">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🔍 استدعاء المريض من الحالات المسجلة:</label>
+                    <select id="modalPatientSelect" class="form-control" required>
+                        <option value="">-- اختر المريض --</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">⚖️ الوزن الجديد (كجم):</label>
+                    <input type="number" step="0.1" id="mWeight" class="form-control" placeholder="مثال: 82.5" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">💧 نسبة الدهون الجديدة (%):</label>
+                    <input type="number" step="0.1" id="mFat" class="form-control" placeholder="مثال: 25.4">
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">💪 كتلة العضلات الجديدة (كجم):</label>
+                    <input type="number" step="0.1" id="mMuscle" class="form-control" placeholder="مثال: 32.1">
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">📅 تاريخ القياس:</label>
+                    <input type="date" id="mDate" class="form-control" required>
+                </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
-                    <button type="button" onclick="closeModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ القياس في SQL</button>
+                    <button type="button" onclick="closeNewMeasurementModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -117,54 +180,123 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function fetchMeasurements() {
-            const tbody = document.getElementById('measureTableBody');
-            const { data, error } = await supabaseClient.from('measurements').select('*').order('measure_date', { ascending: false });
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الجلب (تأكد من إنشاء جدول measurements).</td></tr>`;
-                return;
-            }
-            tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">لا توجد قياسات مسجلة.</td></tr>`;
-                return;
-            }
-            data.forEach(m => {
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${m.patient_name}</strong></td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${m.weight} كجم</span></td>
-                        <td>${m.fat_percentage ? m.fat_percentage + '%' : '-'}</td>
-                        <td>${m.muscle_mass ? m.muscle_mass + ' كجم' : '-'}</td>
-                        <td>${m.measure_date}</td>
-                        <td><button onclick="deleteMeasure('${m.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; cursor:pointer;">🗑️ حذف</button></td>
-                    </tr>
-                `;
+        let masterPatientsList = [];
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        async function loadMeasurementsData() {
+            const { data: patData } = await supabaseClient.from('patients').select('*');
+            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
+
+            masterPatientsList = [];
+            if (patData) patData.forEach(p => masterPatientsList.push({ ...p, _table: 'patients' }));
+            if (barData) barData.forEach(b => masterPatientsList.push({ ...b, _table: 'bariatric_cases' }));
+
+            // تعبئة قائمة الـ Select في النافذة المنسدلة للاستدعاء
+            let modalSelect = document.getElementById('modalPatientSelect');
+            modalSelect.innerHTML = '<option value="">-- اختر المريض من الحالات المسجلة --</option>';
+
+            masterPatientsList.forEach((p, idx) => {
+                let name = p.patient_name || p.name || 'بدون اسم';
+                let code = p.patient_code || p.code || 'بدون كود';
+                modalSelect.innerHTML += `<option value="${idx}">${name} (كود: ${code})</option>`;
             });
+
+            renderMeasurementsTable(masterPatientsList);
         }
-        window.onload = fetchMeasurements;
-        function openModal() { document.getElementById('measureModal').style.display = 'flex'; }
-        function closeModal() { document.getElementById('measureModal').style.display = 'none'; }
-        async function saveMeasurement(e) {
-            e.preventDefault();
-            const patient_name = document.getElementById('mPatient').value;
-            const weight = parseFloat(document.getElementById('mWeight').value);
-            const fat_percentage = document.getElementById('mFat').value ? parseFloat(document.getElementById('mFat').value) : null;
-            const muscle_mass = document.getElementById('mMuscle').value ? parseFloat(document.getElementById('mMuscle').value) : null;
-            const measure_date = document.getElementById('mDate').value;
-            const { error } = await supabaseClient.from('measurements').insert([{ patient_name, weight, fat_percentage, muscle_mass, measure_date }]);
-            if (error) { alert('خطأ: ' + error.message); return; }
-            alert('✨ تم حفظ القياس في SQL بنجاح!');
-            closeModal();
-            fetchMeasurements();
-            e.target.reset();
-        }
-        async function deleteMeasure(id) {
-            if (confirm('حذف هذا القياس نهائياً؟')) {
-                await supabaseClient.from('measurements').delete().eq('id', id);
-                fetchMeasurements();
+
+        function renderMeasurementsTable(list) {
+            let tbody = document.getElementById('measurementsTableBody');
+            tbody.innerHTML = '';
+
+            let hasRecords = false;
+            list.forEach((p) => {
+                if (p.weight || p.fat || p.muscle) {
+                    hasRecords = true;
+                    let name = p.patient_name || p.name || 'بدون اسم';
+                    let code = p.patient_code || p.code || 'بدون كود';
+                    let weight = p.weight ? p.weight + ' كجم' : '-';
+                    let fat = p.fat ? p.fat + '%' : '-';
+                    let muscle = p.muscle ? p.muscle + ' كجم' : '-';
+                    let date = p.curr_followup_date || p.surgery_date || 'اليوم';
+
+                    tbody.innerHTML += `
+                        <tr>
+                            <td>
+                                <strong>${name}</strong><br>
+                                <span style="font-size:10px; color:var(--accent-blue); font-weight:bold;">كود: ${code}</span>
+                            </td>
+                            <td>${weight}</td>
+                            <td>${fat}</td>
+                            <td>${muscle}</td>
+                            <td>${date}</td>
+                            <td>
+                                <button onclick="openPatientProfile('${name}')" class="action-btn" style="background:var(--accent-blue);">📂 الملف الكامل</button>
+                            </td>
+                        </tr>
+                    `;
+                }
+            });
+
+            if (!hasRecords) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد قياسات مسجلة حالياً. اضغط على "تسجيل قياس جديد" لاستدعاء المريض.</td></tr>`;
             }
         }
+
+        function openNewMeasurementModal() {
+            document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('newMeasurementModal').style.display = 'flex';
+        }
+
+        function closeNewMeasurementModal() {
+            document.getElementById('newMeasurementModal').style.display = 'none';
+        }
+
+        async function saveNewMeasurementToSQL(event) {
+            event.preventDefault();
+            let selectIdx = document.getElementById('modalPatientSelect').value;
+            if (selectIdx === "") {
+                alert('الرجاء اختيار المريض من القائمة.');
+                return;
+            }
+
+            let selectedPatient = masterPatientsList[selectIdx];
+            let newWeight = parseFloat(document.getElementById('mWeight').value) || 0;
+            let newFat = parseFloat(document.getElementById('mFat').value) || null;
+            let newMuscle = parseFloat(document.getElementById('mMuscle').value) || null;
+            let measureDate = document.getElementById('mDate').value;
+
+            // تحديث القياسات الجديدة في جدول المريض في SQL وتخزين الوزن القديم كـ prev
+            let payload = {
+                weight: newWeight,
+                curr_followup_date: measureDate,
+                prev_weight: selectedPatient.weight || newWeight,
+                prev_followup_date: selectedPatient.curr_followup_date || measureDate
+            };
+
+            if (newFat !== null) payload.fat = newFat;
+            if (newMuscle !== null) payload.muscle = newMuscle;
+
+            const { error } = await supabaseClient.from(selectedPatient._table).update(payload).eq('id', selectedPatient.id);
+
+            if (error) {
+                alert('خطأ أثناء حفظ القياس: ' + error.message);
+                return;
+            }
+
+            alert('✨ تم تسجيل وتحديث القياسات الجديدة للحالة بنجاح في SQL!');
+            closeNewMeasurementModal();
+            loadMeasurementsData();
+        }
+
+        function openPatientProfile(patientName) {
+            window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
+        }
+
+        window.onload = loadMeasurementsData;
     </script>
 </body>
 </html>
