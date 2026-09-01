@@ -46,6 +46,7 @@
 
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
+        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
         select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
 
         .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
@@ -54,6 +55,7 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
+        /* نافذة إضافة أو تعديل موعد */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
@@ -206,8 +208,14 @@
         }
 
         async function loadAppointmentsData() {
-            const { data: appData } = await supabaseClient.from('appointments').select('*');
+            const { data: appData, error } = await supabaseClient.from('appointments').select('*');
+            if (error) {
+                console.error("Error loading appointments:", error);
+            }
             appointmentsList = appData || [];
+
+            // فحص الأعمدة والداتا القادمة من SQL في الـ Console للتشخيص الفوري
+            console.log("📌 Full Appointments Raw Data from SQL:", appointmentsList);
 
             const { data: patData } = await supabaseClient.from('patients').select('*');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
@@ -245,29 +253,27 @@
             list.forEach((app) => {
                 let id = app.id;
                 let name = app.patient_name || app.name || 'بدون اسم';
+                let vType = app.visit_type || app.type || app.category || 'متابعة';
                 
-                // دمج نوع الزيارة وطريقة الحجز لضمان عدم ضياع أي بيانات
-                let rawVisitType = app.visit_type || app.type || app.category || 'متابعة';
-                let locType = app.location_type || app.location || '';
+                // فحص شامل لجميع الاحتمالات الممكنة لحفظ طريقة الحجز
+                let locType = app.location_type || app.location || app.type_location || app.booking_type || 'حجز بالعيادة 🏥';
                 
-                if (locType && !rawVisitType.includes(locType)) {
-                    rawVisitType = `${rawVisitType} (${locType})`;
-                }
-
-                let time = app.time || '12:00 ص';
+                let time = app.time || app.appointment_time || '12:00 ص';
                 let date = app.date || app.appointment_date || app.day || '-';
                 let status = app.status || 'في الانتظار';
                 let statusColor = status === 'مؤكد' ? 'color:#166534; background:#dcfce7;' : 'color:#92400e; background:#fef3c7;';
                 
-                let isOnline = rawVisitType.includes('أونلاين') || locType.includes('أونلاين');
+                let isOnline = locType.includes('أونلاين') || locType.toLowerCase().includes('online');
                 let badgeBg = isOnline ? '#e0e7ff' : '#e0f2fe';
                 let badgeColor = isOnline ? '#3730a3' : '#0369a1';
+                let displayLoc = isOnline ? 'حجز أونلاين 💻' : 'حجز بالعيادة 🏥';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${name}</strong></td>
                         <td>
-                            <div style="font-weight: bold; margin-bottom: 2px;">${rawVisitType}</div>
+                            <div style="font-weight: bold; margin-bottom: 2px;">${vType}</div>
+                            <span style="font-size:11px; color:${badgeColor}; background:${badgeBg}; padding:2px 6px; border-radius:4px; display:inline-block; font-weight:bold;">${displayLoc}</span>
                         </td>
                         <td>${time}</td>
                         <td>${date}</td>
@@ -304,13 +310,13 @@
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = app.patient_name || app.name || '';
-            document.getElementById('appLocationType').value = app.location_type || app.location || 'حجز بالعيادة 🏥';
             
-            let cleanVisitType = (app.visit_type || app.type || app.category || '').replace(/\\s*\\(حجز[^)]+\\)/g, '').trim();
-            document.getElementById('appVisitType').value = cleanVisitType || 'متابعة بعد عملية';
+            let currentLoc = app.location_type || app.location || app.type_location || app.booking_type || 'حجز بالعيادة 🏥';
+            document.getElementById('appLocationType').value = currentLoc.includes('أونلاين') ? 'حجز أونلاين 💻' : 'حجز بالعيادة 🏥';
             
+            document.getElementById('appVisitType').value = app.visit_type || app.type || app.category || '';
             document.getElementById('appDate').value = app.date || app.appointment_date || app.day || '';
-            document.getElementById('appTime').value = app.time || '';
+            document.getElementById('appTime').value = app.time || app.appointment_time || '';
             document.getElementById('appStatus').value = app.status || 'في الانتظار';
             document.getElementById('appointmentModal').style.display = 'flex';
         }
@@ -323,20 +329,20 @@
             event.preventDefault();
             let editId = document.getElementById('editingAppointmentId').value;
             
-            let patientName = document.getElementById('appPatientName').value;
-            let locType = document.getElementById('appLocationType').value;
-            let visitTypeBase = document.getElementById('appVisitType').value;
-            
-            // دمج نوع الزيارة مع طريقة الحجز مباشرة لضمان حفظها وقراءتها بـ 100% ثبات
-            let combinedVisitType = `${visitTypeBase} (${locType})`;
+            let selectedLoc = document.getElementById('appLocationType').value;
+            let selectedDate = document.getElementById('appDate').value;
+            let selectedTime = document.getElementById('appTime').value;
 
+            // إرسال البيانات بكافة الأسماء المحتملة للأعمدة لضمان التوافق مع أي بنية جدول في Supabase
             let payload = {
-                patient_name: patientName,
-                location_type: locType,
-                visit_type: combinedVisitType,
-                date: document.getElementById('appDate').value,
-                appointment_date: document.getElementById('appDate').value,
-                time: document.getElementById('appTime').value,
+                patient_name: document.getElementById('appPatientName').value,
+                location_type: selectedLoc,
+                location: selectedLoc,
+                visit_type: document.getElementById('appVisitType').value,
+                date: selectedDate,
+                appointment_date: selectedDate,
+                time: selectedTime,
+                appointment_time: selectedTime,
                 status: document.getElementById('appStatus').value
             };
 
