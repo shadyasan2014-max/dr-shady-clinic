@@ -308,7 +308,10 @@
 
         function openEditAppointmentModal(id) {
             let app = appointmentsList.find(item => String(item.id) === String(id));
-            if (!app) return;
+            if (!app) {
+                alert('لم يتم العثور على بيانات هذا الموعد!');
+                return;
+            }
 
             document.getElementById('editingAppointmentId').value = app.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
@@ -340,10 +343,11 @@
             };
 
             let res;
-            if (editId && editId !== "") {
-                // التصحيح الجذري هنا لضمان تمرير الـ ID بالشكل الصحيح لـ Supabase
+            if (editId && editId.trim() !== "") {
+                // تعديل السجل الحالي باستخدام الـ ID بدقة مطلقة
                 res = await supabaseClient.from('appointments').update(payload).eq('id', editId);
             } else {
+                // إضافة سجل جديد فقط لو مفيش ID
                 res = await supabaseClient.from('appointments').insert([payload]);
             }
 
