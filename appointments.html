@@ -297,7 +297,7 @@
         }
 
         function openEditAppointmentModal(id) {
-            let app = appointmentsList.find(item => item.id == id);
+            let app = appointmentsList.find(item => item.id == id || item.id == String(id));
             if (!app) return;
 
             document.getElementById('editingAppointmentId').value = app.id;
@@ -305,13 +305,13 @@
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = app.patient_name || app.name || '';
             
-            // التقاط قيمة طريقة الحجز بدقة من السجل ووضعها في الـ Select
+            // قراءة دقيقة لطريقة الحجز لتحديث الـ Select في النافذة
             let currentLoc = app.location_type || app.location || 'حجز بالعيادة 🏥';
-            let selectLocElem = document.getElementById('appLocationType');
+            let selectLoc = document.getElementById('appLocationType');
             if (currentLoc.includes('أونلاين') || currentLoc.toLowerCase().includes('online')) {
-                selectLocElem.value = 'حجز أونلاين 💻';
+                selectLoc.value = 'حجز أونلاين 💻';
             } else {
-                selectLocElem.value = 'حجز بالعيادة 🏥';
+                selectLoc.value = 'حجز بالعيادة 🏥';
             }
             
             document.getElementById('appVisitType').value = app.visit_type || app.appt_type || app.type || '';
@@ -336,7 +336,6 @@
             let statusVal = document.getElementById('appStatus').value;
             let nameVal = document.getElementById('appPatientName').value;
 
-            // إرسال الحقول بكافة الاحتمالات لضمان التوافق التام مع الجدول وحفظ التعديلات
             let payload = {
                 patient_name: nameVal,
                 appt_type: vTypeVal,
@@ -350,9 +349,11 @@
             };
 
             let res;
-            if (editId) {
+            if (editId !== "" && editId !== null && editId !== undefined) {
+                // تعديل الموعد الحالي مستخدماً الـ id بدقة
                 res = await supabaseClient.from('appointments').update(payload).eq('id', editId);
             } else {
+                // إدراج موعد جديد
                 res = await supabaseClient.from('appointments').insert([payload]);
             }
 
