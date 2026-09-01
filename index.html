@@ -7,12 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #064e3b; --main-bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #059669; --accent-blue: #0284c7; --warning-orange: #d97706; --danger-red: #dc2626; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { --sidebar-bg: #064e3b; --main-bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #059669; --accent-blue: #0284c7; --warning-orange: #f59e0b; --danger-red: #dc2626; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        
+        /* تصميم دائرة اللوجو الاحترافية والبديل التلقائي */
+        .brand-logo-container { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #34d399; margin-bottom: 8px; background: #047857; display: flex; align-items: center; justify-content: center; overflow: hidden; font-weight: bold; color: white; font-size: 18px; }
+        .brand-logo-container img { width: 100%; height: 100%; object-fit: cover; }
+
         .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
@@ -26,9 +30,15 @@
         
         .top-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 25px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .doctor-profile-top { display: flex; align-items: center; gap: 12px; }
-        .doctor-avatar-top { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); background: #f1f5f9; }
+        
+        .doctor-avatar-top { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--primary-green); background: #047857; display: flex; align-items: center; justify-content: center; overflow: hidden; font-weight: bold; color: white; font-size: 15px; }
+        .doctor-avatar-top img { width: 100%; height: 100%; object-fit: cover; }
+
         .global-search-box { flex: 1; max-width: 450px; margin: 0 20px; position: relative; }
         .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; }
+
+        /* تخصيص الـ Select باللون البرتقالي المطلوب في كل السيستم */
+        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold; }
 
         .search-results-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; margin-top: 5px; }
         .search-result-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
@@ -83,7 +93,7 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img id="sidebarLogo" src="logo.jpeg" onerror="this.style.display='none'" alt="Logo" class="brand-logo">
+                <div class="brand-logo-container" id="sidebarLogoBox">🩺</div>
                 <h2 id="sidebarDocName">د. شادي سمير</h2>
                 <p id="sidebarDocTitle">عيادة التغذية العلاجية</p>
             </div>
@@ -113,7 +123,7 @@
 
         <div class="top-header-bar">
             <div class="doctor-profile-top">
-                <img id="topDocAvatar" src="logo.jpeg" onerror="this.style.display='none'" alt="Doctor" class="doctor-avatar-top">
+                <div class="doctor-avatar-top" id="topAvatarBox">👨‍⚕️</div>
                 <div>
                     <h4 id="topDocName" style="margin:0; font-size:14px; color:var(--text-dark);">د. شادي سمير</h4>
                     <span style="font-size:10px; color:var(--primary-green); font-weight:bold;">طبيب معالج نشط</span>
@@ -263,7 +273,6 @@
             document.getElementById('currentDateDisplay').innerText = todayFormattedStr;
             document.getElementById('todayDateLabel').innerText = new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
 
-            // استخراج تاريخ اليوم والغد بدقة بصيغة YYYY-MM-DD
             let dToday = new Date();
             let year = dToday.getFullYear();
             let month = String(dToday.getMonth() + 1).padStart(2, '0');
@@ -278,12 +287,13 @@
             let tomorrowSqlStr = `${tYear}-${tMonth}-${tDay}`;
 
             try {
+                // جلب اللوجو وإعدادات الطبيب مع معالجة ذكية لو الرابط مش موجود
                 const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
                 if (settingsData && settingsData.length > 0) {
                     let s = settingsData[0];
                     let docName = s.doctor_name || "د. شادي سمير";
                     let docTitle = s.doctor_title || "عيادة التغذية العلاجية وجراحات السمنة";
-                    let logoUrl = s.logo_url || "";
+                    let logoUrl = s.logo_url;
 
                     document.getElementById('sidebarDocName').innerText = docName;
                     document.getElementById('sidebarDocTitle').innerText = docTitle;
@@ -291,13 +301,8 @@
                     document.getElementById('welcomeDocName').innerText = docName;
                     
                     if(logoUrl && logoUrl.trim() !== "") {
-                        document.getElementById('sidebarLogo').src = logoUrl;
-                        document.getElementById('topDocAvatar').src = logoUrl;
-                        document.getElementById('sidebarLogo').style.display = 'block';
-                        document.getElementById('topDocAvatar').style.display = 'block';
-                    } else {
-                        document.getElementById('sidebarLogo').style.display = 'none';
-                        document.getElementById('topDocAvatar').style.display = 'none';
+                        document.getElementById('sidebarLogoBox').innerHTML = `<img src="${logoUrl}" alt="Logo">`;
+                        document.getElementById('topAvatarBox').innerHTML = `<img src="${logoUrl}" alt="Avatar">`;
                     }
                 }
 
@@ -351,7 +356,6 @@
                 renderTodayAppointments(todayAppointments);
                 renderUpcomingReminders(upcomingAppointments);
 
-                // تمرير العدد الحقيقي الدقيق للحالات المسجلة (مرضى وجراحات سمنة)
                 renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
                 renderTrendChart();
 
@@ -463,7 +467,6 @@
             const ctx = document.getElementById('casesPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            // رسم بياني دقيق معتمد على الأعداد الحقيقية فقط
             pieChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -503,7 +506,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
+                    plugins: { legend: { display: { display: false } } },
                     scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
                 }
             });
