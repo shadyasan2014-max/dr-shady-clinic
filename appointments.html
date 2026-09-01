@@ -247,7 +247,6 @@
             list.forEach((app) => {
                 let id = app.id;
                 let name = app.patient_name || app.name || 'بدون اسم';
-                // فحص دقيق لجميع الاحتمالات الممكنة لاسم حقل نوع الزيارة والتاريخ في القاعدة
                 let vType = app.visit_type || app.type || app.category || 'متابعة';
                 let locType = app.location_type || app.location || 'حجز بالعيادة 🏥';
                 let time = app.time || '12:00 ص';
