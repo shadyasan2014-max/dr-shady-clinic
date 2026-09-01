@@ -120,7 +120,7 @@
                     <thead>
                         <tr>
                             <th>اسم المريض</th>
-                            <th>نوع الزيارة</th>
+                            <th>نوع وطريقة الزيارة</th>
                             <th>الوقت</th>
                             <th>التاريخ</th>
                             <th>الحالة</th>
@@ -143,8 +143,23 @@
                 <input type="hidden" id="editingAppointmentId">
                 
                 <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🔍 استدعاء المريض من الحالات المسجلة:</label>
+                    <select id="modalPatientSelect" class="form-control" onchange="autofillPatientName(this)">
+                        <option value="">-- اختر المريض أو اكتب بالأسفل --</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المريض:</label>
                     <input type="text" id="appPatientName" class="form-control" placeholder="اسم المريض..." required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">طريقة الحجز (مكان الزيارة):</label>
+                    <select id="appLocationType" class="form-control">
+                        <option value="حجز بالعيادة 🏥">حجز بالعيادة 🏥</option>
+                        <option value="حجز أونلاين 💻">حجز أونلاين 💻</option>
+                    </select>
                 </div>
 
                 <div class="form-group" style="margin-bottom:12px;">
@@ -185,6 +200,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let appointmentsList = [];
+        let masterPatientsList = [];
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -192,13 +208,31 @@
         }
 
         async function loadAppointmentsData() {
-            const { data, error } = await supabaseClient.from('appointments').select('*');
-            if (error) {
-                console.error("Error loading appointments:", error);
-                return;
-            }
-            appointmentsList = data || [];
+            const { data: appData } = await supabaseClient.from('appointments').select('*');
+            appointmentsList = appData || [];
+
+            const { data: patData } = await supabaseClient.from('patients').select('*');
+            const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
+
+            masterPatientsList = [];
+            if (patData) patData.forEach(p => masterPatientsList.push(p));
+            if (barData) barData.forEach(b => masterPatientsList.push(b));
+
+            let modalSelect = document.getElementById('modalPatientSelect');
+            modalSelect.innerHTML = '<option value="">-- اختر المريض من الحالات المسجلة --</option>';
+            masterPatientsList.forEach((p) => {
+                let name = p.patient_name || p.name || 'بدون اسم';
+                let code = p.patient_code || p.code || 'بدون كود';
+                modalSelect.innerHTML += `<option value="${name}">${name} (كود: ${code})</option>`;
+            });
+
             renderAppointmentsTable(appointmentsList);
+        }
+
+        function autofillPatientName(selectElem) {
+            if (selectElem.value) {
+                document.getElementById('appPatientName').value = selectElem.value;
+            }
         }
 
         function renderAppointmentsTable(list) {
@@ -214,6 +248,7 @@
                 let id = app.id;
                 let name = app.patient_name || 'بدون اسم';
                 let vType = app.visit_type || 'متابعة';
+                let locType = app.location_type || 'حجز بالعيادة 🏥';
                 let time = app.time || '12:00 ص';
                 let date = app.date || app.appointment_date || '-';
                 let status = app.status || 'في الانتظار';
@@ -222,7 +257,7 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${name}</strong></td>
-                        <td>${vType}</td>
+                        <td>${vType} <br><span style="font-size:10px; color:var(--accent-blue); font-weight:bold;">(${locType})</span></td>
                         <td>${time}</td>
                         <td>${date}</td>
                         <td><span style="${statusColor} padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${status}</span></td>
@@ -240,7 +275,9 @@
         function openAppointmentModal() {
             document.getElementById('editingAppointmentId').value = '';
             document.getElementById('modalTitle').innerText = '📅 حجز موعد جديد';
+            document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = '';
+            document.getElementById('appLocationType').value = 'حجز بالعيادة 🏥';
             document.getElementById('appVisitType').value = 'متابعة بعد عملية';
             document.getElementById('appDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('appTime').value = '12:00';
@@ -254,7 +291,9 @@
 
             document.getElementById('editingAppointmentId').value = app.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
+            document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = app.patient_name || '';
+            document.getElementById('appLocationType').value = app.location_type || 'حجز بالعيادة 🏥';
             document.getElementById('appVisitType').value = app.visit_type || '';
             document.getElementById('appDate').value = app.date || app.appointment_date || '';
             document.getElementById('appTime').value = app.time || '';
@@ -271,6 +310,7 @@
             let editId = document.getElementById('editingAppointmentId').value;
             let payload = {
                 patient_name: document.getElementById('appPatientName').value,
+                location_type: document.getElementById('appLocationType').value,
                 visit_type: document.getElementById('appVisitType').value,
                 date: document.getElementById('appDate').value,
                 time: document.getElementById('appTime').value,
