@@ -13,7 +13,8 @@
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
-        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        /* ضبط مقاسات وإطار اللوجو ليظهر بشكل فخم ومنتظم */
+        .brand-logo { width: 65px; height: 65px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
         .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
@@ -90,7 +91,7 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img id="sidebarLogo" src="logo2.png" onerror="this.src='logo2.png'" alt="Logo" class="brand-logo">
+                <img id="sidebarLogo" src="logo2.png" alt="Logo" class="brand-logo">
                 <h2 id="sidebarDocName">د. شادي سمير</h2>
                 <p id="sidebarDocTitle">عيادة التغذية العلاجية</p>
             </div>
@@ -120,7 +121,7 @@
 
         <div class="top-header-bar">
             <div class="doctor-profile-top">
-                <img id="topDocAvatar" src="logo2.png" onerror="this.src='logo2.png'" alt="Doctor" class="doctor-avatar-top">
+                <img id="topDocAvatar" src="logo2.png" alt="Doctor" class="doctor-avatar-top">
                 <div>
                     <h4 id="topDocName" style="margin:0; font-size:14px; color:var(--text-dark);">د. شادي سمير</h4>
                     <span style="font-size:10px; color:var(--primary-green); font-weight:bold;">طبيب معالج نشط</span>
@@ -284,22 +285,29 @@
             let tomorrowSqlStr = `${tYear}-${tMonth}-${tDay}`;
 
             try {
-                // جلب الإعدادات واللوجو الجديد logo2.png مع الاعتماد عليه مباشرة
+                // جلب الإعدادات مع إعطاء أولوية مطلقة للملف المحلي المباشر logo2.png لضمان الظهور الفوري
                 const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
+                let docName = "د. شادي سمير";
+                let docTitle = "عيادة التغذية العلاجية وجراحات السمنة";
+                let finalLogo = "logo2.png";
+
                 if (settingsData && settingsData.length > 0) {
                     let s = settingsData[0];
-                    let docName = s.doctor_name || "د. شادي سمير";
-                    let docTitle = s.doctor_title || "عيادة التغذية العلاجية وجراحات السمنة";
-                    let logoUrl = s.logo_url && s.logo_url.trim() !== "" ? s.logo_url : "logo2.png";
-
-                    document.getElementById('sidebarDocName').innerText = docName;
-                    document.getElementById('sidebarDocTitle').innerText = docTitle;
-                    document.getElementById('topDocName').innerText = docName;
-                    document.getElementById('welcomeDocName').innerText = docName;
-                    
-                    document.getElementById('sidebarLogo').src = logoUrl;
-                    document.getElementById('topDocAvatar').src = logoUrl;
+                    if (s.doctor_name) docName = s.doctor_name;
+                    if (s.doctor_title) docTitle = s.doctor_title;
+                    // لو اللوجو المخزن في قاعدة البيانات نصي أو كود طويل، بنعتمد الشعار المحلي المضمون logo2.png
+                    if (s.logo_url && s.logo_url.trim() !== "" && !s.logo_url.startsWith('data:')) {
+                        finalLogo = s.logo_url;
+                    }
                 }
+
+                document.getElementById('sidebarDocName').innerText = docName;
+                document.getElementById('sidebarDocTitle').innerText = docTitle;
+                document.getElementById('topDocName').innerText = docName;
+                document.getElementById('welcomeDocName').innerText = docName;
+                
+                document.getElementById('sidebarLogo').src = finalLogo;
+                document.getElementById('topDocAvatar').src = finalLogo;
 
                 const { data: patData } = await supabaseClient.from('patients').select('*');
                 const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
@@ -351,7 +359,6 @@
                 renderTodayAppointments(todayAppointments);
                 renderUpcomingReminders(upcomingAppointments);
 
-                // إرسال الأعداد الحقيقية الصافية للرسم البياني (مرضى وجراحات سمنة فقط)
                 renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
                 renderTrendChart();
 
@@ -463,7 +470,6 @@
             const ctx = document.getElementById('casesPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
-            // رسم بياني يعتمد حصرياً على الأعداد الفعلية المدخلة في الجداول
             pieChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
