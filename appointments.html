@@ -248,18 +248,21 @@
                 let id = app.id;
                 let name = app.patient_name || app.name || 'بدون اسم';
                 let vType = app.visit_type || app.type || app.category || 'متابعة';
-                let locType = app.location_type || app.location || 'حجز بالعيادة 🏥';
+                // قراءة دقيقة لحقل طريقة الحجز من قاعدة البيانات بدون إجبار قيمة افتراضية خاطئة
+                let locType = app.location_type || app.location || app.type_location || 'حجز بالعيادة 🏥';
                 let time = app.time || '12:00 ص';
                 let date = app.date || app.appointment_date || app.day || '-';
                 let status = app.status || 'في الانتظار';
                 let statusColor = status === 'مؤكد' ? 'color:#166534; background:#dcfce7;' : 'color:#92400e; background:#fef3c7;';
+                let badgeBg = locType.includes('أونلاين') ? '#e0e7ff' : '#e0f2fe';
+                let badgeColor = locType.includes('أونلاين') ? '#3730a3' : '#0369a1';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${name}</strong></td>
                         <td>
                             <div style="font-weight: bold; margin-bottom: 2px;">${vType}</div>
-                            <span style="font-size:11px; color:var(--accent-blue); background:#e0f2fe; padding:2px 6px; border-radius:4px; display:inline-block; font-weight:bold;">${locType}</span>
+                            <span style="font-size:11px; color:${badgeColor}; background:${badgeBg}; padding:2px 6px; border-radius:4px; display:inline-block; font-weight:bold;">${locType}</span>
                         </td>
                         <td>${time}</td>
                         <td>${date}</td>
@@ -296,7 +299,7 @@
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = app.patient_name || app.name || '';
-            document.getElementById('appLocationType').value = app.location_type || app.location || 'حجز بالعيادة 🏥';
+            document.getElementById('appLocationType').value = app.location_type || app.location || app.type_location || 'حجز بالعيادة 🏥';
             document.getElementById('appVisitType').value = app.visit_type || app.type || app.category || '';
             document.getElementById('appDate').value = app.date || app.appointment_date || app.day || '';
             document.getElementById('appTime').value = app.time || '';
