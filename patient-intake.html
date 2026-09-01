@@ -7,46 +7,86 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-       :root {
-    --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
-    --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
-    --card-bg: #ffffff;             /* خلفية البطاقات */
-    --card-border: #e2e8f0;         /* حدود خفيفة */
-    --primary-green: #059669;       /* الأخضر الرئيسي للزرار والعناوين */
-    --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
-    --warning-orange: #f59e0b;      /* البرتقالي المطلوب للـ Select والحدود */
-    --danger-red: #dc2626;          /* أحمر للتنبيهات */
-    --text-dark: #1e293b;           /* نصوص داكنة واضحة */
-    --text-gray: #64748b;           /* نصوص رمادية */
-}
+        :root {
+            --sidebar-bg: #064e3b;
+            --main-bg: #f8fafc;
+            --card-bg: #ffffff;
+            --card-border: #e2e8f0;
+            --primary-green: #059669;
+            --accent-blue: #0284c7;
+            --warning-orange: #f59e0b;
+            --danger-red: #dc2626;
+            --text-dark: #1e293b;
+            --text-gray: #64748b;
+        }
 
-/* توحيد لون عناصر الاختيار الـ Select والقوائم المنسدلة باللون البرتقالي الجميل */
-select, .form-select, .form-control select {
-    border: 2px solid var(--warning-orange) !important;
-    color: #92400e !important;
-    background-color: #fffbeb !important;
-    font-weight: bold !important;
-    border-radius: 8px !important;
-    padding: 8px 12px !important;
-    outline: none !important;
-}
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--main-bg);
+            color: var(--text-dark);
+            margin: 0;
+            display: flex;
+            min-height: 100vh;
+            direction: rtl;
+        }
 
-/* تنسيق حقول الإدخال العادية لتكون منسقة ومرتبة */
-input[type="text"], input[type="number"], input[type="date"], textarea {
-    border: 1px solid var(--card-border);
-    border-radius: 8px;
-    padding: 9px 12px;
-    background-color: #f8fafc;
-    color: var(--text-dark);
-    font-size: 13px;
-    box-sizing: border-box;
-}
+        /* القائمة الجانبية (Sidebar) */
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
+        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #047857; color: white; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
 
-input:focus, textarea:focus {
-    border-color: var(--primary-green) !important;
-    background-color: #fff !important;
-    box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
-}
+        /* المحتوى الرئيسي */
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+
+        .top-header { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
+
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .section-title { font-size: 14px; color: var(--primary-green); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-top: 0; margin-bottom: 15px; font-weight: bold; }
+
+        .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; }
+        .form-group { margin-bottom: 10px; }
+        .form-group label { display: block; font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 4px; }
+        
+        /* الحقول وعناصر الـ Select باللون البرتقالي */
+        select, .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; color: var(--text-dark); box-sizing: border-box; }
+        select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; }
+        
+        input:focus, textarea:focus, select:focus { border-color: var(--primary-green) !important; background-color: #fff !important; outline: none; box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1); }
+
+        .action-btn { border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; color: white; background: var(--primary-green); display: inline-flex; align-items: center; gap: 6px; }
+
+        .pdf-doctor-banner { display: none; background: #ffffff; padding: 15px; border-bottom: 2px solid var(--primary-green); margin-bottom: 15px; }
+
+        /* صندوق النتائج والماكروز */
+        .results-box { display: none; background: #f0fdf4; border: 1px solid #bbf7d0; margin-top: 20px; }
+        .macro-badge { background: white; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; font-weight: bold; color: #166534; }
+
+        /* Modal النافذة المنسدلة لاختيار الخطة */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); text-align: right; direction: rtl; }
+        .plan-option-btn { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: #f8fafc; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; text-align: right; transition: 0.2s; }
+        .plan-option-btn:hover { background: #e0f2fe; border-color: var(--accent-blue); }
+
+        .mobile-menu-toggle { display: none; background: #064e3b; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: block !important; }
+        }
     </style>
 </head>
 <body>
@@ -55,7 +95,7 @@ input:focus, textarea:focus {
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
                 <p>عيادة التغذية العلاجية</p>
             </div>
@@ -90,7 +130,7 @@ input:focus, textarea:focus {
                 <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">الاستمارة الإكلينيكية الكاملة لجمع بيانات الحالة وتوليد النظام بالـ AI</p>
             </div>
             <div style="display: flex; gap: 8px;">
-                <button onclick="enableFullEditMode()" class="action-btn" style="background: var(--warning-orange);">✏️ تفعيل التعديل الكامل</button>
+                <button onclick="enableFullEditMode()" class="action-btn" style="background: var(--warning-orange); color:#fff;">✏️ تفعيل التعديل الكامل</button>
                 <button onclick="window.location.href='patients.html'" class="action-btn" style="background: var(--text-dark);">👥 العودة للمرضى</button>
             </div>
         </div>
@@ -104,13 +144,13 @@ input:focus, textarea:focus {
                         <p style="margin: 0; font-size: 10px; color: var(--text-gray);">فرع القاهرة | هاتف: 010xxxxxxxx</p>
                     </div>
                     <div>
-                        <img src="logo.jpeg" alt="Logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                        <img src="logo2.png" alt="Logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;" onerror="this.src='logo.jpeg'">
                     </div>
                 </div>
             </div>
 
             <form onsubmit="openPlanTypeModal(event)">
-                <!-- 1. البيانات الأساسية متضمنة كود المريض -->
+                <!-- 1. البيانات الأساسية -->
                 <div class="card">
                     <h3 class="section-title">1️⃣ البيانات الأساسية والقياسات الشخصية</h3>
                     <div class="form-grid">
@@ -168,11 +208,11 @@ input:focus, textarea:focus {
                         <div class="form-group"><label>٢٢- الوزن المستهدف (كجم):</label><input type="number" step="0.1" id="pTargetWeight" class="form-control" placeholder="70"></div>
                         <div class="form-group"><label>٢٣- الغرض من النزول فى الوزن:</label><input type="text" id="pGoalReason" class="form-control" placeholder="صحي، شكل..."></div>
                         <div class="form-group"><label>٢٤- هل يمكن التحكم فى الشهية ام لا؟</label><input type="text" id="pAppetiteControl" class="form-control" placeholder="نعم / لا..."></div>
-                        <div class="form-group"><label>٢٥ و ٢٦- الهدف من المتابعة (نحافة، سمنة، تغذية مرضية، ثبات، ايف ستايل):</label><input type="text" id="pMainGoal" class="form-control" placeholder="الهدف الأساسي..."></div>
+                        <div class="form-group"><label>٢٥ و ٢٦- الهدف من المتابعة (نحافة، سمنة، تغذية مرضية، ثبات):</label><input type="text" id="pMainGoal" class="form-control" placeholder="الهدف الأساسي..."></div>
                         <div class="form-group"><label>٢٧- معدل السعرات المأخوذ اليومى تقريبا:</label><input type="text" id="pCurrCalories" class="form-control" placeholder="السعرات..."></div>
                         <div class="form-group"><label>٢٨- معدل نزولك فى اخر دايت:</label><input type="text" id="pPrevLossRate" class="form-control" placeholder="النزول الأسبوعي..."></div>
                         <div class="form-group"><label>٢٨ مكرر- الوزن من سنتين (كجم):</label><input type="number" step="0.1" id="pWeight2Years" class="form-control" placeholder="الوزن السابق..."></div>
-                        <div class="form-group"><label>٢٩- السمنه او النحافه منذ الصغر ام فى مرحلة الشباب؟</label><input type="text" id="pSinceWhen" class="form-control" placeholder="منذ الصغر..."></div>
+                        <div class="form-group"><label>٢٩- السمنه او النحافه منذ الصغر ام فى الشباب؟</label><input type="text" id="pSinceWhen" class="form-control" placeholder="منذ الصغر..."></div>
                     </div>
                 </div>
 
@@ -181,24 +221,24 @@ input:focus, textarea:focus {
                     <h3 class="section-title">5️⃣ اللايف ستايل اليومي واختيار نوع الدايت (النقطة ٣٠)</h3>
                     <div class="form-group" style="margin-bottom: 15px;">
                         <label style="font-weight: bold; color: var(--accent-blue);">🥗 اختيار نوع النظام الغذائي الجديد:</label>
-                        <select id="pSelectedDietType" class="form-control" style="background: #fff; font-weight: bold; color: var(--primary-green);">
+                        <select id="pSelectedDietType" class="form-control">
                             <option value="balanced">نظام غذائي متوازن (Balanced Diet)</option>
                             <option value="low_carb">نظام قليل النشويات (Low-Carb Diet)</option>
                             <option value="keto">نظام الكيتو دايت (Keto Diet)</option>
                             <option value="intermittent">نظام الصيام المتقطع (Intermittent Fasting)</option>
-                            <option value="high_protein">نظام عالي البروتين (High-Protein / Muscle Building)</option>
+                            <option value="high_protein">نظام عالي البروتين (High-Protein)</option>
                             <option value="bariatric">نظام ما بعد جراحات السمنة (Bariatric Post-Op)</option>
                         </select>
                     </div>
 
                     <div class="form-group">
-                        <label>٣٠- اكتب اخر لايف ستايل يوم كامل ليك (فطار، غداء، عشاء، سناك، تفكير في الأكل والحلويات):</label>
+                        <label>٣٠- اكتب اخر لايف ستايل يوم كامل ليك (فطار، غداء، عشاء، سناك):</label>
                         <textarea id="pDailyLifestyle" class="form-control" rows="4" placeholder="اكتب تفاصيل يومك هنا..."></textarea>
                     </div>
                 </div>
 
                 <div style="text-align: center; margin-bottom: 20px;">
-                    <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 12px 30px; font-size: 14px;">
+                    <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 12px 30px; font-size: 14px; color:#fff;">
                         🤖 تحليل بيانات الـ 30 نقطة وتوليد النظام الذكي بالـ AI
                     </button>
                 </div>
@@ -224,7 +264,7 @@ input:focus, textarea:focus {
 
                 <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
                     <button onclick="saveIntakeToSQL()" class="action-btn" style="background: var(--primary-green); flex:1; justify-content:center;">💾 حفظ أو تحديث الحالة في SQL</button>
-                    <button onclick="downloadIntakePDF()" class="action-btn" style="background: var(--warning-orange); flex:1; justify-content:center;">📥 تحميل وتصدير PDF (A4)</button>
+                    <button onclick="downloadIntakePDF()" class="action-btn" style="background: var(--warning-orange); flex:1; justify-content:center; color:#fff;">📥 تحميل وتصدير PDF (A4)</button>
                     <button onclick="sendIntakeWhatsApp()" class="action-btn" style="background: #25d366; flex:1; justify-content:center;">💬 إرسال واتساب</button>
                 </div>
             </div>
@@ -267,7 +307,7 @@ input:focus, textarea:focus {
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOiJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let generatedPlanPayload = null;
@@ -278,7 +318,6 @@ input:focus, textarea:focus {
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        // عند فتح الصفحة، لو مبعوث كود أو اسم مريض في الـ URL، بنستدعي بياناته من SQL للتعديل
         async function loadPatientDataForEditing() {
             const urlParams = new URLSearchParams(window.location.search);
             let codeParam = urlParams.get('code') || urlParams.get('name');
@@ -381,7 +420,7 @@ input:focus, textarea:focus {
 - ثمرة تفاح أو برتقال + 5 حبات لوز.
 
 🍗 وجبة الغداء الرئيسية (3):
-- بروتين (${meatPref}) مشوي أو مسلوق (180جم) + 5 ملاعق أرز بسمتي أو مسطردة وبطاطس مسلوقة + طبق سلطة خضراء مع زيت زيتون.
+- بروتين (${meatPref}) مشوي أو مسلوق (180جم) + 5 ملاعق أرز بسمتي أو بطاطس مسلوقة + طبق سلطة خضراء مع زيت زيتون.
 
 🥒 سناك عصاري (4):
 - خيار وجزر مقطع + كوب شاي أخضر.
@@ -439,7 +478,6 @@ input:focus, textarea:focus {
 
             document.getElementById('resultsCard').style.display = 'block';
 
-            // تجهيز الباي لود الكامل المتضمن الـ 30 نقطة وكود العميل للـ SQL
             generatedPlanPayload = {
                 patient_code: code,
                 patient_name: name,
@@ -482,7 +520,6 @@ input:focus, textarea:focus {
             alert('✨ تم توليد النظام الغذائي واختيار النطاق المطلوب بنجاح!');
         }
 
-        // حفظ أو تحديث بيانات المريض والـ 30 نقطة في SQL
         async function saveIntakeToSQL() {
             if (!generatedPlanPayload) return;
 
