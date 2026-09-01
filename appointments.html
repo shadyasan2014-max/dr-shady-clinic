@@ -305,8 +305,13 @@
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = app.patient_name || app.name || '';
             
+            // قراءة دقيقة لطريقة الحجز المخزنة في الداتا بيس لتحديد الاختيار المناسب في القائمة المنسدلة عند التعديل
             let currentLoc = app.location_type || app.location || 'حجز بالعيادة 🏥';
-            document.getElementById('appLocationType').value = currentLoc.includes('أونلاين') ? 'حجز أونلاين 💻' : 'حجز بالعيادة 🏥';
+            if (currentLoc.includes('أونلاين') || currentLoc.toLowerCase().includes('online')) {
+                document.getElementById('appLocationType').value = 'حجز أونلاين 💻';
+            } else {
+                document.getElementById('appLocationType').value = 'حجز بالعيادة 🏥';
+            }
             
             document.getElementById('appVisitType').value = app.visit_type || app.appt_type || app.type || '';
             document.getElementById('appDate').value = app.appt_date || app.date || app.appointment_date || '';
@@ -330,12 +335,12 @@
             let statusVal = document.getElementById('appStatus').value;
             let nameVal = document.getElementById('appPatientName').value;
 
-            // إرسال الحقول بكافة الاحتمالات لتلبية أعمدة الجدول الإجبارية (بما فيها appt_date و appt_time معاً)
             let payload = {
                 patient_name: nameVal,
                 appt_type: vTypeVal,
                 visit_type: vTypeVal,
                 location_type: locVal,
+                location: locVal,
                 appt_date: dateVal,
                 date: dateVal,
                 appt_time: timeVal,
