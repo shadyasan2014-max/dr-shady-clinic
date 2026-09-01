@@ -214,9 +214,6 @@
             }
             appointmentsList = appData || [];
 
-            // فحص الأعمدة والداتا القادمة من SQL في الـ Console للتشخيص الفوري
-            console.log("📌 Full Appointments Raw Data from SQL:", appointmentsList);
-
             const { data: patData } = await supabaseClient.from('patients').select('*');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
@@ -255,9 +252,8 @@
                 let name = app.patient_name || app.name || 'بدون اسم';
                 let vType = app.visit_type || app.type || app.category || 'متابعة';
                 
-                // فحص شامل لجميع الاحتمالات الممكنة لحفظ طريقة الحجز
+                // قراءة دقيقة لطريقة الحجز المسجلة في قاعدة البيانات
                 let locType = app.location_type || app.location || app.type_location || app.booking_type || 'حجز بالعيادة 🏥';
-                
                 let time = app.time || app.appointment_time || '12:00 ص';
                 let date = app.date || app.appointment_date || app.day || '-';
                 let status = app.status || 'في الانتظار';
@@ -333,7 +329,7 @@
             let selectedDate = document.getElementById('appDate').value;
             let selectedTime = document.getElementById('appTime').value;
 
-            // إرسال البيانات بكافة الأسماء المحتملة للأعمدة لضمان التوافق مع أي بنية جدول في Supabase
+            // حفظ البيانات بدقة وإرسالها لجميع الأسماء المحتملة للأعمدة في جدول Supabase
             let payload = {
                 patient_name: document.getElementById('appPatientName').value,
                 location_type: selectedLoc,
