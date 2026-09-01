@@ -46,8 +46,22 @@
 
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
-        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
-        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
+        /* ضبط الـ Select وخيارات القائمة بوضوح تام وخلفية بيضاء صلبة لمنع التداخل */
+        select, .form-select { 
+            border: 2px solid var(--warning-orange) !important; 
+            color: #92400e !important; 
+            background-color: #fffbeb !important; 
+            font-weight: bold !important; 
+            border-radius: 8px !important; 
+            padding: 9px 12px !important; 
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        select option {
+            background-color: #ffffff !important;
+            color: #1e293b !important;
+            padding: 10px !important;
+        }
 
         .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
 
@@ -251,7 +265,7 @@
                 let id = app.id;
                 let name = app.patient_name || app.name || 'بدون اسم';
                 let vType = app.visit_type || app.appt_type || app.type || 'متابعة';
-                let locType = app.location_type || app.location_type || 'حجز بالعيادة 🏥';
+                let locType = app.location_type || app.location || 'حجز بالعيادة 🏥';
                 let time = app.appt_time || app.time || '12:00 ص';
                 let date = app.appt_date || app.date || '-';
                 let status = app.status || 'في الانتظار';
@@ -330,7 +344,7 @@
             let statusVal = document.getElementById('appStatus').value;
             let nameVal = document.getElementById('appPatientName').value;
 
-            // إرسال الحقول بحسب أسماء الأعمدة الفعلية للجدل في Supabase (appt_type, appt_date, appt_time, location_type)
+            // إرسال الحقول بحسب أسماء الأعمدة الفعلية للجدول في Supabase (appt_type, appt_date, appt_time, location_type)
             let payload = {
                 patient_name: nameVal,
                 appt_type: vTypeVal,
