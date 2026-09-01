@@ -246,11 +246,12 @@
 
             list.forEach((app) => {
                 let id = app.id;
-                let name = app.patient_name || 'بدون اسم';
-                let vType = app.visit_type || 'متابعة';
-                let locType = app.location_type || 'حجز بالعيادة 🏥';
+                let name = app.patient_name || app.name || 'بدون اسم';
+                // فحص دقيق لجميع الاحتمالات الممكنة لاسم حقل نوع الزيارة والتاريخ في القاعدة
+                let vType = app.visit_type || app.type || app.category || 'متابعة';
+                let locType = app.location_type || app.location || 'حجز بالعيادة 🏥';
                 let time = app.time || '12:00 ص';
-                let date = app.date || app.appointment_date || '-';
+                let date = app.date || app.appointment_date || app.day || '-';
                 let status = app.status || 'في الانتظار';
                 let statusColor = status === 'مؤكد' ? 'color:#166534; background:#dcfce7;' : 'color:#92400e; background:#fef3c7;';
 
@@ -292,10 +293,10 @@
             document.getElementById('editingAppointmentId').value = app.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             document.getElementById('modalPatientSelect').value = '';
-            document.getElementById('appPatientName').value = app.patient_name || '';
-            document.getElementById('appLocationType').value = app.location_type || 'حجز بالعيادة 🏥';
-            document.getElementById('appVisitType').value = app.visit_type || '';
-            document.getElementById('appDate').value = app.date || app.appointment_date || '';
+            document.getElementById('appPatientName').value = app.patient_name || app.name || '';
+            document.getElementById('appLocationType').value = app.location_type || app.location || 'حجز بالعيادة 🏥';
+            document.getElementById('appVisitType').value = app.visit_type || app.type || app.category || '';
+            document.getElementById('appDate').value = app.date || app.appointment_date || app.day || '';
             document.getElementById('appTime').value = app.time || '';
             document.getElementById('appStatus').value = app.status || 'في الانتظار';
             document.getElementById('appointmentModal').style.display = 'flex';
