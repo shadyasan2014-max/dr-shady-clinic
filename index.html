@@ -13,9 +13,7 @@
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
-        /* تصميم دائرة اللوجو الاحترافية والبديل التلقائي */
-        .brand-logo-container { width: 50px; height: 50px; border-radius: 50%; border: 2px solid #34d399; margin-bottom: 8px; background: #047857; display: flex; align-items: center; justify-content: center; overflow: hidden; font-weight: bold; color: white; font-size: 18px; }
-        .brand-logo-container img { width: 100%; height: 100%; object-fit: cover; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
 
         .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
@@ -31,13 +29,12 @@
         .top-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 25px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .doctor-profile-top { display: flex; align-items: center; gap: 12px; }
         
-        .doctor-avatar-top { width: 42px; height: 42px; border-radius: 50%; border: 2px solid var(--primary-green); background: #047857; display: flex; align-items: center; justify-content: center; overflow: hidden; font-weight: bold; color: white; font-size: 15px; }
-        .doctor-avatar-top img { width: 100%; height: 100%; object-fit: cover; }
+        .doctor-avatar-top { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); background: #fff; }
 
         .global-search-box { flex: 1; max-width: 450px; margin: 0 20px; position: relative; }
         .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; }
 
-        /* تخصيص الـ Select باللون البرتقالي المطلوب في كل السيستم */
+        /* تخصيص الـ Select باللون البرتقالي المطلوب */
         select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold; }
 
         .search-results-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; margin-top: 5px; }
@@ -93,7 +90,7 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <div class="brand-logo-container" id="sidebarLogoBox">🩺</div>
+                <img id="sidebarLogo" src="logo2.png" onerror="this.src='logo2.png'" alt="Logo" class="brand-logo">
                 <h2 id="sidebarDocName">د. شادي سمير</h2>
                 <p id="sidebarDocTitle">عيادة التغذية العلاجية</p>
             </div>
@@ -123,7 +120,7 @@
 
         <div class="top-header-bar">
             <div class="doctor-profile-top">
-                <div class="doctor-avatar-top" id="topAvatarBox">👨‍⚕️</div>
+                <img id="topDocAvatar" src="logo2.png" onerror="this.src='logo2.png'" alt="Doctor" class="doctor-avatar-top">
                 <div>
                     <h4 id="topDocName" style="margin:0; font-size:14px; color:var(--text-dark);">د. شادي سمير</h4>
                     <span style="font-size:10px; color:var(--primary-green); font-weight:bold;">طبيب معالج نشط</span>
@@ -184,7 +181,7 @@
                     <strong id="alertDelayedCount">0</strong>
                 </div>
                 <div class="alert-item warning" onclick="window.location.href='appointments.html'">
-                    <span>⏰ مواعيد خلال 24 ساعة (بكره)</span>
+                    <span>⏰ مواعيد غداً (خلال 24 ساعة)</span>
                     <strong id="alertTomorrowCount">0</strong>
                 </div>
                 <div class="alert-item info" onclick="window.location.href='labs.html'">
@@ -238,7 +235,7 @@
             </div>
 
             <div class="card">
-                <h3>📌 مواعيد قادمة وتذكيرات (الغد وما بعده)</h3>
+                <h3>📌 مواعيد قادمة وتذكيرات</h3>
                 <div id="upcomingRemindersList" style="font-size:11px; color:var(--text-gray);">
                     <div style="padding: 8px; color: gray;">جاري جلب المواعيد القادمة...</div>
                 </div>
@@ -287,23 +284,21 @@
             let tomorrowSqlStr = `${tYear}-${tMonth}-${tDay}`;
 
             try {
-                // جلب اللوجو وإعدادات الطبيب مع معالجة ذكية لو الرابط مش موجود
+                // جلب الإعدادات واللوجو الجديد logo2.png مع الاعتماد عليه مباشرة
                 const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
                 if (settingsData && settingsData.length > 0) {
                     let s = settingsData[0];
                     let docName = s.doctor_name || "د. شادي سمير";
                     let docTitle = s.doctor_title || "عيادة التغذية العلاجية وجراحات السمنة";
-                    let logoUrl = s.logo_url;
+                    let logoUrl = s.logo_url && s.logo_url.trim() !== "" ? s.logo_url : "logo2.png";
 
                     document.getElementById('sidebarDocName').innerText = docName;
                     document.getElementById('sidebarDocTitle').innerText = docTitle;
                     document.getElementById('topDocName').innerText = docName;
                     document.getElementById('welcomeDocName').innerText = docName;
                     
-                    if(logoUrl && logoUrl.trim() !== "") {
-                        document.getElementById('sidebarLogoBox').innerHTML = `<img src="${logoUrl}" alt="Logo">`;
-                        document.getElementById('topAvatarBox').innerHTML = `<img src="${logoUrl}" alt="Avatar">`;
-                    }
+                    document.getElementById('sidebarLogo').src = logoUrl;
+                    document.getElementById('topDocAvatar').src = logoUrl;
                 }
 
                 const { data: patData } = await supabaseClient.from('patients').select('*');
@@ -356,6 +351,7 @@
                 renderTodayAppointments(todayAppointments);
                 renderUpcomingReminders(upcomingAppointments);
 
+                // إرسال الأعداد الحقيقية الصافية للرسم البياني (مرضى وجراحات سمنة فقط)
                 renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
                 renderTrendChart();
 
@@ -467,6 +463,7 @@
             const ctx = document.getElementById('casesPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
+            // رسم بياني يعتمد حصرياً على الأعداد الفعلية المدخلة في الجداول
             pieChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
@@ -506,7 +503,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    plugins: { legend: { display: { display: false } } },
+                    plugins: { legend: { display: false } },
                     scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
                 }
             });
