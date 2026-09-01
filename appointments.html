@@ -46,22 +46,8 @@
 
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
-        /* ضبط الـ Select وخيارات القائمة بوضوح تام وخلفية بيضاء صلبة لمنع التداخل */
-        select, .form-select { 
-            border: 2px solid var(--warning-orange) !important; 
-            color: #92400e !important; 
-            background-color: #fffbeb !important; 
-            font-weight: bold !important; 
-            border-radius: 8px !important; 
-            padding: 9px 12px !important; 
-            width: 100% !important;
-            box-sizing: border-box !important;
-        }
-        select option {
-            background-color: #ffffff !important;
-            color: #1e293b !important;
-            padding: 10px !important;
-        }
+        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
+        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
 
         .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
 
@@ -319,8 +305,14 @@
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('appPatientName').value = app.patient_name || app.name || '';
             
-            let currentLoc = app.location_type || 'حجز بالعيادة 🏥';
-            document.getElementById('appLocationType').value = currentLoc.includes('أونلاين') ? 'حجز أونلاين 💻' : 'حجز بالعيادة 🏥';
+            // التقاط قيمة طريقة الحجز بدقة من السجل ووضعها في الـ Select
+            let currentLoc = app.location_type || app.location || 'حجز بالعيادة 🏥';
+            let selectLocElem = document.getElementById('appLocationType');
+            if (currentLoc.includes('أونلاين') || currentLoc.toLowerCase().includes('online')) {
+                selectLocElem.value = 'حجز أونلاين 💻';
+            } else {
+                selectLocElem.value = 'حجز بالعيادة 🏥';
+            }
             
             document.getElementById('appVisitType').value = app.visit_type || app.appt_type || app.type || '';
             document.getElementById('appDate').value = app.appt_date || app.date || '';
@@ -344,13 +336,16 @@
             let statusVal = document.getElementById('appStatus').value;
             let nameVal = document.getElementById('appPatientName').value;
 
-            // إرسال الحقول بحسب أسماء الأعمدة الفعلية للجدول في Supabase (appt_type, appt_date, appt_time, location_type)
+            // إرسال الحقول بكافة الاحتمالات لضمان التوافق التام مع الجدول وحفظ التعديلات
             let payload = {
                 patient_name: nameVal,
                 appt_type: vTypeVal,
+                visit_type: vTypeVal,
                 location_type: locVal,
                 appt_date: dateVal,
+                date: dateVal,
                 appt_time: timeVal,
+                time: timeVal,
                 status: statusVal
             };
 
