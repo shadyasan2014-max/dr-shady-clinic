@@ -344,10 +344,10 @@
 
             let res;
             if (editId && editId.trim() !== "") {
-                // تعديل السجل الحالي باستخدام الـ ID بدقة مطلقة
-                res = await supabaseClient.from('appointments').update(payload).eq('id', editId);
+                // الحل الذكي والمضمون: حذف السجل القديم أولاً ثم إدراج السجل بالبيانات المعدلة الجديدة
+                await supabaseClient.from('appointments').delete().eq('id', editId);
+                res = await supabaseClient.from('appointments').insert([payload]);
             } else {
-                // إضافة سجل جديد فقط لو مفيش ID
                 res = await supabaseClient.from('appointments').insert([payload]);
             }
 
