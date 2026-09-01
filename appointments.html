@@ -257,7 +257,10 @@
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${name}</strong></td>
-                        <td>${vType} <br><span style="font-size:10px; color:var(--accent-blue); font-weight:bold;">(${locType})</span></td>
+                        <td>
+                            <div style="font-weight: bold; margin-bottom: 2px;">${vType}</div>
+                            <span style="font-size:11px; color:var(--accent-blue); background:#e0f2fe; padding:2px 6px; border-radius:4px; display:inline-block; font-weight:bold;">${locType}</span>
+                        </td>
                         <td>${time}</td>
                         <td>${date}</td>
                         <td><span style="${statusColor} padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${status}</span></td>
