@@ -39,8 +39,11 @@
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #047857; color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي المطلوب */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
         .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
 
@@ -57,7 +60,6 @@
         .form-group { margin-bottom: 10px; }
         .form-group label { display: block; font-size: 11px; font-weight: bold; color: var(--text-gray); margin-bottom: 4px; }
         
-        /* الحقول وعناصر الـ Select باللون البرتقالي */
         select, .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; color: var(--text-dark); box-sizing: border-box; }
         select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; }
         
@@ -67,11 +69,9 @@
 
         .pdf-doctor-banner { display: none; background: #ffffff; padding: 15px; border-bottom: 2px solid var(--primary-green); margin-bottom: 15px; }
 
-        /* صندوق النتائج والماكروز */
         .results-box { display: none; background: #f0fdf4; border: 1px solid #bbf7d0; margin-top: 20px; }
         .macro-badge { background: white; border: 1px solid #bbf7d0; padding: 10px; border-radius: 8px; text-align: center; font-size: 12px; font-weight: bold; color: #166534; }
 
-        /* Modal النافذة المنسدلة لاختيار الخطة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 20px rgba(0,0,0,0.2); text-align: right; direction: rtl; }
         .plan-option-btn { width: 100%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--card-border); border-radius: 8px; background: #f8fafc; cursor: pointer; display: flex; align-items: center; gap: 12px; font-size: 13px; text-align: right; transition: 0.2s; }
@@ -307,7 +307,7 @@
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOiJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let generatedPlanPayload = null;
