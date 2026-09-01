@@ -7,32 +7,32 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { --sidebar-bg: #064e3b; --main-bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #059669; --accent-blue: #0284c7; --warning-orange: #d97706; --danger-red: #dc2626; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #047857; color: white; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
         .top-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 25px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         .doctor-profile-top { display: flex; align-items: center; gap: 12px; }
-        .doctor-avatar-top { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); }
+        .doctor-avatar-top { width: 42px; height: 42px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); background: #f1f5f9; }
         .global-search-box { flex: 1; max-width: 450px; margin: 0 20px; position: relative; }
         .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; }
 
         .search-results-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; margin-top: 5px; }
         .search-result-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-        .search-result-item:hover { background-color: #f0fdf4; color: #166534; }
+        .search-result-item:hover { background-color: #ecfdf5; color: #065f46; }
 
         .welcome-banner { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
 
@@ -57,9 +57,9 @@
         .mini-table td { padding: 10px 8px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
 
         .bottom-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .action-btn { border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; color: white; background: var(--accent-blue); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+        .action-btn { border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; color: white; background: var(--primary-green); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
 
-        .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .mobile-menu-toggle { display: none; background: #064e3b; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
@@ -83,7 +83,7 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img id="sidebarLogo" src="logo.jpeg" onerror="this.src='https://via.placeholder.com/50'" alt="Logo" class="brand-logo">
+                <img id="sidebarLogo" src="logo.jpeg" onerror="this.style.display='none'" alt="Logo" class="brand-logo">
                 <h2 id="sidebarDocName">د. شادي سمير</h2>
                 <p id="sidebarDocTitle">عيادة التغذية العلاجية</p>
             </div>
@@ -113,7 +113,7 @@
 
         <div class="top-header-bar">
             <div class="doctor-profile-top">
-                <img id="topDocAvatar" src="logo.jpeg" onerror="this.src='https://via.placeholder.com/42'" alt="Doctor" class="doctor-avatar-top">
+                <img id="topDocAvatar" src="logo.jpeg" onerror="this.style.display='none'" alt="Doctor" class="doctor-avatar-top">
                 <div>
                     <h4 id="topDocName" style="margin:0; font-size:14px; color:var(--text-dark);">د. شادي سمير</h4>
                     <span style="font-size:10px; color:var(--primary-green); font-weight:bold;">طبيب معالج نشط</span>
@@ -174,8 +174,8 @@
                     <strong id="alertDelayedCount">0</strong>
                 </div>
                 <div class="alert-item warning" onclick="window.location.href='appointments.html'">
-                    <span>⏰ مواعيد خلال 24 ساعة</span>
-                    <strong id="alertSoonCount">0</strong>
+                    <span>⏰ مواعيد خلال 24 ساعة (بكره)</span>
+                    <strong id="alertTomorrowCount">0</strong>
                 </div>
                 <div class="alert-item info" onclick="window.location.href='labs.html'">
                     <span>🧪 تحاليل مستحقة للمراجعة</span>
@@ -187,7 +187,6 @@
                 </div>
             </div>
 
-            <!-- مواعيد اليوم المحدثة بدقة -->
             <div class="card">
                 <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
                     <h3 style="margin:0; border:none; padding:0;">📅 مواعيد اليوم (<span id="todayDateLabel">اليوم</span>)</h3>
@@ -228,9 +227,8 @@
                 </div>
             </div>
 
-            <!-- مواعيد قادمة وتذكيرات حقيقية من SQL -->
             <div class="card">
-                <h3>📌 مواعيد قادمة وتذكيرات</h3>
+                <h3>📌 مواعيد قادمة وتذكيرات (الغد وما بعده)</h3>
                 <div id="upcomingRemindersList" style="font-size:11px; color:var(--text-gray);">
                     <div style="padding: 8px; color: gray;">جاري جلب المواعيد القادمة...</div>
                 </div>
@@ -260,40 +258,49 @@
         }
 
         async function loadDashboardData() {
-            // تظبيط التاريخ الحالي بالتنسيق المحلي
             let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             let todayFormattedStr = new Date().toLocaleDateString('ar-EG', options);
             document.getElementById('currentDateDisplay').innerText = todayFormattedStr;
             document.getElementById('todayDateLabel').innerText = new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
 
-            // استخراج تاريخ اليوم بصيغة YYYY-MM-DD لمقارنته بقاعدة البيانات بدقة تامة
-            let d = new Date();
-            let year = d.getFullYear();
-            let month = String(d.getMonth() + 1).padStart(2, '0');
-            let day = String(d.getDate()).padStart(2, '0');
+            // استخراج تاريخ اليوم والغد بدقة بصيغة YYYY-MM-DD
+            let dToday = new Date();
+            let year = dToday.getFullYear();
+            let month = String(dToday.getMonth() + 1).padStart(2, '0');
+            let day = String(dToday.getDate()).padStart(2, '0');
             let todaySqlStr = `${year}-${month}-${day}`;
 
+            let dTomorrow = new Date(dToday);
+            dTomorrow.setDate(dTomorrow.getDate() + 1);
+            let tYear = dTomorrow.getFullYear();
+            let tMonth = String(dTomorrow.getMonth() + 1).padStart(2, '0');
+            let tDay = String(dTomorrow.getDate()).padStart(2, '0');
+            let tomorrowSqlStr = `${tYear}-${tMonth}-${tDay}`;
+
             try {
-                // جلب بيانات الطبيب من SQL
                 const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
                 if (settingsData && settingsData.length > 0) {
                     let s = settingsData[0];
                     let docName = s.doctor_name || "د. شادي سمير";
                     let docTitle = s.doctor_title || "عيادة التغذية العلاجية وجراحات السمنة";
-                    let logoUrl = s.logo_url || "logo.jpeg";
+                    let logoUrl = s.logo_url || "";
 
                     document.getElementById('sidebarDocName').innerText = docName;
                     document.getElementById('sidebarDocTitle').innerText = docTitle;
                     document.getElementById('topDocName').innerText = docName;
                     document.getElementById('welcomeDocName').innerText = docName;
                     
-                    if(logoUrl) {
+                    if(logoUrl && logoUrl.trim() !== "") {
                         document.getElementById('sidebarLogo').src = logoUrl;
                         document.getElementById('topDocAvatar').src = logoUrl;
+                        document.getElementById('sidebarLogo').style.display = 'block';
+                        document.getElementById('topDocAvatar').style.display = 'block';
+                    } else {
+                        document.getElementById('sidebarLogo').style.display = 'none';
+                        document.getElementById('topDocAvatar').style.display = 'none';
                     }
                 }
 
-                // جلب المرضى والمواعيد والمدفوعات
                 const { data: patData } = await supabaseClient.from('patients').select('*');
                 const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
                 const { data: appData } = await supabaseClient.from('appointments').select('*');
@@ -305,23 +312,25 @@
 
                 let totalPat = globalPatientsMasterList.length;
 
-                // تصفية مواعيد اليوم بدقة باستخدام تاريخ اليوم الحقيقي (اليوم فقط وليس الغد)
                 let todayAppointments = [];
+                let tomorrowCount = 0;
                 let upcomingAppointments = [];
                 
                 if (appData) {
                     appData.forEach(app => {
                         let appDate = app.date || app.appointment_date || '';
-                        // التأكد من مقارنة التاريخ اليومي بدقة
                         if (appDate.includes(todaySqlStr) || appDate === todaySqlStr) {
                             todayAppointments.push(app);
-                        } else if (appDate > todaySqlStr) {
+                        }
+                        if (appDate.includes(tomorrowSqlStr) || appDate === tomorrowSqlStr) {
+                            tomorrowCount++;
+                        }
+                        if (appDate > todaySqlStr) {
                             upcomingAppointments.push(app);
                         }
                     });
                 }
 
-                // حساب إيرادات اليوم
                 let todayRevenue = 0;
                 if (payData) {
                     payData.forEach(pay => {
@@ -337,14 +346,12 @@
                 document.getElementById('statTodayTotal').innerText = totalPat;
 
                 document.getElementById('alertDelayedCount').innerText = Math.floor(totalPat / 3);
-                document.getElementById('alertSoonCount').innerText = todayAppointments.length;
+                document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
 
-                // عرض جدول مواعيد اليوم الحقيقي
                 renderTodayAppointments(todayAppointments);
-
-                // عرض المواعيد القادمة الحقيقية من SQL
                 renderUpcomingReminders(upcomingAppointments);
 
+                // تمرير العدد الحقيقي الدقيق للحالات المسجلة (مرضى وجراحات سمنة)
                 renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
                 renderTrendChart();
 
@@ -456,13 +463,14 @@
             const ctx = document.getElementById('casesPieChart').getContext('2d');
             if (pieChartInstance) pieChartInstance.destroy();
 
+            // رسم بياني دقيق معتمد على الأعداد الحقيقية فقط
             pieChartInstance = new Chart(ctx, {
                 type: 'doughnut',
                 data: {
                     labels: ['مرضى عامة ونحافة', 'جراحات سمنة'],
                     datasets: [{
-                        data: [patientsCount || 1, bariatricCount || 1],
-                        backgroundColor: ['#3b82f6', '#10b981'],
+                        data: [patientsCount, bariatricCount],
+                        backgroundColor: ['#0284c7', '#059669'],
                         borderWidth: 2
                     }]
                 },
@@ -485,8 +493,8 @@
                     datasets: [{
                         label: 'متوسط الوزن العام (كجم)',
                         data: [110, 108, 107, 107.5, 106, 104, 102.4],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
                         borderWidth: 2.5,
                         fill: true,
                         tension: 0.3
