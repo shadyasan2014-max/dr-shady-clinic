@@ -121,12 +121,13 @@
                 </div>
 
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <select id="patientSelectDropdown" class="form-control" style="width: 180px; padding: 7px;">
+                    <select id="patientSelectDropdown" class="form-control" style="width: 170px; padding: 7px;">
                         <option value="">-- اختر الحالة --</option>
                     </select>
                     <button onclick="searchAndLoadPatient()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
-                    <button onclick="openComprehensiveEditModal()" class="action-btn" style="background: var(--text-dark);">✏️ تعديل شامل</button>
-                    <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة جديدة</button>
+                    <button onclick="askGeminiWithFullData()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">🤖 اسأل AI</button>
+                    <button onclick="openComprehensiveEditModal()" class="action-btn" style="background: var(--text-dark);">✏️ تعديل</button>
+                    <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة</button>
                 </div>
             </div>
 
@@ -168,13 +169,10 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- قسم اختيار النظام الغذائي مع زر الانتقال المباشر لـ Gemini بالبيانات المسجلة -->
+            <!-- قسم اختيار النظام الغذائي -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
-                    <button onclick="openGeminiWithPatientData()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); padding: 10px 18px; font-size: 13px;">
-                        ✨ فتح وتحليل الحالة في Gemini
-                    </button>
                 </div>
 
                 <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
@@ -403,7 +401,6 @@
             document.getElementById('previousPlanCard').style.display = 'block';
             if (previousPlan.trim() !== '') {
                 document.getElementById('previousPlanText').innerText = previousPlan;
-                // تعبئة النظام السابق تلقائياً في خانة العرض والتعديل حسب نوع المحتوى
                 if (previousPlan.includes("النظام اليومي")) {
                     switchSystem('daily');
                 } else {
@@ -419,7 +416,8 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات والنظام الغذائي للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        function openGeminiWithPatientData() {
+        // دالة زرار AI الذكي لجمع بيانات الحالة وفتح Gemini وبحثها أوتوماتيكياً
+        function askGeminiWithFullData() {
             if (!loadedPatientData) {
                 alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
                 return;
@@ -429,31 +427,33 @@
             let pName = p.patient_name || p.name || 'المريض';
             let pWeight = p.weight || 'غير محدد';
             let pHeight = p.height || 175;
+            let pFat = p.fat || 'غير مسجل';
+            let pMuscle = p.muscle || 'غير مسجل';
             let pSurgery = p.surgery_type || p.category || 'تغذية علاجية';
             let sDate = p.surgery_date || 'غير مسجل';
             let pComplaints = p.curr_complaints || p.notes || 'لا توجد شكاوى';
+            let prevPlan = p.diet_plan || 'لا يوجد نظام سابق';
 
-            let targetCalories = prompt(`✨ تحليل وتوليد الخطة بـ Gemini (للحالة: ${pName}):\n- الوزن: ${pWeight} كجم | الطول: ${pHeight} سم\n- نوع العملية: ${pSurgery}\n- تاريخ العملية: ${sDate}\n\nمن فضلك، أدخل عدد "السعرات الحرارية المطلوبة" أو الهدف الطبي:`, "1500 سعرة حرارية");
+            let promptMessage = `أنا استشاري تغذية علاجية (د. شادي سمير)، وأحتاج منك تحليل الحالة الطبية التالية وتصميم الخطة الغذائية الأنسب لها بدقة إكلينيكية عالية:\n\n` +
+                `📊 **بيانات الحالة:**\n` +
+                `- اسم المريض: ${pName}\n` +
+                `- الوزن الحالي: ${pWeight} كجم\n` +
+                `- الطول: ${pHeight} سم\n` +
+                `- نسبة الدهون: ${pFat}%\n` +
+                `- كتلة العضلات: ${pMuscle} كجم\n` +
+                `- نوع العملية / الحالة: ${pSurgery}\n` +
+                `- تاريخ العملية: ${sDate}\n` +
+                `- الشكاوى والملاحظات الحالية: ${pComplaints}\n\n` +
+                `📋 **النظام الغذائي السابق:**\n${prevPlan}\n\n` +
+                `من فضلك قدم تحليلاً طبياً لحالة المريض واقترح نظاماً غذائياً جديداً ومطوراً يناسب حالته الصحية الحالية.`;
 
-            if (targetCalories !== null) {
-                let promptMessage = `أنا استشاري تغذية علاجية، وأحتاج منك تصميم خطة غذائية طبية دقيقة ومحترفة للحالة التالية:\n` +
-                    `- اسم المريض: ${pName}\n` +
-                    `- الوزن الحالي: ${pWeight} كجم\n` +
-                    `- الطول: ${pHeight} سم\n` +
-                    `- نوع العملية/التصنيف: ${pSurgery}\n` +
-                    `- تاريخ إجراء العملية: ${sDate}\n` +
-                    `- الشكاوى أو الملاحظات الحالية: ${pComplaints}\n` +
-                    `- السعرات المستهدفة المطلوبة: ${targetCalories}\n\n` +
-                    `من فضلك اكتب نظاماً غذائياً متكاملاً (يومي أو لفترة) يناسب مرحلة المريض الصحية والمدة المنقضية منذ تاريخ العملية.`;
+            navigator.clipboard.writeText(promptMessage).then(() => {
+                alert(`🤖 تم جمع كافة بيانات المريض وتجهيز الطلب الذكي ونسخه إلى الحافظة بنجاح!\n\nسيتم الآن فتح صفحة Gemini، فقط قم بلصق النص (Ctrl+V) للحصول على التحليل الفوري والخطة الطبية.`);
+            }).catch(() => {
+                prompt("إليك الطلب الجاهز للحالة، قم بنسخه لفتحه في Gemini:", promptMessage);
+            });
 
-                navigator.clipboard.writeText(promptMessage).then(() => {
-                    alert(`📋 تم نسخ تفاصيل حالة المريض "${pName}" والسعرات (${targetCalories}) إلى الحافظة بنجاح!\n\nسيتم الآن فتح صفحة Gemini، فقط قم بلصق النص للحصول على أحدث وأدق خطة غذائية.`);
-                }).catch(() => {
-                    prompt("إليك النص الطبي الجاهز للحالة، قم بنسخه لفتحه في Gemini:", promptMessage);
-                });
-
-                window.open('https://gemini.google.com/', '_blank');
-            }
+            window.open('https://gemini.google.com/', '_blank');
         }
 
         function switchSystem(type) {
