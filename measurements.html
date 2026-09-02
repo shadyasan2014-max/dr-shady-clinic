@@ -128,13 +128,14 @@
                         <tr>
                             <th>اسم المريض والكود</th>
                             <th>الوزن الحالي</th>
+                            <th>نسبة الدهون & العضلات</th>
                             <th>BMI & BMR (الحساب التلقائي)</th>
                             <th>التاريخ</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="measurementsTableBody">
-                        <tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل القياسات من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل القياسات من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -160,9 +161,20 @@
                     <input type="text" id="measPatientName" class="form-control" placeholder="اسم المريض..." required>
                 </div>
 
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">الوزن الحالي (كجم):</label>
+                        <input type="number" step="0.1" id="measWeight" class="form-control" placeholder="مثال: 85" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">نسبة الدهون (%):</label>
+                        <input type="number" step="0.1" id="measFat" class="form-control" placeholder="مثال: 25">
+                    </div>
+                </div>
+
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">الوزن الحالي (كجم):</label>
-                    <input type="number" step="0.1" id="measWeight" class="form-control" placeholder="مثال: 85" required>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">كتلة العضلات (كجم):</label>
+                    <input type="number" step="0.1" id="measMuscle" class="form-control" placeholder="مثال: 32">
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
@@ -231,7 +243,7 @@
             tbody.innerHTML = '';
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد قياسات مسجلة حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد قياسات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
@@ -239,13 +251,15 @@
                 let id = m.id;
                 let name = m.patient_name || m.name || 'بدون اسم';
                 let weight = parseFloat(m.weight) || 0;
-                let date = m.measurement_date || m.date || '-';
+                let fat = m.fat_percentage || m.fat || '-';
+                let muscle = m.muscle_mass || m.muscle || '-';
+                let date = m.date || m.measurement_date || '-';
 
-                // حساب تقديري ذكي لـ BMI و BMR بناءً على الوزن المسجل في الجدول المتوافق مع Supabase
+                // حساب تقديري ذكي لـ BMI و BMR بناءً على الوزن المسجل
                 let bmi = '-';
                 let bmiCategory = '';
                 let bmiColor = '#0369a1';
-                let assumedHeight = 170; // طول افتراضي قياسي 170 سم للحساب التلقائي
+                let assumedHeight = 170; // طول افتراضي قياسي 170 سم
                 let heightM = assumedHeight / 100;
                 
                 if (weight > 0) {
@@ -257,13 +271,13 @@
                     else { bmiCategory = 'سمنة'; bmiColor = '#dc2626'; }
                 }
 
-                // حساب BMR تلقائي
                 let bmr = weight > 0 ? Math.round((10 * weight) + (6.25 * assumedHeight) - (5 * 40) + 5) : '-';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${name}</strong></td>
                         <td>${weight} كجم</td>
+                        <td>الدهون: ${fat}% <br> العضلات: ${muscle} كجم</td>
                         <td>
                             <div style="font-weight: bold; color: ${bmiColor};">BMI: ${bmi} (${bmiCategory})</div>
                             <div style="font-size: 11px; color: #7c2d12; background: #ffedd5; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">BMR: ${bmr} سعرة/يوم</div>
@@ -286,6 +300,8 @@
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('measPatientName').value = '';
             document.getElementById('measWeight').value = '';
+            document.getElementById('measFat').value = '';
+            document.getElementById('measMuscle').value = '';
             document.getElementById('measDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('measurementModal').style.display = 'flex';
         }
@@ -299,7 +315,9 @@
             document.getElementById('modalPatientSelect').value = '';
             document.getElementById('measPatientName').value = m.patient_name || m.name || '';
             document.getElementById('measWeight').value = m.weight || '';
-            document.getElementById('measDate').value = m.measurement_date || m.date || new Date().toISOString().split('T')[0];
+            document.getElementById('measFat').value = m.fat_percentage || m.fat || '';
+            document.getElementById('measMuscle').value = m.muscle_mass || m.muscle || '';
+            document.getElementById('measDate').value = m.date || m.measurement_date || new Date().toISOString().split('T')[0];
             document.getElementById('measurementModal').style.display = 'flex';
         }
 
@@ -311,11 +329,13 @@
             event.preventDefault();
             let editId = document.getElementById('editingMeasurementId').value;
             
-            // إرسال الأعمدة المتوافقة تماماً مع جدول measurements الحالي في Supabase
+            // إرسال الأعمدة المتوافقة تماماً مع الجدول الحالي (patient_name, weight, fat_percentage, muscle_mass, date)
             let payload = {
                 patient_name: document.getElementById('measPatientName').value,
                 weight: parseFloat(document.getElementById('measWeight').value),
-                measurement_date: document.getElementById('measDate').value
+                fat_percentage: document.getElementById('measFat').value ? parseFloat(document.getElementById('measFat').value) : null,
+                muscle_mass: document.getElementById('measMuscle').value ? parseFloat(document.getElementById('measMuscle').value) : null,
+                date: document.getElementById('measDate').value
             };
 
             let res;
