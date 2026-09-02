@@ -7,16 +7,16 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
-            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
-            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
-            --card-bg: #ffffff;             /* خلفية البطاقات */
-            --card-border: #e2e8f0;         /* حدود خفيفة */
-            --primary-green: #059669;       /* الأخضر الرئيسي */
-            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
-            --warning-orange: #f59e0b;      /* البرتقالي للـ Select والـ Active */
-            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
-            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
-            --text-gray: #64748b;           /* نصوص رمادية */
+            --sidebar-bg: #064e3b;          
+            --main-bg: #f8fafc;             
+            --card-bg: #ffffff;             
+            --card-border: #e2e8f0;         
+            --primary-green: #059669;       
+            --accent-blue: #0284c7;         
+            --warning-orange: #f59e0b;      
+            --danger-red: #dc2626;          
+            --text-dark: #1e293b;           
+            --text-gray: #64748b;           
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
@@ -38,12 +38,7 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; border: 1px solid var(--card-border); }
-        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
-        
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
-
-        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
+        .top-bar-original { background: #ffffff; padding: 15px 20px; border-radius: 12px; border: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         
         select, .form-select { 
             border: 2px solid var(--warning-orange) !important; 
@@ -51,17 +46,12 @@
             background-color: #fffbeb !important; 
             font-weight: bold !important; 
             border-radius: 8px !important; 
-            padding: 9px 12px !important; 
-            width: 100% !important;
-            box-sizing: border-box !important;
+            padding: 8px 12px !important; 
         }
         select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
 
-        .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
-
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
-        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -112,46 +102,68 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div class="top-header">
-            <div>
-                <h1>🥗 الخطط الغذائية والأنظمة اليومية (SQL Live)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إعداد ومتابعة الأنظمة الغذائية للمرضى والحالات</p>
+        <!-- الشريط العلوي الأصلي تماماً -->
+        <div class="top-bar-original">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button onclick="openFollowupModal()" style="background: #059669; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">📅 متابعة جديدة</button>
+                <button onclick="alert('تم تفعيل وضع التعديل الشامل')" style="background: #1e293b; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">✏️ تعديل شامل</button>
+                <button onclick="searchPatientPlan()" style="background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">🔍 بحث</button>
+                <select id="searchPatientSelect" style="width: 200px;">
+                    <option value="">-- اختر المريض --</option>
+                </select>
             </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <select id="searchPatientSelect" class="form-control" style="width: 220px;"></select>
-                <button onclick="searchPatientPlan()" class="action-btn" style="background: var(--primary-green); padding: 9px 14px;">🔍 بحث</button>
-                <button onclick="openFollowupModal()" class="action-btn" style="background: var(--warning-orange); padding: 9px 14px;">➕ متابعة جديدة</button>
+            
+            <div style="text-align: left;">
+                <h3 id="patientDisplayTitle" style="margin: 0; font-size: 15px; color: var(--text-dark);">المريض: --</h3>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-gray);">استعراض تفصيلي لبيانات الحالة وتواريخ المتابعة والنظام السابق</p>
+            </div>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <button onclick="alert('جاري فتح التحليل الذكي للـ Gemini')" style="background: #7c3aed; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">✨ فتح وتحليل الحالة في Gemini</button>
+        </div>
+
+        <div class="card" style="text-align: center; padding: 15px; background: #ffffff;">
+            <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-dark);">📌 اختيار نوع النظام الغذائي الجديد</h4>
+            <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                <div style="border: 2px solid #059669; background: #f0fdf4; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; color: #065f46; cursor: pointer;">🌞 نظام يومي (يوم واحد)<br><span style="font-size: 10px; color: #64748b;">3 وجبات رئيسية + 3 سناكس</span></div>
+                <div style="border: 1px solid var(--card-border); background: #f8fafc; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; color: var(--text-gray); cursor: pointer;">📅 نظام أسبوعي (7 أيام)<br><span style="font-size: 10px; color: #64748b;">جدول أسبوعي متكامل</span></div>
+                <div style="border: 1px solid var(--card-border); background: #f8fafc; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; color: var(--text-gray); cursor: pointer;">📈 نظم بشكل عام للفترة<br><span style="font-size: 10px; color: #64748b;">خطة شاملة ممتدة</span></div>
             </div>
         </div>
 
         <div class="card">
-            <h3 id="patientHeaderInfo" style="margin-top:0; font-size:15px; color:var(--primary-green); border-bottom:1px solid #f1f5f9; padding-bottom:8px;">👤 اختر مريضاً للبدء في استعراض النظام الغذائي السابق</h3>
+            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px; color: #92400e;">🌞 تفاصيل النظام اليومي (3 وجبات رئيسية + 3 سناكس) - قابل للتعديل</h3>
             
-            <div style="display:grid; grid-template-columns: 1fr; gap:15px; margin-top:15px;">
+            <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-top:10px;">
                 <div>
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🥗 وجبة الإفطار:</label>
-                    <textarea id="mealBreakfast" class="form-control" rows="2" placeholder="تفاصيل الإفطار..."></textarea>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">وجبة الإفطار:</label>
+                    <textarea id="mealBreakfast" class="form-control" rows="2" placeholder="بيضة مقلية، خبز توست، فواكه..."></textarea>
                 </div>
                 <div>
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🍏 سناك خفيف (1):</label>
-                    <textarea id="mealSnack1" class="form-control" rows="2" placeholder="تفاصيل السناك الأول..."></textarea>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">سناك خفيف (1):</label>
+                    <textarea id="mealSnack1" class="form-control" rows="2" placeholder="مكسرات أو ثمرة فواكه..."></textarea>
                 </div>
                 <div>
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🍲 وجبة الغداء:</label>
-                    <textarea id="mealLunch" class="form-control" rows="2" placeholder="تفاصيل الغداء..."></textarea>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">وجبة الغداء:</label>
+                    <textarea id="mealLunch" class="form-control" rows="2" placeholder="صدور دجاج مشوية، أرز بسمتي، سلطة..."></textarea>
                 </div>
                 <div>
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🍏 سناك خفيف (2):</label>
-                    <textarea id="mealSnack2" class="form-control" rows="2" placeholder="تفاصيل السناك الثاني..."></textarea>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">سناك خفيف (2):</label>
+                    <textarea id="mealSnack2" class="form-control" rows="2" placeholder="زبادي يوناني..."></textarea>
                 </div>
                 <div>
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🌙 وجبة العشاء:</label>
-                    <textarea id="mealDinner" class="form-control" rows="2" placeholder="تفاصيل العشاء..."></textarea>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">وجبة العشاء:</label>
+                    <textarea id="mealDinner" class="form-control" rows="2" placeholder="جبنة قريش، خيار، خبز سن..."></textarea>
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">سناك ليلي:</label>
+                    <textarea id="mealSnackNight" class="form-control" rows="2" placeholder="مشروب دافئ أو أعشاب..."></textarea>
                 </div>
             </div>
 
-            <div style="margin-top: 20px; text-align: left;">
-                <button onclick="saveMealPlanToSQL()" class="action-btn" style="background: var(--primary-green); padding: 10px 20px; font-size: 13px;">💾 حفظ وتحديث النظام الغذائي في SQL</button>
+            <div style="margin-top: 15px; text-align: left;">
+                <button onclick="saveMealPlanToSQL()" style="background: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">💾 حفظ وتحديث النظام الغذائي في SQL</button>
             </div>
         </div>
     </div>
@@ -159,7 +171,7 @@
     <!-- نافذة تسجيل متابعة جديدة -->
     <div id="followupModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">➕ تسجيل متابعة جديدة وموعد قادم</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">📅 تسجيل متابعة جديدة وموعد القادمة</h3>
             <form onsubmit="saveFollowupToSQL(event)">
                 <div class="form-group" style="margin-bottom:10px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">نوع المتابعة:</label>
@@ -226,11 +238,11 @@
             if (barData) barData.forEach(b => masterPatientsList.push(b));
 
             let searchSelect = document.getElementById('searchPatientSelect');
-            searchSelect.innerHTML = '<option value="">-- اختر المريض للبحث --</option>';
+            searchSelect.innerHTML = '<option value="">-- اختر المريض --</option>';
             masterPatientsList.forEach((p) => {
                 let name = p.patient_name || p.name || 'بدون اسم';
                 let code = p.patient_code || p.code || 'بدون كود';
-                searchSelect.innerHTML += `<option value="${name}">${name} (كود: ${code})</option>`;
+                searchSelect.innerHTML += `<option value="${name}">${name} (${code})</option>`;
             });
         }
 
@@ -239,35 +251,37 @@
             currentSelectedPatient = selectElem.value;
 
             if (!currentSelectedPatient) {
-                alert('الرجاء اختيار مريض أولاً للبحث!');
+                alert('الرجاء اختيار مريض أولاً من القائمة المنسدلة!');
                 return;
             }
 
-            document.getElementById('patientHeaderInfo').innerText = `👤 المريض: ${currentSelectedPatient} - استعراض النظام الغذائي السابق`;
+            document.getElementById('patientDisplayTitle').innerText = `المريض: ${currentSelectedPatient}`;
 
-            // جلب النظام الغذائي السابق المسجل للمريض من Supabase
+            // جلب خطة النظام الغذائي السابق من Supabase
             const { data, error } = await supabaseClient.from('meal_plans').select('*').eq('patient_name', currentSelectedPatient);
             
             if (data && data.length > 0) {
-                let plan = data[data.length - 1]; // آخر خططة مسجلة
+                let plan = data[data.length - 1];
                 document.getElementById('mealBreakfast').value = plan.breakfast || '';
                 document.getElementById('mealSnack1').value = plan.snack1 || '';
                 document.getElementById('mealLunch').value = plan.lunch || '';
                 document.getElementById('mealSnack2').value = plan.snack2 || '';
                 document.getElementById('mealDinner').value = plan.dinner || '';
+                document.getElementById('mealSnackNight').value = plan.snack_night || '';
             } else {
                 document.getElementById('mealBreakfast').value = '';
                 document.getElementById('mealSnack1').value = '';
                 document.getElementById('mealLunch').value = '';
                 document.getElementById('mealSnack2').value = '';
                 document.getElementById('mealDinner').value = '';
-                alert('لا توجد خطة غذائية سابقة مسجلة لهذا المريض، يمكنك إضافتها وحفظها الآن.');
+                document.getElementById('mealSnackNight').value = '';
+                alert('لا توجد خطة غذائية سابقة مسجلة لهذا المريض، يمكنك إضافتها الآن.');
             }
         }
 
         async function saveMealPlanToSQL() {
             if (!currentSelectedPatient) {
-                alert('الرجاء اختيار مريض والبحث عنه أولاً قبل الحفظ!');
+                alert('الرجاء اختيار المريض والضغط على بحث أولاً!');
                 return;
             }
 
@@ -278,10 +292,9 @@
                 lunch: document.getElementById('mealLunch').value,
                 snack2: document.getElementById('mealSnack2').value,
                 dinner: document.getElementById('mealDinner').value,
-                updated_at: new Date().toISOString()
+                snack_night: document.getElementById('mealSnackNight').value
             };
 
-            // الحفظ الآمن (حذف القديم وإدراج الجديد لتفادي قيود RLS)
             await supabaseClient.from('meal_plans').delete().eq('patient_name', currentSelectedPatient);
             let res = await supabaseClient.from('meal_plans').insert([payload]);
 
@@ -295,14 +308,11 @@
 
         function openFollowupModal() {
             if (!currentSelectedPatient) {
-                alert('الرجاء اختيار المريض أولاً من قائمة البحث بالأسفل أو الأعلى!');
+                alert('الرجاء اختيار المريض أولاً والبحث عنه!');
                 return;
             }
             document.getElementById('fupDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('fupNextDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('fupWeight').value = '';
-            document.getElementById('fupHeight').value = '';
-            document.getElementById('fupNotes').value = '';
             document.getElementById('followupModal').style.display = 'flex';
         }
 
@@ -312,7 +322,6 @@
 
         async function saveFollowupToSQL(event) {
             event.preventDefault();
-
             let payload = {
                 patient_name: currentSelectedPatient,
                 followup_type: document.getElementById('fupType').value,
@@ -329,7 +338,7 @@
                 return;
             }
 
-            alert('✨ تم تسجيل حفظ المتابعة والموعد القادم بنجاح!');
+            alert('✨ تم تسجيل المتابعة والموعد القادم بنجاح!');
             closeFollowupModal();
         }
 
