@@ -209,7 +209,7 @@
         </div>
     </div>
 
-    <!-- نافذة عرض وطباعة بيانات الحالة للذكاء الاصطناعي (ضمان عدم حظر المتصفح) -->
+    <!-- نافذة عرض وطباعة بيانات الحالة للذكاء الاصطناعي -->
     <div id="aiPromptModal" class="modal-overlay">
         <div class="modal-box" style="width: 550px;">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px; color:var(--accent-blue);">🤖 رسالة التحليل الذكي الجاهزة لـ Gemini</h3>
@@ -429,7 +429,7 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات والنظام الغذائي للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        // الحل الضامن لظهور بيانات الحالة ونقلها لـ AI بدون حظر المتصفح
+        // دالة الذكاء الاصطناعي المحدثة لضمان سحب بيانات المريض المختار بدقة تامة
         function askGeminiWithFullData() {
             if (!loadedPatientData) {
                 alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
@@ -437,25 +437,23 @@
             }
 
             let p = loadedPatientData;
-            let pName = p.patient_name || p.name || 'المريض';
-            let pWeight = p.weight || 'غير محدد';
+            let pName = p.patient_name || p.name || document.getElementById('patientTitleName').innerText.replace('المريض: ', '') || 'المريض';
+            let pWeight = p.weight || document.getElementById('medWeight').innerText.split(' ')[0] || 'غير محدد';
             let pHeight = p.height || 175;
-            let pFat = p.fat || 'غير مسجل';
-            let pMuscle = p.muscle || 'غير مسجل';
-            let pSurgery = p.surgery_type || p.category || 'تغذية علاجية';
-            let sDate = p.surgery_date || 'غير مسجل';
-            let pComplaints = p.curr_complaints || p.notes || 'لا توجد شكاوى';
-            let prevPlan = p.diet_plan || 'لا يوجد نظام سابق';
+            let pFat = p.fat || p.prev_fat || 'غير مسجل';
+            let pMuscle = p.muscle || p.prev_muscle || 'غير مسجل';
+            let pSurgery = p.surgery_type || p.category || document.getElementById('medSurgery').innerText || 'تغذية علاجية';
+            let pComplaints = p.curr_complaints || document.getElementById('currComplaintsDisp').innerText || 'لا توجد شكاوى';
+            let prevPlan = p.diet_plan || document.getElementById('previousPlanText').innerText || 'لا يوجد نظام سابق';
 
-            let promptMessage = `أنا استشاري تغذية علاجية (د. شادي سمير)، وأحتاج منك تحليل الحالة الطبية التالية وتصميم الخطة الغذائية الأنسب لها بدقة إكلينيكية عالية:\n\n` +
-                `📊 **بيانات الحالة:**\n` +
+            let promptMessage = `أنا استشاري تغذية علاجية (د. شادي سمير)، وأحتاج منك تحليل الحالة الطبية للمريض وتصميم الخطة الغذائية الأنسب لها بدقة إكلينيكية عالية:\n\n` +
+                `📊 **بيانات المريض:**\n` +
                 `- اسم المريض: ${pName}\n` +
                 `- الوزن الحالي: ${pWeight} كجم\n` +
                 `- الطول: ${pHeight} سم\n` +
                 `- نسبة الدهون: ${pFat}%\n` +
                 `- كتلة العضلات: ${pMuscle} كجم\n` +
                 `- نوع العملية / الحالة: ${pSurgery}\n` +
-                `- تاريخ العملية: ${sDate}\n` +
                 `- الشكاوى والملاحظات الحالية: ${pComplaints}\n\n` +
                 `📋 **النظام الغذائي السابق:**\n${prevPlan}\n\n` +
                 `من فضلك قدم تحليلاً طبياً لحالة المريض واقترح نظاماً غذائياً جديداً ومطوراً يناسب حالته الصحية الحالية.`;
@@ -470,7 +468,7 @@
             textarea.setSelectionRange(0, 99999);
             try {
                 navigator.clipboard.writeText(textarea.value);
-                alert('📋 تم نسخ تفاصيل الحالة إلى الحافظة بنجاح!');
+                alert('📋 تم نسخ بيانات المريض إلى الحافظة بنجاح!');
             } catch (err) {
                 document.execCommand('copy');
                 alert('📋 تم نسخ النص!');
