@@ -14,7 +14,7 @@
             --primary-green: #059669;       /* الأخضر الرئيسي */
             --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
             --warning-orange: #f59e0b;      /* البرتقالي للـ Select والـ Active */
-            --danger-red: #dc2626;          /* أحمر للتنبيهات */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
             --text-dark: #1e293b;           /* نصوص داكنة واضحة */
             --text-gray: #64748b;           /* نصوص رمادية */
         }
@@ -30,7 +30,6 @@
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي المطلوب */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -46,18 +45,26 @@
 
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
-        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
-        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
+        select, .form-select { 
+            border: 2px solid var(--warning-orange) !important; 
+            color: #92400e !important; 
+            background-color: #fffbeb !important; 
+            font-weight: bold !important; 
+            border-radius: 8px !important; 
+            padding: 9px 12px !important; 
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
 
-        .action-btn { border: none; padding: 9px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: white; background: var(--primary-green); }
+        .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
 
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-        /* نافذة تسجيل قياس جديد مع استدعاء الحالة */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -84,7 +91,7 @@
             <ul class="sidebar-menu">
                 <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
                 <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
-                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد والجدول</a></li>
                 <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
                 <li class="active"><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
                 <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
@@ -108,68 +115,96 @@
         <div class="top-header">
             <div>
                 <h1>⚖️ سجل القياسات الحيوية وتطور الوزن (SQL Live)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">استعراض وتسجيل القياسات الجديدة للمرضى المسجلين</p>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">استعراض وحساب قياسات الجسم الحيوية و(BMI & BMR)</p>
             </div>
-            <button onclick="openNewMeasurementModal()" class="action-btn" style="background: var(--primary-green);">➕ تسجيل قياس جديد (استدعاء حالة)</button>
+            <button onclick="openMeasurementModal()" class="action-btn" style="background: var(--primary-green); padding: 9px 16px;">➕ تسجيل قياس جديد</button>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📋 جدول أوزان وقياسات الحالات</h3>
+            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px;">📊 جدول أوزان وقياسات الحالات (مع الحساب التلقائي)</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
-                            <th>اسم المريض وكود العميل</th>
-                            <th>الوزن الحالي (كجم)</th>
-                            <th>نسبة الدهون (%)</th>
-                            <th>كتلة العضلات (كجم)</th>
-                            <th>تاريخ القياس</th>
+                            <th>اسم المريض والكود</th>
+                            <th>الوزن / الطول / العمر</th>
+                            <th>نسبة الدهون & العضلات</th>
+                            <th>BMI & BMR (الحساب التلقائي)</th>
+                            <th>التاريخ</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="measurementsTableBody">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray);">جاري تحميل القياسات من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل القياسات من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تسجيل قياس جديد مع استدعاء الحالة -->
-    <div id="newMeasurementModal" class="modal-overlay">
+    <!-- نافذة إضافة / تعديل قياس شامل -->
+    <div id="measurementModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">⚖️ تسجيل قياس جديد للحالة</h3>
-            <form onsubmit="saveNewMeasurementToSQL(event)">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">🔍 استدعاء المريض من الحالات المسجلة:</label>
-                    <select id="modalPatientSelect" class="form-control" required>
-                        <option value="">-- اختر المريض --</option>
+            <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">⚖️ تسجيل قياس جديد للمريض</h3>
+            <form onsubmit="saveMeasurementToSQL(event)">
+                <input type="hidden" id="editingMeasurementId">
+                
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">🔍 اختر المريض:</label>
+                    <select id="modalPatientSelect" class="form-control" onchange="autofillPatientData(this)">
+                        <option value="">-- اختر المريض من الحالات المسجلة --</option>
                     </select>
                 </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">⚖️ الوزن الجديد (كجم):</label>
-                    <input type="number" step="0.1" id="mWeight" class="form-control" placeholder="مثال: 82.5" required>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">اسم المريض والكود:</label>
+                    <input type="text" id="measPatientName" class="form-control" placeholder="اسم المريض..." required>
                 </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">💧 نسبة الدهون الجديدة (%):</label>
-                    <input type="number" step="0.1" id="mFat" class="form-control" placeholder="مثال: 25.4">
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">الوزن الحالي (كجم):</label>
+                        <input type="number" step="0.1" id="measWeight" class="form-control" placeholder="مثال: 85" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">الطول (سم):</label>
+                        <input type="number" step="0.1" id="measHeight" class="form-control" placeholder="مثال: 175" required>
+                    </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">💪 كتلة العضلات الجديدة (كجم):</label>
-                    <input type="number" step="0.1" id="mMuscle" class="form-control" placeholder="مثال: 32.1">
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">العمر (سنوات):</label>
+                        <input type="number" id="measAge" class="form-control" placeholder="مثال: 40" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">النوع:</label>
+                        <select id="measGender" class="form-control">
+                            <option value="male">ذكر (Male)</option>
+                            <option value="female">أنثى (Female)</option>
+                        </select>
+                    </div>
                 </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">📅 تاريخ القياس:</label>
-                    <input type="date" id="mDate" class="form-control" required>
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">نسبة الدهون (%):</label>
+                        <input type="number" step="0.1" id="measFat" class="form-control" placeholder="مثال: 25">
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px; flex:1;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">كتلة العضلات (كجم):</label>
+                        <input type="number" step="0.1" id="measMuscle" class="form-control" placeholder="مثال: 32">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">التاريخ:</label>
+                    <input type="date" id="measDate" class="form-control" required>
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ القياس في SQL</button>
-                    <button type="button" onclick="closeNewMeasurementModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
+                    <button type="button" onclick="closeMeasurementModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -180,6 +215,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let measurementsList = [];
         let masterPatientsList = [];
 
         function toggleMobileSidebar() {
@@ -188,112 +224,188 @@
         }
 
         async function loadMeasurementsData() {
+            const { data, error } = await supabaseClient.from('measurements').select('*');
+            if (error) {
+                console.error("Error loading measurements:", error);
+            }
+            measurementsList = data || [];
+
             const { data: patData } = await supabaseClient.from('patients').select('*');
             const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
             masterPatientsList = [];
-            if (patData) patData.forEach(p => masterPatientsList.push({ ...p, _table: 'patients' }));
-            if (barData) barData.forEach(b => masterPatientsList.push({ ...b, _table: 'bariatric_cases' }));
+            if (patData) patData.forEach(p => masterPatientsList.push(p));
+            if (barData) barData.forEach(b => masterPatientsList.push(b));
 
-            // تعبئة قائمة الـ Select في النافذة المنسدلة للاستدعاء
             let modalSelect = document.getElementById('modalPatientSelect');
             modalSelect.innerHTML = '<option value="">-- اختر المريض من الحالات المسجلة --</option>';
-
-            masterPatientsList.forEach((p, idx) => {
+            masterPatientsList.forEach((p) => {
                 let name = p.patient_name || p.name || 'بدون اسم';
                 let code = p.patient_code || p.code || 'بدون كود';
-                modalSelect.innerHTML += `<option value="${idx}">${name} (كود: ${code})</option>`;
+                modalSelect.innerHTML += `<option value="${name} (${code})">${name} (كود: ${code})</option>`;
             });
 
-            renderMeasurementsTable(masterPatientsList);
+            renderMeasurementsTable(measurementsList);
+        }
+
+        function autofillPatientData(selectElem) {
+            if (selectElem.value) {
+                document.getElementById('measPatientName').value = selectElem.value;
+                let found = masterPatientsList.find(p => `${p.patient_name || p.name} (${p.patient_code || p.code})` === selectElem.value);
+                if (found) {
+                    if (found.weight) document.getElementById('measWeight').value = found.weight;
+                    if (found.height) document.getElementById('measHeight').value = found.height;
+                    if (found.age) document.getElementById('measAge').value = found.age;
+                    if (found.gender) document.getElementById('measGender').value = found.gender;
+                }
+            }
         }
 
         function renderMeasurementsTable(list) {
             let tbody = document.getElementById('measurementsTableBody');
             tbody.innerHTML = '';
 
-            let hasRecords = false;
-            list.forEach((p) => {
-                if (p.weight || p.fat || p.muscle) {
-                    hasRecords = true;
-                    let name = p.patient_name || p.name || 'بدون اسم';
-                    let code = p.patient_code || p.code || 'بدون كود';
-                    let weight = p.weight ? p.weight + ' كجم' : '-';
-                    let fat = p.fat ? p.fat + '%' : '-';
-                    let muscle = p.muscle ? p.muscle + ' كجم' : '-';
-                    let date = p.curr_followup_date || p.surgery_date || 'اليوم';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td>
-                                <strong>${name}</strong><br>
-                                <span style="font-size:10px; color:var(--accent-blue); font-weight:bold;">كود: ${code}</span>
-                            </td>
-                            <td>${weight}</td>
-                            <td>${fat}</td>
-                            <td>${muscle}</td>
-                            <td>${date}</td>
-                            <td>
-                                <button onclick="openPatientProfile('${name}')" class="action-btn" style="background:var(--accent-blue);">📂 الملف الكامل</button>
-                            </td>
-                        </tr>
-                    `;
-                }
-            });
-
-            if (!hasRecords) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد قياسات مسجلة حالياً. اضغط على "تسجيل قياس جديد" لاستدعاء المريض.</td></tr>`;
-            }
-        }
-
-        function openNewMeasurementModal() {
-            document.getElementById('mDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('newMeasurementModal').style.display = 'flex';
-        }
-
-        function closeNewMeasurementModal() {
-            document.getElementById('newMeasurementModal').style.display = 'none';
-        }
-
-        async function saveNewMeasurementToSQL(event) {
-            event.preventDefault();
-            let selectIdx = document.getElementById('modalPatientSelect').value;
-            if (selectIdx === "") {
-                alert('الرجاء اختيار المريض من القائمة.');
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد قياسات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
-            let selectedPatient = masterPatientsList[selectIdx];
-            let newWeight = parseFloat(document.getElementById('mWeight').value) || 0;
-            let newFat = parseFloat(document.getElementById('mFat').value) || null;
-            let newMuscle = parseFloat(document.getElementById('mMuscle').value) || null;
-            let measureDate = document.getElementById('mDate').value;
+            list.forEach((m) => {
+                let id = m.id;
+                let name = m.patient_name || m.name || 'بدون اسم';
+                let weight = parseFloat(m.weight) || 0;
+                let height = parseFloat(m.height) || 0;
+                let age = parseInt(m.age) || 40;
+                let gender = m.gender || 'male';
+                let fat = m.fat_percentage || m.fat || '-';
+                let muscle = m.muscle_mass || m.muscle || '-';
+                let date = m.measurement_date || m.date || '-';
 
-            // تحديث القياسات الجديدة في جدول المريض في SQL وتخزين الوزن القديم كـ prev
+                // معادلة حساب BMI
+                let bmi = '-';
+                let bmiCategory = '';
+                let bmiColor = '#0369a1';
+                if (weight > 0 && height > 0) {
+                    let heightM = height / 100;
+                    let calcBmi = weight / (heightM * heightM);
+                    bmi = calcBmi.toFixed(1);
+                    if (calcBmi < 18.5) { bmiCategory = 'نحافة'; bmiColor = '#0284c7'; }
+                    else if (calcBmi < 25) { bmiCategory = 'وزن مثالي'; bmiColor = '#059669'; }
+                    else if (calcBmi < 30) { bmiCategory = 'زيادة وزن'; bmiColor = '#d97706'; }
+                    else { bmiCategory = 'سمنة'; bmiColor = '#dc2626'; }
+                }
+
+                // معادلة Mifflin-St Jeor لحساب BMR بدقة
+                let bmr = '-';
+                if (weight > 0 && height > 0 && age > 0) {
+                    if (gender === 'female') {
+                        bmr = Math.round((10 * weight) + (6.25 * height) - (5 * age) - 161);
+                    } else {
+                        bmr = Math.round((10 * weight) + (6.25 * height) - (5 * age) + 5);
+                    }
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td>${weight} كجم | ${height} سم | ${age} سنة</td>
+                        <td>الدهون: ${fat}% <br> العضلات: ${muscle} كجم</td>
+                        <td>
+                            <div style="font-weight: bold; color: ${bmiColor};">BMI: ${bmi} (${bmiCategory})</div>
+                            <div style="font-size: 11px; color: #7c2d12; background: #ffedd5; padding: 2px 6px; border-radius: 4px; display: inline-block; margin-top: 2px;">BMR: ${bmr} سعرة/يوم</div>
+                        </td>
+                        <td>${date}</td>
+                        <td>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <button onclick="openEditMeasurementModal('${id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل شامل</button>
+                                <button onclick="deleteMeasurement('${id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function openMeasurementModal() {
+            document.getElementById('editingMeasurementId').value = '';
+            document.getElementById('modalTitle').innerText = '⚖️ تسجيل قياس جديد للمريض';
+            document.getElementById('modalPatientSelect').value = '';
+            document.getElementById('measPatientName').value = '';
+            document.getElementById('measWeight').value = '';
+            document.getElementById('measHeight').value = '';
+            document.getElementById('measAge').value = '';
+            document.getElementById('measGender').value = 'male';
+            document.getElementById('measFat').value = '';
+            document.getElementById('measMuscle').value = '';
+            document.getElementById('measDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('measurementModal').style.display = 'flex';
+        }
+
+        function openEditMeasurementModal(id) {
+            let m = measurementsList.find(item => String(item.id) === String(id));
+            if (!m) return;
+
+            document.getElementById('editingMeasurementId').value = m.id;
+            document.getElementById('modalTitle').innerText = '✏️ تعديل قياسات المريض';
+            document.getElementById('modalPatientSelect').value = '';
+            document.getElementById('measPatientName').value = m.patient_name || m.name || '';
+            document.getElementById('measWeight').value = m.weight || '';
+            document.getElementById('measHeight').value = m.height || '';
+            document.getElementById('measAge').value = m.age || '';
+            document.getElementById('measGender').value = m.gender || 'male';
+            document.getElementById('measFat').value = m.fat_percentage || m.fat || '';
+            document.getElementById('measMuscle').value = m.muscle_mass || m.muscle || '';
+            document.getElementById('measDate').value = m.measurement_date || m.date || new Date().toISOString().split('T')[0];
+            document.getElementById('measurementModal').style.display = 'flex';
+        }
+
+        function closeMeasurementModal() {
+            document.getElementById('measurementModal').style.display = 'none';
+        }
+
+        async function saveMeasurementToSQL(event) {
+            event.preventDefault();
+            let editId = document.getElementById('editingMeasurementId').value;
+            
             let payload = {
-                weight: newWeight,
-                curr_followup_date: measureDate,
-                prev_weight: selectedPatient.weight || newWeight,
-                prev_followup_date: selectedPatient.curr_followup_date || measureDate
+                patient_name: document.getElementById('measPatientName').value,
+                weight: parseFloat(document.getElementById('measWeight').value),
+                height: parseFloat(document.getElementById('measHeight').value),
+                age: parseInt(document.getElementById('measAge').value),
+                gender: document.getElementById('measGender').value,
+                fat_percentage: document.getElementById('measFat').value ? parseFloat(document.getElementById('measFat').value) : null,
+                muscle_mass: document.getElementById('measMuscle').value ? parseFloat(document.getElementById('measMuscle').value) : null,
+                measurement_date: document.getElementById('measDate').value
             };
 
-            if (newFat !== null) payload.fat = newFat;
-            if (newMuscle !== null) payload.muscle = newMuscle;
+            let res;
+            if (editId && editId.trim() !== "") {
+                // الطريقة الآمنة لضمان التعديل الشامل وتخطي أي قيود في Supabase
+                await supabaseClient.from('measurements').delete().eq('id', editId);
+                res = await supabaseClient.from('measurements').insert([payload]);
+            } else {
+                res = await supabaseClient.from('measurements').insert([payload]);
+            }
 
-            const { error } = await supabaseClient.from(selectedPatient._table).update(payload).eq('id', selectedPatient.id);
-
-            if (error) {
-                alert('خطأ أثناء حفظ القياس: ' + error.message);
+            if (res.error) {
+                alert('خطأ أثناء حفظ القياس في SQL: ' + res.error.message);
                 return;
             }
 
-            alert('✨ تم تسجيل وتحديث القياسات الجديدة للحالة بنجاح في SQL!');
-            closeNewMeasurementModal();
+            alert('✨ تم حفظ وتحديث القياسات وحساب BMI & BMR بنجاح!');
+            closeMeasurementModal();
             loadMeasurementsData();
         }
 
-        function openPatientProfile(patientName) {
-            window.location.href = `patient-profile.html?name=${encodeURIComponent(patientName)}`;
+        async function deleteMeasurement(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا السجل نهائياً؟')) return;
+            const { error } = await supabaseClient.from('measurements').delete().eq('id', id);
+            if (error) {
+                alert('خطأ أثناء الحذف: ' + error.message);
+                return;
+            }
+            alert('✨ تم الحذف بنجاح!');
+            loadMeasurementsData();
         }
 
         window.onload = loadMeasurementsData;
