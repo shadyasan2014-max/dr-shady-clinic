@@ -38,7 +38,6 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        /* تظبيط الشريط العلوي تماماً مثل التصميم الأصلي المتقن */
         .top-bar-original { background: #ffffff; padding: 15px 20px; border-radius: 12px; border: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         
         select, .form-select { 
@@ -53,6 +52,26 @@
 
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
+
+        /* تنسيق أزرار اختيار نوع النظام التفاعلية */
+        .diet-type-card {
+            border: 1px solid var(--card-border);
+            background: #f8fafc;
+            padding: 10px 20px;
+            border-radius: 10px;
+            font-weight: bold;
+            font-size: 13px;
+            color: var(--text-gray);
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+        .diet-type-card.active {
+            border: 2px solid #059669 !important;
+            background: #f0fdf4 !important;
+            color: #065f46 !important;
+            box-shadow: 0 2px 8px rgba(5, 150, 105, 0.15);
+        }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -115,7 +134,7 @@
                     <option value="">-- اختر المريض --</option>
                 </select>
                 <button onclick="searchPatientPlan()" style="background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">🔍 بحث</button>
-                <button onclick="alert('تم تفعيل وضع التعديل الشامل')" style="background: #1e293b; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">✏️ تعديل شامل</button>
+                <button onclick="alert('وضع التعديل الشامل مفعل وجاهز')" style="background: #1e293b; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">✏️ تعديل شامل</button>
                 <button onclick="openFollowupModal()" style="background: #059669; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">📅 متابعة جديدة</button>
             </div>
         </div>
@@ -124,17 +143,18 @@
             <button onclick="alert('جاري فتح التحليل الذكي للـ Gemini')" style="background: #7c3aed; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">✨ فتح وتحليل الحالة في Gemini</button>
         </div>
 
+        <!-- أزرار اختيار نوع النظام الغذائي (تفاعلية وشغالة) -->
         <div class="card" style="text-align: center; padding: 15px; background: #ffffff;">
             <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-dark);">📌 اختيار نوع النظام الغذائي الجديد</h4>
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
-                <div style="border: 2px solid #059669; background: #f0fdf4; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; color: #065f46; cursor: pointer;">🌞 نظام يومي (يوم واحد)<br><span style="font-size: 10px; color: #64748b;">3 وجبات رئيسية + 3 سناكس</span></div>
-                <div style="border: 1px solid var(--card-border); background: #f8fafc; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; color: var(--text-gray); cursor: pointer;">📅 نظام أسبوعي (7 أيام)<br><span style="font-size: 10px; color: #64748b;">جدول أسبوعي متكامل</span></div>
-                <div style="border: 1px solid var(--card-border); background: #f8fafc; padding: 10px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; color: var(--text-gray); cursor: pointer;">📈 نظم بشكل عام للفترة<br><span style="font-size: 10px; color: #64748b;">خطة شاملة ممتدة</span></div>
+                <div id="typeDaily" class="diet-type-card active" onclick="switchDietType('daily')">🌞 نظام يومي (يوم واحد)<br><span style="font-size: 10px; color: var(--text-gray);">3 وجبات رئيسية + 3 سناكس</span></div>
+                <div id="typeWeekly" class="diet-type-card" onclick="switchDietType('weekly')">📅 نظام أسبوعي (7 أيام)<br><span style="font-size: 10px; color: var(--text-gray);">جدول أسبوعي متكامل</span></div>
+                <div id="typeGeneral" class="diet-type-card" onclick="switchDietType('general')">📈 نظم بشكل عام للفترة<br><span style="font-size: 10px; color: var(--text-gray);">خطة شاملة ممتدة</span></div>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px; color: #92400e;">🌞 تفاصيل النظام اليومي (3 وجبات رئيسية + 3 سناكس) - قابل للتعديل</h3>
+            <h3 id="dietSectionTitle" style="margin-top:0; font-size:14px; border-bottom:1px solid #f1f5f9; padding-bottom:8px; color: #92400e;">🌞 تفاصيل النظام اليومي (3 وجبات رئيسية + 3 سناكس) - قابل للتعديل</h3>
             
             <div style="display:grid; grid-template-columns: 1fr; gap:12px; margin-top:10px;">
                 <div>
@@ -225,6 +245,7 @@
         let masterPatientsList = [];
         let currentSelectedPatient = "";
         let cleanPatientName = "";
+        let currentDietType = "daily";
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -248,6 +269,24 @@
             });
         }
 
+        function switchDietType(type) {
+            currentDietType = type;
+            document.getElementById('typeDaily').classList.remove('active');
+            document.getElementById('typeWeekly').classList.remove('active');
+            document.getElementById('typeGeneral').classList.remove('active');
+
+            if (type === 'daily') {
+                document.getElementById('typeDaily').classList.add('active');
+                document.getElementById('dietSectionTitle').innerText = '🌞 تفاصيل النظام اليومي (3 وجبات رئيسية + 3 سناكس) - قابل للتعديل';
+            } else if (type === 'weekly') {
+                document.getElementById('typeWeekly').classList.add('active');
+                document.getElementById('dietSectionTitle').innerText = '📅 تفاصيل النظام الأسبوعي (7 أيام) - جدول متكامل';
+            } else {
+                document.getElementById('typeGeneral').classList.add('active');
+                document.getElementById('dietSectionTitle').innerText = '📈 تفاصيل النظام العام للفترة - خطة شاملة ممتدة';
+            }
+        }
+
         async function searchPatientPlan() {
             let selectElem = document.getElementById('searchPatientSelect');
             currentSelectedPatient = selectElem.value;
@@ -257,41 +296,40 @@
                 return;
             }
 
-            // استخلاص الاسم الصافي بدون الكود للبحث المظبوط في قاعدة البيانات
             cleanPatientName = currentSelectedPatient.split('(')[0].trim();
             document.getElementById('patientDisplayTitle').innerText = `المريض: ${currentSelectedPatient}`;
 
-            // جلب النظام الغذائي السابق بمرونة لضمان ظهور البيانات المسجلة
-            const { data, error } = await supabaseClient.from('meal_plans').select('*');
-            
-            if (data && data.length > 0) {
-                // البحث الذكي داخل السجلات عن اسم المريض
-                let plan = data.find(item => item.patient_name && item.patient_name.includes(cleanPatientName));
-                
-                if (plan) {
-                    document.getElementById('mealBreakfast').value = plan.breakfast || '';
-                    document.getElementById('mealSnack1').value = plan.snack1 || '';
-                    document.getElementById('mealLunch').value = plan.lunch || '';
-                    document.getElementById('mealSnack2').value = plan.snack2 || '';
-                    document.getElementById('mealDinner').value = plan.dinner || '';
-                    document.getElementById('mealSnackNight').value = plan.snack_night || '';
-                } else {
-                    document.getElementById('mealBreakfast').value = '';
-                    document.getElementById('mealSnack1').value = '';
-                    document.getElementById('mealLunch').value = '';
-                    document.getElementById('mealSnack2').value = '';
-                    document.getElementById('mealDinner').value = '';
-                    document.getElementById('mealSnackNight').value = '';
-                    alert('هذا المريض لم يتم تسجيل خطة غذائية له مسبقاً، يمكنك كتابتها وحفظها الآن.');
+            // فحص جدول الخطط الغذائية أو جدول الحالات لجلب أي بيانات سابقة مسجلة للمريض
+            let planFound = null;
+
+            const { data: planData } = await supabaseClient.from('meal_plans').select('*');
+            if (planData && planData.length > 0) {
+                planFound = planData.find(item => item.patient_name && item.patient_name.includes(cleanPatientName));
+            }
+
+            if (!planFound) {
+                const { data: altData } = await supabaseClient.from('patients').select('*');
+                if (altData && altData.length > 0) {
+                    planFound = altData.find(item => (item.patient_name || item.name) && (item.patient_name || item.name).includes(cleanPatientName));
                 }
+            }
+
+            if (planFound) {
+                document.getElementById('mealBreakfast').value = planFound.breakfast || planFound.diet_notes || '';
+                document.getElementById('mealSnack1').value = planFound.snack1 || '';
+                document.getElementById('mealLunch').value = planFound.lunch || '';
+                document.getElementById('mealSnack2').value = planFound.snack2 || '';
+                document.getElementById('mealDinner').value = planFound.dinner || '';
+                document.getElementById('mealSnackNight').value = planFound.snack_night || '';
+                alert('✨ تم استعراض بيانات ونظام المريض بنجاح!');
             } else {
+                // لو مفيش خططة سابقة، بنعرض خانات فاضية جاهزة للتسجيل من غير أي رسائل تضايقك
                 document.getElementById('mealBreakfast').value = '';
                 document.getElementById('mealSnack1').value = '';
                 document.getElementById('mealLunch').value = '';
                 document.getElementById('mealSnack2').value = '';
                 document.getElementById('mealDinner').value = '';
                 document.getElementById('mealSnackNight').value = '';
-                alert('لا توجد خطط غذائية مسجلة في قاعدة البيانات حالياً.');
             }
         }
 
@@ -308,7 +346,8 @@
                 lunch: document.getElementById('mealLunch').value,
                 snack2: document.getElementById('mealSnack2').value,
                 dinner: document.getElementById('mealDinner').value,
-                snack_night: document.getElementById('mealSnackNight').value
+                snack_night: document.getElementById('mealSnackNight').value,
+                diet_type: currentDietType
             };
 
             await supabaseClient.from('meal_plans').delete().eq('patient_name', cleanPatientName || currentSelectedPatient);
