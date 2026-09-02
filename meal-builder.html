@@ -38,6 +38,7 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
+        /* تظبيط الشريط العلوي تماماً مثل التصميم الأصلي المتقن */
         .top-bar-original { background: #ffffff; padding: 15px 20px; border-radius: 12px; border: 1px solid var(--card-border); display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
         
         select, .form-select { 
@@ -102,20 +103,20 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <!-- الشريط العلوي الأصلي تماماً -->
+        <!-- الشريط العلوي الأصلي المتناسق تماماً -->
         <div class="top-bar-original">
-            <div style="display: flex; gap: 8px; align-items: center;">
-                <button onclick="openFollowupModal()" style="background: #059669; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">📅 متابعة جديدة</button>
-                <button onclick="alert('تم تفعيل وضع التعديل الشامل')" style="background: #1e293b; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">✏️ تعديل شامل</button>
-                <button onclick="searchPatientPlan()" style="background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">🔍 بحث</button>
+            <div style="text-align: right;">
+                <h3 id="patientDisplayTitle" style="margin: 0; font-size: 15px; color: var(--text-dark);">المريض: --</h3>
+                <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-gray);">استعراض تفصيلي لبيانات الحالة وتواريخ المتابعة والنظام السابق</p>
+            </div>
+
+            <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
                 <select id="searchPatientSelect" style="width: 200px;">
                     <option value="">-- اختر المريض --</option>
                 </select>
-            </div>
-            
-            <div style="text-align: left;">
-                <h3 id="patientDisplayTitle" style="margin: 0; font-size: 15px; color: var(--text-dark);">المريض: --</h3>
-                <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-gray);">استعراض تفصيلي لبيانات الحالة وتواريخ المتابعة والنظام السابق</p>
+                <button onclick="searchPatientPlan()" style="background: #0284c7; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">🔍 بحث</button>
+                <button onclick="alert('تم تفعيل وضع التعديل الشامل')" style="background: #1e293b; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">✏️ تعديل شامل</button>
+                <button onclick="openFollowupModal()" style="background: #059669; color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;">📅 متابعة جديدة</button>
             </div>
         </div>
 
@@ -223,6 +224,7 @@
 
         let masterPatientsList = [];
         let currentSelectedPatient = "";
+        let cleanPatientName = "";
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -255,19 +257,33 @@
                 return;
             }
 
+            // استخلاص الاسم الصافي بدون الكود للبحث المظبوط في قاعدة البيانات
+            cleanPatientName = currentSelectedPatient.split('(')[0].trim();
             document.getElementById('patientDisplayTitle').innerText = `المريض: ${currentSelectedPatient}`;
 
-            // جلب خطة النظام الغذائي السابق من Supabase
-            const { data, error } = await supabaseClient.from('meal_plans').select('*').eq('patient_name', currentSelectedPatient);
+            // جلب النظام الغذائي السابق بمرونة لضمان ظهور البيانات المسجلة
+            const { data, error } = await supabaseClient.from('meal_plans').select('*');
             
             if (data && data.length > 0) {
-                let plan = data[data.length - 1];
-                document.getElementById('mealBreakfast').value = plan.breakfast || '';
-                document.getElementById('mealSnack1').value = plan.snack1 || '';
-                document.getElementById('mealLunch').value = plan.lunch || '';
-                document.getElementById('mealSnack2').value = plan.snack2 || '';
-                document.getElementById('mealDinner').value = plan.dinner || '';
-                document.getElementById('mealSnackNight').value = plan.snack_night || '';
+                // البحث الذكي داخل السجلات عن اسم المريض
+                let plan = data.find(item => item.patient_name && item.patient_name.includes(cleanPatientName));
+                
+                if (plan) {
+                    document.getElementById('mealBreakfast').value = plan.breakfast || '';
+                    document.getElementById('mealSnack1').value = plan.snack1 || '';
+                    document.getElementById('mealLunch').value = plan.lunch || '';
+                    document.getElementById('mealSnack2').value = plan.snack2 || '';
+                    document.getElementById('mealDinner').value = plan.dinner || '';
+                    document.getElementById('mealSnackNight').value = plan.snack_night || '';
+                } else {
+                    document.getElementById('mealBreakfast').value = '';
+                    document.getElementById('mealSnack1').value = '';
+                    document.getElementById('mealLunch').value = '';
+                    document.getElementById('mealSnack2').value = '';
+                    document.getElementById('mealDinner').value = '';
+                    document.getElementById('mealSnackNight').value = '';
+                    alert('هذا المريض لم يتم تسجيل خطة غذائية له مسبقاً، يمكنك كتابتها وحفظها الآن.');
+                }
             } else {
                 document.getElementById('mealBreakfast').value = '';
                 document.getElementById('mealSnack1').value = '';
@@ -275,7 +291,7 @@
                 document.getElementById('mealSnack2').value = '';
                 document.getElementById('mealDinner').value = '';
                 document.getElementById('mealSnackNight').value = '';
-                alert('لا توجد خطة غذائية سابقة مسجلة لهذا المريض، يمكنك إضافتها الآن.');
+                alert('لا توجد خطط غذائية مسجلة في قاعدة البيانات حالياً.');
             }
         }
 
@@ -286,7 +302,7 @@
             }
 
             let payload = {
-                patient_name: currentSelectedPatient,
+                patient_name: cleanPatientName || currentSelectedPatient,
                 breakfast: document.getElementById('mealBreakfast').value,
                 snack1: document.getElementById('mealSnack1').value,
                 lunch: document.getElementById('mealLunch').value,
@@ -295,7 +311,7 @@
                 snack_night: document.getElementById('mealSnackNight').value
             };
 
-            await supabaseClient.from('meal_plans').delete().eq('patient_name', currentSelectedPatient);
+            await supabaseClient.from('meal_plans').delete().eq('patient_name', cleanPatientName || currentSelectedPatient);
             let res = await supabaseClient.from('meal_plans').insert([payload]);
 
             if (res.error) {
@@ -323,7 +339,7 @@
         async function saveFollowupToSQL(event) {
             event.preventDefault();
             let payload = {
-                patient_name: currentSelectedPatient,
+                patient_name: cleanPatientName || currentSelectedPatient,
                 followup_type: document.getElementById('fupType').value,
                 followup_date: document.getElementById('fupDate').value,
                 next_date: document.getElementById('fupNextDate').value,
