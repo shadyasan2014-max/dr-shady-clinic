@@ -279,9 +279,8 @@
                 let gender = m.gender || 'male';
                 let fat = m.fat_percentage || m.fat || '-';
                 let muscle = m.muscle_mass || m.muscle || '-';
-                let date = m.date || m.measurement_date || '-';
+                let date = m.measure_date || m.date || m.measurement_date || '-';
 
-                // حساب BMI بدقة
                 let bmi = '-';
                 let bmiCategory = '';
                 let bmiColor = '#0369a1';
@@ -295,7 +294,6 @@
                     else { bmiCategory = 'سمنة'; bmiColor = '#dc2626'; }
                 }
 
-                // حساب BMR بالمعادلة العلمية Mifflin-St Jeor
                 let bmr = '-';
                 if (weight > 0 && height > 0 && age > 0) {
                     if (gender === 'female') {
@@ -355,7 +353,7 @@
             document.getElementById('measGender').value = m.gender || 'male';
             document.getElementById('measFat').value = m.fat_percentage || m.fat || '';
             document.getElementById('measMuscle').value = m.muscle_mass || m.muscle || '';
-            document.getElementById('measDate').value = m.date || m.measurement_date || new Date().toISOString().split('T')[0];
+            document.getElementById('measDate').value = m.measure_date || m.date || m.measurement_date || new Date().toISOString().split('T')[0];
             document.getElementById('measurementModal').style.display = 'flex';
         }
 
@@ -367,7 +365,8 @@
             event.preventDefault();
             let editId = document.getElementById('editingMeasurementId').value;
             
-            // إرسال كافة الحقول مدعومة بالأسماء المزدوجة لتتوافق مع أي بنية لجدول Supabase
+            // إرسال كافة أسماء الحقول المحتملة للتاريخ (measure_date, date, measurement_date) لضمان التوافق المطلق
+            let dateVal = document.getElementById('measDate').value;
             let payload = {
                 patient_name: document.getElementById('measPatientName').value,
                 weight: parseFloat(document.getElementById('measWeight').value),
@@ -378,8 +377,9 @@
                 fat_percentage: document.getElementById('measFat').value ? parseFloat(document.getElementById('measFat').value) : null,
                 muscle: document.getElementById('measMuscle').value ? parseFloat(document.getElementById('measMuscle').value) : null,
                 muscle_mass: document.getElementById('measMuscle').value ? parseFloat(document.getElementById('measMuscle').value) : null,
-                date: document.getElementById('measDate').value,
-                measurement_date: document.getElementById('measDate').value
+                measure_date: dateVal,
+                date: dateVal,
+                measurement_date: dateVal
             };
 
             let res;
