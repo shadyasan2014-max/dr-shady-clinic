@@ -209,6 +209,19 @@
         </div>
     </div>
 
+    <!-- نافذة عرض وطباعة بيانات الحالة للذكاء الاصطناعي (ضمان عدم حظر المتصفح) -->
+    <div id="aiPromptModal" class="modal-overlay">
+        <div class="modal-box" style="width: 550px;">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px; color:var(--accent-blue);">🤖 رسالة التحليل الذكي الجاهزة لـ Gemini</h3>
+            <p style="font-size: 11px; color: var(--text-gray); margin: 5px 0 10px 0;">قم بنسخ هذا النص بضغطة زر، ثم توجه إلى صفحة جيميني للصقه:</p>
+            <textarea id="aiPromptTextarea" class="form-control" rows="10" style="font-family: monospace; font-size: 11px; direction: rtl;"></textarea>
+            <div style="display:flex; gap:10px; margin-top:15px;">
+                <button type="button" onclick="copyAiPromptAndOpen()" class="action-btn" style="background: #8b5cf6; flex:1; justify-content:center;">📋 نسخ النص وفتح Gemini</button>
+                <button type="button" onclick="closeAiPromptModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <!-- نافذة المتابعة -->
     <div id="mealFollowupModal" class="modal-overlay">
         <div class="modal-box">
@@ -416,7 +429,7 @@
             alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات والنظام الغذائي للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
-        // دالة زرار AI الذكي لجمع بيانات الحالة وفتح Gemini وبحثها أوتوماتيكياً
+        // الحل الضامن لظهور بيانات الحالة ونقلها لـ AI بدون حظر المتصفح
         function askGeminiWithFullData() {
             if (!loadedPatientData) {
                 alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
@@ -447,13 +460,26 @@
                 `📋 **النظام الغذائي السابق:**\n${prevPlan}\n\n` +
                 `من فضلك قدم تحليلاً طبياً لحالة المريض واقترح نظاماً غذائياً جديداً ومطوراً يناسب حالته الصحية الحالية.`;
 
-            navigator.clipboard.writeText(promptMessage).then(() => {
-                alert(`🤖 تم جمع كافة بيانات المريض وتجهيز الطلب الذكي ونسخه إلى الحافظة بنجاح!\n\nسيتم الآن فتح صفحة Gemini، فقط قم بلصق النص (Ctrl+V) للحصول على التحليل الفوري والخطة الطبية.`);
-            }).catch(() => {
-                prompt("إليك الطلب الجاهز للحالة، قم بنسخه لفتحه في Gemini:", promptMessage);
-            });
+            document.getElementById('aiPromptTextarea').value = promptMessage;
+            document.getElementById('aiPromptModal').style.display = 'flex';
+        }
 
+        function copyAiPromptAndOpen() {
+            let textarea = document.getElementById('aiPromptTextarea');
+            textarea.select();
+            textarea.setSelectionRange(0, 99999);
+            try {
+                navigator.clipboard.writeText(textarea.value);
+                alert('📋 تم نسخ تفاصيل الحالة إلى الحافظة بنجاح!');
+            } catch (err) {
+                document.execCommand('copy');
+                alert('📋 تم نسخ النص!');
+            }
             window.open('https://gemini.google.com/', '_blank');
+        }
+
+        function closeAiPromptModal() {
+            document.getElementById('aiPromptModal').style.display = 'none';
         }
 
         function switchSystem(type) {
