@@ -53,7 +53,6 @@
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
 
-        /* تنسيق أزرار اختيار نوع النظام التفاعلية */
         .diet-type-card {
             border: 1px solid var(--card-border);
             background: #f8fafc;
@@ -122,7 +121,6 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <!-- الشريط العلوي الأصلي المتناسق تماماً -->
         <div class="top-bar-original">
             <div style="text-align: right;">
                 <h3 id="patientDisplayTitle" style="margin: 0; font-size: 15px; color: var(--text-dark);">المريض: --</h3>
@@ -143,7 +141,7 @@
             <button onclick="alert('جاري فتح التحليل الذكي للـ Gemini')" style="background: #7c3aed; color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;">✨ فتح وتحليل الحالة في Gemini</button>
         </div>
 
-        <!-- أزرار اختيار نوع النظام الغذائي (تفاعلية وشغالة) -->
+        <!-- أزرار اختيار نوع النظام الغذائي التفاعلية -->
         <div class="card" style="text-align: center; padding: 15px; background: #ffffff;">
             <h4 style="margin: 0 0 10px 0; font-size: 14px; color: var(--text-dark);">📌 اختيار نوع النظام الغذائي الجديد</h4>
             <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
@@ -299,37 +297,47 @@
             cleanPatientName = currentSelectedPatient.split('(')[0].trim();
             document.getElementById('patientDisplayTitle').innerText = `المريض: ${currentSelectedPatient}`;
 
-            // فحص جدول الخطط الغذائية أو جدول الحالات لجلب أي بيانات سابقة مسجلة للمريض
+            // البحث الشامل في كل الجداول الممكنة لجلب البيانات القديمة فوراً
             let planFound = null;
 
-            const { data: planData } = await supabaseClient.from('meal_plans').select('*');
-            if (planData && planData.length > 0) {
-                planFound = planData.find(item => item.patient_name && item.patient_name.includes(cleanPatientName));
+            // 1. البحث في جدول meal_plans
+            const { data: pData } = await supabaseClient.from('meal_plans').select('*');
+            if (pData) {
+                planFound = pData.find(item => item.patient_name && item.patient_name.includes(cleanPatientName));
             }
 
+            // 2. لو مش موجود، البحث في جدول bariatric_cases
             if (!planFound) {
-                const { data: altData } = await supabaseClient.from('patients').select('*');
-                if (altData && altData.length > 0) {
-                    planFound = altData.find(item => (item.patient_name || item.name) && (item.patient_name || item.name).includes(cleanPatientName));
+                const { data: bData } = await supabaseClient.from('bariatric_cases').select('*');
+                if (bData) {
+                    planFound = bData.find(item => (item.patient_name || item.name) && (item.patient_name || item.name).includes(cleanPatientName));
+                }
+            }
+
+            // 3. لو مش موجود، البحث في جدول patients
+            if (!planFound) {
+                const { data: patData } = await supabaseClient.from('patients').select('*');
+                if (patData) {
+                    planFound = patData.find(item => (item.patient_name || item.name) && (item.patient_name || item.name).includes(cleanPatientName));
                 }
             }
 
             if (planFound) {
-                document.getElementById('mealBreakfast').value = planFound.breakfast || planFound.diet_notes || '';
+                document.getElementById('mealBreakfast').value = planFound.breakfast || planFound.diet_notes || planFound.notes || '';
                 document.getElementById('mealSnack1').value = planFound.snack1 || '';
                 document.getElementById('mealLunch').value = planFound.lunch || '';
                 document.getElementById('mealSnack2').value = planFound.snack2 || '';
                 document.getElementById('mealDinner').value = planFound.dinner || '';
                 document.getElementById('mealSnackNight').value = planFound.snack_night || '';
-                alert('✨ تم استعراض بيانات ونظام المريض بنجاح!');
+                alert('✨ تم العثور على بيانات المريض واستعراض النظام الغذائي بنجاح!');
             } else {
-                // لو مفيش خططة سابقة، بنعرض خانات فاضية جاهزة للتسجيل من غير أي رسائل تضايقك
                 document.getElementById('mealBreakfast').value = '';
                 document.getElementById('mealSnack1').value = '';
                 document.getElementById('mealLunch').value = '';
                 document.getElementById('mealSnack2').value = '';
                 document.getElementById('mealDinner').value = '';
                 document.getElementById('mealSnackNight').value = '';
+                alert('هذا المريض مسجل، ولكن لم تُسجل له خطة غذائية مخصصة بعد. يمكنك كتابتها وحفظها الآن!');
             }
         }
 
