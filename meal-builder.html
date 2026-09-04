@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - بناء الخطط الذكية والملف الإكلينيكي الشامل</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { 
             --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
@@ -71,16 +70,16 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* ترويسة العيادة واللوجو (مخفية على الشاشة وتظهر تلقائياً في الطباعة والـ PDF) */
-        .print-only-header { display: none; }
+        /* ترويسة الدكتور واللوجو الخاصة بالطباعة والـ PDF فقط */
+        .print-clinic-header { display: none; }
 
-        /* إعدادات الطباعة والـ PDF */
+        /* إعدادات الطباعة والـ PDF الاحترافية النظيفة */
         @media print {
-            body { background-color: #ffffff !important; }
-            .sidebar, .mobile-menu-toggle, #headerActionButtons, .no-print { display: none !important; }
+            body { background-color: #ffffff !important; -webkit-print-color-adjust: exact; }
+            .sidebar, .mobile-menu-toggle, #headerActionButtons, .no-print, .action-btn { display: none !important; }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 0 !important; }
-            .print-only-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px; }
-            .card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+            .print-clinic-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 15px; }
+            .card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #cbd5e1 !important; margin-bottom: 15px !important; }
             .followup-comparison-grid { break-inside: avoid; page-break-inside: avoid; }
         }
 
@@ -127,8 +126,8 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
-            <!-- ترويسة الدكتور واللوجو الخاصة بملف الـ PDF والطباعة فقط -->
-            <div class="print-only-header">
+            <!-- ترويسة الدكتور واللوجو الطبية (تظهر في الطباعة وملف الـ PDF فقط في أول السطر) -->
+            <div class="print-clinic-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <img src="logo2.png" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;" onerror="this.src='logo.jpeg'">
                     <div>
@@ -772,20 +771,19 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة تحويل PDF متطورة ومضبوطة بالكامل لعرض اللوجو وبيانات الدكتور بدون أي صفحات فاضية
+        // دالة تحويل PDF بضبط الهوامش ومنع أي فراغات أو صفحات مقطوعة
         function downloadPlanPDF() {
             document.getElementById('pdfPrintDate').innerText = new Date().toISOString().split('T')[0];
-            
+
             const element = document.getElementById('printableArea');
             const opt = {
-                margin:       [5, 5, 5, 5],
+                margin:       [2, 2, 2, 2],
                 filename:     'Dr-Shady-Meal-Plan.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // إخفاء أزرار التحكم في الهيدر والقائمة أثناء التصدير فقط
             let actionButtons = document.getElementById('headerActionButtons');
             if (actionButtons) actionButtons.style.display = 'none';
 
