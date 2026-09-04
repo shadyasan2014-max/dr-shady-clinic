@@ -362,12 +362,10 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال الحقول الأساسية المطلوبة فقط لضمان توافقها المباشر مع جدول foods
+            // إرسال حقل اسم الصنف والسعرات فقط للتأكد من نجاح الحفظ فوراً بدون إيرور أعمدة مفقودة
             let payload = {
                 food_name: document.getElementById('foodName').value,
-                portion: document.getElementById('foodPortion').value,
-                calories: parseFloat(document.getElementById('foodCalories').value) || 0,
-                protein: parseFloat(document.getElementById('foodProtein').value) || 0
+                calories: parseFloat(document.getElementById('foodCalories').value) || 0
             };
 
             let res;
