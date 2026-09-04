@@ -166,13 +166,9 @@
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">نوع الحالة / العملية (توجيه الـ AI):</label>
                     <select id="caseTypeSelect" class="form-control" onchange="toggleOtherCaseInput()" required>
                         <option value="">-- اختر نوع الحالة أو العملية --</option>
-                         <option value="تكميم">تكميم</option>
-                         <option value="تحويل مسار">تحويل مسار</option>
                         <option value="تصحيح">تصحيح</option>
                         <option value="ساسي">ساسي</option>
                         <option value="تحويل كلاسيكي">تحويل كلاسيكي</option>
-                        <option value="سمنة">سمنة</option>
-                         <option value="نحافة">نحافة</option>
                         <option value="حقن مونجارو او حقن ميزوثرابي">حقن مونجارو او حقن ميزوثرابي</option>
                         <option value="اخرى">اخرى</option>
                     </select>
@@ -253,11 +249,12 @@
             }
 
             data.forEach(s => {
+                let medName = s.supp_list || s.sup_name || s.supplement_name || '-';
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${s.patient_name || 'غير محدد'}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${s.case_type || '-'}</span></td>
-                        <td><strong>${s.sup_name || s.supplement_name || '-'}</strong></td>
+                        <td><strong>${medName}</strong></td>
                         <td>${s.dosage || '-'}</td>
                         <td>${s.duration || '-'}</td>
                         <td>${s.notes || '-'}</td>
@@ -335,10 +332,14 @@
                 caseType = document.getElementById('otherCaseInput').value.trim() || 'اخرى';
             }
 
+            let medValue = document.getElementById('supName').value;
+
+            // إرسال البيانات مع العمود supp_name والعمود القديم supp_list لضمان التوافق التام مع الجدول
             let payload = {
                 patient_name: document.getElementById('patientSelect').value,
                 case_type: caseType,
-                sup_name: document.getElementById('supName').value,
+                supp_list: medValue,
+                sup_name: medValue,
                 dosage: document.getElementById('supDosage').value,
                 duration: document.getElementById('supDuration').value,
                 notes: document.getElementById('supNotes').value
@@ -346,10 +347,11 @@
 
             const { error } = await supabaseClient.from('supplements').insert([payload]);
             if (error) {
-                // محاولة حفظ احتياطية بدون عمود sup_name لو الجدول مش مدعومه
+                // محاولة احتياطية لو حصل أي إيرور في الأعمدة
                 let basicPayload = {
                     patient_name: payload.patient_name,
                     case_type: payload.case_type,
+                    supp_list: medValue,
                     dosage: payload.dosage,
                     duration: payload.duration,
                     notes: payload.notes
