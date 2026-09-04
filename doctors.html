@@ -1,109 +1,180 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
-<script src="clinic-core.js"></script>
-
-
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - إدارة الطاقم الطبي والأطباء (SQL Live)</title>
+    <title>Dr. Shady Samir - إدارة الأطباء والطاقم الطبي</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
-        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
+        
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
+        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid var(--card-border); }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
+        select, .form-select { 
+            border: 2px solid var(--warning-orange) !important; 
+            color: #92400e !important; 
+            background-color: #fffbeb !important; 
+            font-weight: bold !important; 
+            border-radius: 8px !important; 
+            padding: 9px 12px !important; 
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
+
+        .action-btn { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
+
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-block; text-decoration: none; }
-        
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
-                <p>عيادة التغذية العلاجية</p>
+                <p>استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)</p>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="index.html">🏠 الرئيسية</a></li>
-                <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li class="active"><a href="doctors.html">👨‍⚕️ الأطباء والطاقم الطبي</a></li>
+                <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
+                <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد</a></li>
+                <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
+                <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
+                <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
+                <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
+                <li class="active"><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
+
         <div class="top-header">
-            <h1>👨‍⚕️ إدارة الأطباء والطاقم الطبي (SQL Live)</h1>
-            <button class="btn-action" onclick="openAddDoctorModal()">+ إضافة طبيب جديد</button>
+            <div>
+                <h1>👨‍⚕️ إدارة الأطباء والطاقم الطبي (SQL Live)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة بيانات الأطباء والاستشاريين المسجلين في العيادة</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="openDoctorModal()" class="action-btn" style="background: var(--primary-green); padding: 10px 16px;">➕ إضافة طبيب جديد</button>
+            </div>
         </div>
 
         <div class="card">
-            <h3>📋 قائمة الأطباء والاستشاريين المسجلين في العيادة</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم الطبيب</th>
-                        <th>التخصص الإكلينيكي</th>
-                        <th>رقم الهاتف</th>
-                        <th>البريد الإلكتروني</th>
-                        <th>الإجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="doctorsTableBody">
-                    <tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب بيانات الأطباء من قاعدة بيانات SQL...</td></tr>
-                </tbody>
-            </table>
+            <h3 style="margin:0 0 12px 0; font-size:14px;">📋 قائمة الأطباء والاستشاريين المسجلين في العيادة</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم الطبيب</th>
+                            <th>التخصص الإكلينيكي</th>
+                            <th>رقم الهاتف</th>
+                            <th>البريد الإلكتروني</th>
+                            <th>الإجراء</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doctorsTableBody">
+                        <tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل بيانات الأطباء من قاعدة البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- نافذة إضافة طبيب جديد -->
-    <div id="addDoctorModal" class="modal-overlay">
+    <!-- نافذة إضافة أو تعديل طبيب -->
+    <div id="doctorModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل طبيب أو استشاري جديد</h3>
+            <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">➕ إضافة طبيب جديد</h3>
             <form onsubmit="saveDoctorToSQL(event)">
-                <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="docName" class="form-control" required placeholder="مثال: د. أحمد خالد"></div>
-                <div class="form-group"><label>التخصص الإكلينيكي:</label><input type="text" id="docSpecialty" class="form-control" required placeholder="مثال: استشاري جراحات السمنة"></div>
-                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="docPhone" class="form-control" required placeholder="010xxxxxxxx"></div>
-                <div class="form-group"><label>البريد الإلكتروني:</label><input type="email" id="docEmail" class="form-control" placeholder="doctor@clinic.com"></div>
+                <input type="hidden" id="editingDoctorId">
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم الطبيب:</label>
+                    <input type="text" id="docName" class="form-control" placeholder="مثال: د. شادي سمير" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">التخصص الإكلينيكي:</label>
+                    <input type="text" id="docSpecialty" class="form-control" placeholder="مثال: استشاري تغذية علاجية وجراحات سمنة" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">رقم الهاتف:</label>
+                    <input type="text" id="docPhone" class="form-control" placeholder="مثال: 01000931177" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">البريد الإلكتروني:</label>
+                    <input type="email" id="docEmail" class="form-control" placeholder="مثال: doctor@clinic.com">
+                </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
-                    <button type="button" onclick="closeAddDoctorModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ في SQL</button>
+                    <button type="button" onclick="closeDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -112,78 +183,130 @@
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function fetchDoctorsFromSQL() {
-            const tbody = document.getElementById('doctorsTableBody');
-            const { data, error } = await supabaseClient.from('doctors').select('*').order('created_at', { ascending: false });
+        let doctorsList = [];
 
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
-                return;
-            }
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
+        async function loadDoctorsData() {
+            let { data, error } = await supabaseClient.from('doctors').select('*');
+            let tbody = document.getElementById('doctorsTableBody');
             tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">لا يوجد أطباء مسجلين حالياً.</td></tr>`;
+
+            if (error || !data || data.length === 0) {
+                doctorsList = [];
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد بيانات أطباء مسجلة حالياً.</td></tr>`;
                 return;
             }
 
-            data.forEach(d => {
+            doctorsList = data;
+            doctorsList.forEach(d => {
+                let name = d.doctor_name || d.name || 'غير محدد';
+                let specialty = d.specialty || d.specialization || '-';
+                let phone = d.phone || '-';
+                let email = d.email || 'غير متوفر';
+
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${d.doctor_name}</strong></td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${d.specialty}</span></td>
-                        <td>${d.phone}</td>
-                        <td>${d.email || 'غير متوفر'}</td>
+                        <td><strong>${name}</strong></td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${specialty}</span></td>
+                        <td>${phone}</td>
+                        <td>${email}</td>
                         <td>
-                            <button onclick="deleteDoctorFromSQL('${d.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🗑️ حذف</button>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <button onclick="openEditDoctorModal('${d.id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
+                                <button onclick="deleteDoctor('${d.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        window.onload = function() {
-            fetchDoctorsFromSQL();
-        };
+        function openDoctorModal() {
+            document.getElementById('editingDoctorId').value = '';
+            document.getElementById('modalTitle').innerText = '➕ إضافة طبيب جديد';
+            document.getElementById('docName').value = '';
+            document.getElementById('docSpecialty').value = '';
+            document.getElementById('docPhone').value = '';
+            document.getElementById('docEmail').value = '';
+            document.getElementById('doctorModal').style.display = 'flex';
+        }
 
-        function openAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
-        function closeAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'none'; }
+        function openEditDoctorModal(id) {
+            let d = doctorsList.find(item => String(item.id) === String(id));
+            if (!d) return;
+
+            document.getElementById('editingDoctorId').value = d.id;
+            document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الطبيب';
+            document.getElementById('docName').value = d.doctor_name || d.name || '';
+            document.getElementById('docSpecialty').value = d.specialty || d.specialization || '';
+            document.getElementById('docPhone').value = d.phone || '';
+            document.getElementById('docEmail').value = d.email || '';
+            document.getElementById('doctorModal').style.display = 'flex';
+        }
+
+        function closeDoctorModal() {
+            document.getElementById('doctorModal').style.display = 'none';
+        }
 
         async function saveDoctorToSQL(event) {
             event.preventDefault();
-            const doctor_name = document.getElementById('docName').value;
-            const specialty = document.getElementById('docSpecialty').value;
-            const phone = document.getElementById('docPhone').value;
-            const email = document.getElementById('docEmail').value;
+            let editId = document.getElementById('editingDoctorId').value;
 
-            const { error } = await supabaseClient.from('doctors').insert([
-                { doctor_name, specialty, phone, email }
-            ]);
+            let payload = {
+                doctor_name: document.getElementById('docName').value,
+                specialty: document.getElementById('docSpecialty').value,
+                phone: document.getElementById('docPhone').value,
+                email: document.getElementById('docEmail').value
+            };
 
-            if (error) {
-                alert('خطأ أثناء حفظ الطبيب: ' + error.message);
-                return;
+            let res;
+            if (editId && editId !== "") {
+                res = await supabaseClient.from('doctors').update(payload).eq('id', editId);
+            } else {
+                res = await supabaseClient.from('doctors').insert([payload]);
             }
 
-            alert('✨ تم حفظ الطبيب في جدول SQL بنجاح!');
-            closeAddDoctorModal();
-            fetchDoctorsFromSQL();
-            event.target.reset();
-        }
-
-        async function deleteDoctorFromSQL(rowId) {
-            if (confirm('هل أنت متأكد من حذف هذا الطبيب نهائياً من قاعدة بيانات SQL؟')) {
-                const { error } = await supabaseClient.from('doctors').delete().eq('id', rowId);
-                if (error) {
-                    alert('خطأ أثناء الحذف: ' + error.message);
+            if (res.error) {
+                // محاولة احتياطية لو أسماء الأعمدة مختلفة في الجدول
+                let basicPayload = {
+                    name: payload.doctor_name,
+                    specialty: payload.specialty,
+                    phone: payload.phone
+                };
+                if (editId && editId !== "") {
+                    res = await supabaseClient.from('doctors').update(basicPayload).eq('id', editId);
+                } else {
+                    res = await supabaseClient.from('doctors').insert([basicPayload]);
+                }
+                if (res.error) {
+                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
                     return;
                 }
-                fetchDoctorsFromSQL();
             }
+
+            alert('✨ تم حفظ وتعديل بيانات الطبيب بنجاح!');
+            closeDoctorModal();
+            loadDoctorsData();
         }
+
+        async function deleteDoctor(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا الطبيب نهائياً؟')) return;
+            const { error } = await supabaseClient.from('doctors').delete().eq('id', id);
+            if (error) {
+                alert('خطأ في الحذف: ' + error.message);
+                return;
+            }
+            alert('✨ تم الحذف بنجاح!');
+            loadDoctorsData();
+        }
+
+        window.onload = loadDoctorsData;
     </script>
 </body>
 </html>
