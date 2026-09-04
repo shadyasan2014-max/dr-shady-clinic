@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - متابعة جراحات السمنة</title>
+    <title>Dr. Shady Samir - إدارة المدفوعات والإيرادات</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
@@ -99,8 +99,8 @@
                 <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
                 <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل الطبية</a></li>
                 <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات والفيتامينات</a></li>
-                <li class="active"><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
-                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li class="active"><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات والإيرادات</a></li>
                 <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
                 <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
                 <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
@@ -115,42 +115,41 @@
 
         <div class="top-header">
             <div>
-                <h1>🩺 متابعة جراحات السمنة (SQL Live)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة ومتابعة العمليات الجراحية وتطور الحالات</p>
+                <h1>💰 إدارة المدفوعات والإيرادات (SQL Live)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">تسجيل ومتابعة المعاملات المالية والكشوفات</p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
-                <button onclick="openBariatricModal()" class="action-btn" style="background: var(--primary-green); padding: 10px 16px;">➕ تسجيل عملية جراحية</button>
+                <button onclick="openPaymentModal()" class="action-btn" style="background: var(--primary-green); padding: 10px 16px;">➕ تسجيل دفعة جديدة</button>
             </div>
         </div>
 
         <div class="card">
-            <h3 style="margin:0 0 12px 0; font-size:14px;">📋 سجل الحالات الجراحية المسجلة</h3>
+            <h3 style="margin:0 0 12px 0; font-size:14px;">📋 سجل المعاملات المالية والكشوفات</h3>
             <div style="overflow-x: auto;">
                 <table>
                     <thead>
                         <tr>
                             <th>اسم المريض</th>
-                            <th>نوع الجراحة</th>
-                            <th>تاريخ العملية</th>
-                            <th>الجراح المسؤول</th>
-                            <th>ملاحظات إكلينيكية</th>
+                            <th>نوع الخدمة</th>
+                            <th>المبلغ المدفوع (جنيه)</th>
+                            <th>تاريخ الدفع</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
-                    <tbody id="bariatricTableBody">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل الحالات الجراحية من قاعدة البيانات...</td></tr>
+                    <tbody id="paymentsTableBody">
+                        <tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل المعاملات المالية من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
-    <!-- نافذة تسجيل أو تعديل عملية جراحية -->
-    <div id="bariatricModal" class="modal-overlay">
+    <!-- نافذة تسجيل أو تعديل دفعة مالية -->
+    <div id="paymentModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">🩺 تسجيل حالة جراحية جديدة</h3>
-            <form onsubmit="saveBariatricToSQL(event)">
-                <input type="hidden" id="editingBariatricId">
+            <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">💰 تسجيل دفعة مالية جديدة</h3>
+            <form onsubmit="savePaymentToSQL(event)">
+                <input type="hidden" id="editingPaymentId">
 
                 <div class="form-group" style="margin-bottom:10px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المريض:</label>
@@ -160,35 +159,23 @@
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">نوع الجراحة:</label>
-                    <select id="surgeryType" class="form-control" required>
-                        <option value="">-- اختر نوع الجراحة --</option>
-                        <option value="تكميم معدة">تكميم معدة</option>
-                        <option value="تحويل مسار">تحويل مسار</option>
-                        <option value="تحويل كلاسيكي">تحويل كلاسيكي</option>
-                        <option value="ساسي">ساسي</option>
-                        <option value="تصحيح">تصحيح</option>
-                    </select>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">نوع الخدمة:</label>
+                    <input type="text" id="serviceType" class="form-control" placeholder="مثال: كشف جديد، إعادة، متابعة جراحة..." required>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">تاريخ العملية:</label>
-                    <input type="date" id="surgeryDate" class="form-control" required>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">المبلغ المدفوع (جنيه):</label>
+                    <input type="number" step="0.1" id="amountPaid" class="form-control" placeholder="مثال: 500" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">الجراح المسؤول:</label>
-                    <input type="text" id="surgeonName" class="form-control" placeholder="مثال: د. بهاء شكري..." required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">ملاحظات إكلينيكية:</label>
-                    <textarea id="surgeryNotes" class="form-control" rows="2" placeholder="متابعة العملية والتوصيات الطبية..."></textarea>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">تاريخ الدفع:</label>
+                    <input type="date" id="paymentDate" class="form-control" required>
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ في SQL</button>
-                    <button type="button" onclick="closeBariatricModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
+                    <button type="button" onclick="closePaymentModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
@@ -199,7 +186,7 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let bariatricList = [];
+        let paymentsList = [];
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -225,36 +212,34 @@
             });
         }
 
-        async function loadBariatricData() {
-            let { data, error } = await supabaseClient.from('bariatric_cases').select('*');
-            let tbody = document.getElementById('bariatricTableBody');
+        async function loadPaymentsData() {
+            let { data, error } = await supabaseClient.from('payments').select('*');
+            let tbody = document.getElementById('paymentsTableBody');
             tbody.innerHTML = '';
 
             if (error || !data || data.length === 0) {
-                bariatricList = [];
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات جراحية مسجلة حالياً.</td></tr>`;
+                paymentsList = [];
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مدفوعات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
-            bariatricList = data;
-            bariatricList.forEach(b => {
-                let patName = b.patient_name || b.name || 'غير محدد';
-                let sType = b.surgery_type || b.type || '-';
-                let sDate = b.surgery_date || b.date || '-';
-                let surgeon = b.surgeon || b.doctor || '-';
-                let notes = b.notes || '-';
+            paymentsList = data;
+            paymentsList.forEach(p => {
+                let patName = p.patient_name || p.name || 'غير محدد';
+                let service = p.service_type || p.service || '-';
+                let amount = p.amount || p.price || 0;
+                let pDate = p.payment_date || p.date || '-';
 
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${patName}</strong></td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${sType}</span></td>
-                        <td>${sDate}</td>
-                        <td>${surgeon}</td>
-                        <td>${notes}</td>
+                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${service}</span></td>
+                        <td><strong>${amount} ج.م</strong></td>
+                        <td>${pDate}</td>
                         <td>
                             <div style="display:flex; gap:6px; align-items:center;">
-                                <button onclick="openEditBariatricModal('${b.id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
-                                <button onclick="deleteBariatric('${b.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                                <button onclick="openEditPaymentModal('${p.id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
+                                <button onclick="deletePayment('${p.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                             </div>
                         </td>
                     </tr>
@@ -262,54 +247,51 @@
             });
         }
 
-        function openBariatricModal() {
+        function openPaymentModal() {
             loadPatientsDropdown();
-            document.getElementById('editingBariatricId').value = '';
-            document.getElementById('modalTitle').innerText = '🩺 تسجيل حالة جراحية جديدة';
+            document.getElementById('editingPaymentId').value = '';
+            document.getElementById('modalTitle').innerText = '💰 تسجيل دفعة مالية جديدة';
             document.getElementById('patientSelect').value = '';
-            document.getElementById('surgeryType').value = '';
-            document.getElementById('surgeryDate').value = new Date().toISOString().split('T')[0];
-            document.getElementById('surgeonName').value = '';
-            document.getElementById('surgeryNotes').value = '';
-            document.getElementById('bariatricModal').style.display = 'flex';
+            document.getElementById('serviceType').value = '';
+            document.getElementById('amountPaid').value = '';
+            document.getElementById('paymentDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('paymentModal').style.display = 'flex';
         }
 
-        function openEditBariatricModal(id) {
+        function openEditPaymentModal(id) {
             loadPatientsDropdown();
-            let b = bariatricList.find(item => String(item.id) === String(id));
-            if (!b) return;
+            let p = paymentsList.find(item => String(item.id) === String(id));
+            if (!p) return;
 
-            document.getElementById('editingBariatricId').value = b.id;
-            document.getElementById('modalTitle').innerText = '✏️ تعديل الحالة الجراحية';
-            document.getElementById('patientSelect').value = b.patient_name || b.name || '';
-            document.getElementById('surgeryType').value = b.surgery_type || b.type || '';
-            document.getElementById('surgeryDate').value = b.surgery_date || b.date || '';
-            document.getElementById('surgeonName').value = b.surgeon || b.doctor || '';
-            document.getElementById('surgeryNotes').value = b.notes || '';
-            document.getElementById('bariatricModal').style.display = 'flex';
+            document.getElementById('editingPaymentId').value = p.id;
+            document.getElementById('modalTitle').innerText = '✏️ تعديل المعاملة المالية';
+            document.getElementById('patientSelect').value = p.patient_name || p.name || '';
+            document.getElementById('serviceType').value = p.service_type || p.service || '';
+            document.getElementById('amountPaid').value = p.amount || p.price || '';
+            document.getElementById('paymentDate').value = p.payment_date || p.date || '';
+            document.getElementById('paymentModal').style.display = 'flex';
         }
 
-        function closeBariatricModal() {
-            document.getElementById('bariatricModal').style.display = 'none';
+        function closePaymentModal() {
+            document.getElementById('paymentModal').style.display = 'none';
         }
 
-        async function saveBariatricToSQL(event) {
+        async function savePaymentToSQL(event) {
             event.preventDefault();
-            let editId = document.getElementById('editingBariatricId').value;
+            let editId = document.getElementById('editingPaymentId').value;
 
             let payload = {
                 patient_name: document.getElementById('patientSelect').value,
-                surgery_type: document.getElementById('surgeryType').value,
-                surgery_date: document.getElementById('surgeryDate').value,
-                surgeon: document.getElementById('surgeonName').value,
-                notes: document.getElementById('surgeryNotes').value
+                service_type: document.getElementById('serviceType').value,
+                amount: parseFloat(document.getElementById('amountPaid').value) || 0,
+                payment_date: document.getElementById('paymentDate').value
             };
 
             let res;
             if (editId && editId !== "") {
-                res = await supabaseClient.from('bariatric_cases').update(payload).eq('id', editId);
+                res = await supabaseClient.from('payments').update(payload).eq('id', editId);
             } else {
-                res = await supabaseClient.from('bariatric_cases').insert([payload]);
+                res = await supabaseClient.from('payments').insert([payload]);
             }
 
             if (res.error) {
@@ -317,23 +299,23 @@
                 return;
             }
 
-            alert('✨ تم حفظ وتعديل الحالة الجراحية في قاعدة البيانات بنجاح!');
-            closeBariatricModal();
-            loadBariatricData();
+            alert('✨ تم حفظ وتعديل الدفعة المالية بنجاح!');
+            closePaymentModal();
+            loadPaymentsData();
         }
 
-        async function deleteBariatric(id) {
-            if (!confirm('هل أنت متأكد من حذف هذه الحالة الجراحية نهائياً؟')) return;
-            const { error } = await supabaseClient.from('bariatric_cases').delete().eq('id', id);
+        async function deletePayment(id) {
+            if (!confirm('هل أنت متأكد من حذف هذه المعاملة المالية نهائياً؟')) return;
+            const { error } = await supabaseClient.from('payments').delete().eq('id', id);
             if (error) {
                 alert('خطأ في الحذف: ' + error.message);
                 return;
             }
             alert('✨ تم الحذف بنجاح!');
-            loadBariatricData();
+            loadPaymentsData();
         }
 
-        window.onload = loadBariatricData;
+        window.onload = loadPaymentsData;
     </script>
 </body>
 </html>
