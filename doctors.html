@@ -263,7 +263,7 @@
             let phoneVal = document.getElementById('docPhone').value;
             let emailVal = document.getElementById('docEmail').value;
 
-            // إرسال البيانات بجميع الاحتمالات المتوافقة مع أسماء الأعمدة في الجدول (doctor_name أو name)
+            // إرسال البيانات بـ doctor_name الأساسي لتوافق قند NOT NULL في الجدول
             let payload = {
                 doctor_name: docNameVal,
                 name: docNameVal,
@@ -282,7 +282,7 @@
             if (res.error) {
                 // محاولة احتياطية ثانية في حال رفضت قاعدة البيانات الحقول المزدوجة
                 let basicPayload = {
-                    name: docNameVal,
+                    doctor_name: docNameVal,
                     specialty: specialtyVal,
                     phone: phoneVal
                 };
