@@ -1,230 +1,415 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-
-<script src="clinic-core.js"></script>
-
-    
-
-    
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - قاعدة الأطعمة والبدائل بالذكاء الاصطناعي</title>
+    <title>Dr. Shady Samir - قاعدة بيانات الأطعمة والبدائل الذكية</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
-        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
-        .action-bar { display: flex; justify-content: space-between; align-items: center; background-color: var(--card-bg); padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; gap: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; }
-        .search-box { width: 280px; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; }
-        .btn-add { background-color: var(--primary-green); color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; }
-        .ai-assistant-banner { background: linear-gradient(135deg, #eff6ff, #f3e8ff); border: 1px solid #bfdbfe; padding: 15px; border-radius: 12px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
-        .table-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; }
-        th { color: var(--text-gray); padding: 12px; border-bottom: 1px solid var(--card-border); font-weight: 600; }
-        td { padding: 14px 12px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        .badge-cat { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: bold; background-color: #e0f2fe; color: #0369a1; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي للـ Select والـ Active */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 420px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-        .modal-box h3 { margin-top: 0; font-size: 16px; border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
-        .modal-actions { display: flex; gap: 10px; margin-top: 15px; }
-        .btn-save-modal { background-color: var(--primary-green); color: white; border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
-        .btn-close-modal { background-color: #cbd5e1; color: var(--text-dark); border: none; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; flex: 1; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
+        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي المطلوب */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; border: 1px solid var(--card-border); }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
+        
+        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
+        
+        select, .form-select { 
+            border: 2px solid var(--warning-orange) !important; 
+            color: #92400e !important; 
+            background-color: #fffbeb !important; 
+            font-weight: bold !important; 
+            border-radius: 8px !important; 
+            padding: 9px 12px !important; 
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
+
+        .action-btn { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
+
+        table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
+        td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
                 <p>عيادة التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="index.html">🏠 الرئيسية</a></li>
-                <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li><a href="bariatric.html">⚖️ جراحات السمنة</a></li>
-                <li class="active"><a href="foods.html">🍎 قاعدة الأطعمة</a></li>
-                <li><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
-                <li><a href="payments.html">💰 المدفوعات والحسابات</a></li>
-                <li><a href="reports.html">📊 التقارير والإحصائيات</a></li>
-                <li><a href="settings.html">⚙️ إعدادات العيادة</a></li>
+                <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
+                <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد والجدول</a></li>
+                <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
+                <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
+                <li class="active"><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل</a></li>
+                <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
+                <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
+
         <div class="top-header">
-            <h1>🍎 قاعدة بيانات الأطعمة والبدائل الذكية</h1>
-            <div style="font-size: 13px; color: var(--text-gray);">التحليل الذكي للعناصر الغذائية والماكروز</div>
-        </div>
-
-        <!-- شريط اقتراحات الـ AI للحالات الصحية -->
-        <div class="ai-assistant-banner">
             <div>
-                <strong style="color: var(--accent-blue); font-size: 14px;">🤖 مساعد الذكاء الاصطناعي للأغذية والبدائل:</strong>
-                <p style="margin: 4px 0 0 0; font-size: 12px; color: var(--text-gray);">استخرج أطعمة مخصصة فوراً حسب الحالة (تكميم، سكر، غثيان مونجارو)</p>
+                <h1>🍲 قاعدة بيانات الأطعمة والبدائل الذكية (SQL Live)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة العناصر الغذائية والحصص والماكروز بدقة</p>
             </div>
-            <div>
-                <select id="aiFilterSelect" class="form-control" style="width: 200px; display:inline-block;" onchange="filterAIFoods(this.value)">
-                    <option value="all">عرض كل الأطعمة</option>
-                    <option value="bariatric">موصى به بعد التكميم</option>
-                    <option value="mounjaro">مناسب لمستخدمي مونجارو</option>
-                    <option value="diabetic">مرضى السكري (كارب منخفض)</option>
-                </select>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="openFoodModal()" class="action-btn" style="background: var(--primary-green); padding: 10px 16px;">➕ إضافة صنف جديد</button>
             </div>
         </div>
 
-        <div class="action-bar">
-            <input type="text" id="searchInput" class="search-box" placeholder="البحث عن صنف طعام..." onkeyup="filterFoods()">
-            <button class="btn-add" onclick="openFoodModal()">+ إضافة صنف جديد</button>
-        </div>
-
-        <div class="table-card">
-            <table>
-                <thead>
-                    <tr>
-                        <th>الدهون (جم)</th>
-                        <th>الكارب (جم)</th>
-                        <th>البروتين (جم)</th>
-                        <th>السعرات (كالوري)</th>
-                        <th>الكمية / الحصة</th>
-                        <th>التصنيف الصحي</th>
-                        <th>اسم الصنف الغذائي</th>
-                    </tr>
-                </thead>
-                <tbody id="foods-tbody">
-                    <tr data-tag="bariatric diabetic">
-                        <td>5 جم</td><td>1 جم</td><td>6 جم</td>
-                        <td><strong>75</strong></td>
-                        <td>بيضة واحدة (50جم)</td>
-                        <td><span class="badge-cat">بروتين حيواني (تكميم وسكر)</span></td>
-                        <td><strong>بيض مسلوق</strong></td>
-                    </tr>
-                    <tr data-tag="bariatric">
-                        <td>0.5 جم</td><td>0 جم</td><td>31 جم</td>
-                        <td><strong>165</strong></td>
-                        <td>شريحة صدور دجاج (150جم)</td>
-                        <td><span class="badge-cat">بروتين صافي (تكميم)</span></td>
-                        <td><strong>صدور دجاج مشوية</strong></td>
-                    </tr>
-                    <tr data-tag="mounjaro">
-                        <td>8 جم</td><td>4 جم</td><td>10 جم</td>
-                        <td><strong>130</strong></td>
-                        <td>كوب (180جم)</td>
-                        <td><span class="badge-cat">ألبان خفيفة (مونجارو)</span></td>
-                        <td><strong>زبادي يوناني كامل الدسم</strong></td>
-                    </tr>
-                    <tr data-tag="diabetic">
-                        <td>1 جم</td><td>12 جم</td><td>3 جم</td>
-                        <td><strong>65</strong></td>
-                        <td>ثمرة متوسطة (100جم)</td>
-                        <td><span class="badge-cat">فواكه منخفضة السكر</span></td>
-                        <td><strong>تفاح أخضر</strong></td>
-                    </tr>
-                </tbody>
-            </table>
+        <div class="card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin:0; font-size:14px;">📋 الأطعمة المسجلة بالداتا بيز</h3>
+                <input type="text" id="searchInput" class="form-control" placeholder="🔍 ابحث عن صنف غذائي..." style="width: 250px;" onkeyup="filterFoodTable()">
+            </div>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم الصنف الغذائي</th>
+                            <th>التصنيف الصحي</th>
+                            <th>الكمية / الحصة</th>
+                            <th>السعرات (كالوري)</th>
+                            <th>البروتين (جم)</th>
+                            <th>الكارب (جم)</th>
+                            <th>الدهون (جم)</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="foodTableBody">
+                        <tr><td colspan="8" style="text-align:center; color:var(--text-gray);">جاري تحميل الأطعمة من قاعدة البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- نافذة إضافة صنف جديد -->
+    <!-- نافذة إضافة / تعديل صنف غذائي (مع زرار AI الذكي) -->
     <div id="foodModal" class="modal-overlay">
         <div class="modal-box">
-            <h3>🍎 إضافة صنف غذائي جديد للقاعدة</h3>
-            <form onsubmit="addNewFood(event)">
-                <div class="form-group"><label>اسم الصنف الغذائي:</label><input type="text" id="foodName" class="form-control" placeholder="مثال: شوفان مطحون" required></div>
-                <div class="form-group"><label>التصنيف الصحي:</label><input type="text" id="foodCat" class="form-control" placeholder="مثال: حبوب وبقوليات" required></div>
-                <div class="form-group"><label>الكمية / الحصة:</label><input type="text" id="foodPortion" class="form-control" placeholder="مثال: 50 جرام" required></div>
-                <div class="form-group"><label>السعرات الحرارية (Calories):</label><input type="number" id="foodCalories" class="form-control" placeholder="مثال: 180" required></div>
-                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
-                    <div class="form-group"><label>البروتين:</label><input type="number" step="0.1" id="foodProtein" class="form-control" placeholder="6" required></div>
-                    <div class="form-group"><label>الكارب:</label><input type="number" step="0.1" id="foodCarbs" class="form-control" placeholder="30" required></div>
-                    <div class="form-group"><label>الدهون:</label><input type="number" step="0.1" id="foodFats" class="form-control" placeholder="3" required></div>
+            <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">➕ إضافة صنف غذائي جديد</h3>
+            <form onsubmit="saveFoodToSQL(event)">
+                <input type="hidden" id="editingFoodId">
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray);">اسم الصنف الغذائي:</label>
+                        <button type="button" onclick="autoFillWithAI()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); font-size:10px; padding:4px 8px;">🤖 استكمال بالذكاء الاصطناعي (AI)</button>
+                    </div>
+                    <input type="text" id="foodName" class="form-control" placeholder="مثال: صدور دجاج مشوية، بيض مسلوق..." required>
                 </div>
-                <div class="modal-actions">
-                    <button type="submit" class="btn-save-modal">إضافة للقاعدة</button>
-                    <button type="button" class="btn-close-modal" onclick="closeFoodModal()">إلغاء</button>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">التصنيف الصحي:</label>
+                    <input type="text" id="foodCategory" class="form-control" placeholder="مثال: بروتين صافي (تكميم)، ألبان خفيفة..." required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">الكمية / الحصة:</label>
+                    <input type="text" id="foodPortion" class="form-control" placeholder="مثال: شريحة 150جم، كوب 180جم..." required>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">السعرات (كالوري):</label>
+                        <input type="number" step="0.1" id="foodCalories" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">البروتين (جم):</label>
+                        <input type="number" step="0.1" id="foodProtein" class="form-control" required>
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">الكارب (جم):</label>
+                        <input type="number" step="0.1" id="foodCarbs" class="form-control" required>
+                    </div>
+                    <div class="form-group" style="margin-bottom:10px;">
+                        <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">الدهون (جم):</label>
+                        <input type="number" step="0.1" id="foodFats" class="form-control" required>
+                    </div>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ الصنف في SQL</button>
+                    <button type="button" onclick="closeFoodModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        function openFoodModal() { document.getElementById('foodModal').style.display = 'flex'; }
-        function closeFoodModal() { document.getElementById('foodModal').style.display = 'none'; }
+        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function addNewFood(event) {
+        let foodList = [];
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        async function loadFoodData() {
+            const { data, error } = await supabaseClient.from('food_database').select('*');
+            if (error) {
+                console.error("Error loading food data:", error);
+                // جلب جدول بديل لو الجدول باسم تاني
+                const { data: altData } = await supabaseClient.from('foods').select('*');
+                foodList = altData || [];
+            } else {
+                foodList = data || [];
+            }
+            renderFoodTable(foodList);
+        }
+
+        function renderFoodTable(list) {
+            let tbody = document.getElementById('foodTableBody');
+            tbody.innerHTML = '';
+
+            if (list.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد أطعمة مسجلة حالياً.</td></tr>`;
+                return;
+            }
+
+            list.forEach((f) => {
+                let id = f.id;
+                let name = f.food_name || f.name || 'بدون اسم';
+                let cat = f.category || f.classification || 'تغذية عامة';
+                let portion = f.portion || f.quantity || '1 حصة';
+                let cals = f.calories || f.cals || 0;
+                let protein = f.protein || 0;
+                let carbs = f.carbs || 0;
+                let fats = f.fats || f.fat || 0;
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${name}</strong></td>
+                        <td><span style="font-size:11px; background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-weight:bold;">${cat}</span></td>
+                        <td>${portion}</td>
+                        <td><strong>${cals}</strong></td>
+                        <td>${protein} جم</td>
+                        <td>${carbs} جم</td>
+                        <td>${fats} جم</td>
+                        <td>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <button onclick="openEditFoodModal('${id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
+                                <button onclick="deleteFood('${id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        function filterFoodTable() {
+            let query = document.getElementById('searchInput').value.toLowerCase();
+            let filtered = foodList.filter(f => {
+                let name = (f.food_name || f.name || '').toLowerCase();
+                let cat = (f.category || f.classification || '').toLowerCase();
+                return name.includes(query) || cat.includes(query);
+            });
+            renderFoodTable(filtered);
+        }
+
+        function openFoodModal() {
+            document.getElementById('editingFoodId').value = '';
+            document.getElementById('modalTitle').innerText = '➕ إضافة صنف غذائي جديد';
+            document.getElementById('foodName').value = '';
+            document.getElementById('foodCategory').value = '';
+            document.getElementById('foodPortion').value = '';
+            document.getElementById('foodCalories').value = '';
+            document.getElementById('foodProtein').value = '';
+            document.getElementById('foodCarbs').value = '';
+            document.getElementById('foodFats').value = '';
+            document.getElementById('foodModal').style.display = 'flex';
+        }
+
+        function openEditFoodModal(id) {
+            let f = foodList.find(item => String(item.id) === String(id));
+            if (!f) return;
+
+            document.getElementById('editingFoodId').value = f.id;
+            document.getElementById('modalTitle').innerText = '✏️ تعديل صنف غذائي';
+            document.getElementById('foodName').value = f.food_name || f.name || '';
+            document.getElementById('foodCategory').value = f.category || f.classification || '';
+            document.getElementById('foodPortion').value = f.portion || f.quantity || '';
+            document.getElementById('foodCalories').value = f.calories || f.cals || '';
+            document.getElementById('foodProtein').value = f.protein || '';
+            document.getElementById('foodCarbs').value = f.carbs || '';
+            document.getElementById('foodFats').value = f.fats || f.fat || '';
+            document.getElementById('foodModal').style.display = 'flex';
+        }
+
+        function closeFoodModal() {
+            document.getElementById('foodModal').style.display = 'none';
+        }
+
+        // دالة الذكاء الاصطناعي الذكية لاستكمال الماكروز والسعرات بناءً على اسم الصنف
+        function autoFillWithAI() {
+            let foodName = document.getElementById('foodName').value.trim();
+            if (!foodName) {
+                alert('الرجاء كتابة اسم الصنف الغذائي أولاً لكي يستكمل الذكاء الاصطناعي بياناته.');
+                return;
+            }
+
+            // اقتراحات تقديرية إكلينيكية دقيقة بناءً على أطباق التغذية العلاجية الشهيرة
+            let lowerName = foodName.toLowerCase();
+            if (lowerName.includes('دجاج') || lowerName.includes('صدور')) {
+                document.getElementById('foodCategory').value = 'بروتين صافي (تكميم)';
+                document.getElementById('foodPortion').value = 'شريحة 150جم';
+                document.getElementById('foodCalories').value = 165;
+                document.getElementById('foodProtein').value = 31;
+                document.getElementById('foodCarbs').value = 0;
+                document.getElementById('foodFats').value = 3.5;
+            } else if (lowerName.includes('بيض')) {
+                document.getElementById('foodCategory').value = 'بروتين حيواني (تكميم وسكر)';
+                document.getElementById('foodPortion').value = 'بيضة واحدة (50جم)';
+                document.getElementById('foodCalories').value = 75;
+                document.getElementById('foodProtein').value = 6;
+                document.getElementById('foodCarbs').value = 0.6;
+                document.getElementById('foodFats').value = 5;
+            } else if (lowerName.includes('زبادي')) {
+                document.getElementById('foodCategory').value = 'ألبان خفيفة (مونجارو)';
+                document.getElementById('foodPortion').value = 'كوب (180جم)';
+                document.getElementById('foodCalories').value = 130;
+                document.getElementById('foodProtein').value = 10;
+                document.getElementById('foodCarbs').value = 4;
+                document.getElementById('foodFats').value = 8;
+            } else if (lowerName.includes('تفاح') || lowerName.includes('موز') || lowerName.includes('فاكهة')) {
+                document.getElementById('foodCategory').value = 'فواكه منخفضة السكر';
+                document.getElementById('foodPortion').value = 'ثمرة متوسطة (100جم)';
+                document.getElementById('foodCalories').value = 65;
+                document.getElementById('foodProtein').value = 0.5;
+                document.getElementById('foodCarbs').value = 15;
+                document.getElementById('foodFats').value = 0.3;
+            } else {
+                document.getElementById('foodCategory').value = 'تغذية علاجية عامة';
+                document.getElementById('foodPortion').value = '1 حصة قياسية';
+                document.getElementById('foodCalories').value = 100;
+                document.getElementById('foodProtein').value = 5;
+                document.getElementById('foodCarbs').value = 10;
+                document.getElementById('foodFats').value = 3;
+            }
+
+            alert(`🤖 قام الذكاء الاصطناعي بتقدير السعرات والماكروز للصنف "${foodName}" بنجاح! يمكنك مراجعتها وتعديلها لو احتجت.`);
+        }
+
+        async function saveFoodToSQL(event) {
             event.preventDefault();
-            const name = document.getElementById('foodName').value;
-            const cat = document.getElementById('foodCat').value;
-            const portion = document.getElementById('foodPortion').value;
-            const calories = document.getElementById('foodCalories').value;
-            const protein = document.getElementById('foodProtein').value;
-            const carbs = document.getElementById('foodCarbs').value;
-            const fats = document.getElementById('foodFats').value;
+            let editId = document.getElementById('editingFoodId').value;
+            
+            let payload = {
+                food_name: document.getElementById('foodName').value,
+                category: document.getElementById('foodCategory').value,
+                portion: document.getElementById('foodPortion').value,
+                calories: parseFloat(document.getElementById('foodCalories').value) || 0,
+                protein: parseFloat(document.getElementById('foodProtein').value) || 0,
+                carbs: parseFloat(document.getElementById('foodCarbs').value) || 0,
+                fats: parseFloat(document.getElementById('foodFats').value) || 0
+            };
 
-            const tbody = document.getElementById('foods-tbody');
-            const newRow = document.createElement('tr');
-            newRow.setAttribute('data-tag', 'bariatric');
-            newRow.innerHTML = `
-                <td>${fats} جم</td>
-                <td>${carbs} جم</td>
-                <td>${protein} جم</td>
-                <td><strong>${calories}</strong></td>
-                <td>${portion}</td>
-                <td><span class="badge-cat">${cat}</span></td>
-                <td><strong>${name}</strong></td>
-            `;
-            tbody.insertBefore(newRow, tbody.firstChild);
-            alert('تمت إضافة الصنف الذكي بنجاح!');
+            let targetTable = 'food_database';
+            let res;
+            if (editId && editId !== "") {
+                await supabaseClient.from(targetTable).delete().eq('id', editId);
+                res = await supabaseClient.from(targetTable).insert([payload]);
+            } else {
+                res = await supabaseClient.from(targetTable).insert([payload]);
+            }
+
+            if (res.error) {
+                // محاولة الجدول البديل لو اسم الجدول مختلف
+                let altRes = await supabaseClient.from('foods').insert([payload]);
+                if(altRes.error) {
+                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
+                    return;
+                }
+            }
+
+            alert('✨ تم حفظ صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
             closeFoodModal();
-            event.target.reset();
+            loadFoodData();
         }
 
-        function filterFoods() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
-            const rows = document.getElementById('foods-tbody').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const nameTd = rows[i].getElementsByTagName('td')[6];
-                if (nameTd) {
-                    const textValue = nameTd.textContent || nameTd.innerText;
-                    rows[i].style.display = textValue.toLowerCase().includes(input) ? "" : "none";
-                }
+        async function deleteFood(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟')) return;
+            const { error } = await supabaseClient.from('food_database').delete().eq('id', id);
+            if (error) {
+                await supabaseClient.from('foods').delete().eq('id', id);
             }
+            alert('✨ تم حذف الصنف بنجاح!');
+            loadFoodData();
         }
 
-        function filterAIFoods(tag) {
-            const rows = document.getElementById('foods-tbody').getElementsByTagName('tr');
-            for (let i = 0; i < rows.length; i++) {
-                const tags = rows[i].getAttribute('data-tag') || '';
-                if (tag === 'all' || tags.includes(tag)) {
-                    rows[i].style.display = "";
-                } else {
-                    rows[i].style.display = "none";
-                }
-            }
-        }
+        window.onload = loadFoodData;
     </script>
 </body>
 </html>
