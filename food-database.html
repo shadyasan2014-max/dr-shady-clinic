@@ -362,13 +362,14 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال الأعمدة الأساسية المضمونة في جدول foods لتجنب أي أخطاء في الأعمدة غير الموجودة
             let payload = {
                 food_name: document.getElementById('foodName').value,
                 category: document.getElementById('foodCategory').value,
                 portion: document.getElementById('foodPortion').value,
                 calories: parseFloat(document.getElementById('foodCalories').value) || 0,
-                protein: parseFloat(document.getElementById('foodProtein').value) || 0
+                protein: parseFloat(document.getElementById('foodProtein').value) || 0,
+                carbs: parseFloat(document.getElementById('foodCarbs').value) || 0,
+                fats: parseFloat(document.getElementById('foodFats').value) || 0
             };
 
             let res;
@@ -380,8 +381,19 @@
             }
 
             if (res.error) {
-                alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
-                return;
+                // خطأ احتياطي لو أعمدة الكارب والدهون مش موجودة في الجدول
+                let basicPayload = {
+                    food_name: payload.food_name,
+                    category: payload.category,
+                    portion: payload.portion,
+                    calories: payload.calories,
+                    protein: payload.protein
+                };
+                let retryRes = await supabaseClient.from('foods').insert([basicPayload]);
+                if (retryRes.error) {
+                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
+                    return;
+                }
             }
 
             alert('✨ تم حفظ صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
@@ -390,7 +402,7 @@
         }
 
         async function deleteFood(id) {
-            if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟'))तुरاً؟')) return;
+            if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟')) return;
             const { error } = await supabaseClient.from('foods').delete().eq('id', id);
             if (error) {
                 alert('خطأ في الحذف: ' + error.message);
