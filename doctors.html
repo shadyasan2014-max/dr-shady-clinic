@@ -258,11 +258,18 @@
             event.preventDefault();
             let editId = document.getElementById('editingDoctorId').value;
 
+            let docNameVal = document.getElementById('docName').value;
+            let specialtyVal = document.getElementById('docSpecialty').value;
+            let phoneVal = document.getElementById('docPhone').value;
+            let emailVal = document.getElementById('docEmail').value;
+
+            // إرسال البيانات بجميع الاحتمالات المتوافقة مع أسماء الأعمدة في الجدول (doctor_name أو name)
             let payload = {
-                doctor_name: document.getElementById('docName').value,
-                specialty: document.getElementById('docSpecialty').value,
-                phone: document.getElementById('docPhone').value,
-                email: document.getElementById('docEmail').value
+                doctor_name: docNameVal,
+                name: docNameVal,
+                specialty: specialtyVal,
+                phone: phoneVal,
+                email: emailVal
             };
 
             let res;
@@ -273,11 +280,11 @@
             }
 
             if (res.error) {
-                // محاولة احتياطية لو أسماء الأعمدة مختلفة في الجدول
+                // محاولة احتياطية ثانية في حال رفضت قاعدة البيانات الحقول المزدوجة
                 let basicPayload = {
-                    name: payload.doctor_name,
-                    specialty: payload.specialty,
-                    phone: payload.phone
+                    name: docNameVal,
+                    specialty: specialtyVal,
+                    phone: phoneVal
                 };
                 if (editId && editId !== "") {
                     res = await supabaseClient.from('doctors').update(basicPayload).eq('id', editId);
