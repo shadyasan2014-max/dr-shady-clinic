@@ -146,15 +146,17 @@
         </div>
     </div>
 
-    <!-- نافذة وصف مكملات وفيتامينات جديدة -->
+    <!-- نافذة وصف أو تعديل مكملات وفيتامينات -->
     <div id="supplementModal" class="modal-overlay">
         <div class="modal-box">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 12px;">
-                <h3 style="margin:0; font-size:15px; color:var(--text-dark);">💊 وصف مكملات وفيتامينات</h3>
+                <h3 id="modalTitle" style="margin:0; font-size:15px; color:var(--text-dark);">💊 وصف مكملات وفيتامينات</h3>
                 <button type="button" onclick="generateProtocolWithAI()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); font-size:10px; padding:6px 10px;">🤖 توليد بالذكاء الاصطناعي (AI)</button>
             </div>
 
             <form onsubmit="saveSupplementToSQL(event)">
+                <input type="hidden" id="editingSupplementId">
+
                 <div class="form-group" style="margin-bottom:10px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المريض:</label>
                     <select id="patientSelect" class="form-control" required>
@@ -214,6 +216,8 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let supplementsList = [];
+
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
@@ -244,11 +248,13 @@
             tbody.innerHTML = '';
 
             if (error || !data || data.length === 0) {
+                supplementsList = [];
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مكملات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
-            data.forEach(s => {
+            supplementsList = data;
+            supplementsList.forEach(s => {
                 let medName = s.supp_list || s.sup_name || s.supplement_name || '-';
                 tbody.innerHTML += `
                     <tr>
@@ -259,7 +265,10 @@
                         <td>${s.duration || '-'}</td>
                         <td>${s.notes || '-'}</td>
                         <td>
-                            <button onclick="deleteSupplement('${s.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            <div style="display:flex; gap:6px; align-items:center;">
+                                <button onclick="openEditSupplementModal('${s.id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
+                                <button onclick="deleteSupplement('${s.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -268,6 +277,9 @@
 
         function openSupplementModal() {
             loadPatientsDropdown();
+            document.getElementById('editingSupplementId').value = '';
+            document.getElementById('modalTitle').innerText = '💊 وصف مكملات وفيتامينات جديدة';
+            document.getElementById('patientSelect').value = '';
             document.getElementById('caseTypeSelect').value = '';
             document.getElementById('otherCaseInput').value = '';
             document.getElementById('otherCaseBox').style.display = 'none';
@@ -275,6 +287,37 @@
             document.getElementById('supDosage').value = '';
             document.getElementById('supDuration').value = '';
             document.getElementById('supNotes').value = '';
+            document.getElementById('supplementModal').style.display = 'flex';
+        }
+
+        function openEditSupplementModal(id) {
+            loadPatientsDropdown();
+            let s = supplementsList.find(item => String(item.id) === String(id));
+            if (!s) return;
+
+            document.getElementById('editingSupplementId').value = s.id;
+            document.getElementById('modalTitle').innerText = '✏️ تعديل بروتوكول المكملات';
+            document.getElementById('patientSelect').value = s.patient_name || '';
+            
+            let caseType = s.case_type || '';
+            let standardOptions = ['تصحيح', 'ساسي', 'تحويل كلاسيكي', 'حقن مونجارو او حقن ميزوثرابي'];
+            
+            if (standardOptions.includes(caseType)) {
+                document.getElementById('caseTypeSelect').value = caseType;
+                document.getElementById('otherCaseBox').style.display = 'none';
+            } else if (caseType) {
+                document.getElementById('caseTypeSelect').value = 'اخرى';
+                document.getElementById('otherCaseBox').style.display = 'block';
+                document.getElementById('otherCaseInput').value = caseType;
+            } else {
+                document.getElementById('caseTypeSelect').value = '';
+                document.getElementById('otherCaseBox').style.display = 'none';
+            }
+
+            document.getElementById('supName').value = s.supp_list || s.sup_name || s.supplement_name || '';
+            document.getElementById('supDosage').value = s.dosage || '';
+            document.getElementById('supDuration').value = s.duration || '';
+            document.getElementById('supNotes').value = s.notes || '';
             document.getElementById('supplementModal').style.display = 'flex';
         }
 
@@ -326,6 +369,7 @@
 
         async function saveSupplementToSQL(event) {
             event.preventDefault();
+            let editId = document.getElementById('editingSupplementId').value;
 
             let caseType = document.getElementById('caseTypeSelect').value;
             if (caseType === 'اخرى') {
@@ -334,7 +378,6 @@
 
             let medValue = document.getElementById('supName').value;
 
-            // إرسال البيانات مع العمود supp_name والعمود القديم supp_list لضمان التوافق التام مع الجدول
             let payload = {
                 patient_name: document.getElementById('patientSelect').value,
                 case_type: caseType,
@@ -345,9 +388,15 @@
                 notes: document.getElementById('supNotes').value
             };
 
-            const { error } = await supabaseClient.from('supplements').insert([payload]);
-            if (error) {
-                // محاولة احتياطية لو حصل أي إيرور في الأعمدة
+            let res;
+            if (editId && editId !== "") {
+                res = await supabaseClient.from('supplements').update(payload).eq('id', editId);
+            } else {
+                res = await supabaseClient.from('supplements').insert([payload]);
+            }
+
+            if (res.error) {
+                // محاولة احتياطية للـ Update أو Insert لو في عمود غير مدعوم
                 let basicPayload = {
                     patient_name: payload.patient_name,
                     case_type: payload.case_type,
@@ -356,14 +405,18 @@
                     duration: payload.duration,
                     notes: payload.notes
                 };
-                let retryRes = await supabaseClient.from('supplements').insert([basicPayload]);
-                if (retryRes.error) {
-                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + error.message);
+                if (editId && editId !== "") {
+                    res = await supabaseClient.from('supplements').update(basicPayload).eq('id', editId);
+                } else {
+                    res = await supabaseClient.from('supplements').insert([basicPayload]);
+                }
+                if (res.error) {
+                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
                     return;
                 }
             }
 
-            alert('✨ تم حفظ وصف المكملات والفيتامينات للمريض بنجاح!');
+            alert('✨ تم حفظ وتعديل البروتوكول في قاعدة البيانات بنجاح!');
             closeSupplementModal();
             loadSupplementsData();
         }
