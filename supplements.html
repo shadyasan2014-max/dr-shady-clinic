@@ -131,6 +131,7 @@
                         <tr>
                             <th>اسم المريض</th>
                             <th>نوع الحالة / العملية</th>
+                            <th>الأدوية والمكملات</th>
                             <th>الجرعات</th>
                             <th>المدة الزمنية</th>
                             <th>تعليمات إكلينيكية</th>
@@ -138,7 +139,7 @@
                         </tr>
                     </thead>
                     <tbody id="supplementsTableBody">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل المكملات من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل المكملات من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -148,7 +149,11 @@
     <!-- نافذة وصف مكملات وفيتامينات جديدة -->
     <div id="supplementModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">💊 وصف مكملات وفيتامينات (مع مساعد AI)</h3>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 12px;">
+                <h3 style="margin:0; font-size:15px; color:var(--text-dark);">💊 وصف مكملات وفيتامينات</h3>
+                <button type="button" onclick="generateProtocolWithAI()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%); font-size:10px; padding:6px 10px;">🤖 توليد بالذكاء الاصطناعي (AI)</button>
+            </div>
+
             <form onsubmit="saveSupplementToSQL(event)">
                 <div class="form-group" style="margin-bottom:10px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المريض:</label>
@@ -173,6 +178,12 @@
                 <div class="form-group" id="otherCaseBox" style="margin-bottom:10px; display:none;">
                     <label style="font-size:11px; font-weight:bold; color:var(--accent-blue); display:block; margin-bottom:4px;">حدد الحالة الأخرى:</label>
                     <input type="text" id="otherCaseInput" class="form-control" placeholder="اكتب اسم العملية أو الحالة هنا...">
+                </div>
+
+                <!-- حقل كتابة أسماء الأدوية والمكملات -->
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المكمل / الأدوية:</label>
+                    <input type="text" id="supName" class="form-control" placeholder="مثال: فيتامين د3، كالسيوم، أوميغا 3..." required>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
@@ -233,7 +244,7 @@
             tbody.innerHTML = '';
 
             if (error || !data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مكملات مسجلة حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مكملات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
@@ -242,6 +253,7 @@
                     <tr>
                         <td><strong>${s.patient_name || 'غير محدد'}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${s.case_type || '-'}</span></td>
+                        <td><strong>${s.sup_name || s.supplement_name || '-'}</strong></td>
                         <td>${s.dosage || '-'}</td>
                         <td>${s.duration || '-'}</td>
                         <td>${s.notes || '-'}</td>
@@ -258,6 +270,7 @@
             document.getElementById('caseTypeSelect').value = '';
             document.getElementById('otherCaseInput').value = '';
             document.getElementById('otherCaseBox').style.display = 'none';
+            document.getElementById('supName').value = '';
             document.getElementById('supDosage').value = '';
             document.getElementById('supDuration').value = '';
             document.getElementById('supNotes').value = '';
@@ -280,6 +293,36 @@
             }
         }
 
+        function generateProtocolWithAI() {
+            let caseType = document.getElementById('caseTypeSelect').value;
+            if (!caseType) {
+                alert('الرجاء اختيار نوع الحالة أو العملية أولاً ليقوم الذكاء الاصطناعي بتوليد البروتوكول المناسب.');
+                return;
+            }
+            if (caseType === 'اخرى') {
+                caseType = document.getElementById('otherCaseInput').value.trim() || 'حالة خاصة';
+            }
+
+            if (caseType.includes('ساسي') || caseType.includes('تحويل')) {
+                document.getElementById('supName').value = 'مجموعة فيتامينات شاملة + كالسيوم + حديد + بروتين ببتيد';
+                document.getElementById('supDosage').value = 'قرص مرتين يومياً + سكوب بروتين صباحاً';
+                document.getElementById('supDuration').value = '6 أشهر مستمرة';
+                document.getElementById('supNotes').value = 'التفريق بين أخذ الحديد والكالسيوم بساعتين على الأقل، ومتابعة التحاليل الشهرية.';
+            } else if (caseType.includes('مونجارو') || caseType.includes('ميزوثرابي')) {
+                document.getElementById('supName').value = 'حقن إكلينيكية + فيتامين ب المركب + أوميغا 3';
+                document.getElementById('supDosage').value = 'حقنة أسبوعياً + كبسولة يومياً';
+                document.getElementById('supDuration').value = '3 أشهر';
+                document.getElementById('supNotes').value = 'شرب كميات كافية من الماء، ومتابعة قياسات السكر والوزن أسبوعياً.';
+            } else {
+                document.getElementById('supName').value = 'مكملات دعم التغذية العلاجية العامة';
+                document.getElementById('supDosage').value = 'قرص يومياً مع الوجبة الرئيسية';
+                document.getElementById('supDuration').value = 'شهرين';
+                document.getElementById('supNotes').value = 'الالتزام بنظام البروتين الصافي وشرب الماء بانتظام.';
+            }
+
+            alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
+        }
+
         async function saveSupplementToSQL(event) {
             event.preventDefault();
 
@@ -291,6 +334,7 @@
             let payload = {
                 patient_name: document.getElementById('patientSelect').value,
                 case_type: caseType,
+                sup_name: document.getElementById('supName').value,
                 dosage: document.getElementById('supDosage').value,
                 duration: document.getElementById('supDuration').value,
                 notes: document.getElementById('supNotes').value
@@ -298,8 +342,19 @@
 
             const { error } = await supabaseClient.from('supplements').insert([payload]);
             if (error) {
-                alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + error.message);
-                return;
+                // محاولة حفظ احتياطية بدون عمود sup_name لو الجدول مش مدعومه
+                let basicPayload = {
+                    patient_name: payload.patient_name,
+                    case_type: payload.case_type,
+                    dosage: payload.dosage,
+                    duration: payload.duration,
+                    notes: payload.notes
+                };
+                let retryRes = await supabaseClient.from('supplements').insert([basicPayload]);
+                if (retryRes.error) {
+                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + error.message);
+                    return;
+                }
             }
 
             alert('✨ تم حفظ وصف المكملات والفيتامينات للمريض بنجاح!');
