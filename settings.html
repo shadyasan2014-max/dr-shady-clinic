@@ -6,37 +6,62 @@
     <title>Dr. Shady Samir - إعدادات النظام وتخصيص العيادة</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
+        
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
+        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px 25px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid var(--card-border); }
         .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
 
-        .form-group { margin-bottom: 15px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
-        .action-btn { border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 13px; cursor: pointer; color: white; background: var(--primary-green); display: inline-flex; align-items: center; gap: 6px; }
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
+        
+        select, .form-select { 
+            border: 2px solid var(--warning-orange) !important; 
+            color: #92400e !important; 
+            background-color: #fffbeb !important; 
+            font-weight: bold !important; 
+            border-radius: 8px !important; 
+            padding: 9px 12px !important; 
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
 
-        .dynamic-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
-        .remove-btn { background: var(--danger-red); color: white; border: none; padding: 9px 12px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 11px; }
+        .action-btn { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
 
-        .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
@@ -54,9 +79,9 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
-                <p>عيادة التغذية العلاجية</p>
+                <p>استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
@@ -83,61 +108,35 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div class="top-header">
-            <h1>⚙️ إعدادات النظام وتخصيص العيادة (مربوط بـ SQL)</h1>
-            <!-- شريط البحث السريع باسم الدكتور -->
-            <div style="display: flex; gap: 6px; align-items: center;">
-                <select id="doctorSearchSelect" class="form-control" style="width: 200px; padding: 7px;" onchange="selectDoctorByName(this.value)">
-                    <option value="">-- ابحث أو اختر الطبيب --</option>
-                </select>
-                <button type="button" onclick="resetNewDoctorForm()" class="action-btn" style="background: var(--accent-blue); padding: 7px 12px; font-size: 11px;">➕ طبيب جديد</button>
+            <div>
+                <h1>⚙️ إعدادات النظام وتخصيص العيادة (مربوط بـ SQL)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة بيانات الطبيب واللوجو وشعار العيادة</p>
             </div>
         </div>
 
         <div class="card">
-            <form onsubmit="saveClinicSettingsToSQL(event)">
-                <input type="hidden" id="docRecordId">
-
-                <div class="form-group">
-                    <label>اسم الطبيب ولقبه الأكاديمي:</label>
-                    <input type="text" id="docName" class="form-control" placeholder="د. شادي سمير" required>
+            <form onsubmit="saveSettingsToSQL(event)">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم الطبيب ولقبه الأكاديمي:</label>
+                    <input type="text" id="docNameInput" class="form-control" value="د. شادي سمير" required>
                 </div>
 
-                <div class="form-group">
-                    <label>المسمى الوظيفي والتخصص:</label>
-                    <input type="text" id="docTitle" class="form-control" placeholder="استشاري التغذية العلاجية وسمنة ونحافة...">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">المسمى الوظيفي والتخصص:</label>
+                    <input type="text" id="docTitleInput" class="form-control" value="استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)" required>
                 </div>
 
-                <!-- مكان شعار الدكتور (Logo) -->
-                <div class="form-group" style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 8px;">
-                    <label style="color: #166534;">🖼️ شعار العيادة (Logo URL أو رفع صورة):</label>
-                    <input type="text" id="docLogo" class="form-control" placeholder="أدخل رابط الشعار (مثال: logo.jpeg)" style="background: #fff; margin-bottom: 8px;">
-                    <input type="file" id="logoFileInput" class="form-control" style="background: #fff;" onchange="handleLogoUpload(event)">
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">شعار العيادة (Logo URL أو رفع صورة):</label>
+                    <input type="text" id="logoUrlInput" class="form-control" value="logo2.png">
                 </div>
 
-                <!-- فروع العيادة المتعددة -->
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>📍 عناوين فروع العيادة (مكان متعدد للعيادات):</span>
-                        <button type="button" onclick="addClinicBranch()" class="action-btn" style="padding: 4px 10px; font-size: 11px;">+ إضافة عيادة أخرى</button>
-                    </label>
-                    <div id="branchesContainer" style="margin-top: 5px;"></div>
+                <div class="form-group" style="margin-bottom:12px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">أرقام تليفونات العيادة / الحجوزات:</label>
+                    <input type="text" id="clinicPhoneInput" class="form-control" value="01000931177">
                 </div>
 
-                <!-- أرقام التليفونات المتعددة -->
-                <div class="form-group">
-                    <label style="display: flex; justify-content: space-between; align-items: center;">
-                        <span>📞 أرقام تليفونات العيادة / الحجوزات (أرقام متعددة):</span>
-                        <button type="button" onclick="addPhoneNumber()" class="action-btn" style="padding: 4px 10px; font-size: 11px;">+ إضافة رقم تليفون</button>
-                    </label>
-                    <div id="phonesContainer" style="margin-top: 5px;"></div>
-                </div>
-
-                <div class="form-group">
-                    <label>تنبيهات النظام الذكية التلقائية:</label>
-                    <textarea id="sysAlerts" class="form-control" rows="3">إرسال تنبيهات المتابعة للمرضى المتأخرين بعد 30 يوم، وتنبيهات انتهاء دواء، جراحات المكملات وقفل السمنة.</textarea>
-                </div>
-
-                <button type="submit" class="action-btn" style="width: 100%; justify-content: center; padding: 12px;">💾 حفظ أو تحديث بيانات الطبيب في SQL</button>
+                <button type="submit" class="action-btn" style="background:var(--primary-green); width:100%; justify-content:center; padding:12px; font-size:13px; margin-top:10px;">💾 حفظ أو تحديث بيانات الطبيب في SQL</button>
             </form>
         </div>
     </div>
@@ -147,146 +146,49 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let allDoctorsSettings = [];
-
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        function addClinicBranch(value = '') {
-            let container = document.getElementById('branchesContainer');
-            let div = document.createElement('div');
-            div.className = 'dynamic-row';
-            div.innerHTML = `
-                <input type="text" class="form-control branch-input" value="${value}" placeholder="أدخل عنوان الفرع أو العيادة...">
-                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">حذف</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function addPhoneNumber(value = '') {
-            let container = document.getElementById('phonesContainer');
-            let div = document.createElement('div');
-            div.className = 'dynamic-row';
-            div.innerHTML = `
-                <input type="text" class="form-control phone-input" value="${value}" placeholder="رقم الهاتف (مثال: 010xxxxxxxx)...">
-                <button type="button" class="remove-btn" onclick="this.parentElement.remove()">حذف</button>
-            `;
-            container.appendChild(div);
-        }
-
-        function handleLogoUpload(event) {
-            let file = event.target.files[0];
-            if (file) {
-                let fakeUrl = URL.createObjectURL(file);
-                document.getElementById('docLogo').value = fakeUrl;
+        async function loadSettings() {
+            let { data, error } = await supabaseClient.from('clinic_settings').select('*').limit(1);
+            if (!error && data && data.length > 0) {
+                let s = data[0];
+                if (s.doctor_name) document.getElementById('docNameInput').value = s.doctor_name;
+                if (s.doctor_title) document.getElementById('docTitleInput').value = s.doctor_title;
+                if (s.logo_url) document.getElementById('logoUrlInput').value = s.logo_url;
+                if (s.phone) document.getElementById('clinicPhoneInput').value = s.phone;
             }
         }
 
-        // جلب كافة بيانات الأطباء لملء قائمة البحث
-        async function loadDoctorsList() {
-            const { data, error } = await supabaseClient.from('clinic_settings').select('*');
-            if (data) {
-                allDoctorsSettings = data;
-                let select = document.getElementById('doctorSearchSelect');
-                select.innerHTML = '<option value="">-- ابحث أو اختر الطبيب --</option>';
-                data.forEach(d => {
-                    select.innerHTML += `<option value="${d.id}">${d.doctor_name || 'طبيب بدون اسم'}</option>`;
-                });
-
-                if (data.length > 0) {
-                    fillDoctorForm(data[0]); // عرض أول طبيب افتراضياً
-                }
-            }
-        }
-
-        // عند اختيار طبيب من القائمة أو البحث
-        function selectDoctorByName(id) {
-            if (!id) {
-                resetNewDoctorForm();
-                return;
-            }
-            let doc = allDoctorsSettings.find(d => d.id == id);
-            if (doc) fillDoctorForm(doc);
-        }
-
-        function fillDoctorForm(doc) {
-            document.getElementById('docRecordId').value = doc.id;
-            document.getElementById('docName').value = doc.doctor_name || '';
-            document.getElementById('docTitle').value = doc.doctor_title || '';
-            document.getElementById('docLogo').value = doc.logo_url || '';
-            document.getElementById('sysAlerts').value = doc.system_alerts || '';
-
-            let branches = doc.branches || [];
-            document.getElementById('branchesContainer').innerHTML = '';
-            if (branches.length > 0) branches.forEach(b => addClinicBranch(b));
-            else addClinicBranch('');
-
-            let phones = doc.phones || [];
-            document.getElementById('phonesContainer').innerHTML = '';
-            if (phones.length > 0) phones.forEach(p => addPhoneNumber(p));
-            else addPhoneNumber('');
-        }
-
-        function resetNewDoctorForm() {
-            document.getElementById('docRecordId').value = '';
-            document.getElementById('docName').value = '';
-            document.getElementById('docTitle').value = '';
-            document.getElementById('docLogo').value = '';
-            document.getElementById('sysAlerts').value = '';
-            document.getElementById('branchesContainer').innerHTML = '';
-            document.getElementById('phonesContainer').innerHTML = '';
-            addClinicBranch('');
-            addPhoneNumber('');
-        }
-
-        // حفظ أو تعديل بيانات الطبيب في SQL
-        async function saveClinicSettingsToSQL(event) {
+        async function saveSettingsToSQL(event) {
             event.preventDefault();
-
-            let recordId = document.getElementById('docRecordId').value;
-            let doctor_name = document.getElementById('docName').value;
-            let doctor_title = document.getElementById('docTitle').value;
-            let logo_url = document.getElementById('docLogo').value;
-            let system_alerts = document.getElementById('sysAlerts').value;
-
-            let branches = [];
-            document.querySelectorAll('.branch-input').forEach(input => {
-                if(input.value.trim() !== '') branches.push(input.value.trim());
-            });
-
-            let phones = [];
-            document.querySelectorAll('.phone-input').forEach(input => {
-                if(input.value.trim() !== '') phones.push(input.value.trim());
-            });
-
             let payload = {
-                doctor_name,
-                doctor_title,
-                logo_url,
-                branches,
-                phones,
-                system_alerts
+                doctor_name: document.getElementById('docNameInput').value,
+                doctor_title: document.getElementById('docTitleInput').value,
+                logo_url: document.getElementById('logoUrlInput').value,
+                phone: document.getElementById('clinicPhoneInput').value
             };
 
+            let { data: existing } = await supabaseClient.from('clinic_settings').select('id').limit(1);
             let res;
-            if (recordId) {
-                res = await supabaseClient.from('clinic_settings').update(payload).eq('id', recordId);
+            if (existing && existing.length > 0) {
+                res = await supabaseClient.from('clinic_settings').update(payload).eq('id', existing[0].id);
             } else {
                 res = await supabaseClient.from('clinic_settings').insert([payload]);
             }
 
             if (res.error) {
-                alert('خطأ أثناء حفظ وتعديل بيانات الطبيب في SQL: ' + res.error.message);
+                alert('خطأ أثناء حفظ الإعدادات: ' + res.error.message);
                 return;
             }
 
-            alert('✨ تم حفظ وتعديل بيانات الطبيب والعيادات والأرقام بنجاح في قاعدة بيانات SQL!');
-            loadDoctorsList();
+            alert('✨ تم حفظ وتحديث إعدادات العيادة بنجاح!');
+            loadSettings();
         }
 
-        window.onload = loadDoctorsList;
+        window.onload = loadSettings;
     </script>
 </body>
 </html>
