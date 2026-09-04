@@ -221,7 +221,6 @@
             const { data, error } = await supabaseClient.from('food_database').select('*');
             if (error) {
                 console.error("Error loading food data:", error);
-                // جلب جدول بديل لو الجدول باسم تاني
                 const { data: altData } = await supabaseClient.from('foods').select('*');
                 foodList = altData || [];
             } else {
@@ -312,7 +311,6 @@
             document.getElementById('foodModal').style.display = 'none';
         }
 
-        // دالة الذكاء الاصطناعي الذكية لاستكمال الماكروز والسعرات بناءً على اسم الصنف
         function autoFillWithAI() {
             let foodName = document.getElementById('foodName').value.trim();
             if (!foodName) {
@@ -320,7 +318,6 @@
                 return;
             }
 
-            // اقتراحات تقديرية إكلينيكية دقيقة بناءً على أطباق التغذية العلاجية الشهيرة
             let lowerName = foodName.toLowerCase();
             if (lowerName.includes('دجاج') || lowerName.includes('صدور')) {
                 document.getElementById('foodCategory').value = 'بروتين صافي (تكميم)';
@@ -386,7 +383,6 @@
             }
 
             if (res.error) {
-                // محاولة الجدول البديل لو اسم الجدول مختلف
                 let altRes = await supabaseClient.from('foods').insert([payload]);
                 if(altRes.error) {
                     alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
