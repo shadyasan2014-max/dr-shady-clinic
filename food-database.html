@@ -211,7 +211,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let foodList = [];
-        let activeTableName = 'food_database'; // الجدول الافتراضي
+        let activeTableName = 'foods';
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -219,22 +219,16 @@
         }
 
         async function loadFoodData() {
-            // فحص الجداول المحتملة أوتوماتيكياً لضمان جلب الداتا وعدم فراغ الجدول
-            let tablesToTry = ['food_database', 'foods', 'food_db', 'items', 'nutrition'];
+            // فحص الجداول المحتملة أوتوماتيكياً لجلب الداتا بدون أي أخطاء
+            let tablesToTry = ['foods', 'food_database', 'food_db', 'items', 'nutrition'];
             
             for (let t of tablesToTry) {
                 let { data, error } = await supabaseClient.from(t).select('*');
-                if (!error && data && data.length > 0) {
+                if (!error && data) {
                     foodList = data;
                     activeTableName = t;
                     break;
                 }
-            }
-
-            if (!foodList || foodList.length === 0) {
-                let { data } = await supabaseClient.from('food_database').select('*');
-                foodList = data || [];
-                activeTableName = 'food_database';
             }
 
             renderFoodTable(foodList);
@@ -244,7 +238,7 @@
             let tbody = document.getElementById('foodTableBody');
             tbody.innerHTML = '';
 
-            if (list.length === 0) {
+            if (!list || list.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد أطعمة مسجلة حالياً في قاعدة البيانات.</td></tr>`;
                 return;
             }
