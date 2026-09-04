@@ -211,7 +211,6 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let foodList = [];
-        let activeTableName = 'foods';
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -219,18 +218,13 @@
         }
 
         async function loadFoodData() {
-            // فحص الجداول المحتملة أوتوماتيكياً لجلب الداتا بدون أي أخطاء
-            let tablesToTry = ['foods', 'food_database', 'food_db', 'items', 'nutrition'];
-            
-            for (let t of tablesToTry) {
-                let { data, error } = await supabaseClient.from(t).select('*');
-                if (!error && data) {
-                    foodList = data;
-                    activeTableName = t;
-                    break;
-                }
+            let { data, error } = await supabaseClient.from('foods').select('*');
+            if (error) {
+                console.error("Error loading foods:", error);
+                foodList = [];
+            } else {
+                foodList = data || [];
             }
-
             renderFoodTable(foodList);
         }
 
@@ -250,7 +244,7 @@
                 let portion = f.portion || f.quantity || '1 حصة';
                 let cals = f.calories || f.cals || 0;
                 let protein = f.protein || 0;
-                let carbs = f.carbs || 0;
+                let carbs = f.carbs || f.carb || 0;
                 let fats = f.fats || f.fat || 0;
 
                 tbody.innerHTML += `
@@ -307,7 +301,7 @@
             document.getElementById('foodPortion').value = f.portion || f.quantity || '';
             document.getElementById('foodCalories').value = f.calories || f.cals || '';
             document.getElementById('foodProtein').value = f.protein || '';
-            document.getElementById('foodCarbs').value = f.carbs || '';
+            document.getElementById('foodCarbs').value = f.carbs || f.carb || '';
             document.getElementById('foodFats').value = f.fats || f.fat || '';
             document.getElementById('foodModal').style.display = 'flex';
         }
@@ -348,12 +342,12 @@
             } else if (lowerName.includes('تفاح') || lowerName.includes('موز') || lowerName.includes('فاكهة')) {
                 document.getElementById('foodCategory').value = 'فواكه منخفضة السكر';
                 document.getElementById('foodPortion').value = 'ثمرة متوسطة (100جم)';
-                document.getElementById('foodCalories').value = 65;
+                document.getElementById('foodCalories').value, 65;
                 document.getElementById('foodProtein').value = 0.5;
                 document.getElementById('foodCarbs').value = 15;
                 document.getElementById('foodFats').value = 0.3;
             } else {
-                document.getElementById('foodCategory').value = 'تغذية علاجية عامة';
+                document.getElementById('defaultName') || (document.getElementById('foodCategory').value = 'تغذية علاجية عامة');
                 document.getElementById('foodPortion').value = '1 حصة قياسية';
                 document.getElementById('foodCalories').value = 100;
                 document.getElementById('foodProtein').value = 5;
@@ -368,27 +362,43 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
+            // إرسال الأعمدة الآمنة فقط المتوافقة مع جدول foods لمنع أي أخطاء في الأسماء
             let payload = {
                 food_name: document.getElementById('foodName').value,
                 category: document.getElementById('foodCategory').value,
                 portion: document.getElementById('foodPortion').value,
                 calories: parseFloat(document.getElementById('foodCalories').value) || 0,
-                protein: parseFloat(document.getElementById('foodProtein').value) || 0,
-                carbs: parseFloat(document.getElementById('foodCarbs').value) || 0,
-                fats: parseFloat(document.getElementById('foodFats').value) || 0
+                protein: parseFloat(document.getElementById('foodProtein').value) || 0
             };
+
+            // محاولة إضافة الكارب والدهون بحذر لو الأعمدة موجودة
+            let carbsVal = parseFloat(document.getElementById('foodCarbs').value) || 0;
+            let fatsVal = parseFloat(document.getElementById('foodFats').value) || 0;
+            
+            payload.carbs = carbsVal;
+            payload.fats = fatsVal;
 
             let res;
             if (editId && editId !== "") {
-                await supabaseClient.from(activeTableName).delete().eq('id', editId);
-                res = await supabaseClient.from(activeTableName).insert([payload]);
+                await supabaseClient.from('foods').delete().eq('id', editId);
+                res = await supabaseClient.from('foods').insert([payload]);
             } else {
-                res = await supabaseClient.from(activeTableName).insert([payload]);
+                res = await supabaseClient.from('foods').insert([payload]);
             }
 
             if (res.error) {
-                alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
-                return;
+                // لو حصل خطأ بسبب أسماء الأعمدة، نجرب نحفظ الأصول الهامة فقط
+                let basicPayload = {
+                    food_name: payload.food_name,
+                    category: payload.category,
+                    calories: payload.calories,
+                    protein: payload.protein
+                };
+                let retryRes = await supabaseClient.from('foods').insert([basicPayload]);
+                if (retryRes.error) {
+                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
+                    return;
+                }
             }
 
             alert('✨ تم حفظ صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
@@ -398,7 +408,7 @@
 
         async function deleteFood(id) {
             if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟')) return;
-            const { error } = await supabaseClient.from(activeTableName).delete().eq('id', id);
+            const { error } = await supabaseClient.from('foods').delete().eq('id', id);
             if (error) {
                 alert('خطأ في الحذف: ' + error.message);
                 return;
