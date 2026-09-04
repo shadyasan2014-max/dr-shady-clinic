@@ -1,194 +1,293 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<head
-
-<script src="clinic-core.js"></script>
-
-
-    
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - التحاليل الطبية (SQL Live)</title>
-    <!-- استدعاء مكتبة Supabase للاتصال بقاعدة بيانات SQL -->
+    <title>Dr. Shady Samir - سجل التحاليل الطبية</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; }
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
-        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
-        .sidebar-menu li a { padding: 11px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; }
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
-        .top-header h1 { margin: 0; font-size: 20px; color: var(--text-dark); }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; }
+        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
+        .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
+        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        
+        .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); flex-wrap: wrap; gap: 15px; border: 1px solid var(--card-border); }
+        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
+        select, .form-select { 
+            border: 2px solid var(--warning-orange) !important; 
+            color: #92400e !important; 
+            background-color: #fffbeb !important; 
+            font-weight: bold !important; 
+            border-radius: 8px !important; 
+            padding: 9px 12px !important; 
+            width: 100% !important;
+            box-sizing: border-box !important;
+        }
+        select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
+
+        .action-btn { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
+
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; }
+        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
-        
-        .btn-action { background-color: var(--primary-green); color: white; border: none; padding: 9px 16px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-block; text-decoration: none; }
-        
-        /* Modal */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
-        .form-group { margin-bottom: 12px; }
-        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
-        .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; outline: none; }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 480px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
+        .sidebar-overlay.active { display: block; }
+
+        @media (max-width: 950px) {
+            .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
+            .sidebar.active { transform: translateX(0); }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
+            .mobile-menu-toggle { display: flex !important; }
+        }
     </style>
 </head>
 <body>
-    <div class="sidebar">
+    <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleMobileSidebar()"></div>
+
+    <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
                 <p>عيادة التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
-                <li><a href="index.html">🏠 الرئيسية</a></li>
-                <li><a href="patients.html">👥 المرضى</a></li>
-                <li><a href="meal-builder.html">🥗 الخطط الغذائية الذكية</a></li>
-                <li><a href="appointments.html">📅 المواعيد والجدول</a></li>
-                <li class="active"><a href="labs.html">🧪 التحاليل الطبية</a></li>
-                <li><a href="supplements.html">💊 المكملات والفيتامينات</a></li>
+                <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
+                <li><a href="patients.html" onclick="toggleMobileSidebar()">👥 المرضى</a></li>
+                <li><a href="appointments.html" onclick="toggleMobileSidebar()">📅 المواعيد والجدول</a></li>
+                <li><a href="visits.html" onclick="toggleMobileSidebar()">📋 الزيارات</a></li>
+                <li><a href="measurements.html" onclick="toggleMobileSidebar()">⚖️ القياسات</a></li>
+                <li><a href="meal-builder.html" onclick="toggleMobileSidebar()">🥗 الخطط الغذائية</a></li>
+                <li><a href="food-database.html" onclick="toggleMobileSidebar()">🍲 قاعدة الأطعمة</a></li>
+                <li class="active"><a href="labs.html" onclick="toggleMobileSidebar()">🧪 التحاليل الطبية</a></li>
+                <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات والفيتامينات</a></li>
+                <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
+                <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
+                <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
+                <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
+                <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
+        <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
+
         <div class="top-header">
-            <h1>🧪 سجل التحاليل الطبية (SQL Live)</h1>
-            <button class="btn-action" onclick="openAddLabModal()">+ تسجيل تحليل جديد</button>
+            <div>
+                <h1>🧪 سجل التحاليل الطبية (SQL Live)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">متابعة نتائج التحاليل المخبرية لمرضى العيادة</p>
+            </div>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="openLabModal()" class="action-btn" style="background: var(--primary-green); padding: 10px 16px;">➕ تسجيل تحليل جديد</button>
+            </div>
         </div>
 
         <div class="card">
-            <h3>📋 التحاليل الطبية المسجلة للحالات</h3>
-            <table>
-                <thead>
-                    <tr>
-                        <th>اسم المريض</th>
-                        <th>اسم التحليل</th>
-                        <th>النتيجة</th>
-                        <th>التاريخ</th>
-                        <th>ملاحظات الطبيب</th>
-                        <th>الإجراء</th>
-                    </tr>
-                </thead>
-                <tbody id="labsTableBody">
-                    <tr><td colspan="6" style="text-align:center; padding:20px; color:var(--text-gray);">جاري جلب التحاليل من قاعدة بيانات SQL...</td></tr>
-                </tbody>
-            </table>
+            <h3 style="margin:0 0 12px 0; font-size:14px;">📋 التحاليل الطبية المسجلة للحالات</h3>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>اسم المريض</th>
+                            <th>اسم التحليل</th>
+                            <th>النتيجة</th>
+                            <th>التاريخ</th>
+                            <th>ملاحظات الطبيب</th>
+                            <th>الإجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="labsTableBody">
+                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل التحاليل من قاعدة البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
-    <!-- نافذة إضافة تحليل جديد -->
-    <div id="addLabModal" class="modal-overlay">
+    <!-- نافذة تسجيل تحليل جديد مربوط بمرضى العيادة -->
+    <div id="labModal" class="modal-overlay">
         <div class="modal-box">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px;">➕ تسجيل تحليل طبي جديد في SQL</h3>
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">🧪 إضافة تحليل جديد لمريض</h3>
             <form onsubmit="saveLabToSQL(event)">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="labPatientName" class="form-control" required placeholder="مثال: محمود حسن إبراهيم"></div>
-                <div class="form-group"><label>اسم التحليل:</label><input type="text" id="labTestName" class="form-control" required placeholder="مثال: CBC / Ferritin / TSH"></div>
-                <div class="form-group"><label>النتيجة:</label><input type="text" id="labResult" class="form-control" required placeholder="مثال: 12.5 g/dL"></div>
-                <div class="form-group"><label>تاريخ التحليل:</label><input type="date" id="labDate" class="form-control" required></div>
-                <div class="form-group"><label>ملاحظات إكلينيكية:</label><textarea id="labNotes" class="form-control" rows="2" placeholder="ملاحظات الطبيب على النتيجة..."></textarea></div>
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اختر المريض:</label>
+                    <select id="patientSelect" class="form-control" required>
+                        <option value="">-- اختر مريض من القائمة --</option>
+                    </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم التحليل:</label>
+                    <input type="text" id="labName" class="form-control" placeholder="مثال: CBC, Lipid Profile, Ferritin..." required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">نتيجة التحليل:</label>
+                    <input type="text" id="labResult" class="form-control" placeholder="مثال: طبيعي، مرتفع، منخفض..." required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">تاريخ التحليل:</label>
+                    <input type="date" id="labDate" class="form-control" required>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">ملاحظات الطبيب:</label>
+                    <textarea id="labNotes" class="form-control" rows="2" placeholder="اكتب الملاحظات الطبية أو التوصيات العلاجية..."></textarea>
+                </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" style="background:var(--primary-green); color:white; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">حفظ في SQL</button>
-                    <button type="button" onclick="closeAddLabModal()" style="background:#cbd5e1; border:none; padding:10px; border-radius:8px; flex:1; font-weight:bold; cursor:pointer;">إلغاء</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">💾 حفظ التحليل في SQL</button>
+                    <button type="button" onclick="closeLabModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
                 </div>
             </form>
         </div>
     </div>
 
     <script>
-        // إعدادات الاتصال بقاعدة بيانات Supabase SQL
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
-        
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function fetchLabsFromSQL() {
-            const tbody = document.getElementById('labsTableBody');
-            const { data, error } = await supabaseClient.from('labs').select('*').order('test_date', { ascending: false });
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
 
-            if (error) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--danger-red); padding:20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
-                return;
-            }
+        async function loadPatientsDropdown() {
+            let { data: patData } = await supabaseClient.from('patients').select('*');
+            let { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
+            
+            let dropdown = document.getElementById('patientSelect');
+            dropdown.innerHTML = '<option value="">-- اختر مريض من القائمة --</option>';
 
+            let allPatients = [];
+            if (patData) patData.forEach(p => allPatients.push(p.patient_name || p.name));
+            if (barData) barData.forEach(b => allPatients.push(b.patient_name || b.name));
+
+            // إزالة التكرار إن وجد
+            let uniquePatients = [...new Set(allPatients)];
+            uniquePatients.forEach(name => {
+                if (name) {
+                    dropdown.innerHTML += `<option value="${name}">${name}</option>`;
+                }
+            });
+        }
+
+        async function loadLabsData() {
+            let { data, error } = await supabaseClient.from('labs').select('*');
+            let tbody = document.getElementById('labsTableBody');
             tbody.innerHTML = '';
-            if (!data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد تحاليل مسجلة حالياً. السجل نظيف.</td></tr>`;
+
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد تحاليل مسجلة حالياً.</td></tr>`;
                 return;
             }
 
             data.forEach(l => {
                 tbody.innerHTML += `
                     <tr>
-                        <td><strong>${l.patient_name}</strong></td>
-                        <td>${l.test_name}</td>
-                        <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:12px; font-size:11px; font-weight:bold;">${l.test_result}</span></td>
-                        <td>${l.test_date}</td>
-                        <td style="color:var(--text-gray); font-size:11px;">${l.notes || 'لا توجد ملاحظات'}</td>
+                        <td><strong>${l.patient_name || 'غير محدد'}</strong></td>
+                        <td>${l.lab_name || '-'}</td>
+                        <td><span style="background:#fef3c7; color:#92400e; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${l.result || '-'}</span></td>
+                        <td>${l.lab_date || '-'}</td>
+                        <td>${l.notes || '-'}</td>
                         <td>
-                            <button onclick="deleteLabFromSQL('${l.id}')" style="background:#fee2e2; color:#ef4444; border:none; padding:6px 10px; border-radius:6px; font-size:11px; font-weight:bold; cursor:pointer;">🗑️ حذف</button>
+                            <button onclick="deleteLab('${l.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                         </td>
                     </tr>
                 `;
             });
         }
 
-        window.onload = function() {
-            fetchLabsFromSQL();
-        };
+        function openLabModal() {
+            loadPatientsDropdown();
+            document.getElementById('labDate').value = new Date().toISOString().split('T')[0];
+            document.getElementById('labName').value = '';
+            document.getElementById('labResult').value = '';
+            document.getElementById('labNotes').value = '';
+            document.getElementById('labModal').style.display = 'flex';
+        }
 
-        function openAddLabModal() { document.getElementById('addLabModal').style.display = 'flex'; }
-        function closeAddLabModal() { document.getElementById('addLabModal').style.display = 'none'; }
+        function closeLabModal() {
+            document.getElementById('labModal').style.display = 'none';
+        }
 
         async function saveLabToSQL(event) {
             event.preventDefault();
-            const patient_name = document.getElementById('labPatientName').value;
-            const test_name = document.getElementById('labTestName').value;
-            const test_result = document.getElementById('labResult').value;
-            const test_date = document.getElementById('labDate').value;
-            const notes = document.getElementById('labNotes').value;
 
-            const { error } = await supabaseClient.from('labs').insert([
-                { patient_name, test_name, test_result, test_date, notes }
-            ]);
+            let payload = {
+                patient_name: document.getElementById('patientSelect').value,
+                lab_name: document.getElementById('labName').value,
+                result: document.getElementById('labResult').value,
+                lab_date: document.getElementById('labDate').value,
+                notes: document.getElementById('labNotes').value
+            };
 
+            const { error } = await supabaseClient.from('labs').insert([payload]);
             if (error) {
-                alert('خطأ أثناء حفظ التحليل: ' + error.message);
+                alert('خطأ أثناء حفظ التحليل في قاعدة البيانات: ' + error.message);
                 return;
             }
 
-            alert('✨ تم حفظ التحليل الطبي في جدول SQL بنجاح!');
-            closeAddLabModal();
-            fetchLabsFromSQL();
-            event.target.reset();
+            alert('✨ تم حفظ التحليل الطبي للمريض بنجاح!');
+            closeLabModal();
+            loadLabsData();
         }
 
-        async function deleteLabFromSQL(rowId) {
-            if (confirm('هل أنت متأكد من حذف هذا التحليل نهائياً من قاعدة بيانات SQL؟')) {
-                const { error } = await supabaseClient.from('labs').delete().eq('id', rowId);
-                if (error) {
-                    alert('خطأ أثناء الحذف: ' + error.message);
-                    return;
-                }
-                fetchLabsFromSQL();
+        async function deleteLab(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا التحليل نهائياً؟')) return;
+            const { error } = await supabaseClient.from('labs').delete().eq('id', id);
+            if (error) {
+                alert('خطأ في الحذف: ' + error.message);
+                return;
             }
+            alert('✨ تم الحذف بنجاح!');
+            loadLabsData();
         }
+
+        window.onload = loadLabsData;
     </script>
 </body>
 </html>
