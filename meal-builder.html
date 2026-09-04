@@ -71,6 +71,15 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
+        /* إعدادات الطباعة وتحويل الـ PDF لضمان ظهور كل البيانات بدون صفحات فارغة */
+        @media print {
+            body { background-color: #ffffff !important; }
+            .sidebar, .mobile-menu-toggle, #headerActionButtons, .no-print { display: none !important; }
+            .main-content { margin-right: 0 !important; width: 100% !important; padding: 0 !important; }
+            .card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
+            .followup-comparison-grid { break-inside: avoid; page-break-inside: avoid; }
+        }
+
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
             .sidebar.active { transform: translateX(0); }
@@ -273,7 +282,7 @@
                     <input type="number" step="0.1" id="fuCurrWater" class="form-control">
                 </div>
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">مدى الالتزام الحالي:</label>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">مدى اللتزام الحالي:</label>
                     <select id="fuCurrCommitment" class="form-control">
                         <option value="ممتد ومنضبط تماماً">ممتد ومنضبط تماماً</option>
                         <option value="التزام متوسط">التزام متوسط</option>
@@ -744,23 +753,9 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة تحويل PDF نظيفة ومباشرة تبدأ فوراً من بيانات المريض وبدون أي صفحات فارغة
+        // الحل النهائي والأسهل: استخدام الطباعة المباشرة للمتصفح (Print) لحفظ ملف PDF نظيف بدون أي صفحات فارغة
         function downloadPlanPDF() {
-            const element = document.getElementById('printableArea');
-            const opt = {
-                margin:       [2, 2, 2, 2],
-                filename:     'Dr-Shady-Meal-Plan.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            let actionButtons = document.getElementById('headerActionButtons');
-            if (actionButtons) actionButtons.style.display = 'none';
-
-            html2pdf().from(element).set(opt).save().then(() => {
-                if (actionButtons) actionButtons.style.display = 'flex';
-            });
+            window.print();
         }
 
         function printPlanPage() {
