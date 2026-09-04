@@ -114,21 +114,6 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
-            <!-- ترويسة العيادة واللوجو التي ستظهر في أعلى ملف الـ PDF باحترافية -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-green); padding-bottom: 12px; margin-bottom: 20px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <img src="logo2.png" alt="Logo" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green);" onerror="this.src='logo.jpeg'">
-                    <div>
-                        <h2 style="margin: 0; font-size: 16px; color: var(--sidebar-bg);">د. شادي سمير</h2>
-                        <p style="margin: 2px 0 0 0; font-size: 11px; color: var(--text-gray);">استشاري التغذية العلاجية وجراحات السمنة</p>
-                    </div>
-                </div>
-                <div style="text-align: left; font-size: 11px; color: var(--text-gray);">
-                    <p style="margin: 0;"><strong>عيادة التغذية العلاجية</strong></p>
-                    <p style="margin: 2px 0 0 0;">تاريخ التقرير: <span id="pdfPrintDate"></span></p>
-                </div>
-            </div>
-
             <div class="top-header">
                 <div>
                     <h1 id="patientTitleName">المريض: اختر الحالة المسجلة</h1>
@@ -759,21 +744,17 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة تحويل PDF الدقيقة لمنع الصفحات الفارغة وإظهار اللوجو والبيانات بالكامل
+        // دالة تحويل PDF نظيفة ومباشرة تبدأ فوراً من بيانات المريض وبدون أي صفحات فارغة
         function downloadPlanPDF() {
-            // تحديث تاريخ التقرير تلقائياً قبل التحويل
-            document.getElementById('pdfPrintDate').innerText = new Date().toISOString().split('T')[0];
-
             const element = document.getElementById('printableArea');
             const opt = {
-                margin:       [8, 8, 8, 8],
+                margin:       [2, 2, 2, 2],
                 filename:     'Dr-Shady-Meal-Plan.pdf',
                 image:        { type: 'jpeg', quality: 0.98 },
                 html2canvas:  { scale: 2, useCORS: true, logging: false, letterRendering: true },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
 
-            // إخفاء الأزرار والقائمة المنسدلة من الهيدر لكي لا تترك أي مساحة فاضية
             let actionButtons = document.getElementById('headerActionButtons');
             if (actionButtons) actionButtons.style.display = 'none';
 
