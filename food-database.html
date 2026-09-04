@@ -362,7 +362,7 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال الأعمدة الآمنة الأساسية لضمان عدم حدوث خطأ في الـ SQL
+            // إرسال البيانات الأساسية فقط المضمونة في جدول foods لتجنب أخطاء الأعمدة
             let payload = {
                 food_name: document.getElementById('foodName').value,
                 category: document.getElementById('foodCategory').value,
