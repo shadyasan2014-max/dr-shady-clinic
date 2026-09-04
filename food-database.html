@@ -362,18 +362,23 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال عمود food_group وإجبار القيم لتتوافق مع قيود الجدول الإجبارية
+            // تجهيز البيانات بكل الحقول لكي تُحفظ في الداتا بيز مباشرة بدون نقص
             let payload = {
                 food_name: document.getElementById('foodName').value,
                 food_group: document.getElementById('foodCategory').value || 'عام',
-                calories: parseFloat(document.getElementById('foodCalories').value) || 0
+                portion: document.getElementById('foodPortion').value || '1 حصة',
+                calories: parseFloat(document.getElementById('foodCalories').value) || 0,
+                protein: parseFloat(document.getElementById('foodProtein').value) || 0,
+                carbs: parseFloat(document.getElementById('foodCarbs').value) || 0,
+                fats: parseFloat(document.getElementById('foodFats').value) || 0
             };
 
             let res;
             if (editId && editId !== "") {
-                await supabaseClient.from('foods').delete().eq('id', editId);
-                res = await supabaseClient.from('foods').insert([payload]);
+                // تعديل الصنف الموجود بناءً على الـ ID الخاص به بدقة
+                res = await supabaseClient.from('foods').update(payload).eq('id', editId);
             } else {
+                // إضافة صنف جديد
                 res = await supabaseClient.from('foods').insert([payload]);
             }
 
@@ -382,7 +387,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
+            alert('✨ تم حفظ وتعديل صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
             closeFoodModal();
             loadFoodData();
         }
