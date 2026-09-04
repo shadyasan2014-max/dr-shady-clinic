@@ -71,11 +71,15 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* إعدادات الطباعة وتحويل الـ PDF لضمان ظهور كل البيانات بدون صفحات فارغة */
+        /* ترويسة العيادة واللوجو (مخفية على الشاشة وتظهر تلقائياً في الطباعة والـ PDF) */
+        .print-only-header { display: none; }
+
+        /* إعدادات الطباعة والـ PDF */
         @media print {
             body { background-color: #ffffff !important; }
             .sidebar, .mobile-menu-toggle, #headerActionButtons, .no-print { display: none !important; }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 0 !important; }
+            .print-only-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px; }
             .card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
             .followup-comparison-grid { break-inside: avoid; page-break-inside: avoid; }
         }
@@ -123,6 +127,21 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
+            <!-- ترويسة الدكتور واللوجو الخاصة بملف الـ PDF والطباعة فقط -->
+            <div class="print-only-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="logo2.png" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;" onerror="this.src='logo.jpeg'">
+                    <div>
+                        <h2 style="margin: 0; font-size: 15px; color: #064e3b;">د. شادي سمير</h2>
+                        <p style="margin: 2px 0 0 0; font-size: 10px; color: #64748b;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                    </div>
+                </div>
+                <div style="text-align: left; font-size: 10px; color: #64748b;">
+                    <p style="margin: 0;"><strong>عيادة التغذية العلاجية</strong></p>
+                    <p style="margin: 2px 0 0 0;">تاريخ التقرير: <span id="pdfPrintDate"></span></p>
+                </div>
+            </div>
+
             <div class="top-header">
                 <div>
                     <h1 id="patientTitleName">المريض: اختر الحالة المسجلة</h1>
@@ -282,7 +301,7 @@
                     <input type="number" step="0.1" id="fuCurrWater" class="form-control">
                 </div>
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">مدى اللتزام الحالي:</label>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:3px;">مدى الالتزام الحالي:</label>
                     <select id="fuCurrCommitment" class="form-control">
                         <option value="ممتد ومنضبط تماماً">ممتد ومنضبط تماماً</option>
                         <option value="التزام متوسط">التزام متوسط</option>
@@ -753,9 +772,26 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // الحل النهائي والأسهل: استخدام الطباعة المباشرة للمتصفح (Print) لحفظ ملف PDF نظيف بدون أي صفحات فارغة
+        // دالة تحويل PDF متطورة ومضبوطة بالكامل لعرض اللوجو وبيانات الدكتور بدون أي صفحات فاضية
         function downloadPlanPDF() {
-            window.print();
+            document.getElementById('pdfPrintDate').innerText = new Date().toISOString().split('T')[0];
+            
+            const element = document.getElementById('printableArea');
+            const opt = {
+                margin:       [5, 5, 5, 5],
+                filename:     'Dr-Shady-Meal-Plan.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            // إخفاء أزرار التحكم في الهيدر والقائمة أثناء التصدير فقط
+            let actionButtons = document.getElementById('headerActionButtons');
+            if (actionButtons) actionButtons.style.display = 'none';
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                if (actionButtons) actionButtons.style.display = 'flex';
+            });
         }
 
         function printPlanPage() {
