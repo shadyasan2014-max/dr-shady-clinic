@@ -240,7 +240,7 @@
             list.forEach((f) => {
                 let id = f.id;
                 let name = f.food_name || f.name || 'بدون اسم';
-                let cat = f.category || f.classification || 'تغذية عامة';
+                let cat = f.food_group || f.category || f.classification || 'تغذية عامة';
                 let portion = f.portion || f.quantity || '1 حصة';
                 let cals = f.calories || f.cals || 0;
                 let protein = f.protein || 0;
@@ -271,7 +271,7 @@
             let query = document.getElementById('searchInput').value.toLowerCase();
             let filtered = foodList.filter(f => {
                 let name = (f.food_name || f.name || '').toLowerCase();
-                let cat = (f.category || f.classification || '').toLowerCase();
+                let cat = (f.food_group || f.category || f.classification || '').toLowerCase();
                 return name.includes(query) || cat.includes(query);
             });
             renderFoodTable(filtered);
@@ -297,7 +297,7 @@
             document.getElementById('editingFoodId').value = f.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل صنف غذائي';
             document.getElementById('foodName').value = f.food_name || f.name || '';
-            document.getElementById('foodCategory').value = f.category || f.classification || '';
+            document.getElementById('foodCategory').value = f.food_group || f.category || f.classification || '';
             document.getElementById('foodPortion').value = f.portion || f.quantity || '';
             document.getElementById('foodCalories').value = f.calories || f.cals || '';
             document.getElementById('foodProtein').value = f.protein || '';
@@ -362,10 +362,12 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال حقل اسم الصنف والسعرات فقط للتأكد من نجاح الحفظ فوراً بدون إيرور أعمدة مفقودة
+            // إرسال عمود food_group بشكل إلزامي ليتوافق مع قيود الجدول في Supabase
             let payload = {
                 food_name: document.getElementById('foodName').value,
-                calories: parseFloat(document.getElementById('foodCalories').value) || 0
+                food_group: document.getElementById('foodCategory').value || 'عام',
+                calories: parseFloat(document.getElementById('foodCalories').value) || 0,
+                protein: parseFloat(document.getElementById('foodProtein').value) || 0
             };
 
             let res;
