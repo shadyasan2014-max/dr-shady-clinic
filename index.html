@@ -7,25 +7,12 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { 
-            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
-            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
-            --card-bg: #ffffff;             /* خلفية البطاقات */
-            --card-border: #e2e8f0;         /* حدود خفيفة */
-            --primary-green: #059669;       /* الأخضر الرئيسي */
-            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
-            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
-            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
-            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
-            --text-gray: #64748b;           /* نصوص رمادية */
-        }
-
+        :root { --sidebar-bg: #064e3b; --main-bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #059669; --accent-blue: #0284c7; --warning-orange: #f59e0b; --danger-red: #dc2626; --text-dark: #1e293b; --text-gray: #64748b; }
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
-        /* تنسيق موحد ومضبوط بدقة للوجو والبروفايل */
         .brand-logo, .doctor-avatar-top { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
@@ -35,7 +22,6 @@
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -44,19 +30,19 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 25px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .top-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 25px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 10px; }
         .doctor-profile-top { display: flex; align-items: center; gap: 12px; }
 
-        .global-search-box { flex: 1; max-width: 450px; margin: 0 20px; position: relative; }
-        .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; }
+        .global-search-box { flex: 1; max-width: 350px; position: relative; }
+        .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; box-sizing: border-box; }
 
-        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold; }
+        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold; border-radius: 8px; padding: 6px 10px; }
 
         .search-results-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; margin-top: 5px; }
         .search-result-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
         .search-result-item:hover { background-color: #ecfdf5; color: #065f46; }
 
-        .welcome-banner { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .welcome-banner { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
 
         .stats-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
         .stat-card-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: space-between; }
@@ -80,6 +66,10 @@
 
         .bottom-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
         .action-btn { border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; color: white; background: var(--primary-green); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
+
+        /* Modal styling */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 600px; max-width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
         .mobile-menu-toggle { display: none; background: #064e3b; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -142,6 +132,14 @@
                 </div>
             </div>
 
+            <!-- اختيار الطبيب العامل على السيستم -->
+            <div style="display:flex; align-items:center; gap:6px; background:#fffbeb; padding:4px 10px; border:2px solid var(--warning-orange); border-radius:10px;">
+                <span style="font-size:11px; font-weight:bold; color:#92400e;">👨‍⚕️ الطبيب المناوب:</span>
+                <select id="activeDoctorSelect" onchange="changeActiveDoctor(this.value)" style="border:none !important; background:transparent !important; padding:2px; font-size:12px; cursor:pointer;">
+                    <option value="د. شادي سمير">د. شادي سمير</option>
+                </select>
+            </div>
+
             <div class="global-search-box">
                 <input type="text" id="globalSearchInput" class="global-search-input" placeholder="🔍 البحث الشامل (بالاسم، الكود، أو الهاتف)..." onkeyup="performGlobalSearch()">
                 <div id="searchResultsDropdown" class="search-results-dropdown"></div>
@@ -157,7 +155,10 @@
                 <h2 style="margin:0; font-size:18px; color:var(--text-dark);">مرحباً بك، <span id="welcomeDocName">د. شادي</span> 👋</h2>
                 <p style="margin:3px 0 0 0; font-size:12px; color:var(--text-gray);">إليك ملخص الحلقات والعيادة اليوم</p>
             </div>
-            <button onclick="window.location.href='patients.html'" class="action-btn" style="background:var(--primary-green);">➕ إضافة حالة جديدة</button>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <button onclick="openAuditLogsModal()" class="action-btn" style="background:var(--accent-blue);">📋 سجلات الدخول والنشاطات</button>
+                <button onclick="window.location.href='patients.html'" class="action-btn" style="background:var(--primary-green);">➕ إضافة حالة جديدة</button>
+            </div>
         </div>
 
         <div class="stats-grid-5">
@@ -265,6 +266,33 @@
         </div>
     </div>
 
+    <!-- نافذة سجلات الدخول والنشاطات (Audit Logs) -->
+    <div id="auditModal" class="modal-overlay">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
+                <h3 style="margin:0; font-size:15px; color:var(--text-dark);">📋 سجل نشاطات الأطباء والدخول على السيستم</h3>
+                <button onclick="closeAuditModal()" style="border:none; background:none; font-size:16px; cursor:pointer; font-weight:bold;">✕</button>
+            </div>
+            <div style="overflow-x: auto;">
+                <table class="mini-table">
+                    <thead>
+                        <tr>
+                            <th>الطبيب المعالج</th>
+                            <th>الإجراء / النشاط</th>
+                            <th>التاريخ والوقت</th>
+                        </tr>
+                    </thead>
+                    <tbody id="auditTableBody">
+                        <tr><td colspan="3" style="text-align:center; padding:15px; color:gray;">جاري جلب السجلات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+            <div style="margin-top: 15px; text-align: left;">
+                <button onclick="closeAuditModal()" class="action-btn" style="background:#64748b;">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
@@ -279,7 +307,86 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
+        async function loadDoctorsListForDropdown() {
+            let dropdown = document.getElementById('activeDoctorSelect');
+            let { data, error } = await supabaseClient.from('doctors').select('*');
+            if (!error && data && data.length > 0) {
+                dropdown.innerHTML = '';
+                data.forEach(d => {
+                    let name = d.doctor_name || d.name || 'طبيب';
+                    dropdown.innerHTML += `<option value="${name}">${name}</option>`;
+                });
+            }
+
+            // استرجاع الطبيب النشط لو كان محفوظاً
+            let savedDoc = localStorage.getItem('active_clinic_doctor');
+            if (savedDoc) {
+                dropdown.value = savedDoc;
+                updateActiveDoctorUI(savedDoc);
+            } else {
+                localStorage.setItem('active_clinic_doctor', dropdown.value);
+                logSystemActivity(dropdown.value, 'تسجيل الدخول والبدء على السيستم');
+            }
+        }
+
+        function changeActiveDoctor(docName) {
+            localStorage.setItem('active_clinic_doctor', docName);
+            updateActiveDoctorUI(docName);
+            logSystemActivity(docName, 'تبديل الحساب والعمل على السيستم');
+            alert(`✨ تم تفعيل حساب الطبيب: ${docName} بنجاح!`);
+        }
+
+        function updateActiveDoctorUI(docName) {
+            document.getElementById('sidebarDocName').innerText = docName;
+            document.getElementById('topDocName').innerText = docName;
+            document.getElementById('welcomeDocName').innerText = docName;
+        }
+
+        async function logSystemActivity(doctorName, actionText) {
+            try {
+                await supabaseClient.from('audit_logs').insert([{
+                    doctor_name: doctorName,
+                    action: actionText,
+                    timestamp: new Date().toISOString()
+                }]);
+            } catch (e) {
+                console.log("Audit log saved locally or table pending");
+            }
+        }
+
+        async function openAuditLogsModal() {
+            document.getElementById('auditModal').style.display = 'flex';
+            let tbody = document.getElementById('auditTableBody');
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:15px; color:gray;">جاري جلب السجلات...</td></tr>`;
+
+            let { data, error } = await supabaseClient.from('audit_logs').select('*').order('timestamp', { ascending: false }).limit(20);
+            if (error || !data || data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:15px; color:gray;">لا توجد سجلات دخول مسجلة حالياً (أو الجدول قيد التنشيط). ملاحظة: الطبيب الحالي النشط هو: ${localStorage.getItem('active_clinic_doctor') || 'د. شادي سمير'}</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = '';
+            data.forEach(log => {
+                let dName = log.doctor_name || 'طبيب';
+                let act = log.action || 'نشاط على السيستم';
+                let time = log.timestamp ? new Date(log.timestamp).toLocaleString('ar-EG') : 'وقت سابق';
+                tbody.innerHTML += `
+                    <tr>
+                        <td><strong>${dName}</strong></td>
+                        <td>${act}</td>
+                        <td>${time}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        function closeAuditModal() {
+            document.getElementById('auditModal').style.display = 'none';
+        }
+
         async function loadDashboardData() {
+            await loadDoctorsListForDropdown();
+
             let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
             let todayFormattedStr = new Date().toLocaleDateString('ar-EG', options);
             document.getElementById('currentDateDisplay').innerText = todayFormattedStr;
@@ -302,11 +409,6 @@
                 const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
                 if (settingsData && settingsData.length > 0) {
                     let s = settingsData[0];
-                    if (s.doctor_name) {
-                        document.getElementById('sidebarDocName').innerText = s.doctor_name;
-                        document.getElementById('topDocName').innerText = s.doctor_name;
-                        document.getElementById('welcomeDocName').innerText = s.doctor_name;
-                    }
                     if (s.doctor_title) {
                         document.getElementById('sidebarDocTitle').innerText = s.doctor_title;
                     }
@@ -346,7 +448,6 @@
                     });
                 }
 
-                // حساب إجمالي الإيرادات الكلية من جدول المدفوعات
                 let totalRevenue = 0;
                 if (payData) {
                     payData.forEach(pay => {
