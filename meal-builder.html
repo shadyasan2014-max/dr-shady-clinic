@@ -30,7 +30,6 @@
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
 
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي المطلوب */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -46,7 +45,6 @@
 
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
 
-        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
         select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
 
         .action-btn { border: none; padding: 9px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; color: white; }
@@ -70,16 +68,16 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* ترويسة الدكتور واللوجو الخاصة بالطباعة والـ PDF فقط */
+        /* ترويسة الدكتور واللوجو الطبية (تظهر في الطباعة وملف الـ PDF فقط في أول السطر) */
         .print-clinic-header { display: none; }
 
-        /* إعدادات الطباعة والـ PDF الاحترافية النظيفة */
+        /* إعدادات الطباعة والـ PDF الاحترافية النظيفة باستخدام المتصفح */
         @media print {
             body { background-color: #ffffff !important; -webkit-print-color-adjust: exact; }
-            .sidebar, .mobile-menu-toggle, #headerActionButtons, .no-print, .action-btn { display: none !important; }
+            .sidebar, .mobile-menu-toggle, #headerActionButtons, .action-btn { display: none !important; }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 0 !important; }
             .print-clinic-header { display: flex !important; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 12px; margin-bottom: 15px; }
-            .card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #cbd5e1 !important; margin-bottom: 15px !important; }
+            .card { break-inside: avoid; page-break-inside: avoid; box-shadow: none !important; border: 1px solid #cbd5e1 !important; margin-bottom: 12px !important; }
             .followup-comparison-grid { break-inside: avoid; page-break-inside: avoid; }
         }
 
@@ -771,25 +769,10 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة تحويل PDF بضبط الهوامش ومنع أي فراغات أو صفحات مقطوعة
+        // دالة تحويل PDF ذكية ونظيفة بالكامل تعتمد على طباعة المتصفح السريعة بدون أي صفحات فارغة
         function downloadPlanPDF() {
             document.getElementById('pdfPrintDate').innerText = new Date().toISOString().split('T')[0];
-
-            const element = document.getElementById('printableArea');
-            const opt = {
-                margin:       [2, 2, 2, 2],
-                filename:     'Dr-Shady-Meal-Plan.pdf',
-                image:        { type: 'jpeg', quality: 0.98 },
-                html2canvas:  { scale: 2, useCORS: true, logging: false },
-                jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-
-            let actionButtons = document.getElementById('headerActionButtons');
-            if (actionButtons) actionButtons.style.display = 'none';
-
-            html2pdf().from(element).set(opt).save().then(() => {
-                if (actionButtons) actionButtons.style.display = 'flex';
-            });
+            window.print();
         }
 
         function printPlanPage() {
