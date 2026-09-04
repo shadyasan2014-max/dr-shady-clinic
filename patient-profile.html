@@ -8,29 +8,46 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        :root { --sidebar-bg: #0b1329; --main-bg: #f4f6f9; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #10b981; --accent-blue: #3b82f6; --warning-orange: #f59e0b; --danger-red: #ef4444; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; transition: transform 0.3s ease-in-out; }
-        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #1e293b; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; }
-        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: var(--text-gray); }
+        .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
+        
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
-        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: var(--text-gray); }
+        .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--accent-blue); color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
-        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #1e293b; }
-        .btn-logout { background: none; border: none; color: var(--danger-red); font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
+        .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
+        .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
         .patient-header-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 16px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
         .patient-info-box { display: flex; align-items: center; gap: 20px; }
-        .patient-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); }
+        .patient-avatar { width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary-green); background: #fff; }
         .patient-actions-top { display: flex; gap: 8px; flex-wrap: wrap; }
         .top-action-btn { background: #f8fafc; border: 1px solid var(--card-border); padding: 8px 14px; border-radius: 10px; font-size: 11px; font-weight: bold; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 3px; color: var(--text-dark); transition: 0.2s; }
-        .top-action-btn:hover { background: #e0f2fe; border-color: #3b82f6; color: #0369a1; }
+        .top-action-btn:hover { background: #e0f2fe; border-color: var(--accent-blue); color: #0369a1; }
 
         .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px; }
         .metric-card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; text-align: center; box-shadow: 0 2px 4px rgba(0,0,0,0.01); }
@@ -42,14 +59,14 @@
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
 
-        .pdf-header-banner { text-align: center; border-bottom: 2px solid #10b981; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
+        .pdf-header-banner { text-align: center; border-bottom: 2px solid var(--primary-green); padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; justify-content: space-between; }
         
-        .mobile-menu-toggle { display: none; background: #0b1329; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
@@ -68,9 +85,9 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img src="logo.jpeg" alt="Logo" class="brand-logo">
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
-                <p>عيادة التغذية العلاجية</p>
+                <p>استشاري التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
@@ -99,17 +116,17 @@
         <div id="patientPdfArea">
             <div class="pdf-header-banner">
                 <div style="text-align: right;">
-                    <h2 style="margin:0; color:#0b1329; font-size:17px;">د. شادي سمير</h2>
-                    <p style="margin:2px 0; color:#10b981; font-weight:bold; font-size:12px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                    <h2 style="margin:0; color:var(--sidebar-bg); font-size:17px;">د. شادي سمير</h2>
+                    <p style="margin:2px 0; color:var(--primary-green); font-weight:bold; font-size:12px;">استشاري التغذية العلاجية وجراحات السمنة</p>
                 </div>
                 <div>
-                    <img src="logo.jpeg" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                    <img src="logo2.png" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green);" onerror="this.src='logo.jpeg'">
                 </div>
             </div>
 
             <div class="patient-header-card">
                 <div class="patient-info-box">
-                    <img src="logo.jpeg" alt="Patient" class="patient-avatar">
+                    <img src="logo2.png" alt="Patient" class="patient-avatar" onerror="this.src='logo.jpeg'">
                     <div>
                         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                             <h2 style="margin:0; font-size: 18px;" id="pName">جاري التحميل...</h2>
@@ -120,6 +137,7 @@
                     </div>
                 </div>
                 <div class="patient-actions-top">
+                    <button class="top-action-btn" onclick="openComprehensiveReportModal()"><span>📄</span> تقرير عن الحالة</button>
                     <button class="top-action-btn" onclick="openEditModal()"><span>✏️</span> تعديل الحالة</button>
                     <button class="top-action-btn" onclick="openFollowupModal()"><span>➕</span> تسجيل متابعة</button>
                     <button class="top-action-btn" onclick="sendPlanWhatsApp()"><span>💬</span> إرسال الخطة</button>
@@ -159,6 +177,25 @@
                     <h3 style="margin-top:10px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية</h3>
                     <p id="pNotes" style="font-size:12px; line-height:1.6; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border); white-space: pre-line;">جاري تحميل الملاحظات...</p>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- نافذة التقرير الشامل عن الحالة -->
+    <div id="comprehensiveReportModal" class="modal-overlay">
+        <div class="modal-box" style="width: 700px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:15px;">
+                <h3 style="margin:0; font-size:16px; color:var(--sidebar-bg);">📄 التقرير الطبي والإكلينيكي الشامل للحالة</h3>
+                <button onclick="closeComprehensiveReportModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">✕</button>
+            </div>
+            
+            <div id="reportContentBody" style="font-size:13px; color:var(--text-dark); line-height:1.6; max-height: 60vh; overflow-y: auto;">
+                <div style="text-align:center; padding:20px; color:gray;">جاري تجميع كافة سجلات المريض من قاعدة البيانات...</div>
+            </div>
+
+            <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
+                <button onclick="window.print()" class="top-action-btn" style="background:var(--primary-green); color:white;">🖨️ طباعة التقرير</button>
+                <button onclick="closeComprehensiveReportModal()" class="top-action-btn" style="background:#64748b; color:white;">إغلاق</button>
             </div>
         </div>
     </div>
@@ -215,6 +252,7 @@
         let activePatient = null;
         let activeTable = 'patients';
         let weightChartInstance = null;
+        let currentPatientName = "";
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -248,8 +286,9 @@
             }
 
             activeTable = activePatient._table;
+            currentPatientName = activePatient.patient_name || activePatient.name || 'مريض';
 
-            let name = activePatient.patient_name || activePatient.name || 'مريض بدون اسم';
+            let name = currentPatientName;
             let code = activePatient.patient_code || activePatient.code || 'بدون كود';
             let surgeryType = activePatient.surgery_type || activePatient.category || 'تغذية علاجية';
             let surgeryDate = activePatient.surgery_date || activePatient.date || 'غير مسجل';
@@ -282,6 +321,89 @@
             document.getElementById('pDietPlan').innerText = dietPlan;
 
             renderWeightChart(startWeight, currentWeight);
+        }
+
+        async function openComprehensiveReportModal() {
+            document.getElementById('comprehensiveReportModal').style.display = 'flex';
+            let bodyDiv = document.getElementById('reportContentBody');
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري تجميع كافة سجلات المريض من قاعدة البيانات...</div>`;
+
+            try {
+                let [visitsRes, measurementsRes, labsRes, supplementsRes, bariatricRes, paymentsRes] = await Promise.all([
+                    supabaseClient.from('visits').select('*').eq('patient_name', currentPatientName),
+                    supabaseClient.from('measurements').select('*').eq('patient_name', currentPatientName),
+                    supabaseClient.from('labs').select('*').eq('patient_name', currentPatientName),
+                    supabaseClient.from('supplements').select('*').eq('patient_name', currentPatientName),
+                    supabaseClient.from('bariatric_cases').select('*').eq('patient_name', currentPatientName),
+                    supabaseClient.from('payments').select('*').eq('patient_name', currentPatientName)
+                ]);
+
+                let html = `
+                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
+                        <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg);">👤 بيانات المريض الأساسية</h4>
+                        <p style="margin:0;"><strong>الاسم:</strong> ${currentPatientName} | <strong>الكود:</strong> ${activePatient.patient_code || activePatient.code || 'بدون'}</p>
+                        <p style="margin:3px 0 0 0; color:var(--text-gray); font-size:11px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
+                    </div>
+                `;
+
+                // الزيارات
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات والإيضاحات</h4>`;
+                if (visitsRes.data && visitsRes.data.length > 0) {
+                    html += `<ul>`;
+                    visitsRes.data.forEach(v => { html += `<li>تاريخ: ${v.visit_date || v.date || '-'} | نوع الزيارة: ${v.visit_type || '-'} | ملاحظات: ${v.notes || '-'}</li>`; });
+                    html += `</ul>`;
+                } else { html += `<p style="color:gray; font-size:12px;">لا توجد زيارات مسجلة.</p>`; }
+
+                // القياسات
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان</h4>`;
+                if (measurementsRes.data && measurementsRes.data.length > 0) {
+                    html += `<ul>`;
+                    measurementsRes.data.forEach(m => { html += `<li>تاريخ: ${m.measurement_date || m.date || '-'} | الوزن: ${m.weight || '-'} كجم | BMI: ${m.bmi || '-'}</li>`; });
+                    html += `</ul>`;
+                } else { html += `<p style="color:gray; font-size:12px;">لا توجد قياسات مسجلة.</p>`; }
+
+                // التحاليل
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🧪 التحاليل الطبية والملفات</h4>`;
+                if (labsRes.data && labsRes.data.length > 0) {
+                    html += `<ul>`;
+                    labsRes.data.forEach(l => { html += `<li>التحليل: ${l.lab_name || '-'} | النتيجة: ${l.result || '-'} | التاريخ: ${l.lab_date || '-'}</li>`; });
+                    html += `</ul>`;
+                } else { html += `<p style="color:gray; font-size:12px;">لا توجد تحاليل مسجلة.</p>`; }
+
+                // المكملات
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💊 المكملات والفيتامينات الموصوفة</h4>`;
+                if (supplementsRes.data && supplementsRes.data.length > 0) {
+                    html += `<ul>`;
+                    supplementsRes.data.forEach(s => { html += `<li>الحالة: ${s.case_type || '-'} | الأدوية: ${s.supp_list || s.sup_name || '-'} | الجرعة: ${s.dosage || '-'}</li>`; });
+                    html += `</ul>`;
+                } else { html += `<p style="color:gray; font-size:12px;">لا توجد مكملات مسجلة.</p>`; }
+
+                // جراحات السمنة
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>`;
+                if (bariatricRes.data && bariatricRes.data.length > 0) {
+                    html += `<ul>`;
+                    bariatricRes.data.forEach(b => { html += `<li>العملية: ${b.surgery_type || '-'} | التاريخ: ${b.surgery_date || '-'} | الجراح: ${b.surgeon || '-'}</li>`; });
+                    html += `</ul>`;
+                } else { html += `<p style="color:gray; font-size:12px;">لا توجد جراحات سمنة مسجلة.</p>`; }
+
+                // المدفوعات
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💰 المعاملات المالية والكشوفات</h4>`;
+                if (paymentsRes.data && paymentsRes.data.length > 0) {
+                    html += `<ul>`;
+                    paymentsRes.data.forEach(pay => { html += `<li>الخدمة: ${pay.service_type || '-'} | المبلغ: ${pay.amount || '-'} جنيه | التاريخ: ${pay.payment_date || '-'}</li>`; });
+                    html += `</ul>`;
+                } else { html += `<p style="color:gray; font-size:12px;">لا توجد معاملات مالية مسجلة.</p>`; }
+
+                bodyDiv.innerHTML = html;
+
+            } catch (err) {
+                console.error("Error generating report:", err);
+                bodyDiv.innerHTML = `<div style="color:var(--danger-red); text-align:center; padding:15px;">حدث خطأ أثناء جلب تقرير الحالة.</div>`;
+            }
+        }
+
+        function closeComprehensiveReportModal() {
+            document.getElementById('comprehensiveReportModal').style.display = 'none';
         }
 
         function openEditModal() {
@@ -407,14 +529,13 @@
             window.open(`https://wa.me/${cleanPhone}?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة الـ PDF الشاملة والمحدثة بالكامل لضمان ظهور اللوجو وكل بيانات التواريخ والقياسات والمنحنى
         async function downloadPatientPDF() {
             let docInfo = { 
                 name: "د. شادي سمير", 
                 title: "استشاري التغذية العلاجية وجراحات السمنة", 
                 branch: "القاهرة، مصر", 
-                phone: "010xxxxxxxx", 
-                logo: "logo.jpeg" 
+                phone: "01000931177", 
+                logo: "logo2.png" 
             };
 
             try {
@@ -424,8 +545,6 @@
                     if (s.doctor_name) docInfo.name = s.doctor_name;
                     if (s.doctor_title) docInfo.title = s.doctor_title;
                     if (s.logo_url && s.logo_url.trim() !== '') docInfo.logo = s.logo_url;
-                    if (s.branches && s.branches.length > 0) docInfo.branch = s.branches[0];
-                    if (s.phones && s.phones.length > 0) docInfo.phone = s.phones[0];
                 }
             } catch(e) { console.log(e); }
 
@@ -448,7 +567,7 @@
             let chartImageHtml = '';
             if (weightChartInstance) {
                 let chartBase64 = weightChartInstance.toBase64Image();
-                chartImageHtml = `<div style="margin-bottom: 12px; text-align: center;"><h4 style="color: #0b1329; font-size: 12px; margin-bottom: 4px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 130px; object-fit: contain;" /></div>`;
+                chartImageHtml = `<div style="margin-bottom: 12px; text-align: center;"><h4 style="color: #064e3b; font-size: 12px; margin-bottom: 4px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 130px; object-fit: contain;" /></div>`;
             }
 
             let printContainer = document.createElement('div');
@@ -456,49 +575,44 @@
             printContainer.style.cssText = "direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 15px; background: #ffffff; color: #1e293b; width: 190mm; box-sizing: border-box;";
 
             printContainer.innerHTML = `
-                <!-- رأس بيانات الدكتور والعيادة والشعار ورقم التليفون -->
-                <table style="width: 100%; border-bottom: 2px solid #10b981; padding-bottom: 8px; margin-bottom: 12px; direction: rtl;">
+                <table style="width: 100%; border-bottom: 2px solid #059669; padding-bottom: 8px; margin-bottom: 12px; direction: rtl;">
                     <tr>
                         <td style="text-align: right; vertical-align: middle;">
-                            <h2 style="margin: 0; color: #0b1329; font-size: 17px;">${docInfo.name}</h2>
-                            <p style="margin: 2px 0; color: #10b981; font-weight: bold; font-size: 11px;">${docInfo.title}</p>
-                            <p style="margin: 0; font-size: 10px; color: #64748b;">الفرع: ${docInfo.branch} | هاتف العيادة: ${docInfo.phone}</p>
+                            <h2 style="margin: 0; color: #064e3b; font-size: 17px;">${docInfo.name}</h2>
+                            <p style="margin: 2px 0; color: #059669; font-weight: bold; font-size: 11px;">${docInfo.title}</p>
+                            <p style="margin: 0; font-size: 10px; color: #64748b;">هاتف العيادة: ${docInfo.phone}</p>
                         </td>
                         <td style="text-align: left; vertical-align: middle;">
-                            <img src="${docInfo.logo}" crossorigin="anonymous" onerror="this.onerror=null; this.src='logo.jpeg';" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #10b981;">
+                            <img src="${docInfo.logo}" crossorigin="anonymous" onerror="this.onerror=null; this.src='logo.jpeg';" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;">
                         </td>
                     </tr>
                 </table>
 
-                <!-- بيانات الحالة الشاملة -->
                 <table style="width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 8px; border-radius: 8px; margin-bottom: 10px; direction: rtl; font-size: 11px;">
                     <tr>
                         <td style="text-align: right; vertical-align: middle; width: 50%;">
-                            <h3 style="margin: 0 0 3px 0; font-size: 13px; color: #0b1329;">اسم المريض: ${patientName}</h3>
+                            <h3 style="margin: 0 0 3px 0; font-size: 13px; color: #064e3b;">اسم المريض: ${patientName}</h3>
                             <p style="margin: 0 0 2px 0; color: #64748b;">كود الحالة: <strong>${patientCode}</strong> | الهاتف: ${patientPhone}</p>
                             <p style="margin: 0; color: #64748b;">التصنيف: ${surgeryType}</p>
                         </td>
                         <td style="text-align: right; vertical-align: middle; width: 50%; border-right: 1px solid #e2e8f0; padding-right: 10px;">
-                            <p style="margin: 0 0 2px 0; color: #10b981; font-weight: bold;">الوزن الحالي: ${currWeight} | BMI: ${bmiValue}</p>
+                            <p style="margin: 0 0 2px 0; color: #059669; font-weight: bold;">الوزن الحالي: ${currWeight} | BMI: ${bmiValue}</p>
                             <p style="margin: 0 0 2px 0; color: #64748b;">الدهون: ${fatVal} | العضلات: ${muscleVal}</p>
                             <p style="margin: 0; color: #64748b;">تاريخ العملية: ${surgeryDate}</p>
                         </td>
                     </tr>
                 </table>
 
-                <!-- مربع التواريخ والمتابعة (المحدد بالأسود) -->
                 <table style="width: 100%; background: #f1f5f9; border: 1px solid #cbd5e1; padding: 6px; border-radius: 6px; margin-bottom: 12px; direction: rtl; font-size: 10px; text-align: center;">
                     <tr>
-                        <td style="border-left: 1px solid #cbd5e1; padding: 4px;"><strong>تاريخ المتابعة الحالية</strong><br><span style="color: #10b981; font-weight: bold;">${currFollowup}</span></td>
+                        <td style="border-left: 1px solid #cbd5e1; padding: 4px;"><strong>تاريخ المتابعة الحالية</strong><br><span style="color: #059669; font-weight: bold;">${currFollowup}</span></td>
                         <td style="border-left: 1px solid #cbd5e1; padding: 4px;"><strong>تاريخ المتابعة السابقة</strong><br><span style="color: #f59e0b; font-weight: bold;">${prevFollowup}</span></td>
-                        <td style="padding: 4px;"><strong>تاريخ العملية</strong><br><span style="color: #3b82f6; font-weight: bold;">${surgeryDate}</span></td>
+                        <td style="padding: 4px;"><strong>تاريخ العملية</strong><br><span style="color: #0284c7; font-weight: bold;">${surgeryDate}</span></td>
                     </tr>
                 </table>
 
-                <!-- الرسم البياني المنحني -->
                 ${chartImageHtml}
 
-                <!-- الخطة الغذائية والملاحظات الطبية -->
                 <div style="margin-bottom: 12px;">
                     <h4 style="color: #166534; border-bottom: 1px solid #bbf7d0; padding-bottom: 3px; margin-bottom: 6px; font-size: 12px;">🥗 الخطة الغذائية المخصصة:</h4>
                     <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; font-size: 11px; line-height: 1.6; white-space: pre-line; color: #14532d; text-align: right;">
@@ -513,7 +627,6 @@
                     </div>
                 </div>
 
-                <!-- تذييل الصفحة -->
                 <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 6px; margin-top: 20px; font-size: 9px; color: #94a3b8;">
                     تم إصدار هذا التقرير إلكترونياً من نظام عيادات ${docInfo.name} للتغذية العلاجية وجراحات السمنة.
                 </div>
@@ -541,8 +654,8 @@
                     datasets: [{
                         label: 'تطور الوزن (كجم)',
                         data: [startW, currentW],
-                        borderColor: '#10b981',
-                        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+                        borderColor: '#059669',
+                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
                         borderWidth: 3,
                         fill: true,
                         tension: 0.3
