@@ -211,6 +211,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let foodList = [];
+        let activeTableName = 'food_database'; // الجدول الافتراضي
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -218,14 +219,24 @@
         }
 
         async function loadFoodData() {
-            const { data, error } = await supabaseClient.from('food_database').select('*');
-            if (error) {
-                console.error("Error loading food data:", error);
-                const { data: altData } = await supabaseClient.from('foods').select('*');
-                foodList = altData || [];
-            } else {
-                foodList = data || [];
+            // فحص الجداول المحتملة أوتوماتيكياً لضمان جلب الداتا وعدم فراغ الجدول
+            let tablesToTry = ['food_database', 'foods', 'food_db', 'items', 'nutrition'];
+            
+            for (let t of tablesToTry) {
+                let { data, error } = await supabaseClient.from(t).select('*');
+                if (!error && data && data.length > 0) {
+                    foodList = data;
+                    activeTableName = t;
+                    break;
+                }
             }
+
+            if (!foodList || foodList.length === 0) {
+                let { data } = await supabaseClient.from('food_database').select('*');
+                foodList = data || [];
+                activeTableName = 'food_database';
+            }
+
             renderFoodTable(foodList);
         }
 
@@ -234,7 +245,7 @@
             tbody.innerHTML = '';
 
             if (list.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد أطعمة مسجلة حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد أطعمة مسجلة حالياً في قاعدة البيانات.</td></tr>`;
                 return;
             }
 
@@ -356,7 +367,7 @@
                 document.getElementById('foodFats').value = 3;
             }
 
-            alert(`🤖 قام الذكاء الاصطناعي بتقدير السعرات والماكروز للصنف "${foodName}" بنجاح! يمكنك مراجعتها وتعديلها لو احتجت.`);
+            alert(`🤖 قام الذكاء الاصطناعي بتقدير السعرات والماكروز للصنف "${foodName}" بنجاح!`);
         }
 
         async function saveFoodToSQL(event) {
@@ -373,21 +384,17 @@
                 fats: parseFloat(document.getElementById('foodFats').value) || 0
             };
 
-            let targetTable = 'food_database';
             let res;
             if (editId && editId !== "") {
-                await supabaseClient.from(targetTable).delete().eq('id', editId);
-                res = await supabaseClient.from(targetTable).insert([payload]);
+                await supabaseClient.from(activeTableName).delete().eq('id', editId);
+                res = await supabaseClient.from(activeTableName).insert([payload]);
             } else {
-                res = await supabaseClient.from(targetTable).insert([payload]);
+                res = await supabaseClient.from(activeTableName).insert([payload]);
             }
 
             if (res.error) {
-                let altRes = await supabaseClient.from('foods').insert([payload]);
-                if(altRes.error) {
-                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
-                    return;
-                }
+                alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
+                return;
             }
 
             alert('✨ تم حفظ صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
@@ -397,9 +404,10 @@
 
         async function deleteFood(id) {
             if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟')) return;
-            const { error } = await supabaseClient.from('food_database').delete().eq('id', id);
+            const { error } = await supabaseClient.from(activeTableName).delete().eq('id', id);
             if (error) {
-                await supabaseClient.from('foods').delete().eq('id', id);
+                alert('خطأ في الحذف: ' + error.message);
+                return;
             }
             alert('✨ تم حذف الصنف بنجاح!');
             loadFoodData();
