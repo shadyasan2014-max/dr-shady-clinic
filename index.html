@@ -7,21 +7,38 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #064e3b; --main-bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #059669; --accent-blue: #0284c7; --warning-orange: #f59e0b; --danger-red: #dc2626; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { 
+            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
+            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
+            --card-bg: #ffffff;             /* خلفية البطاقات */
+            --card-border: #e2e8f0;         /* حدود خفيفة */
+            --primary-green: #059669;       /* الأخضر الرئيسي */
+            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
+            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
+            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
+            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
+            --text-gray: #64748b;           /* نصوص رمادية */
+        }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
         .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
         
-        /* تنسيق موحد ومضبوط بدقة للوجو في السايدبار والترويسة */
+        /* تنسيق موحد ومضبوط بدقة للوجو والبروفايل */
         .brand-logo, .doctor-avatar-top { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
 
-        .sidebar-brand h2 { margin: 0; font-size: 16px; color: white; } .sidebar-brand p { margin: 3px 0 0 0; font-size: 11px; color: #a7f3d0; }
+        .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
+        .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
+        
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
-        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: #047857; color: white; font-weight: bold; }
-        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white; }
+        
+        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
+        .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
+        .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
+
         .sidebar-footer { padding: 15px 20px; border-top: 1px solid #065f46; }
         .btn-logout { background: none; border: none; color: #fca5a5; font-weight: bold; cursor: pointer; font-size: 13px; width: 100%; text-align: right; }
         
@@ -33,7 +50,6 @@
         .global-search-box { flex: 1; max-width: 450px; margin: 0 20px; position: relative; }
         .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; }
 
-        /* تخصيص الـ Select باللون البرتقالي المطلوب */
         select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold; }
 
         .search-results-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; margin-top: 5px; }
@@ -91,7 +107,7 @@
             <div class="sidebar-brand">
                 <img id="sidebarLogo" src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2 id="sidebarDocName">د. شادي سمير</h2>
-                <p id="sidebarDocTitle">عيادة التغذية العلاجية</p>
+                <p id="sidebarDocTitle">استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)</p>
             </div>
             <ul class="sidebar-menu">
                 <li class="active"><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
@@ -146,7 +162,7 @@
 
         <div class="stats-grid-5">
             <div class="stat-card-box">
-                <div class="stat-card-top"><span>إيرادات اليوم</span> <span>💰</span></div>
+                <div class="stat-card-top"><span>إجمالي الإيرادات</span> <span>💰</span></div>
                 <div class="stat-card-value" style="color:var(--primary-green);" id="statRevenue">0 EGP</div>
                 <div class="stat-trend">جنيه مصري</div>
             </div>
@@ -330,17 +346,15 @@
                     });
                 }
 
-                let todayRevenue = 0;
+                // حساب إجمالي الإيرادات الكلية من جدول المدفوعات
+                let totalRevenue = 0;
                 if (payData) {
                     payData.forEach(pay => {
-                        let pDate = pay.payment_date || pay.date || (pay.created_at ? pay.created_at.split('T')[0] : '');
-                        if (pDate === todaySqlStr || !pDate) {
-                            todayRevenue += parseFloat(pay.amount || pay.price || 0);
-                        }
+                        totalRevenue += parseFloat(pay.amount || pay.price || 0);
                     });
                 }
 
-                document.getElementById('statRevenue').innerText = todayRevenue.toLocaleString() + ' EGP';
+                document.getElementById('statRevenue').innerText = totalRevenue.toLocaleString() + ' EGP';
                 document.getElementById('statFollowups').innerText = todayAppointments.length;
                 document.getElementById('statAppointments').innerText = appData ? appData.length : 0;
                 document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
