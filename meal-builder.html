@@ -71,12 +71,6 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* تنسيق خاص لإخفاء أزرار التحكم والبحث عند تحويل الصفحة لـ PDF أو الطباعة */
-        @media print {
-            .no-pdf, .sidebar, .mobile-menu-toggle, .top-header .action-btn, #patientSelectDropdown { display: none !important; }
-            .main-content { margin-right: 0 !important; width: 100% !important; padding: 0 !important; }
-        }
-
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
             .sidebar.active { transform: translateX(0); }
@@ -126,14 +120,14 @@
                     <p id="patientSubDetails" style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">استعراض تفصيلي لبيانات الحالة وتواريخ المتابعة والنظام السابق</p>
                 </div>
 
-                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                    <select id="patientSelectDropdown" class="form-control no-pdf" style="width: 170px; padding: 7px;">
+                <div id="headerActionButtons" style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                    <select id="patientSelectDropdown" class="form-control" style="width: 170px; padding: 7px;">
                         <option value="">-- اختر الحالة --</option>
                     </select>
-                    <button onclick="searchAndLoadPatient()" class="action-btn no-pdf" style="background: var(--accent-blue);">🔍 بحث</button>
-                    <button onclick="askGeminiWithFullData()" class="action-btn no-pdf" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">🤖 اسأل AI</button>
-                    <button onclick="openComprehensiveEditModal()" class="action-btn no-pdf" style="background: var(--text-dark);">✏️ تعديل</button>
-                    <button onclick="openMealFollowupModal()" class="action-btn no-pdf" style="background: var(--primary-green);">📅 متابعة</button>
+                    <button onclick="searchAndLoadPatient()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
+                    <button onclick="askGeminiWithFullData()" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%);">🤖 اسأل AI</button>
+                    <button onclick="openComprehensiveEditModal()" class="action-btn" style="background: var(--text-dark);">✏️ تعديل</button>
+                    <button onclick="openMealFollowupModal()" class="action-btn" style="background: var(--primary-green);">📅 متابعة</button>
                 </div>
             </div>
 
@@ -182,15 +176,15 @@
                 </div>
 
                 <div style="display:flex; gap:12px; margin-top:12px; flex-wrap:wrap;">
-                    <div id="btnDaily" class="no-pdf" style="background:#f0fdf4; border:2px solid #bbf7d0; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('daily')">
+                    <div id="btnDaily" style="background:#f0fdf4; border:2px solid #bbf7d0; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('daily')">
                         <strong style="color:#166534; font-size:13px; display:block; margin-bottom:3px;">☀️ نظام يومي (يوم واحد)</strong>
                         <p style="font-size:11px; color:#14532d; margin:0;">3 وجبات رئيسية + 3 سناكس.</p>
                     </div>
-                    <div id="btnWeekly" class="no-pdf" style="background:#ffffff; border:1px solid #bfdbfe; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('weekly')">
+                    <div id="btnWeekly" style="background:#ffffff; border:1px solid #bfdbfe; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('weekly')">
                         <strong style="color:#1e40af; font-size:13px; display:block; margin-bottom:3px;">📅 نظام أسبوعي (7 أيام)</strong>
                         <p style="font-size:11px; color:#1e3a8a; margin:0;">جدول أسبوعي متكامل.</p>
                     </div>
-                    <div id="btnPeriod" class="no-pdf" style="background:#ffffff; border:1px solid #fde68a; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('period')">
+                    <div id="btnPeriod" style="background:#ffffff; border:1px solid #fde68a; padding:12px; border-radius:10px; flex:1; text-align:center; cursor:pointer;" onclick="switchSystem('period')">
                         <strong style="color:#92400e; font-size:13px; display:block; margin-bottom:3px;">📊 نظم بشكل عام للفترة</strong>
                         <p style="font-size:11px; color:#78350f; margin:0;">خطة شاملة ممتدة.</p>
                     </div>
@@ -205,7 +199,7 @@
             </div>
         </div>
 
-        <div class="card no-pdf" style="display: flex; gap: 10px; justify-content: space-between; align-items: center; background: #f8fafc; flex-wrap: wrap;">
+        <div class="card" style="display: flex; gap: 10px; justify-content: space-between; align-items: center; background: #f8fafc; flex-wrap: wrap;">
             <button onclick="savePlanToSQL()" class="action-btn" style="background: var(--primary-green); padding: 10px 20px;">💾 حفظ المتابعة والنظام الجديد</button>
             <div style="display: flex; gap: 8px;">
                 <button onclick="sendPlanWhatsApp()" class="action-btn" style="background: #25d366;">💬 إرسال واتساب</button>
@@ -750,7 +744,7 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة تحويل PDF بضابط الهوامش وإخفاء الأزرار الزائدة لضمان صفحة نظيفة واحترافية
+        // دالة تحويل PDF محسنة لإخفاء الأزرار مؤقتًا ومنع أي مساحات فاضية
         function downloadPlanPDF() {
             const element = document.getElementById('printableArea');
             const opt = {
@@ -760,7 +754,13 @@
                 html2canvas:  { scale: 2, useCORS: true, logging: false },
                 jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
             };
-            html2pdf().from(element).set(opt).save();
+
+            let actionButtons = document.getElementById('headerActionButtons');
+            if (actionButtons) actionButtons.style.display = 'none';
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                if (actionButtons) actionButtons.style.display = 'flex';
+            });
         }
 
         function printPlanPage() {
