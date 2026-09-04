@@ -362,10 +362,9 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال الحقول الأساسية المضمونة تماماً في جدول foods لمنع أي إيرور
+            // إرسال الحقول الأساسية المطلوبة فقط لضمان توافقها المباشر مع جدول foods
             let payload = {
                 food_name: document.getElementById('foodName').value,
-                category: document.getElementById('foodCategory').value,
                 portion: document.getElementById('foodPortion').value,
                 calories: parseFloat(document.getElementById('foodCalories').value) || 0,
                 protein: parseFloat(document.getElementById('foodProtein').value) || 0
