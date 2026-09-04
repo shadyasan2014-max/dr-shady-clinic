@@ -168,10 +168,18 @@
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">نوع الحالة / العملية (توجيه الـ AI):</label>
                     <select id="caseTypeSelect" class="form-control" onchange="toggleOtherCaseInput()" required>
                         <option value="">-- اختر نوع الحالة أو العملية --</option>
-                        <option value="تصحيح">تصحيح</option>
-                        <option value="ساسي">ساسي</option>
-                        <option value="تحويل كلاسيكي">تحويل كلاسيكي</option>
-                        <option value="حقن مونجارو او حقن ميزوثرابي">حقن مونجارو او حقن ميزوثرابي</option>
+                        <optgroup label="جراحات السمنة">
+                            <option value="تكميم">تكميم</option>
+                            <option value="تحويل مسار">تحويل مسار</option>
+                            <option value="تحويل كلاسيكي">تحويل كلاسيكي</option>
+                            <option value="ساسي">ساسي</option>
+                            <option value="تصحيح">تصحيح</option>
+                        </optgroup>
+                        <optgroup label="حالات العيادة العامة">
+                            <option value="سمنة">سمنة</option>
+                            <option value="نحافة">نحافة</option>
+                            <option value="حقن مونجارو او حقن ميزوثرابي">حقن مونجارو أو حقن ميزوثرابي</option>
+                        </optgroup>
                         <option value="اخرى">اخرى</option>
                     </select>
                 </div>
@@ -300,7 +308,7 @@
             document.getElementById('patientSelect').value = s.patient_name || '';
             
             let caseType = s.case_type || '';
-            let standardOptions = ['تصحيح', 'ساسي', 'تحويل كلاسيكي', 'حقن مونجارو او حقن ميزوثرابي'];
+            let standardOptions = ['تكميم', 'تحويل مسار', 'تحويل كلاسيكي', 'ساسي', 'تصحيح', 'سمنة', 'نحافة', 'حقن مونجارو او حقن ميزوثرابي'];
             
             if (standardOptions.includes(caseType)) {
                 document.getElementById('caseTypeSelect').value = caseType;
@@ -347,7 +355,12 @@
                 caseType = document.getElementById('otherCaseInput').value.trim() || 'حالة خاصة';
             }
 
-            if (caseType.includes('ساسي') || caseType.includes('تحويل')) {
+            if (caseType.includes('تكميم')) {
+                document.getElementById('supName').value = 'فيتامين متعدد (Multivitamin) + كالسيوم + بروتين ببتيد';
+                document.getElementById('supDosage').value = 'قرص يومياً + سكوب بروتين';
+                document.getElementById('supDuration').value = '3 أشهر أولى';
+                document.getElementById('supNotes').value = 'التركيز على السوائل والبروتين الصافي أولاً.';
+            } else if (caseType.includes('تحويل') || caseType.includes('ساسي')) {
                 document.getElementById('supName').value = 'مجموعة فيتامينات شاملة + كالسيوم + حديد + بروتين ببتيد';
                 document.getElementById('supDosage').value = 'قرص مرتين يومياً + سكوب بروتين صباحاً';
                 document.getElementById('supDuration').value = '6 أشهر مستمرة';
@@ -357,11 +370,16 @@
                 document.getElementById('supDosage').value = 'حقنة أسبوعياً + كبسولة يومياً';
                 document.getElementById('supDuration').value = '3 أشهر';
                 document.getElementById('supNotes').value = 'شرب كميات كافية من الماء، ومتابعة قياسات السكر والوزن أسبوعياً.';
+            } else if (caseType.includes('نحافة')) {
+                document.getElementById('supName').value = 'مكملات زيادة السعرات (Mass Gainer) + أوميغا 3 + فاتح شهية طبيعي';
+                document.getElementById('supDosage').value = 'مخبوز بمعدل كوب مرتين يومياً';
+                document.getElementById('supDuration').value = '3 أشهر';
+                document.getElementById('supNotes').value = 'زيادة الوجبات بشكل تدريجي مع التركيز على الدهون الصحية.';
             } else {
                 document.getElementById('supName').value = 'مكملات دعم التغذية العلاجية العامة';
                 document.getElementById('supDosage').value = 'قرص يومياً مع الوجبة الرئيسية';
                 document.getElementById('supDuration').value = 'شهرين';
-                document.getElementById('supNotes').value = 'الالتزام بنظام البروتين الصافي وشرب الماء بانتظام.';
+                document.getElementById('supNotes').value = 'الالتزام بنظام التغذية المحدد وشرب الماء بانتظام.';
             }
 
             alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
@@ -396,7 +414,6 @@
             }
 
             if (res.error) {
-                // محاولة احتياطية للـ Update أو Insert لو في عمود غير مدعوم
                 let basicPayload = {
                     patient_name: payload.patient_name,
                     case_type: payload.case_type,
