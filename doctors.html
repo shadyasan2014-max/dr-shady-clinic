@@ -261,9 +261,9 @@
             let docNameVal = document.getElementById('docName').value;
             let specialtyVal = document.getElementById('docSpecialty').value;
             let phoneVal = document.getElementById('docPhone').value;
-            let emailVal = document.getElementById('docEmail').value;
+            let emailVal = document.getElementById('docEmail').value.trim() || (`doctor_${Date.now()}@clinic.com`);
 
-            // إرسال البيانات بـ doctor_name الأساسي لتوافق قند NOT NULL في الجدول
+            // إرسال البيانات مع تعيين قيمة افتراضية لـ email لتفادي قيود الـ NOT NULL في جدول Supabase
             let payload = {
                 doctor_name: docNameVal,
                 name: docNameVal,
@@ -280,11 +280,11 @@
             }
 
             if (res.error) {
-                // محاولة احتياطية ثانية في حال رفضت قاعدة البيانات الحقول المزدوجة
                 let basicPayload = {
                     doctor_name: docNameVal,
                     specialty: specialtyVal,
-                    phone: phoneVal
+                    phone: phoneVal,
+                    email: emailVal
                 };
                 if (editId && editId !== "") {
                     res = await supabaseClient.from('doctors').update(basicPayload).eq('id', editId);
