@@ -342,12 +342,12 @@
             } else if (lowerName.includes('تفاح') || lowerName.includes('موز') || lowerName.includes('فاكهة')) {
                 document.getElementById('foodCategory').value = 'فواكه منخفضة السكر';
                 document.getElementById('foodPortion').value = 'ثمرة متوسطة (100جم)';
-                document.getElementById('foodCalories').value, 65;
+                document.getElementById('foodCalories').value = 65;
                 document.getElementById('foodProtein').value = 0.5;
                 document.getElementById('foodCarbs').value = 15;
                 document.getElementById('foodFats').value = 0.3;
             } else {
-                document.getElementById('defaultName') || (document.getElementById('foodCategory').value = 'تغذية علاجية عامة');
+                document.getElementById('foodCategory').value = 'تغذية علاجية عامة';
                 document.getElementById('foodPortion').value = '1 حصة قياسية';
                 document.getElementById('foodCalories').value = 100;
                 document.getElementById('foodProtein').value = 5;
@@ -362,7 +362,7 @@
             event.preventDefault();
             let editId = document.getElementById('editingFoodId').value;
             
-            // إرسال الأعمدة الآمنة فقط المتوافقة مع جدول foods لمنع أي أخطاء في الأسماء
+            // إرسال الأعمدة الأساسية المضمونة في جدول foods لتجنب أي أخطاء في الأعمدة غير الموجودة
             let payload = {
                 food_name: document.getElementById('foodName').value,
                 category: document.getElementById('foodCategory').value,
@@ -370,13 +370,6 @@
                 calories: parseFloat(document.getElementById('foodCalories').value) || 0,
                 protein: parseFloat(document.getElementById('foodProtein').value) || 0
             };
-
-            // محاولة إضافة الكارب والدهون بحذر لو الأعمدة موجودة
-            let carbsVal = parseFloat(document.getElementById('foodCarbs').value) || 0;
-            let fatsVal = parseFloat(document.getElementById('foodFats').value) || 0;
-            
-            payload.carbs = carbsVal;
-            payload.fats = fatsVal;
 
             let res;
             if (editId && editId !== "") {
@@ -387,18 +380,8 @@
             }
 
             if (res.error) {
-                // لو حصل خطأ بسبب أسماء الأعمدة، نجرب نحفظ الأصول الهامة فقط
-                let basicPayload = {
-                    food_name: payload.food_name,
-                    category: payload.category,
-                    calories: payload.calories,
-                    protein: payload.protein
-                };
-                let retryRes = await supabaseClient.from('foods').insert([basicPayload]);
-                if (retryRes.error) {
-                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
-                    return;
-                }
+                alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
+                return;
             }
 
             alert('✨ تم حفظ صنف الأطعمة في قاعدة بيانات SQL بنجاح!');
@@ -407,7 +390,7 @@
         }
 
         async function deleteFood(id) {
-            if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟')) return;
+            if (!confirm('هل أنت متأكد من حذف هذا الصنف الغذائي نهائياً؟'))तुरاً؟')) return;
             const { error } = await supabaseClient.from('foods').delete().eq('id', id);
             if (error) {
                 alert('خطأ في الحذف: ' + error.message);
