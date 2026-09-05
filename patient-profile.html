@@ -337,7 +337,7 @@
                     </div>
                 `;
 
-                // 1. سجل الزيارات (أونلاين / بالعيادة)
+                // 1. سجل الزيارات
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
                 <ul>
                     <li><strong>📅 2026-09-04</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل متابعة الحالة الحالية</li>
@@ -351,12 +351,12 @@
                     <li><strong>📅 2026-08-26</strong> | الوزن: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة والخطط الغذائية السابقة والحالية مع تواريخها الدقيقة (نظام 27/8 والنظام الحالي)
+                // 3. الأنظمة والخطط الغذائية (تصحيح النظام السابق ليبدأ من اليوم الأول بتاريخ 27-08-2026)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الأنظمة والخطط الغذائية الموصوفة (السابقة والحالية)</h4>
                 
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
                     <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: 2026-08-27</span>
-                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم ٨ إلى ١٤ ( مرحلة السوائل الدايت ) - إضافة إلى ما سبق: الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توايل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
+                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
                 </div>`;
 
                 let currentPlanText = activePatient.diet_plan || '';
