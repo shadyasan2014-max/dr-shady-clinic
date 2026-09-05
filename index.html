@@ -438,7 +438,6 @@
                     appData.forEach(app => {
                         let appDate = String(app.appt_date || app.date || app.appointment_date || '').trim();
                         
-                        // مطابقة مواعيد اليوم تماماً
                         if (appDate === todaySqlStr || appDate.startsWith(todaySqlStr)) {
                             todayAppointments.push(app);
                         }
@@ -468,9 +467,10 @@
                     });
                 }
 
+                // حساب التنبيهات الذكية الفعليّة بناءً على البيانات المسجلة بدقة
                 let delayedCount = 0;
                 let labsCount = labsData ? labsData.length : 0;
-                let successCount = 0;
+                let successCount = barData ? barData.length : 0;
 
                 if (patData) {
                     patData.forEach(p => {
@@ -490,12 +490,12 @@
                 }
 
                 document.getElementById('statRevenue').innerText = totalRevenue.toLocaleString() + ' EGP';
-                // ربط عداد مواعيد اليوم بعدد مواعيد اليوم الحقيقية فقط ليتطابق مع الجدول
                 document.getElementById('statAppointments').innerText = todayAppointments.length;
                 document.getElementById('statFollowups').innerText = todayAppointments.length;
                 document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
                 document.getElementById('statTodayTotal').innerText = totalPat;
 
+                // تحديث العدادات الذكية بالأرقام الصحيحة
                 document.getElementById('alertDelayedCount').innerText = delayedCount;
                 document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
                 document.getElementById('alertLabsCount').innerText = labsCount;
