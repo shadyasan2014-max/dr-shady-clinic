@@ -195,7 +195,7 @@
 
                 let html = '';
                 cachedDoctorsList.forEach((doc, idx) => {
-                    let docName = doc.name || doc.doctor_name || doc.full_name || '-';
+                    let docName = doc.doctor_name || doc.name || doc.full_name || '-';
                     let docTitle = doc.title || doc.specialty || doc.category || '-';
                     let docPhone = doc.phone || doc.clinic_phone || '-';
 
@@ -224,7 +224,13 @@
             let title = document.getElementById('newDocTitle').value;
             let phone = document.getElementById('newDocPhone').value;
 
-            const { error } = await supabaseClient.from('doctors').insert([{ name, title, phone }]);
+            // إرسال القيم مع دعم اسم العمود الإجباري doctor_name في جدول الأطباء
+            const { error } = await supabaseClient.from('doctors').insert([{ 
+                doctor_name: name, 
+                name: name, 
+                title: title, 
+                phone: phone 
+            }]);
             if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
 
             alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى SQL!');
@@ -239,7 +245,7 @@
             let dropdown = document.getElementById('selectDoctorDropdown');
             dropdown.innerHTML = '<option value="">-- اختر الطبيب --</option>';
             cachedDoctorsList.forEach((doc, idx) => {
-                let dName = doc.name || doc.doctor_name || doc.full_name || 'بدون اسم';
+                let dName = doc.doctor_name || doc.name || doc.full_name || 'بدون اسم';
                 let dTitle = doc.title || doc.specialty || 'طبيب';
                 dropdown.innerHTML += `<option value="${idx}">${dName} (${dTitle})</option>`;
             });
@@ -261,7 +267,7 @@
                 return;
             }
             let doc = cachedDoctorsList[idx];
-            document.getElementById('editDocName').value = doc.name || doc.doctor_name || doc.full_name || '';
+            document.getElementById('editDocName').value = doc.doctor_name || doc.name || doc.full_name || '';
             document.getElementById('editDocTitle').value = doc.title || doc.specialty || doc.category || '';
             document.getElementById('editDocPhone').value = doc.phone || doc.clinic_phone || '';
         }
@@ -276,27 +282,30 @@
             let newTitle = document.getElementById('editDocTitle').value;
             let newPhone = document.getElementById('editDocPhone').value;
 
-            // الحل الجذري: حذف السطر القديم وإضافة الجديد بالبيانات المعدلة لضمان عدم حدوث مشاكل في قيود الجدول أو الـ ID
-            let oldName = docRecord.name || docRecord.doctor_name || docRecord.full_name;
-
-            if (docRecord.id) {
-                await supabaseClient.from('doctors').delete().eq('id', docRecord.id);
-            } else if (oldName) {
-                await supabaseClient.from('doctors').delete().eq('name', oldName);
-            }
-
-            const { error } = await supabaseClient.from('doctors').insert([{
+            // إرسال التحديث لعاملي doctor_name و name معاً لتلبية قيود الجدول في الـ SQL
+            let updatePayload = {
+                doctor_name: newName,
                 name: newName,
                 title: newTitle,
                 phone: newPhone
-            }]);
+            };
 
+            let query = supabaseClient.from('doctors').update(updatePayload);
+            
+            if (docRecord.id) {
+                query = query.eq('id', docRecord.id);
+            } else {
+                let oldName = docRecord.doctor_name || docRecord.name || docRecord.full_name;
+                query = query.eq('doctor_name', oldName).or(`name.eq.${oldName}`);
+            }
+
+            const { error } = await query;
             if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
             closeEditDoctorModal();
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
             
-            // إعادة تحميل الجدول فوراً وعرض البيانات الجديدة
+            // إعادة تحميل الجدول فوراً لعرض التحديثات
             await loadDoctorsFromSQL();
         }
 
