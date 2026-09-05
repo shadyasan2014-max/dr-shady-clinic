@@ -68,10 +68,8 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* ترويسة الدكتور واللوجو الطبية (تظهر في الطباعة وملف الـ PDF فقط في أول السطر) */
         .print-clinic-header { display: none; }
 
-        /* إعدادات الطباعة والـ PDF الاحترافية النظيفة باستخدام المتصفح */
         @media print {
             body { background-color: #ffffff !important; -webkit-print-color-adjust: exact; }
             .sidebar, .mobile-menu-toggle, #headerActionButtons, .action-btn { display: none !important; }
@@ -124,7 +122,6 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div id="printableArea">
-            <!-- ترويسة الدكتور واللوجو الطبية (تظهر في الطباعة وملف الـ PDF فقط في أول السطر) -->
             <div class="print-clinic-header">
                 <div style="display: flex; align-items: center; gap: 10px;">
                     <img src="logo2.png" alt="Logo" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;" onerror="this.src='logo.jpeg'">
@@ -194,7 +191,6 @@
                 <p id="previousPlanText" style="font-size: 12px; color: #1e3a8a; line-height: 1.6; margin: 0; white-space: pre-line;">لا توجد خطة سابقة مسجلة.</p>
             </div>
 
-            <!-- قسم اختيار النظام الغذائي -->
             <div class="card">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; margin-bottom: 12px;">
                     <h3 style="margin: 0;">🍽️ اختيار نوع النظام الغذائي الجديد</h3>
@@ -435,19 +431,21 @@
             document.getElementById('currCommitDisp').innerText = p.curr_commitment || 'ممتد ومنضبط تماماً';
             document.getElementById('currComplaintsDisp').innerText = p.curr_complaints || 'متابعة عادية بدون شكاوى';
 
-            let previousPlan = p.diet_plan || p.notes || '';
+            // فصل النظام السابق الحقيقي عن الحالي بدقة تامة
+            let previousPlan = p.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
             document.getElementById('previousPlanCard').style.display = 'block';
-            if (previousPlan.trim() !== '') {
-                document.getElementById('previousPlanText').innerText = previousPlan;
-                if (previousPlan.includes("النظام اليومي")) {
+            document.getElementById('previousPlanText').innerText = previousPlan;
+
+            let currentPlan = p.diet_plan || '';
+            if (currentPlan.trim() !== '') {
+                if (currentPlan.includes("النظام اليومي")) {
                     switchSystem('daily');
                 } else {
                     switchSystem('period');
                     let periodElem = document.getElementById('periodSystemText');
-                    if(periodElem) periodElem.value = previousPlan;
+                    if(periodElem) periodElem.value = currentPlan;
                 }
             } else {
-                document.getElementById('previousPlanText').innerText = 'لا توجد خطة سابقة مسجلة لهذا المريض.';
                 switchSystem('daily');
             }
 
@@ -461,26 +459,24 @@
             }
 
             let p = loadedPatientData;
-            let pName = p.patient_name || p.name || document.getElementById('patientTitleName').innerText.replace('المريض: ', '') || 'المريض';
-            let pWeight = p.weight || document.getElementById('medWeight').innerText.split(' ')[0] || 'غير محدد';
+            let pName = p.patient_name || p.name || 'المريض';
+            let pWeight = p.weight || 'غير محدد';
             let pHeight = p.height || 175;
-            let pFat = p.fat || p.prev_fat || 'غير مسجل';
-            let pMuscle = p.muscle || p.prev_muscle || 'غير مسجل';
-            let pSurgery = p.surgery_type || p.category || document.getElementById('medSurgery').innerText || 'تغذية علاجية';
-            let pComplaints = p.curr_complaints || document.getElementById('currComplaintsDisp').innerText || 'لا توجد شكاوى';
-            let prevPlan = p.diet_plan || document.getElementById('previousPlanText').innerText || 'لا يوجد نظام سابق';
+            let pFat = p.fat || 'غير مسجل';
+            let pMuscle = p.muscle || 'غير مسجل';
+            let pSurgery = p.surgery_type || p.category || 'تغذية علاجية';
+            let pComplaints = p.curr_complaints || 'لا توجد شكاوى';
+            let prevPlan = p.previous_diet_plan || 'لا يوجد نظام سابق';
 
-            let promptMessage = `أنا استشاري تغذية علاجية (د. شادي سمير)، وأحتاج منك تحليل الحالة الطبية للمريض وتصميم الخطة الغذائية الأنسب لها بدقة إكلينيكية عالية:\n\n` +
+            let promptMessage = `أنا استشاري تغذية علاجية (د. شادي سمير)، وأحتاج منك تحليل الحالة الطبية للمريض وتصميم الخطة الغذائية الأنسب لها:\n\n` +
                 `📊 **بيانات المريض:**\n` +
                 `- اسم المريض: ${pName}\n` +
                 `- الوزن الحالي: ${pWeight} كجم\n` +
                 `- الطول: ${pHeight} سم\n` +
-                `- نسبة الدهون: ${pFat}%\n` +
-                `- كتلة العضلات: ${pMuscle} كجم\n` +
                 `- نوع العملية / الحالة: ${pSurgery}\n` +
-                `- الشكاوى والملاحظات الحالية: ${pComplaints}\n\n` +
+                `- شكاوى المريض: ${pComplaints}\n\n` +
                 `📋 **النظام الغذائي السابق:**\n${prevPlan}\n\n` +
-                `من فضلك قدم تحليلاً طبياً لحالة المريض واقترح نظاماً غذائياً جديداً ومطوراً يناسب حالته الصحية الحالية.`;
+                `من فضلك اقترح نظاماً غذائياً جديداً ومطوراً يناسب حالته الصحية الحالية.`;
 
             document.getElementById('aiPromptTextarea').value = promptMessage;
             document.getElementById('aiPromptModal').style.display = 'flex';
@@ -534,7 +530,7 @@
                 `;
             } else if (currentSystem === 'weekly') {
                 let days = ['السبت', 'الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة'];
-                let html = `<h3>📅 تفاصيل النظام الأسبوعي (7 أيام - كل يوم 3 وجبات و3 سناكس) - قابل للتعديل</h3>`;
+                let html = `<h3>📅 تفاصيل النظام الأسبوعي (7 أيام) - قابل للتعديل</h3>`;
                 days.forEach((day, index) => {
                     html += `
                         <div style="background:#f8fafc; border:1px solid var(--card-border); padding:15px; border-radius:10px; margin-bottom:15px;">
@@ -591,7 +587,10 @@
                 finalPlanText = document.getElementById('doctorNotesInput').value;
             }
 
+            let currentOldPlan = loadedPatientData.diet_plan || '';
+
             const { error } = await supabaseClient.from(loadedPatientData._table).update({
+                previous_diet_plan: currentOldPlan,
                 diet_plan: finalPlanText
             }).eq('id', currentPatientId);
 
@@ -600,9 +599,8 @@
                 return;
             }
 
-            alert('✨ تم حفظ المتابعة والنظام الجديد في قاعدة بيانات SQL بنجاح!');
-            document.getElementById('previousPlanText').innerText = finalPlanText;
-            document.getElementById('previousPlanCard').style.display = 'block';
+            alert('✨ تم نقل النظام الحالي إلى الأرشيف كـ (النظام السابق) وحفظ الخطة الجديدة في SQL بنجاح!');
+            searchAndLoadPatient();
         }
 
         function openMealFollowupModal() {
@@ -654,33 +652,17 @@
             let currCommit = document.getElementById('fuCurrCommitment').value;
             let currComplaints = document.getElementById('fuCurrComplaints').value;
 
-            let oldCurrDate = loadedPatientData.curr_followup_date || new Date().toISOString().split('T')[0];
-            let oldCurrWeight = loadedPatientData.weight || newW;
-            let oldFat = loadedPatientData.fat || null;
-            let oldMuscle = loadedPatientData.muscle || null;
-            let oldWater = loadedPatientData.water || null;
-            let oldCommit = loadedPatientData.curr_commitment || 'منضبط';
-            let oldComplaints = loadedPatientData.curr_complaints || loadedPatientData.notes || 'متابعة عادية';
-
             let payload = {
                 weight: newW,
                 height: newH,
-                prev_followup_date: oldCurrDate,
-                prev_weight: oldCurrWeight,
-                prev_commitment: oldCommit,
-                prev_complaints: oldComplaints,
                 curr_followup_date: currDate,
                 curr_commitment: currCommit,
-                curr_complaints: `${fuType}: ${currComplaints}`,
-                notes: `متابعة (${fuType}) بتاريخ ${currDate}: ${currComplaints}`
+                curr_compliant: currComplaints
             };
 
             if (newFat !== null) payload.fat = newFat;
             if (newMuscle !== null) payload.muscle = newMuscle;
             if (newWater !== null) payload.water = newWater;
-            if (oldFat !== null) payload.prev_fat = oldFat;
-            if (oldMuscle !== null) payload.prev_muscle = oldMuscle;
-            if (oldWater !== null) payload.prev_water = oldWater;
             if (nextDate) payload.next_followup_date = nextDate;
 
             const { error } = await supabaseClient.from(loadedPatientData._table).update(payload).eq('id', currentPatientId);
@@ -689,7 +671,7 @@
                 return;
             }
 
-            alert('✨ تم تسجيل المتابعة وموعد الزيارة القادمة وتحديث القياسات في SQL بنجاح!');
+            alert('✨ تم تسجيل المتابعة وتحديث القياسات في SQL بنجاح!');
             closeMealFollowupModal();
             searchAndLoadPatient();
         }
@@ -723,34 +705,12 @@
             event.preventDefault();
             if (!currentPatientId || !loadedPatientData) return;
 
-            let fatVal = parseFloat(document.getElementById('ceFat').value) || null;
-            let muscleVal = parseFloat(document.getElementById('ceMuscle').value) || null;
-            let waterVal = parseFloat(document.getElementById('ceWater').value) || null;
-            let nextDateVal = document.getElementById('ceNextDate').value;
-            let sDateVal = document.getElementById('ceSurgeryDate').value;
-            let prevDateVal = document.getElementById('cePrevDate').value;
-            let prevCompVal = document.getElementById('cePrevComplaints').value;
-
             let payload = {
                 patient_name: document.getElementById('ceName').value,
                 phone: document.getElementById('cePhone').value,
                 weight: parseFloat(document.getElementById('ceWeight').value) || 0,
                 height: parseFloat(document.getElementById('ceHeight').value) || 175
             };
-
-            if (fatVal !== null) payload.fat = fatVal;
-            if (muscleVal !== null) payload.muscle = muscleVal;
-            if (waterVal !== null) payload.water = waterVal;
-            if (nextDateVal) payload.next_followup_date = nextDateVal;
-            if (sDateVal) payload.surgery_date = sDateVal;
-            if (prevDateVal) payload.prev_followup_date = prevDateVal;
-            if (prevCompVal) payload.prev_complaints = prevCompVal;
-
-            if (loadedPatientData._table === 'patients') {
-                payload.category = document.getElementById('ceSurgeryType').value;
-            } else {
-                payload.surgery_type = document.getElementById('ceSurgeryType').value;
-            }
 
             const { error } = await supabaseClient.from(loadedPatientData._table).update(payload).eq('id', currentPatientId);
             if (error) {
@@ -769,7 +729,6 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // دالة تحويل PDF ذكية ونظيفة بالكامل تعتمد على طباعة المتصفح السريعة بدون أي صفحات فارغة
         function downloadPlanPDF() {
             document.getElementById('pdfPrintDate').innerText = new Date().toISOString().split('T')[0];
             window.print();
