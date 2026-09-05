@@ -420,6 +420,7 @@
                 const { data: patData } = await supabaseClient.from('patients').select('*');
                 const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
                 const { data: appData } = await supabaseClient.from('appointments').select('*');
+                const { data: visitsData } = await supabaseClient.from('visits').select('*');
                 const { data: payData } = await supabaseClient.from('payments').select('*');
 
                 globalPatientsMasterList = [];
@@ -430,7 +431,6 @@
 
                 let todayAppointments = [];
                 let tomorrowCount = 0;
-                let upcomingAppointments = [];
                 
                 if (appData) {
                     appData.forEach(app => {
@@ -441,9 +441,36 @@
                         if (appDate.includes(tomorrowSqlStr) || appDate === tomorrowSqlStr) {
                             tomorrowCount++;
                         }
-                        // جلب المواعيد القادمة الحقيقية التي تاريخها بعد اليوم أو في المستقبل
+                    });
+                }
+
+                // سحب المواعيد والتذكيرات القادمة بناءً على جدول الزيارات (visits) والمواعيد القادمة
+                let upcomingRemindersList = [];
+                if (visitsData) {
+                    visitsData.forEach(v => {
+                        let nextDate = v.next_visit_date || v.next_date || v.date || '';
+                        if (nextDate && nextDate >= todaySqlStr) {
+                            upcomingRemindersList.push({
+                                patient_name: v.patient_name || v.name || 'مريض',
+                                date: nextDate,
+                                time: v.time || '',
+                                visit_type: v.visit_type || v.type || 'زيارة متابعة قادمة'
+                            });
+                        }
+                    });
+                }
+
+                // دمج المواعيد القادمة من جدول المواعيد أيضاً لو موجودة
+                if (appData) {
+                    appData.forEach(app => {
+                        let appDate = app.date || app.appointment_date || '';
                         if (appDate > todaySqlStr) {
-                            upcomingAppointments.push(app);
+                            upcomingRemindersList.push({
+                                patient_name: app.patient_name || app.name || 'مريض',
+                                date: appDate,
+                                time: app.time || '',
+                                visit_type: app.visit_type || 'موعد مقبل'
+                            });
                         }
                     });
                 }
@@ -465,7 +492,7 @@
                 document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
 
                 renderTodayAppointments(todayAppointments);
-                renderUpcomingReminders(upcomingAppointments);
+                renderUpcomingReminders(upcomingRemindersList);
 
                 renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
                 renderTrendChart();
@@ -508,15 +535,15 @@
             container.innerHTML = '';
 
             if (upcomingList.length === 0) {
-                container.innerHTML = `<div style="padding: 8px; color: gray;">لا توجد مواعيد قادمة مسجلة.</div>`;
+                container.innerHTML = `<div style="padding: 8px; color: gray;">لا توجد مواعيد أو زيارات قادمة مسجلة.</div>`;
                 return;
             }
 
-            upcomingList.slice(0, 4).forEach(app => {
-                let name = app.patient_name || 'مريض';
-                let date = app.date || app.appointment_date || 'قريباً';
-                let time = app.time || '';
-                let type = app.visit_type || 'متابعة';
+            upcomingList.slice(0, 4).forEach(item => {
+                let name = item.patient_name || 'مريض';
+                let date = item.date || 'قريباً';
+                let time = item.time || '';
+                let type = item.visit_type || 'متابعة';
 
                 container.innerHTML += `
                     <div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
