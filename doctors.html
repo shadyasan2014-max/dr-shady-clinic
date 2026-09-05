@@ -271,25 +271,35 @@
             let idx = document.getElementById('selectDoctorDropdown').value;
             if (idx === "") { alert('الرجاء اختيار طبيب أولاً من القائمة.'); return; }
             let docRecord = cachedDoctorsList[idx];
-            let docId = docRecord.id;
 
-            let name = document.getElementById('editDocName').value;
-            let title = document.getElementById('editDocTitle').value;
-            let phone = document.getElementById('editDocPhone').value;
+            let newName = document.getElementById('editDocName').value;
+            let newTitle = document.getElementById('editDocTitle').value;
+            let newPhone = document.getElementById('editDocPhone').value;
 
-            // إرسال الأعمدة الصحيحة فقط الخاصة بجدول الأطباء لتجنب أي خطأ في الـ schema
             let updatePayload = {
-                name: name,
-                title: title,
-                phone: phone
+                name: newName,
+                title: newTitle,
+                phone: newPhone
             };
 
-            const { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', docId);
+            let query = supabaseClient.from('doctors').update(updatePayload);
+            
+            // تحديث بالمعرف id إذا وجد، وإلا التحديث بالاسم القديم الأصلي لضمان نجاح العملية 100%
+            if (docRecord.id) {
+                query = query.eq('id', docRecord.id);
+            } else {
+                let oldName = docRecord.name || docRecord.doctor_name || docRecord.full_name;
+                query = query.eq('name', oldName);
+            }
+
+            const { error } = await query;
             if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
-            alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
             closeEditDoctorModal();
-            await loadDoctorsFromSQL(); // تحديث الجدول فوراً
+            alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
+            
+            // إعادة تحميل الجدول فوراً وعرض البيانات الجديدة
+            await loadDoctorsFromSQL();
         }
 
         window.onload = loadDoctorsFromSQL;
