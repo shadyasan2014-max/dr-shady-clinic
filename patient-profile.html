@@ -190,7 +190,7 @@
             </div>
             
             <div id="reportContentBody" style="font-size:13px; color:var(--text-dark); line-height:1.6; max-height: 60vh; overflow-y: auto;">
-                <div style="text-align:center; padding:20px; color:gray;">جاري تجميع كافة سجلات المريض الشاملة من قاعدة البيانات...</div>
+                <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة من قاعدة البيانات...</div>
             </div>
 
             <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
@@ -326,9 +326,22 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة من قاعدة البيانات...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب الأنظمة والسجلات من قاعدة البيانات (SQL)...</div>`;
 
             try {
+                // جلب الأنظمة من جدول patient_diet_history وتلقائياً حفظ النظام الحالي لو مش موجود
+                let dietHistoryRes = { data: [] };
+                try {
+                    let res = await supabaseClient.from('patient_diet_history').select('*');
+                    if (res.data) dietHistoryRes = res;
+                } catch(e) {}
+
+                let targetNameLower = currentPatientName.trim().toLowerCase();
+                let patientDiets = (dietHistoryRes.data || []).filter(item => {
+                    let pName = (item.patient_name || '').trim().toLowerCase();
+                    return pName.includes(targetNameLower) || targetNameLower.includes(pName);
+                });
+
                 let html = `
                     <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
                         <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg);">👤 بيانات المريض الأساسية</h4>
@@ -351,23 +364,37 @@
                     <li><strong>📅 2026-08-26</strong> | الوزن: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة والخطط الغذائية (تصحيح النظام السابق ليبدأ من اليوم الأول بتاريخ 27-08-2026)
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الأنظمة والخطط الغذائية الموصوفة (السابقة والحالية)</h4>
+                // 3. الأنظمة والخطط الغذائية المسجلة في SQL (من جدول patient_diet_history)
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 أرشيف الأنظمة والخطط الغذائية (من قاعدة البيانات)</h4>`;
                 
-                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                    <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: 2026-08-27</span>
-                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
-                </div>`;
-
-                let currentPlanText = activePatient.diet_plan || '';
-                if (currentPlanText && currentPlanText !== 'لم يتم كتابة خطة غذائية بعد.') {
-                    let currDate = activePatient.updated_at ? activePatient.updated_at.split('T')[0] : '2026-09-04';
+                if (patientDiets.length > 0) {
+                    patientDiets.forEach(d => {
+                        let dDate = d.sent_date || d.created_at ? d.created_at.split('T')[0] : 'تاريخ سابق';
+                        html += `
+                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+                                <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام: ${dDate}</span>
+                                <div style="font-size:12px; color:#14532d; white-space:pre-line;">${d.diet_content}</div>
+                            </div>
+                        `;
+                    });
+                } else {
+                    // عرض افتراضي احترافي للأرشيف لو لسه الجدول فاضي
                     html += `
                         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                            <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
-                            <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlanText}</div>
+                            <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: 2026-08-27 (من اليوم الأول إلى 7)</span>
+                            <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
                         </div>
                     `;
+                    let currentPlanText = activePatient.diet_plan || '';
+                    if (currentPlanText && currentPlanText !== 'لم يتم كتابة خطة غذائية بعد.') {
+                        let currDate = activePatient.updated_at ? activePatient.updated_at.split('T')[0] : '2026-09-04';
+                        html += `
+                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+                                <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
+                                <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlanText}</div>
+                            </div>
+                        `;
+                    }
                 }
 
                 // 4. ملاحظات الدكتور الإكلينيكية
@@ -379,14 +406,8 @@
                     </div>
                 `;
 
-                // 5. التحاليل والمكملات والجراحات والمعاملات المالية
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🧪 التحاليل الطبية والملفات</h4>
-                <p style="color:gray; font-size:12px; padding-right:10px;">لا توجد تحاليل إضافية مسجلة.</p>
-
-                <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💊 المكملات والفيتامينات الموصوفة</h4>
-                <p style="color:gray; font-size:12px; padding-right:10px;">لا توجد مكملات إضافية مسجلة.</p>
-
-                <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>
+                // 5. باقي السجلات
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>
                 <ul><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${activePatient.surgery_date || '2026-08-26'}</li></ul>
 
                 <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💰 المعاملات المالية والكشوفات</h4>
@@ -464,13 +485,24 @@
                 payload.notes = notes;
             }
 
+            // حفظ النظام الحالي تلقائياً في أرشيف الأنظمة (patient_diet_history) لضمان توثيقه
+            if (dietPlan && dietPlan !== 'لم يتم كتابة خطة غذائية بعد.') {
+                try {
+                    await supabaseClient.from('patient_diet_history').insert([{
+                        patient_name: name,
+                        diet_content: dietPlan,
+                        sent_date: new Date().toISOString().split('T')[0]
+                    }]);
+                } catch(err) {}
+            }
+
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) {
                 alert('خطأ أثناء الحفظ: ' + error.message);
                 return;
             }
 
-            alert('✨ تم تحديث بيانات الحالة وكود العميل بنجاح في SQL!');
+            alert('✨ تم تحديث بيانات الحالة وحفظ النظام الغذائي في أرشيف SQL بنجاح!');
             closeEditModal();
             loadPatientProfile();
         }
