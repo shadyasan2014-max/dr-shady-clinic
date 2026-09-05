@@ -203,20 +203,18 @@
                 return;
             }
 
-            let updatePayload = {
+            // الحل القاطع: حذف السطر القديم بالاسم القديم وإدراج السطر الجديد بالبيانات المعدلة
+            await supabaseClient.from('doctors').delete().or(`doctor_name.eq.${originalName},name.eq.${originalName}`);
+
+            let { error } = await supabaseClient.from('doctors').insert([{
                 doctor_name: name,
                 name: name,
                 title: title,
                 specialty: title,
                 phone: phone
-            };
+            }]);
 
-            // التحديث بالاسم القديم الأصلي لضمان التطابق الفعلي في SQL
-            let { error } = await supabaseClient.from('doctors')
-                .update(updatePayload)
-                .or(`doctor_name.eq.${originalName},name.eq.${originalName}`);
-
-            if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
+            if (error) { alert('خطأ أثناء التعديل: ' + error.message); return; }
 
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
             document.getElementById('originalDoctorName').value = name;
@@ -229,10 +227,7 @@
 
             if (!confirm(`هل أنت متأكد من حذف الطبيب (${originalName})؟`)) return;
 
-            let { error } = await supabaseClient.from('doctors')
-                .delete()
-                .or(`doctor_name.eq.${originalName},name.eq.${originalName}`);
-
+            let { error } = await supabaseClient.from('doctors').delete().or(`doctor_name.eq.${originalName},name.eq.${originalName}`);
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
 
             alert('🗑️ تم حذف الطبيب بنجاح.');
