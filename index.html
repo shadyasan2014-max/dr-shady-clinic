@@ -202,11 +202,11 @@
                 </div>
                 <div class="alert-item info" onclick="window.location.href='labs.html'">
                     <span>🧪 تحاليل مستحقة للمراجعة</span>
-                    <strong>0</strong>
+                    <strong id="alertLabsCount">0</strong>
                 </div>
                 <div class="alert-item success" onclick="window.location.href='reports.html'">
                     <span>🎯 مرضى حققوا الهدف بنجاح</span>
-                    <strong>0</strong>
+                    <strong id="alertSuccessCount">0</strong>
                 </div>
             </div>
 
@@ -421,6 +421,7 @@
                 const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
                 const { data: appData } = await supabaseClient.from('appointments').select('*');
                 const { data: visitsData } = await supabaseClient.from('visits').select('*');
+                const { data: labsData } = await supabaseClient.from('labs').select('*');
                 const { data: payData } = await supabaseClient.from('payments').select('*');
 
                 globalPatientsMasterList = [];
@@ -429,48 +430,61 @@
 
                 let totalPat = globalPatientsMasterList.length;
 
+                // 1. مواعيد اليوم بناء على التاريخ الحقيقي
                 let todayAppointments = [];
                 let tomorrowCount = 0;
-                
+                let upcomingList = [];
+
                 if (appData) {
                     appData.forEach(app => {
-                        let appDate = app.date || app.appointment_date || '';
-                        if (appDate.includes(todaySqlStr) || appDate === todaySqlStr) {
+                        let appDate = String(app.date || app.appointment_date || '').trim();
+                        // مطابقة تاريخ اليوم بدقة
+                        if (appDate === todaySqlStr || appDate.startsWith(todaySqlStr)) {
                             todayAppointments.push(app);
                         }
-                        if (appDate.includes(tomorrowSqlStr) || appDate === tomorrowSqlStr) {
+                        // مطابقة مواعيد الغد (خلال 24 ساعة)
+                        if (appDate === tomorrowSqlStr || appDate.startsWith(tomorrowSqlStr)) {
                             tomorrowCount++;
                         }
-                    });
-                }
-
-                // سحب المواعيد والتذكيرات القادمة بناءً على جدول الزيارات (visits) والمواعيد القادمة
-                let upcomingRemindersList = [];
-                if (visitsData) {
-                    visitsData.forEach(v => {
-                        let nextDate = v.next_visit_date || v.next_date || v.date || '';
-                        if (nextDate && nextDate >= todaySqlStr) {
-                            upcomingRemindersList.push({
-                                patient_name: v.patient_name || v.name || 'مريض',
-                                date: nextDate,
-                                time: v.time || '',
-                                visit_type: v.visit_type || v.type || 'زيارة متابعة قادمة'
-                            });
-                        }
-                    });
-                }
-
-                // دمج المواعيد القادمة من جدول المواعيد أيضاً لو موجودة
-                if (appData) {
-                    appData.forEach(app => {
-                        let appDate = app.date || app.appointment_date || '';
+                        // المواعيد القادمة في المستقبل
                         if (appDate > todaySqlStr) {
-                            upcomingRemindersList.push({
+                            upcomingList.push({
                                 patient_name: app.patient_name || app.name || 'مريض',
                                 date: appDate,
                                 time: app.time || '',
                                 visit_type: app.visit_type || 'موعد مقبل'
                             });
+                        }
+                    });
+                }
+
+                // سحب المواعيد والتذكيرات القادمة من جدول الزيارات أيضاً لو محدد لها تاريخ زيارة قادمة
+                if (visitsData) {
+                    visitsData.forEach(v => {
+                        let nextDate = String(v.next_visit_date || v.next_date || v.date || '').trim();
+                        if (nextDate && nextDate > todaySqlStr) {
+                            upcomingList.push({
+                                patient_name: v.patient_name || v.name || 'مريض',
+                                date: nextDate,
+                                time: v.time || '',
+                                visit_type: v.visit_type || v.type || 'زيارة متابعة'
+                            });
+                        }
+                    });
+                }
+
+                // حساب التنبيهات الذكية الحقيقية
+                let delayedCount = 0;
+                let successCount = 0;
+                let labsCount = labsData ? labsData.length : 0;
+
+                if (patData) {
+                    patData.forEach(p => {
+                        // حساب المرضى المحققين للهدف أو المتأخرين افتراضياً بناء على البيانات المتاحة
+                        let wStart = parseFloat(p.initial_weight || p.weight || 0);
+                        let wCurr = parseFloat(p.current_weight || p.weight || 0);
+                        if (wStart > 0 && wCurr > 0 && wCurr <= wStart * 0.9) {
+                            successCount++;
                         }
                     });
                 }
@@ -488,11 +502,14 @@
                 document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
                 document.getElementById('statTodayTotal').innerText = totalPat;
 
-                document.getElementById('alertDelayedCount').innerText = Math.floor(totalPat / 3);
+                // تحديث أرقام التنبيهات الذكية الفعليّة
+                document.getElementById('alertDelayedCount').innerText = delayedCount;
                 document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
+                document.getElementById('alertLabsCount').innerText = labsCount;
+                document.getElementById('alertSuccessCount').innerText = successCount;
 
                 renderTodayAppointments(todayAppointments);
-                renderUpcomingReminders(upcomingRemindersList);
+                renderUpcomingReminders(upcomingList);
 
                 renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
                 renderTrendChart();
@@ -513,7 +530,7 @@
 
             todayList.forEach(app => {
                 let time = app.time || '10:00 ص';
-                let name = app.patient_name || 'مريض';
+                let name = app.patient_name || app.name || 'مريض';
                 let type = app.visit_type || 'متابعة';
                 let status = app.status || 'مؤكد';
                 let statusBadge = status === 'مؤكد' ? '<span style="color:#166534; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:bold;">مؤكد</span>' : '<span style="color:#92400e; background:#fef3c7; padding:2px 6px; border-radius:4px; font-weight:bold;">في الانتظار</span>';
@@ -538,6 +555,9 @@
                 container.innerHTML = `<div style="padding: 8px; color: gray;">لا توجد مواعيد أو زيارات قادمة مسجلة.</div>`;
                 return;
             }
+
+            // ترتيب المواعيد تصاعدياً حسب التاريخ
+            upcomingList.sort((a, b) => new Date(a.date) - new Date(b.date));
 
             upcomingList.slice(0, 4).forEach(item => {
                 let name = item.patient_name || 'مريض';
