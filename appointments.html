@@ -45,7 +45,7 @@
         th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--card-border); }
         th { background-color: #f1f5f9; color: var(--sidebar-bg); font-weight: bold; }
 
-        .action-btn { background: var(--primary-green); color: white; border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 5px; }
+        .action-btn { background: var(--primary-green); color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; text-decoration: none; display: inline-flex; align-items: center; gap: 4px; }
         .action-btn:hover { opacity: 0.9; }
 
         .form-group { margin-bottom: 15px; }
@@ -105,7 +105,7 @@
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
                 <h3 style="margin:0; font-size:15px; color:var(--text-dark);">📌 جميع المواعيد المسجلة في النظام</h3>
-                <button onclick="openAddAppointmentModal()" class="action-btn" style="background:var(--accent-blue);">➕ حجز موعد جديد</button>
+                <button onclick="openAddAppointmentModal()" class="action-btn" style="background:var(--accent-blue); padding: 10px 16px;">➕ حجز موعد جديد</button>
             </div>
 
             <div style="overflow-x: auto;">
@@ -147,8 +147,8 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ الموعد</button>
-                    <button type="button" onclick="closeAddAppointmentModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">حفظ الموعد</button>
+                    <button type="button" onclick="closeAddAppointmentModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إغلاق</button>
                 </div>
             </form>
         </div>
@@ -171,10 +171,11 @@
                 let html = '';
                 data.forEach((app, idx) => {
                     let name = app.patient_name || app.name || 'مريض';
-                    let date = app.date || app.appointment_date || '-';
-                    let time = app.time || '-';
-                    let type = app.visit_type || 'متابعة';
+                    let date = app.date || app.appointment_date || app.visit_date || '-';
+                    let time = app.time || app.appointment_time || '-';
+                    let type = app.visit_type || app.type || 'متابعة';
                     let status = app.status || 'في الانتظار';
+                    let appId = app.id;
 
                     let statusBadge = '';
                     if (status.includes('تمت') || status.includes('مكتملة')) {
@@ -191,7 +192,10 @@
                             <td>${time}</td>
                             <td>${type}</td>
                             <td>${statusBadge}</td>
-                            <td><a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn">📁 فتح الملف</a></td>
+                            <td>
+                                <a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn" style="background:var(--accent-blue);">📁 فتح الملف</a>
+                                <button onclick="deleteAppointment('${appId}', '${name}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                            </td>
                         </tr>
                     `;
                 });
@@ -199,6 +203,23 @@
             } catch(e) {
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب البيانات من SQL.</td></tr>`;
             }
+        }
+
+        async function deleteAppointment(id, name) {
+            if (!confirm(`هل أنت متأكد من حذف موعد المريض (${name})؟`)) return;
+
+            let query = supabaseClient.from('appointments').delete();
+            if (id && id !== 'undefined' && id !== 'null') {
+                query = query.eq('id', id);
+            } else {
+                query = query.eq('patient_name', name);
+            }
+
+            let { error } = await query;
+            if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
+
+            alert('🗑️ تم حذف الموعد بنجاح.');
+            loadAppointmentsTable();
         }
 
         function openAddAppointmentModal() { document.getElementById('addAppointmentModal').style.display = 'flex'; }
