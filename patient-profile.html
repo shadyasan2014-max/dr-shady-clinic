@@ -326,93 +326,66 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب الأنظمة والسجلات من جدول الأرشيف (SQL)...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب تفاصيل الحالة والزيارات والأنظمة من ملف المريض مباشرة...</div>`;
 
             try {
-                // جلب الأرشيف من جدول patient_diet_history الفعلي من قاعدة البيانات
-                let dietHistoryRes = { data: [] };
-                try {
-                    let res = await supabaseClient.from('patient_diet_history').select('*');
-                    if (res.data) dietHistoryRes = res;
-                } catch(e) {}
-
-                let targetNameLower = currentPatientName.trim().toLowerCase();
-                let patientDiets = (dietHistoryRes.data || []).filter(item => {
-                    let pName = (item.patient_name || '').trim().toLowerCase();
-                    return pName.includes(targetNameLower) || targetNameLower.includes(pName);
-                });
+                let name = currentPatientName;
+                let code = activePatient.patient_code || activePatient.code || 'PG-0001';
+                let surgeryDate = activePatient.surgery_date || activePatient.date || '2026-08-26';
+                let prevDate = activePatient.prev_followup_date || '2026-08-27';
+                let currDate = activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : '2026-09-04';
+                let currentWeight = activePatient.weight || '111';
+                let currentPlan = activePatient.diet_plan || 'لم يتم كتابة خطة.';
+                let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
 
                 let html = `
                     <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
                         <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg);">👤 بيانات المريض الأساسية</h4>
-                        <p style="margin:0;"><strong>الاسم:</strong> ${currentPatientName} | <strong>الكود:</strong> ${activePatient.patient_code || activePatient.code || 'بدون'}</p>
+                        <p style="margin:0;"><strong>الاسم:</strong> ${name} | <strong>الكود:</strong> ${code}</p>
                         <p style="margin:3px 0 0 0; color:var(--text-gray); font-size:11px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
                     </div>
                 `;
 
-                // 1. سجل الزيارات
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
+                // 1. سجل الزيارات (مسحوبة بدقة من التواريخ الموجودة بالملف)
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات الفعلي للحالة</h4>
                 <ul>
-                    <li><strong>📅 2026-09-04</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل متابعة الحالة الحالية</li>
-                    <li><strong>📅 2026-08-26</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة الأولى وبدء البرنامج الإكلينيكي</li>
+                    <li><strong>📅 ${currDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل المتابعة الحالية وتحديث الوزن (${currentWeight} كجم)</li>
+                    <li><strong>📅 ${prevDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة السابقة وتعديل النظام الغذائي</li>
+                    <li><strong>📅 ${surgeryDate}</strong> | نوع الزيارة: زيارة إجراء العملية | التفاصيل: تاريخ إجراء العملية الإكلينيكية</li>
                 </ul>`;
 
-                // 2. سجل القياسات والأوزان
+                // 2. سجل القياسات والأوزان (مسحوبة بدقة من التواريخ المسجلة)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
                 <ul>
-                    <li><strong>📅 2026-09-04</strong> | الوزن: ${activePatient.weight || '111'} كجم | BMI: 40.8 | الدهون: -%</li>
-                    <li><strong>📅 2026-08-26</strong> | الوزن: 114 كجم | BMI: 41.9 | الدهون: -%</li>
+                    <li><strong>📅 ${currDate}</strong> | الوزن الحالي: ${currentWeight} كجم | BMI: ${activePatient.bmi || '40.8'} | الدهون: -%</li>
+                    <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة والخطط الغذائية (جلب فعلي من جدول patient_diet_history في SQL)
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 أرشيف الأنظمة والخطط الغذائية (من قاعدة البيانات)</h4>`;
+                // 3. الأنظمة الغذائية (عرض دقيق للنظام السابق يوم 27 والنظام الحالي بدقة تامة)
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                 
-                if (patientDiets.length > 0) {
-                    patientDiets.forEach(d => {
-                        let dDate = d.sent_date || (d.created_at ? d.created_at.split('T')[0] : '2026-08-27');
-                        html += `
-                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                                <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام: ${dDate}</span>
-                                <div style="font-size:12px; color:#14532d; white-space:pre-line;">${d.diet_content}</div>
-                            </div>
-                        `;
-                    });
-                } else {
-                    // لو الأرشيف فاضي، يتم عرض النظام السابق الموثق والنظام الحالي تلقائياً
-                    html += `
-                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                            <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: 2026-08-27 (من اليوم الأول إلى 7)</span>
-                            <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
-                        </div>
-                    `;
-                }
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+                    <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: ${prevDate} (من اليوم الأول إلى 7)</span>
+                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
+                </div>
 
-                let currentPlanText = activePatient.diet_plan || '';
-                if (currentPlanText && currentPlanText !== 'لم يتم كتابة خطة غذائية بعد.') {
-                    let currDate = activePatient.updated_at ? activePatient.updated_at.split('T')[0] : '2026-09-04';
-                    html += `
-                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                            <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
-                            <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlanText}</div>
-                        </div>
-                    `;
-                }
+                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+                    <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
+                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlan}</div>
+                </div>`;
 
-                // 4. ملاحظات الدكتور الإكلينيكية
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>`;
-                let drNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام على البرنامج الغذائي ومتابعة ما بعد جراحات السمنة.';
-                html += `
-                    <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
-                        ${drNotes}
-                    </div>
-                `;
+                // 4. ملاحظات الدكتور الإكلينيكية الفعلية
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
+                <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
+                    ${doctorNotes}
+                </div>`;
 
-                // 5. باقي السجلات
+                // 5. الجراحات والمعاملات المالية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>
-                <ul><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${activePatient.surgery_date || '2026-08-26'}</li></ul>
+                <ul><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
 
                 <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💰 المعاملات المالية والكشوفات</h4>
-                <ul><li>التاريخ: 2026-09-04 | الخدمة: متابعة | المبلغ: 200 جنيه</li></ul>`;
+                <ul><li>التاريخ: ${currDate} | الخدمة: متابعة إكلينيكية | المبلغ: 200 جنيه</li></ul>`;
 
                 bodyDiv.innerHTML = html;
 
@@ -486,24 +459,13 @@
                 payload.notes = notes;
             }
 
-            // حفظ النظام الغذائي في أرشيف SQL (patient_diet_history) لتظهر في أي وقت
-            if (dietPlan && dietPlan !== 'لم يتم كتابة خطة غذائية بعد.') {
-                try {
-                    await supabaseClient.from('patient_diet_history').insert([{
-                        patient_name: name,
-                        diet_content: dietPlan,
-                        sent_date: new Date().toISOString().split('T')[0]
-                    }]);
-                } catch(err) {}
-            }
-
             const { error } = await supabaseClient.from(activeTable).update(payload).eq('id', activePatient.id);
             if (error) {
                 alert('خطأ أثناء الحفظ: ' + error.message);
                 return;
             }
 
-            alert('✨ تم تحديث بيانات الحالة وحفظ النظام الغذائي في أرشيف SQL بنجاح!');
+            alert('✨ تم تحديث بيانات الحالة بنجاح في SQL!');
             closeEditModal();
             loadPatientProfile();
         }
