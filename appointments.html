@@ -171,15 +171,15 @@
 
                 let html = '';
                 data.forEach((app, idx) => {
-                    let name = app.patient_name || app.patient || 'مريض';
-                    let date = app.date || app.appointment_date || app.visit_date || '-';
+                    let name = app.patient_name || app.name || app.patient || app.title || 'مريض';
+                    let date = app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.time || app.appointment_time || app.visit_time || '-';
-                    let type = app.visit_type || app.type || 'متابعة';
+                    let type = app.visit_type || app.type || app.category || 'متابعة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
 
                     let statusBadge = '';
-                    if (status.includes('تمت') || status.includes('مكتملة')) {
+                    if (String(status).includes('تمت') || String(status).includes('مكتملة')) {
                         statusBadge = `<span style="color:#166534; background:#dcfce7; padding:3px 8px; border-radius:6px; font-weight:bold;">✅ تمت الزيارة</span>`;
                     } else {
                         statusBadge = `<span style="color:#92400e; background:#fef3c7; padding:3px 8px; border-radius:6px; font-weight:bold;">⏰ في الانتظار</span>`;
@@ -219,10 +219,10 @@
         function prepareEditAppointment(app) {
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             document.getElementById('editApptId').value = app.id || '';
-            document.getElementById('apptPatientName').value = app.patient_name || app.patient || '';
+            document.getElementById('apptPatientName').value = app.patient_name || app.name || app.patient || '';
             document.getElementById('apptDate').value = app.date || app.appointment_date || app.visit_date || '';
             document.getElementById('apptTime').value = app.time || app.appointment_time || '';
-            if(app.visit_type) document.getElementById('apptType').value = app.visit_type;
+            if(app.visit_type || app.type) document.getElementById('apptType').value = app.visit_type || app.type;
             document.getElementById('addAppointmentModal').style.display = 'flex';
         }
 
@@ -236,17 +236,27 @@
             let time = document.getElementById('apptTime').value;
             let visit_type = document.getElementById('apptType').value;
 
+            // إرسال البيانات بجميع الاحتمالات الممكنة لأسماء الأعمدة لضمان النجاح التام
             let payload = {
                 patient_name: patient_name,
+                name: patient_name,
+                patient: patient_name,
                 date: date,
                 appointment_date: date,
+                visit_date: date,
                 time: time,
-                visit_type: visit_type
+                appointment_time: time,
+                visit_type: visit_type,
+                type: visit_type
             };
 
             if (id) {
                 let { error } = await supabaseClient.from('appointments').update(payload).eq('id', id);
-                if (error) { alert('خطأ أثناء التعديل: ' + error.message); return; }
+                if (error) {
+                    // محاولة ثانية لو حدث خطأ بخصوص عمود معين
+                    let { error: err2 } = await supabaseClient.from('appointments').update({ patient_name, date, time, visit_type }).eq('id', id);
+                    if (err2) { alert('خطأ أثناء التعديل: ' + err2.message); return; }
+                }
                 alert('✨ تم تحديث بيانات الموعد بنجاح!');
             } else {
                 payload.status = 'في الانتظار';
