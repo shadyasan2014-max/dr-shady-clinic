@@ -121,7 +121,7 @@
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
-                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">💾 حفظ التعديل</button>
+                    <button type="submit" class="action-btn" style="flex:2; justify-content:center;">💾 حفظ التعديل</button>
                     <button type="button" onclick="openAddDoctorModal()" class="action-btn" style="background:var(--accent-blue); flex:1; justify-content:center;">➕ إضافة طبيب جديد</button>
                     <button type="button" onclick="openEditDoctorModal()" class="action-btn" style="background:var(--warning-orange); flex:1; justify-content:center; color:#fff;">✏️ تعديل بيانات الطبيب</button>
                 </div>
@@ -137,7 +137,6 @@
                 <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="newDocName" class="form-control" required placeholder="مثال: د. أحمد محمد"></div>
                 <div class="form-group"><label>التخصص / المسمى الوظيفي:</label><input type="text" id="newDocTitle" class="form-control" placeholder="مثال: اخصائي التغذية العلاجية"></div>
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="newDocPhone" class="form-control" placeholder="010xxxxxxxx"></div>
-                <div class="form-group"><label>ملاحظات إضافية:</label><textarea id="newDocNotes" class="form-control" rows="2" placeholder="ملاحظات..."></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ في SQL</button>
@@ -213,16 +212,25 @@
             let name = document.getElementById('newDocName').value;
             let title = document.getElementById('newDocTitle').value;
             let phone = document.getElementById('newDocPhone').value;
-            let notes = document.getElementById('newDocNotes').value;
 
-            const { error } = await supabaseClient.from('doctors').insert([{ name, title, phone, notes }]);
+            // إرسال القيم معاً لتجنب أي قيود إجبارية لـ doctor_name أو name في جدول الأطباء
+            const { error } = await supabaseClient.from('doctors').insert([{ 
+                doctor_name: name, 
+                name: name, 
+                title: title, 
+                phone: phone 
+            }]);
+
             if (error) {
-                alert('خطأ أثناء الحفظ في جدول doctors: ' + error.message);
+                alert('خطأ أثناء الحفظ: ' + error.message);
                 return;
             }
 
-            alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى SQL!');
+            alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى جدول SQL!');
             closeAddDoctorModal();
+            document.getElementById('newDocName').value = '';
+            document.getElementById('newDocTitle').value = '';
+            document.getElementById('newDocPhone').value = '';
         }
 
         function openEditDoctorModal() {
@@ -239,7 +247,6 @@
             document.getElementById('doctorTitle').value = document.getElementById('editDocTitle').value;
             document.getElementById('clinicPhone').value = document.getElementById('editDocPhone').value;
             
-            // تنفيذ الحفظ التلقائي في قاعدة البيانات
             await saveClinicSettings(e);
             closeEditDoctorModal();
         }
