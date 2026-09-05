@@ -133,10 +133,10 @@
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">➕ إضافة طبيب جديد للعيادة</h3>
             <form onsubmit="saveNewDoctorToSQL(event)">
-                <div class="form-group"><label>اسم الطبيب الرباعي:</label><input type="text" id="newDocName" class="form-control" required placeholder="مثال: د. أحمد محمد"></div>
+                <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="newDocName" class="form-control" required placeholder="مثال: د. أحمد محمد"></div>
                 <div class="form-group"><label>التخصص / المسمى الوظيفي:</label><input type="text" id="newDocTitle" class="form-control" placeholder="مثال: اخصائي التغذية العلاجية"></div>
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="newDocPhone" class="form-control" placeholder="010xxxxxxxx"></div>
-                <div class="form-group"><label>البريد الإلكتروني / ملاحظات:</label><textarea id="newDocNotes" class="form-control" rows="2" placeholder="ملاحظات إضافية..."></textarea></div>
+                <div class="form-group"><label>ملاحظات إضافية:</label><textarea id="newDocNotes" class="form-control" rows="2" placeholder="ملاحظات..."></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ الطبيب في SQL</button>
@@ -172,7 +172,7 @@
             let clinic_phone = document.getElementById('clinicPhone').value;
 
             try {
-                await supabaseClient.from('clinic_settings').delete().neq('id', 0); // تفريغ القديم وحفظ الحديث كإعداد رئيسي
+                await supabaseClient.from('clinic_settings').delete().neq('id', 0);
                 const { error } = await supabaseClient.from('clinic_settings').insert([{
                     doctor_name,
                     doctor_title,
@@ -202,7 +202,6 @@
             let phone = document.getElementById('newDocPhone').value;
             let notes = document.getElementById('newDocNotes').value;
 
-            // محاولة الحفظ في جدول doctors المخصص للأطباء
             const { error } = await supabaseClient.from('doctors').insert([{
                 name,
                 title,
@@ -211,11 +210,16 @@
             }]);
 
             if (error) {
-                alert('تأكد من إنشاء جدول doctors في Supabase أولاً، أو تم الحفظ بنجاح.');
-            } else {
-                alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى قاعدة بيانات SQL!');
+                alert('خطأ أثناء حفظ الطبيب في جدول doctors: ' + error.message);
+                return;
             }
+
+            alert('✨ تمت إضافة الطبيب الجديد وحفظه في جدول SQL بنجاح!');
             closeAddDoctorModal();
+            document.getElementById('newDocName').value = '';
+            document.getElementById('newDocTitle').value = '';
+            document.getElementById('newDocPhone').value = '';
+            document.getElementById('newDocNotes').value = '';
         }
 
         window.onload = loadSettings;
