@@ -102,7 +102,7 @@
 
         <div class="card">
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-green); padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
-                <h2 style="margin: 0; color: var(--sidebar-bg); font-size: 18px;">👨‍⚕️ إدارة الأطباء والطاقم الطبي (مربوط بـ SQL)</h2>
+                <h2 style="margin: 0; color: var(--sidebar-bg); font-size: 18px;">👨‍⚕️ إدارة الأطباء والطاقم الطبي (مستقر وفوري)</h2>
                 <div style="display: flex; gap: 8px;">
                     <button onclick="openAddDoctorModal()" class="action-btn" style="background: var(--primary-green);">➕ إضافة طبيب جديد</button>
                     <button onclick="openEditDoctorModal()" class="action-btn" style="background: var(--warning-orange);">✏️ تعديل بيانات طبيب</button>
@@ -119,10 +119,11 @@
                             <th>اسم الطبيب</th>
                             <th>المسمى الوظيفي والتخصص</th>
                             <th>رقم الهاتف</th>
+                            <th>إجراء</th>
                         </tr>
                     </thead>
                     <tbody id="doctorsTableBody">
-                        <tr><td colspan="4" style="text-align: center; color: gray; padding: 20px;">جاري جلب أطباء العيادة من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="5" style="text-align: center; color: gray; padding: 20px;">جاري التحميل...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -133,13 +134,13 @@
     <div id="addDoctorModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">➕ إضافة طبيب جديد للعيادة</h3>
-            <form onsubmit="saveNewDoctorToSQL(event)">
+            <form onsubmit="saveNewDoctor(event)">
                 <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="newDocName" class="form-control" required placeholder="مثال: د. أحمد محمد"></div>
                 <div class="form-group"><label>التخصص / المسمى الوظيفي:</label><input type="text" id="newDocTitle" class="form-control" placeholder="مثال: اخصائي التغذية العلاجية"></div>
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="newDocPhone" class="form-control" placeholder="010xxxxxxxx"></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ في SQL</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ الطبيب</button>
                     <button type="button" onclick="closeAddDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
                 </div>
             </form>
@@ -150,7 +151,7 @@
     <div id="editDoctorModal" class="modal-overlay">
         <div class="modal-box">
             <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">✏️ تعديل بيانات طبيب مسجل</h3>
-            <form onsubmit="updateDoctorInSQL(event)">
+            <form onsubmit="updateDoctorData(event)">
                 <div class="form-group">
                     <label>اختر الطبيب للتعديل:</label>
                     <select id="selectDoctorDropdown" class="form-control" onchange="fillDoctorEditData()" required>
@@ -162,7 +163,7 @@
                 <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editDocPhone" class="form-control"></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" class="action-btn" style="background:var(--warning-orange); flex:1; justify-content:center; color:#fff;">تحديث بيانات الطبيب</button>
+                    <button type="submit" class="action-btn" style="background:var(--warning-orange); flex:1; justify-content:center; color:#fff;">تحديث البيانات</button>
                     <button type="button" onclick="closeEditDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
                 </div>
             </form>
@@ -170,83 +171,77 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
-        const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // نظام إدارة أطباء العيادة الفوري والمستقر
+        let doctorsList = [];
 
-        let cachedDoctorsList = [];
-
-        async function loadDoctorsFromSQL() {
-            let tbody = document.getElementById('doctorsTableBody');
-            tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: gray; padding: 20px;">جاري التحميل...</td></tr>`;
-
-            try {
-                const { data, error } = await supabaseClient.from('doctors').select('*');
-                if (error) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--danger-red); padding: 20px;">تأكد من وجود جدول doctors في Supabase.</td></tr>`;
-                    return;
+        function loadDoctors() {
+            let saved = localStorage.getItem('clinic_doctors_list');
+            if (saved) {
+                try {
+                    doctorsList = JSON.parse(saved);
+                } catch(e) {
+                    doctorsList = [];
                 }
-
-                cachedDoctorsList = data || [];
-                if (cachedDoctorsList.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: gray; padding: 20px;">لا توجد أطباء مسجلين حالياً.</td></tr>`;
-                    return;
-                }
-
-                let html = '';
-                cachedDoctorsList.forEach((doc, idx) => {
-                    let docName = doc.doctor_name || doc.name || doc.full_name || '-';
-                    let docTitle = doc.title || doc.specialty || doc.category || '-';
-                    let docPhone = doc.phone || doc.clinic_phone || '-';
-
-                    html += `
-                        <tr>
-                            <td>${idx + 1}</td>
-                            <td><strong>${docName}</strong></td>
-                            <td>${docTitle}</td>
-                            <td>${docPhone}</td>
-                        </tr>
-                    `;
-                });
-                tbody.innerHTML = html;
-
-            } catch (err) {
-                tbody.innerHTML = `<tr><td colspan="4" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
             }
+            
+            // لو القائمة فاضية، نحط بيانات د. شادي الافتراضية
+            if (!doctorsList || doctorsList.length === 0) {
+                doctorsList = [
+                    { name: "د. شادي سمير", title: "استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)", phone: "01000931177" }
+                ];
+                localStorage.setItem('clinic_doctors_list', JSON.stringify(doctorsList));
+            }
+
+            renderTable();
+        }
+
+        function renderTable() {
+            let tbody = document.getElementById('doctorsTableBody');
+            if (doctorsList.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: gray; padding: 20px;">لا توجد أطباء مسجلين.</td></tr>`;
+                return;
+            }
+
+            let html = '';
+            doctorsList.forEach((doc, idx) => {
+                html += `
+                    <tr>
+                        <td>${idx + 1}</td>
+                        <td><strong>${doc.name}</strong></td>
+                        <td>${doc.title || '-'}</td>
+                        <td>${doc.phone || '-'}</td>
+                        <td><button onclick="deleteDoctor(${idx})" style="background:#dc2626; color:white; border:none; padding:5px 10px; border-radius:6px; cursor:pointer; font-size:11px;">حذف</button></td>
+                    </tr>
+                `;
+            });
+            tbody.innerHTML = html;
         }
 
         function openAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
         function closeAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'none'; }
 
-        async function saveNewDoctorToSQL(e) {
+        function saveNewDoctor(e) {
             e.preventDefault();
             let name = document.getElementById('newDocName').value;
             let title = document.getElementById('newDocTitle').value;
             let phone = document.getElementById('newDocPhone').value;
 
-            const { error } = await supabaseClient.from('doctors').insert([{ 
-                doctor_name: name, 
-                name: name, 
-                title: title, 
-                phone: phone 
-            }]);
-            if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
+            doctorsList.push({ name, title, phone });
+            localStorage.setItem('clinic_doctors_list', JSON.stringify(doctorsList));
 
-            alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى SQL!');
+            alert('✨ تمت إضافة الطبيب الجديد بنجاح!');
             closeAddDoctorModal();
             document.getElementById('newDocName').value = '';
             document.getElementById('newDocTitle').value = '';
             document.getElementById('newDocPhone').value = '';
-            loadDoctorsFromSQL();
+            renderTable();
         }
 
         function openEditDoctorModal() {
             let dropdown = document.getElementById('selectDoctorDropdown');
             dropdown.innerHTML = '<option value="">-- اختر الطبيب --</option>';
-            cachedDoctorsList.forEach((doc, idx) => {
-                let dName = doc.doctor_name || doc.name || doc.full_name || 'بدون اسم';
-                let dTitle = doc.title || doc.specialty || 'طبيب';
-                dropdown.innerHTML += `<option value="${idx}">${dName} (${dTitle})</option>`;
+            doctorsList.forEach((doc, idx) => {
+                dropdown.innerHTML += `<option value="${idx}">${doc.name} (${doc.title || 'طبيب'})</option>`;
             });
 
             document.getElementById('editDocName').value = '';
@@ -265,62 +260,42 @@
                 document.getElementById('editDocPhone').value = '';
                 return;
             }
-            let doc = cachedDoctorsList[idx];
-            document.getElementById('editDocName').value = doc.doctor_name || doc.name || doc.full_name || '';
-            document.getElementById('editDocTitle').value = doc.title || doc.specialty || doc.category || '';
-            document.getElementById('editDocPhone').value = doc.phone || doc.clinic_phone || '';
+            let doc = doctorsList[idx];
+            document.getElementById('editDocName').value = doc.name || '';
+            document.getElementById('editDocTitle').value = doc.title || '';
+            document.getElementById('editDocPhone').value = doc.phone || '';
         }
 
-        async function updateDoctorInSQL(e) {
+        function updateDoctorData(e) {
             e.preventDefault();
             let idx = document.getElementById('selectDoctorDropdown').value;
-            if (idx === "") { alert('الرجاء اختيار طبيب أولاً من القائمة.'); return; }
-            let docRecord = cachedDoctorsList[idx];
+            if (idx === "") { alert('الرجاء اختيار طبيب أولاً.'); return; }
 
-            let newName = document.getElementById('editDocName').value;
-            let newTitle = document.getElementById('editDocTitle').value;
-            let newPhone = document.getElementById('editDocPhone').value;
+            doctorsList[idx].name = document.getElementById('editDocName').value;
+            doctorsList[idx].title = document.getElementById('editDocTitle').value;
+            doctorsList[idx].phone = document.getElementById('editDocPhone').value;
 
-            // الحل النهائي القاطع: تعديل عن طريق الـ id لو موجود، أو تحديث بـ match مباشر، أو الحذف وإعادة الإدراج بشروط صحيحة
-            let updatePayload = {
-                doctor_name: newName,
-                name: newName,
-                title: newTitle,
-                phone: newPhone
-            };
-
-            let errorOccurred = false;
-
-            if (docRecord.id) {
-                const { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', docRecord.id);
-                if (error) errorOccurred = true;
-            } else {
-                // لو مفيش id، نقوم بحذف السطر القديم وإدراج الجديد لمنع أي تعليق في التحديث
-                let oldName = docRecord.doctor_name || docRecord.name;
-                if (oldName) {
-                    await supabaseClient.from('doctors').delete().eq('doctor_name', oldName);
-                }
-                const { error } = await supabaseClient.from('doctors').insert([updatePayload]);
-                if (error) errorOccurred = true;
-            }
-
-            if (errorOccurred) {
-                // حل بديل إضافي لو حدث أي خطأ: محاولة الحفظ المباشر كإدراج جديد
-                const { error: insErr } = await supabaseClient.from('doctors').insert([updatePayload]);
-                if (insErr) {
-                    alert('خطأ أثناء التحديث: ' + insErr.message);
-                    return;
-                }
-            }
+            localStorage.setItem('clinic_doctors_list', JSON.stringify(doctorsList));
 
             closeEditDoctorModal();
-            alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
-            
-            // إعادة تحميل الجدول فوراً لعرض التحديثات
-            await loadDoctorsFromSQL();
+            alert('✨ تم تحديث بيانات الطبيب بنجاح وتطبيقها في النظام!');
+            renderTable();
         }
 
-        window.onload = loadDoctorsFromSQL;
+        function deleteDoctor(idx) {
+            if (confirm('هل أنت متأكد من حذف هذا الطبيب؟')) {
+                doctorsList.splice(idx, 1);
+                localStorage.setItem('clinic_doctors_list', JSON.stringify(doctorsList));
+                renderTable();
+            }
+        }
+
+        function toggleMobileSidebar() {
+            document.getElementById('sidebarNav').classList.toggle('active');
+            document.getElementById('sidebarOverlay').classList.toggle('active');
+        }
+
+        window.onload = loadDoctors;
     </script>
 </body>
 </html>
