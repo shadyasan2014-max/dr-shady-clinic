@@ -172,7 +172,7 @@
 
                 let html = '';
                 data.forEach((app, idx) => {
-                    let name = app.patient_name || app.name || app.patient || app.title || 'مريض';
+                    let name = app.patient_name || app.patient || app.title || 'مريض';
                     let date = app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.time || app.appointment_time || app.visit_time || '-';
                     let type = app.visit_type || app.type || app.category || 'متابعة';
@@ -221,7 +221,7 @@
         function prepareEditAppointment(app) {
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             let appId = app.id || '';
-            let appName = app.patient_name || app.name || app.patient || '';
+            let appName = app.patient_name || app.patient || '';
             let appDate = app.date || app.appointment_date || app.visit_date || '';
             let appTime = app.time || app.appointment_time || '';
             
@@ -245,23 +245,23 @@
             let time = document.getElementById('apptTime').value;
             let visit_type = document.getElementById('apptType').value;
 
-            // الحل القاطع للتعديل: حذف القديم وإدراج الجديد لتجنب أي مشاكل في الـ ID أو الـ Schema
+            // إرسال الأعمدة الصحيحة فقط المعتمدة في جدول appointments بدون عمود name المفقود
+            let cleanPayload = {
+                patient_name: patient_name,
+                date: date,
+                time: time,
+                visit_type: visit_type
+            };
+
             if (id || originalName) {
                 let delQuery = supabaseClient.from('appointments').delete();
                 if (id) delQuery = delQuery.eq('id', id);
-                else delQuery = delQuery.or(`patient_name.eq.${originalName},name.eq.${originalName}`);
+                else delQuery = delQuery.eq('patient_name', originalName);
                 await delQuery;
             }
 
-            let { error } = await supabaseClient.from('appointments').insert([{
-                patient_name: patient_name,
-                name: patient_name,
-                date: date,
-                appointment_date: date,
-                time: time,
-                visit_type: visit_type,
-                status: 'في الانتظار'
-            }]);
+            cleanPayload.status = 'في الانتظار';
+            let { error } = await supabaseClient.from('appointments').insert([cleanPayload]);
 
             if (error) { alert('خطأ أثناء الحفظ والتعديل: ' + error.message); return; }
 
@@ -277,7 +277,7 @@
             if (id && id !== 'undefined' && id !== 'null') {
                 query = query.eq('id', id);
             } else {
-                query = query.or(`patient_name.eq.${name},name.eq.${name}`);
+                query = query.eq('patient_name', name);
             }
 
             let { error } = await query;
