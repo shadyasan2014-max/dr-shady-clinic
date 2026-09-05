@@ -58,7 +58,7 @@
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 700px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 750px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
@@ -69,13 +69,15 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* تنسيق خاص للطباعة لتظهر بيانات الدكتور ثم المريض ثم المحتوى من أول السطر بدون فراغات */
+        /* تعديلات الطباعة لضمان ظهور كل محتوى التقرير بالكامل بدون أي قطع في الجوانب وبدون مسافات فارغة */
         @media print {
-            body { background: #fff !important; }
-            .sidebar, .mobile-menu-toggle, .top-header, .patient-actions-top, .modal-overlay, button { display: none !important; }
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: #fff !important; width: 100% !important; margin: 0 !important; }
+            .sidebar, .mobile-menu-toggle, .top-header, .patient-actions-top, .modal-overlay, button, .print-hide { display: none !important; }
             .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
             #comprehensiveReportModal { display: block !important; position: static !important; background: none !important; width: 100% !important; box-shadow: none !important; }
             .modal-box { width: 100% !important; max-height: none !important; box-shadow: none !important; padding: 0 !important; margin: 0 !important; overflow: visible !important; }
+            #reportContentBody { max-height: none !important; overflow: visible !important; font-size: 11px !important; }
         }
 
         @media (max-width: 950px) {
@@ -191,7 +193,7 @@
 
     <!-- نافذة التقرير الشامل عن الحالة -->
     <div id="comprehensiveReportModal" class="modal-overlay">
-        <div class="modal-box" style="width: 700px;">
+        <div class="modal-box" style="width: 750px;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:15px;" class="print-hide">
                 <h3 style="margin:0; font-size:16px; color:var(--sidebar-bg);">📄 التقرير الطبي والإكلينيكي الشامل للحالة</h3>
                 <button onclick="closeComprehensiveReportModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">✕</button>
@@ -345,11 +347,10 @@
                 let currentWeight = activePatient.weight || '111';
                 let currentPlan = activePatient.diet_plan || 'لم يتم كتابة خطة.';
                 let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
-                let previousPlan = activePatient.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملخ.`;
+                let previousPlan = activePatient.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
 
-                // ترتيب الطباعة المباشر: أولاً ترويسة الدكتور، ثانياً بيانات المريض الأساسية، ثم باقي السجلات بدون فراغات
                 let html = `
-                    <!-- ترويسة بيانات الدكتور والشعار للطباعة -->
+                    <!-- ترويسة بيانات الدكتور والشعار للطباعة الفورية -->
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 8px; margin-bottom: 12px;">
                         <div>
                             <h2 style="margin: 0; color: #064e3b; font-size: 16px;">د. شادي سمير</h2>
@@ -383,7 +384,7 @@
                     <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الخطط والأنظمة الغذائية
+                // 3. الخطط والأنظمة الغذائية (السابقة والحالية)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:3px; font-size:12px; margin:8px 0 4px 0;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                 
                 <div style="background:#fef3c7; border:1px solid #fde68a; padding:8px; border-radius:6px; margin-bottom:6px;">
