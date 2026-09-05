@@ -224,7 +224,6 @@
             let title = document.getElementById('newDocTitle').value;
             let phone = document.getElementById('newDocPhone').value;
 
-            // محاولة الحفظ مع دعم أسماء الأعمدة المحتملة
             const { error } = await supabaseClient.from('doctors').insert([{ name, title, phone }]);
             if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
 
@@ -244,23 +243,34 @@
                 let dTitle = doc.title || doc.specialty || 'طبيب';
                 dropdown.innerHTML += `<option value="${idx}">${dName} (${dTitle})</option>`;
             });
+
+            // تفريغ الحقول عند فتح المودال حتى يتم الاختيار بدقة
+            document.getElementById('editDocName').value = '';
+            document.getElementById('editDocTitle').value = '';
+            document.getElementById('editDocPhone').value = '';
+
             document.getElementById('editDoctorModal').style.display = 'flex';
         }
         function closeEditDoctorModal() { document.getElementById('editDoctorModal').style.display = 'none'; }
 
         function fillDoctorEditData() {
             let idx = document.getElementById('selectDoctorDropdown').value;
-            if (idx === "") return;
+            if (idx === "") {
+                document.getElementById('editDocName').value = '';
+                document.getElementById('editDocTitle').value = '';
+                document.getElementById('editDocPhone').value = '';
+                return;
+            }
             let doc = cachedDoctorsList[idx];
             document.getElementById('editDocName').value = doc.name || doc.doctor_name || doc.full_name || '';
-            document.getElementById('editDocTitle').value = doc.title || doc.specialty || '';
+            document.getElementById('editDocTitle').value = doc.title || doc.specialty || doc.category || '';
             document.getElementById('editDocPhone').value = doc.phone || doc.clinic_phone || '';
         }
 
         async function updateDoctorInSQL(e) {
             e.preventDefault();
             let idx = document.getElementById('selectDoctorDropdown').value;
-            if (idx === "") { alert('الرجاء اختيار طبيب أولاً.'); return; }
+            if (idx === "") { alert('الرجاء اختيار طبيب أولاً من القائمة.'); return; }
             let docId = cachedDoctorsList[idx].id;
 
             let name = document.getElementById('editDocName').value;
