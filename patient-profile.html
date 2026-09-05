@@ -69,14 +69,15 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* تنسيق الطباعة العامة للصفحة */
+        /* تخصيص طباعة الصفحة العامة (عند الضغط على طباعة الصفحة) */
         @media print {
-            @page { size: A4 portrait; margin: 10mm; }
-            body { background: #fff !important; }
-            .sidebar, .mobile-menu-toggle, .patient-actions-top, .modal-overlay, button, .print-hide { display: none !important; }
-            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
-            .patient-header-card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; }
-            .card { box-shadow: none !important; border: 1px solid #cbd5e1 !important; break-inside: avoid; }
+            body.print-full-page { background: #fff !important; }
+            body.print-full-page .sidebar, 
+            body.print-full-page .mobile-menu-toggle, 
+            body.print-full-page .patient-actions-top, 
+            body.print-full-page .modal-overlay, 
+            body.print-full-page button { display: none !important; }
+            body.print-full-page .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
         }
 
         @media (max-width: 950px) {
@@ -146,8 +147,8 @@
                     </div>
                 </div>
                 <div class="patient-actions-top">
-                    <!-- زرار طباعة الصفحة بالكامل المضاف حديثاً -->
-                    <button class="top-action-btn" onclick="window.print()" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;"><span>🖨️</span> طباعة الصفحة</button>
+                    <!-- زرار طباعة الصفحة بالكامل -->
+                    <button class="top-action-btn" onclick="printFullPatientPage()" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;"><span>🖨️</span> طباعة الصفحة</button>
                     <button class="top-action-btn" onclick="openComprehensiveReportModal()"><span>📄</span> تقرير عن الحالة</button>
                     <button class="top-action-btn" onclick="openEditModal()"><span>✏️</span> تعديل الحالة</button>
                     <button class="top-action-btn" onclick="openFollowupModal()"><span>➕</span> تسجيل متابعة</button>
@@ -205,7 +206,8 @@
             </div>
 
             <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
-                <button onclick="window.print()" class="top-action-btn" style="background:var(--primary-green); color:white;">🖨️ طباعة التقرير</button>
+                <!-- زرار طباعة التقرير المستقل والمخصص -->
+                <button onclick="printReportModalContent()" class="top-action-btn" style="background:var(--primary-green); color:white;">🖨️ طباعة التقرير</button>
                 <button onclick="closeComprehensiveReportModal()" class="top-action-btn" style="background:#64748b; color:white;">إغلاق</button>
             </div>
         </div>
@@ -410,6 +412,42 @@
                 console.error("Error generating report:", err);
                 bodyDiv.innerHTML = `<div style="color:var(--danger-red); text-align:center; padding:15px;">حدث خطأ أثناء جلب تقرير الحالة.</div>`;
             }
+        }
+
+        // دالة طباعة محتوى نافذة التقرير فقط
+        function printReportModalContent() {
+            let reportHtml = document.getElementById('reportContentBody').innerHTML;
+            let printWindow = window.open('', '_blank', 'width=800,height=900');
+            printWindow.document.write(`
+                <!DOCTYPE html>
+                <html lang="ar" dir="rtl">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>طباعة التقرير الطبي الشامل</title>
+                    <style>
+                        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; padding: 15px; color: #1e293b; margin: 0; font-size: 11px; line-height: 1.5; }
+                        h2, h3, h4 { margin: 4px 0; }
+                        ul { margin: 0; padding-right: 15px; }
+                        div { box-sizing: border-box; }
+                    </style>
+                </head>
+                <body>
+                    ${reportHtml}
+                    <script>
+                        window.onload = function() {
+                            window.print();
+                            window.close();
+                        };
+                    <\/script>
+                </body>
+                </html>
+            `);
+            printWindow.document.close();
+        }
+
+        // دالة طباعة صفحة ملف المريض بالكامل
+        function printFullPatientPage() {
+            window.print();
         }
 
         function closeComprehensiveReportModal() {
