@@ -438,6 +438,7 @@
                     appData.forEach(app => {
                         let appDate = String(app.appt_date || app.date || app.appointment_date || '').trim();
                         
+                        // مطابقة مواعيد اليوم تماماً
                         if (appDate === todaySqlStr || appDate.startsWith(todaySqlStr)) {
                             todayAppointments.push(app);
                         }
@@ -467,10 +468,19 @@
                     });
                 }
 
-                // حساب أرقام التنبيهات الذكية الحقيقية بمرونة تامة بناءً على توافر الجداول والبيانات
-                let delayedCount = patData ? Math.min(patData.length, 1) : 0;
-                let labsCount = labsData ? labsData.length : 2;
-                let successCount = barData ? barData.length : 2;
+                let delayedCount = 0;
+                let labsCount = labsData ? labsData.length : 0;
+                let successCount = 0;
+
+                if (patData) {
+                    patData.forEach(p => {
+                        let wStart = parseFloat(p.initial_weight || p.weight || 0);
+                        let wCurr = parseFloat(p.current_weight || p.weight || 0);
+                        if (wStart > 0 && wCurr > 0 && wCurr <= wStart * 0.9) {
+                            successCount++;
+                        }
+                    });
+                }
 
                 let totalRevenue = 0;
                 if (payData) {
@@ -480,12 +490,12 @@
                 }
 
                 document.getElementById('statRevenue').innerText = totalRevenue.toLocaleString() + ' EGP';
+                // ربط عداد مواعيد اليوم بعدد مواعيد اليوم الحقيقية فقط ليتطابق مع الجدول
+                document.getElementById('statAppointments').innerText = todayAppointments.length;
                 document.getElementById('statFollowups').innerText = todayAppointments.length;
-                document.getElementById('statAppointments').innerText = appData ? appData.length : 0;
                 document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
                 document.getElementById('statTodayTotal').innerText = totalPat;
 
-                // تحديث القيم الفعليّة لبطاقات التنبيهات الذكية
                 document.getElementById('alertDelayedCount').innerText = delayedCount;
                 document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
                 document.getElementById('alertLabsCount').innerText = labsCount;
