@@ -101,7 +101,6 @@
                 ⚙️ إعدادات النظام وإدارة الأطباء (مربوط بـ SQL)
             </h2>
 
-            <!-- قائمة اختيار الطبيب للتعديل أو الحذف بضغطة زر -->
             <div class="form-group" style="background:#f1f5f9; padding:15px; border-radius:12px; border:1px solid var(--card-border); margin-bottom:20px;">
                 <label style="color:var(--sidebar-bg); font-size:14px; margin-bottom:8px;">👨‍⚕️ اختر طبيباً للتعديل أو الحذف:</label>
                 <div style="display:flex; gap:10px; flex-wrap:wrap;">
@@ -177,14 +176,6 @@
                     let title = doc.title || doc.specialty || '';
                     dropdown.innerHTML += `<option value="${idx}">${name} (${title})</option>`;
                 });
-
-                // تحميل أول طبيب افتراضياً في الحقول لو متاح
-                if (cachedDoctors.length > 0) {
-                    document.getElementById('doctorName').value = cachedDoctors[0].doctor_name || cachedDoctors[0].name || '';
-                    document.getElementById('doctorTitle').value = cachedDoctors[0].title || cachedDoctors[0].specialty || '';
-                    document.getElementById('clinicPhone').value = cachedDoctors[0].phone || '';
-                    document.getElementById('selectedDoctorId').value = cachedDoctors[0].id || '';
-                }
             } catch(e) {}
         }
 
@@ -206,7 +197,12 @@
             let title = document.getElementById('doctorTitle').value;
             let phone = document.getElementById('clinicPhone').value;
 
-            let payload = {
+            if (!id) {
+                alert('الرجاء اختيار طبيب أولاً من القائمة العلوية لتعديله.');
+                return;
+            }
+
+            let updatePayload = {
                 doctor_name: name,
                 name: name,
                 title: title,
@@ -214,31 +210,21 @@
                 phone: phone
             };
 
-            if (id) {
-                let { error } = await supabaseClient.from('doctors').update(payload).eq('id', id);
-                if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
-                alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
-            } else {
-                let { error } = await supabaseClient.from('doctors').insert([payload]);
-                if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
-                alert('✨ تم حفظ الطبيب الجديد في SQL بنجاح!');
-            }
+            let { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', id);
+            if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
-            loadDoctorsDropdown();
+            alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
+            await loadDoctorsDropdown(); // تحديث القائمة فوراً
         }
 
         async function deleteSelectedDoctor() {
             let id = document.getElementById('selectedDoctorId').value;
             let name = document.getElementById('doctorName').value;
-            if (!id && !name) { alert('الرجاء اختيار طبيب من القائمة أولاً للحذف.'); return; }
+            if (!id) { alert('الرجاء اختيار طبيب من القائمة أولاً للحذف.'); return; }
 
             if (!confirm(`هل أنت متأكد من حذف الطبيب (${name})؟`)) return;
 
-            let query = supabaseClient.from('doctors').delete();
-            if (id) query = query.eq('id', id);
-            else query = query.eq('name', name);
-
-            let { error } = await query;
+            let { error } = await supabaseClient.from('doctors').delete().eq('id', id);
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
 
             alert('🗑️ تم حذف الطبيب بنجاح.');
@@ -246,7 +232,7 @@
             document.getElementById('doctorTitle').value = '';
             document.getElementById('clinicPhone').value = '';
             document.getElementById('selectedDoctorId').value = '';
-            loadDoctorsDropdown();
+            await loadDoctorsDropdown(); // تحديث القائمة فوراً
         }
 
         function openAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
@@ -273,7 +259,7 @@
             document.getElementById('newDocName').value = '';
             document.getElementById('newDocTitle').value = '';
             document.getElementById('newDocPhone').value = '';
-            loadDoctorsDropdown();
+            await loadDoctorsDropdown(); // تحديث القائمة فوراً
         }
 
         window.onload = loadDoctorsDropdown;
