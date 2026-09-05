@@ -237,7 +237,7 @@
 
         function openEditDoctorModal() {
             let dropdown = document.getElementById('selectDoctorDropdown');
-            dropdown.innerHTML = '<option value="">-- اختر الطبيب --</option>';
+            dropdown.innerHTML = '<option value="">-- اختر الطبيب -- حمّل القائمة --</option>';
             cachedDoctorsList.forEach((doc, idx) => {
                 let dName = doc.name || doc.doctor_name || doc.full_name || 'بدون اسم';
                 let dTitle = doc.title || doc.specialty || 'طبيب';
@@ -277,25 +277,22 @@
             let title = document.getElementById('editDocTitle').value;
             let phone = document.getElementById('editDocPhone').value;
 
-            let updatePayload = {};
-            if ('name' in docRecord) updatePayload.name = name;
-            else if ('doctor_name' in docRecord) updatePayload.doctor_name = name;
-            else updatePayload.name = name;
-
-            if ('title' in docRecord) updatePayload.title = title;
-            else if ('specialty' in docRecord) updatePayload.specialty = title;
-            else updatePayload.title = title;
-
-            if ('phone' in docRecord) updatePayload.phone = phone;
-            else if ('clinic_phone' in docRecord) updatePayload.clinic_phone = phone;
-            else updatePayload.phone = phone;
+            // إرسال التحديث لجميع الاحتمالات المتاحة للأعمدة لضمان حفظها في الـ SQL بدون تفويت أي عمود
+            let updatePayload = {
+                name: name,
+                title: title,
+                phone: phone,
+                doctor_name: name,
+                specialty: title,
+                clinic_phone: phone
+            };
 
             const { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', docId);
             if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
             closeEditDoctorModal();
-            loadDoctorsFromSQL(); // تحديث الجدول فوراً بعد الحفظ
+            await loadDoctorsFromSQL(); // إعادة تحميل الجدول فوراً لعرض البيانات المحدثة
         }
 
         window.onload = loadDoctorsFromSQL;
