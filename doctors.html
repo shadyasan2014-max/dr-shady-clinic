@@ -237,7 +237,7 @@
 
         function openEditDoctorModal() {
             let dropdown = document.getElementById('selectDoctorDropdown');
-            dropdown.innerHTML = '<option value="">-- اختر الطبيب -- حمّل القائمة --</option>';
+            dropdown.innerHTML = '<option value="">-- اختر الطبيب --</option>';
             cachedDoctorsList.forEach((doc, idx) => {
                 let dName = doc.name || doc.doctor_name || doc.full_name || 'بدون اسم';
                 let dTitle = doc.title || doc.specialty || 'طبيب';
@@ -277,14 +277,11 @@
             let title = document.getElementById('editDocTitle').value;
             let phone = document.getElementById('editDocPhone').value;
 
-            // إرسال التحديث لجميع الاحتمالات المتاحة للأعمدة لضمان حفظها في الـ SQL بدون تفويت أي عمود
+            // إرسال الأعمدة الصحيحة فقط الخاصة بجدول الأطباء لتجنب أي خطأ في الـ schema
             let updatePayload = {
                 name: name,
                 title: title,
-                phone: phone,
-                doctor_name: name,
-                specialty: title,
-                clinic_phone: phone
+                phone: phone
             };
 
             const { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', docId);
@@ -292,7 +289,7 @@
 
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
             closeEditDoctorModal();
-            await loadDoctorsFromSQL(); // إعادة تحميل الجدول فوراً لعرض البيانات المحدثة
+            await loadDoctorsFromSQL(); // تحديث الجدول فوراً
         }
 
         window.onload = loadDoctorsFromSQL;
