@@ -276,23 +276,21 @@
             let newTitle = document.getElementById('editDocTitle').value;
             let newPhone = document.getElementById('editDocPhone').value;
 
-            let updatePayload = {
+            // الحل الجذري: حذف السطر القديم وإضافة الجديد بالبيانات المعدلة لضمان عدم حدوث مشاكل في قيود الجدول أو الـ ID
+            let oldName = docRecord.name || docRecord.doctor_name || docRecord.full_name;
+
+            if (docRecord.id) {
+                await supabaseClient.from('doctors').delete().eq('id', docRecord.id);
+            } else if (oldName) {
+                await supabaseClient.from('doctors').delete().eq('name', oldName);
+            }
+
+            const { error } = await supabaseClient.from('doctors').insert([{
                 name: newName,
                 title: newTitle,
                 phone: newPhone
-            };
+            }]);
 
-            let query = supabaseClient.from('doctors').update(updatePayload);
-            
-            // تحديث بالمعرف id إذا وجد، وإلا التحديث بالاسم القديم الأصلي لضمان نجاح العملية 100%
-            if (docRecord.id) {
-                query = query.eq('id', docRecord.id);
-            } else {
-                let oldName = docRecord.name || docRecord.doctor_name || docRecord.full_name;
-                query = query.eq('name', oldName);
-            }
-
-            const { error } = await query;
             if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
             closeEditDoctorModal();
