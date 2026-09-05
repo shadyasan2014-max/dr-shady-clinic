@@ -136,7 +136,6 @@
                     </div>
                 </div>
                 <div class="patient-actions-top">
-                    <button class="top-action-btn" onclick="printFullPatientPage()" style="background: #f0fdf4; border-color: #bbf7d0; color: #166534;"><span>🖨️</span> طباعة الصفحة</button>
                     <button class="top-action-btn" onclick="openComprehensiveReportModal()"><span>📄</span> تقرير عن الحالة</button>
                     <button class="top-action-btn" onclick="openEditModal()"><span>✏️</span> تعديل الحالة</button>
                     <button class="top-action-btn" onclick="openFollowupModal()"><span>➕</span> تسجيل متابعة</button>
@@ -339,59 +338,59 @@
                 let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
                 let previousPlan = activePatient.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
 
-                // تكبير خطوط التقرير المخصص للطباعة لتكون واضحة ومريحة للعين (حجم 13px - 14px)
+                // تكبير الخطوط للضعف (حجم 22px-26px للعناوين و 20px للنصوص) لتكون واضحة وفخمة جداً أثناء الطباعة
                 let html = `
-                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 12px; margin-bottom: 15px;">
                         <div>
-                            <h2 style="margin: 0; color: #064e3b; font-size: 18px;">د. شادي سمير</h2>
-                            <p style="margin: 3px 0 0 0; color: #059669; font-weight: bold; font-size: 12px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                            <h2 style="margin: 0; color: #064e3b; font-size: 26px;">د. شادي سمير</h2>
+                            <p style="margin: 4px 0 0 0; color: #059669; font-weight: bold; font-size: 18px;">استشاري التغذية العلاجية وجراحات السمنة</p>
                         </div>
                         <div style="text-align: left;">
-                            <img src="logo2.png" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;" onerror="this.src='logo.jpeg'">
+                            <img src="logo2.png" style="width: 60px; height: 60px; border-radius: 50%; object-fit: cover; border: 3px solid #059669;" onerror="this.src='logo.jpeg'">
                         </div>
                     </div>
 
-                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
-                        <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg); font-size:14px;">👤 بيانات المريض الأساسية</h4>
-                        <p style="margin:0; font-size:13px;"><strong>الاسم:</strong> ${name} | <strong>الكود:</strong> ${code} | <strong>الهاتف:</strong> ${activePatient.phone || 'غير مسجل'}</p>
-                        <p style="margin:3px 0 0 0; color:var(--text-gray); font-size:11px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
+                    <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:15px;">
+                        <h4 style="margin:0 0 6px 0; color:var(--sidebar-bg); font-size:22px;">👤 بيانات المريض الأساسية</h4>
+                        <p style="margin:0; font-size:20px;"><strong>الاسم:</strong> ${name} | <strong>الكود:</strong> ${code} | <strong>الهاتف:</strong> ${activePatient.phone || 'غير مسجل'}</p>
+                        <p style="margin:4px 0 0 0; color:var(--text-gray); font-size:16px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:12px; line-height:1.6;">
+                    <h4 style="color:var(--primary-green); border-bottom:2px solid #eee; padding-bottom:6px; font-size:22px; margin:15px 0 8px 0;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
+                    <ul style="margin:0; padding-right:25px; font-size:19px; line-height:1.7;">
                         <li><strong>📅 ${currDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل المتابعة الحالية وتحديث الوزن (${currentWeight} كجم)</li>
                         <li><strong>📅 ${prevDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة السابقة وتعديل النظام الغذائي</li>
                         <li><strong>📅 ${surgeryDate}</strong> | نوع الزيارة: زيارة إجراء العملية | التفاصيل: تاريخ إجراء العملية الإكلينيكية</li>
                     </ul>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:12px; line-height:1.6;">
+                    <h4 style="color:var(--primary-green); border-bottom:2px solid #eee; padding-bottom:6px; font-size:22px; margin:15px 0 8px 0;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
+                    <ul style="margin:0; padding-right:25px; font-size:19px; line-height:1.7;">
                         <li><strong>📅 ${currDate}</strong> | الوزن الحالي: ${currentWeight} كجم | BMI: 40.8 | الدهون: -%</li>
                         <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                     </ul>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
+                    <h4 style="color:var(--primary-green); border-bottom:2px solid #eee; padding-bottom:6px; font-size:22px; margin:15px 0 8px 0;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                     
-                    <div style="background:#fef3c7; border:1px solid #fde68a; padding:10px; border-radius:8px; margin-bottom:8px;">
-                        <span style="font-size:12px; color:#b45309; font-weight:bold; display:block; margin-bottom:4px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
-                        <div style="font-size:12.5px; color:#78350f; white-space:pre-line; line-height:1.6;">${previousPlan}</div>
+                    <div style="background:#fef3c7; border:1px solid #fde68a; padding:12px; border-radius:8px; margin-bottom:12px;">
+                        <span style="font-size:18px; color:#b45309; font-weight:bold; display:block; margin-bottom:5px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
+                        <div style="font-size:19px; color:#78350f; white-space:pre-line; line-height:1.7;">${previousPlan}</div>
                     </div>
 
-                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:8px; margin-bottom:8px;">
-                        <span style="font-size:12px; color:#166534; font-weight:bold; display:block; margin-bottom:4px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
-                        <div style="font-size:12.5px; color:#14532d; white-space:pre-line; line-height:1.6;">${currentPlan}</div>
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:12px;">
+                        <span style="font-size:18px; color:#166534; font-weight:bold; display:block; margin-bottom:5px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
+                        <div style="font-size:19px; color:#14532d; white-space:pre-line; line-height:1.7;">${currentPlan}</div>
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
-                    <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:8px; margin-bottom:8px; font-size:12.5px; color:var(--text-dark); white-space:pre-line; line-height:1.6;">
+                    <h4 style="color:var(--primary-green); border-bottom:2px solid #eee; padding-bottom:6px; font-size:22px; margin:15px 0 8px 0;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
+                    <div style="background:#f8fafc; border:1px solid var(--card-border); padding:12px; border-radius:8px; margin-bottom:12px; font-size:19px; color:var(--text-dark); white-space:pre-line; line-height:1.7;">
                         ${doctorNotes}
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">🩺 جراحات السمنة والعمليات</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:12px; line-height:1.6;"><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
+                    <h4 style="color:var(--primary-green); border-bottom:2px solid #eee; padding-bottom:6px; font-size:22px; margin:15px 0 8px 0;">🩺 جراحات السمنة والعمليات</h4>
+                    <ul style="margin:0; padding-right:25px; font-size:19px; line-height:1.7;"><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">💰 المعاملات المالية والكشوفات</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:12px; line-height:1.6;"><li>التاريخ: ${currDate} | الخدمة: متابعة إكلينيكية | المبلغ: 200 جنيه</li></ul>
+                    <h4 style="color:var(--primary-green); border-bottom:2px solid #eee; padding-bottom:6px; font-size:22px; margin:15px 0 8px 0;">💰 المعاملات المالية والكشوفات</h4>
+                    <ul style="margin:0; padding-right:25px; font-size:19px; line-height:1.7;"><li>التاريخ: ${currDate} | الخدمة: متابعة إكلينيكية | المبلغ: 200 جنيه</li></ul>
                 `;
 
                 bodyDiv.innerHTML = html;
@@ -402,10 +401,10 @@
             }
         }
 
-        // دالة طباعة مخصصة ومكبرة الخط للتقرير الطبي
+        // دالة طباعة مخصصة ومكبرة الخطوط للتقرير الطبي
         function printReportModalContent() {
             let reportHtml = document.getElementById('reportContentBody').innerHTML;
-            let printWindow = window.open('', '_blank', 'width=850,height=1000');
+            let printWindow = window.open('', '_blank', 'width=900,height=1000');
             printWindow.document.write(`
                 <!DOCTYPE html>
                 <html lang="ar" dir="rtl">
@@ -413,9 +412,9 @@
                     <meta charset="UTF-8">
                     <title>طباعة التقرير الطبي الشامل</title>
                     <style>
-                        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; padding: 20px; color: #1e293b; margin: 0; font-size: 13px; line-height: 1.6; }
-                        h2, h3, h4 { margin: 6px 0; }
-                        ul { margin: 0; padding-right: 20px; }
+                        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; padding: 25px; color: #1e293b; margin: 0; font-size: 19px; line-height: 1.7; }
+                        h2, h3, h4 { margin: 8px 0; }
+                        ul { margin: 0; padding-right: 25px; }
                         div { box-sizing: border-box; }
                     </style>
                 </head>
@@ -431,11 +430,6 @@
                 </html>
             `);
             printWindow.document.close();
-        }
-
-        // دالة طباعة صفحة ملف المريض بالكامل
-        function printFullPatientPage() {
-            window.print();
         }
 
         function closeComprehensiveReportModal() {
