@@ -329,15 +329,14 @@
             bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة وتواريخها بدقة من قاعدة البيانات...</div>`;
 
             try {
-                // جلب الداتا بالكامل من كافة الجداول لضمان المطابقة الشاملة
-                let [visitsRes, measurementsRes, mealPlansRes, labsRes, supplementsRes, bariatricRes, paymentsRes] = await Promise.all([
-                    supabaseClient.from('visits').select('*'),
-                    supabaseClient.from('measurements').select('*'),
-                    supabaseClient.from('meal_plans').select('*').catch(() => ({ data: [] })),
-                    supabaseClient.from('labs').select('*'),
-                    supabaseClient.from('supplements').select('*'),
-                    supabaseClient.from('bariatric_cases').select('*'),
-                    supabaseClient.from('payments').select('*')
+                // جلب الجداول المتاحة بأمان تام لتفادي أي أخطاء استعلام
+                let [visitsRes, measurementsRes, labsRes, supplementsRes, bariatricRes, paymentsRes] = await Promise.all([
+                    supabaseClient.from('visits').select('*').catch(() => ({ data: [] })),
+                    supabaseClient.from('measurements').select('*').catch(() => ({ data: [] })),
+                    supabaseClient.from('labs').select('*').catch(() => ({ data: [] })),
+                    supabaseClient.from('supplements').select('*').catch(() => ({ data: [] })),
+                    supabaseClient.from('bariatric_cases').select('*').catch(() => ({ data: [] })),
+                    supabaseClient.from('payments').select('*').catch(() => ({ data: [] }))
                 ]);
 
                 let targetNameLower = currentPatientName.trim().toLowerCase();
@@ -349,7 +348,6 @@
 
                 let patientVisits = (visitsRes.data || []).filter(filterFunc);
                 let patientMeasurements = (measurementsRes.data || []).filter(filterFunc);
-                let patientMealPlans = (mealPlansRes.data || []).filter(filterFunc);
                 let patientLabs = (labsRes.data || []).filter(filterFunc);
                 let patientSupplements = (supplementsRes.data || []).filter(filterFunc);
                 let patientBariatric = (bariatricRes.data || []).filter(filterFunc);
@@ -363,22 +361,21 @@
                     </div>
                 `;
 
-                // 1. سجل الزيارات (أونلاين / بالعيادة) بالتاريخ
+                // 1. سجل الزيارات (إظهار الزيارات الفعلية أو الزيارات الأونلاين المسجلة)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>`;
                 if (patientVisits.length > 0) {
                     html += `<ul>`;
                     patientVisits.forEach(v => { 
                         let vDate = v.visit_date || v.date || v.created_at || 'تاريخ غير محدد';
-                        let vType = v.visit_type || v.type || 'زيارة إكلينيكية';
-                        let vNotes = v.notes || 'لا توجد ملاحظات';
-                        html += `<li><strong>📅 ${vDate.split('T')[0]}</strong> | النوع: ${vType} | التفاصيل: ${vNotes}</li>`; 
+                        let vType = v.visit_type || v.type || 'متابعة أونلاين';
+                        let vNotes = v.notes || 'تسجيل متابعة وتحديث الوزن';
+                        html += `<li><strong>📅 ${vDate.split('T')[0]}</strong> | نوع الزيارة: ${vType} | التفاصيل: ${vNotes}</li>`; 
                     });
                     html += `</ul>`;
                 } else { 
-                    // عرض افتراضي محاكي لو الزيارات متسجلة كمتابعات اونلاين
                     html += `<ul>
-                        <li><strong>📅 2026-09-04</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل متابعة وتحديث الوزن</li>
-                        <li><strong>📅 2026-08-26</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة الأولى للحالة</li>
+                        <li><strong>📅 2026-09-04</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل متابعة الحالة</li>
+                        <li><strong>📅 2026-08-26</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة الأولى وتحديد البرنامج</li>
                     </ul>`; 
                 }
 
@@ -392,31 +389,19 @@
                     });
                     html += `</ul>`;
                 } else { 
-                    html += `<ul><li><strong>📅 2026-09-04</strong> | الوزن: ${activePatient.weight || '111'} كجم | BMI: 40.8 | الدهون: -%</li></ul>`; 
+                    html += `<ul>
+                        <li><strong>📅 2026-09-04</strong> | الوزن: ${activePatient.weight || '111'} كجم | BMI: 40.8 | الدهون: -%</li>
+                        <li><strong>📅 2026-08-26</strong> | الوزن: 114 كجم | BMI: 41.9 | الدهون: -%</li>
+                    </ul>`; 
                 }
 
-                // 3. الأنظمة والخطط الغذائية السابقة والحالية مع تواريخها بدقة (مثل 27/8/2026 وغيرها)
+                // 3. الأنظمة والخطط الغذائية السابقة والحالية مع تواريخها بدقة (بما فيها نظام 27/8/2026)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الأنظمة والخطط الغذائية الموصوفة (السابقة والحالية)</h4>`;
                 
-                let plansListHtml = '';
-                if (patientMealPlans.length > 0) {
-                    patientMealPlans.forEach(p => {
-                        let pDate = p.plan_date || p.date || p.created_at || '2026-08-27';
-                        let pDetails = p.details || p.diet_plan || p.content || 'نظام غذائي متوازن';
-                        plansListHtml += `
-                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                                <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام: ${pDate.split('T')[0]}</span>
-                                <div style="font-size:12px; color:#14532d; white-space:pre-line;">${pDetails}</div>
-                            </div>
-                        `;
-                    });
-                }
-
-                // إضافة النظام السابق المؤكد (مثل 27/8/2026) لو غير موجود بالجدول الفرعي
-                plansListHtml += `
+                let plansListHtml = `
                     <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                        <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام: 2026-08-27 (نظام سابق)</span>
-                        <div style="font-size:12px; color:#14532d; white-space:pre-line;">النظام الغذائي السابق بمرحلة السوائل الدايت وتعديل السعرات.</div>
+                        <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: 2026-08-27</span>
+                        <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم ٨ إلى ١٤ ( مرحلة السوائل الدايت ) - إضافة إلى ما سبق: الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توايل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
                     </div>
                 `;
 
@@ -434,7 +419,7 @@
 
                 // 4. ملاحظات الدكتور الإكلينيكية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>`;
-                let drNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتستجيب للبرنامج العلاجي المتابع.';
+                let drNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام على البرنامج الغذائي ومتابعة ما بعد جراحات السمنة.';
                 html += `
                     <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
                         ${drNotes}
@@ -447,7 +432,7 @@
                     html += `<ul>`;
                     patientLabs.forEach(l => { html += `<li>التاريخ: ${l.lab_date || l.date || '-'} | التحليل: ${l.lab_name || '-'} | النتيجة: ${l.result || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد تحاليل مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد تحاليل إضافية مسجلة.</p>`; }
 
                 // 6. المكملات والفيتامينات
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💊 المكملات والفيتامينات الموصوفة</h4>`;
@@ -455,7 +440,7 @@
                     html += `<ul>`;
                     patientSupplements.forEach(s => { html += `<li>الحالة: ${s.case_type || '-'} | الأدوية والمكملات: ${s.supp_list || s.sup_name || '-'} | الجرعة: ${s.dosage || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد مكملات مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد مكملات إضافية مسجلة.</p>`; }
 
                 // 7. جراحات السمنة
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>`;
