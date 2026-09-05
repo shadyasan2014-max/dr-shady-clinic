@@ -7,31 +7,30 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
-            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
-            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
-            --card-bg: #ffffff;             /* خلفية البطاقات */
-            --card-border: #e2e8f0;         /* حدود خفيفة */
-            --primary-green: #059669;       /* الأخضر الرئيسي */
-            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
-            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
-            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
-            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
-            --text-gray: #64748b;           /* نصوص رمادية */
+            --sidebar-bg: #064e3b;          
+            --main-bg: #f8fafc;             
+            --card-bg: #ffffff;             
+            --card-border: #e2e8f0;         
+            --primary-green: #059669;       
+            --accent-blue: #0284c7;         
+            --warning-orange: #f59e0b;      
+            --danger-red: #dc2626;          
+            --text-dark: #1e293b;           
+            --text-gray: #64748b;           
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
         .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
         
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
-        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -40,26 +39,16 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid var(--card-border); }
-        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; }
+        .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .action-btn { background: var(--primary-green); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .action-btn:hover { opacity: 0.9; }
 
-        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
-        
-        select, .form-select { 
-            border: 2px solid var(--warning-orange) !important; 
-            color: #92400e !important; 
-            background-color: #fffbeb !important; 
-            font-weight: bold !important; 
-            border-radius: 8px !important; 
-            padding: 9px 12px !important; 
-            width: 100% !important;
-            box-sizing: border-box !important;
-        }
-        select option { background-color: #ffffff !important; color: #1e293b !important; padding: 10px !important; }
-
-        .action-btn { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -81,7 +70,7 @@
             <div class="sidebar-brand">
                 <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
-                <p>استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)</p>
+                <p>استشاري التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
@@ -107,36 +96,70 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div class="top-header">
-            <div>
-                <h1>⚙️ إعدادات النظام وتخصيص العيادة (مربوط بـ SQL)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة بيانات الطبيب واللوجو وشعار العيادة</p>
-            </div>
-        </div>
-
         <div class="card">
-            <form onsubmit="saveSettingsToSQL(event)">
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم الطبيب ولقبه الأكاديمي:</label>
-                    <input type="text" id="docNameInput" class="form-control" value="د. شادي سمير" required>
+            <h2 style="margin-top:0; color:var(--sidebar-bg); font-size:18px; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:20px;">
+                ⚙️ إعدادات النظام وتخصيص العيادة (مربوط بـ SQL)
+            </h2>
+            <p style="font-size:12px; color:var(--text-gray); margin-bottom:20px;">إدارة بيانات الطبيب واللوجو وشعار العيادة</p>
+
+            <form onsubmit="saveClinicSettings(event)">
+                <div class="form-group">
+                    <label>اسم الطبيب ولقبه الأكاديمي:</label>
+                    <input type="text" id="doctorName" class="form-control" value="د. شادي سمير" required>
+                </div>
+                <div class="form-group">
+                    <label>المسمى الوظيفي والتخصص:</label>
+                    <input type="text" id="doctorTitle" class="form-control" value="استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)">
+                </div>
+                <div class="form-group">
+                    <label>شعار العيادة (Logo URL أو رابط الصورة):</label>
+                    <input type="text" id="logoUrl" class="form-control" placeholder="رابط اللوجو أو المسار">
+                </div>
+                <div class="form-group">
+                    <label>أرقام تليفونات العيادة / الحجوزات:</label>
+                    <input type="text" id="clinicPhone" class="form-control" value="01000931177">
                 </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">المسمى الوظيفي والتخصص:</label>
-                    <input type="text" id="docTitleInput" class="form-control" value="استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)" required>
+                <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">💾 حفظ التعديل</button>
+                    <button type="button" onclick="openAddDoctorModal()" class="action-btn" style="background:var(--accent-blue); flex:1; justify-content:center;">➕ إضافة طبيب جديد</button>
+                    <button type="button" onclick="openEditDoctorModal()" class="action-btn" style="background:var(--warning-orange); flex:1; justify-content:center; color:#fff;">✏️ تعديل بيانات الطبيب</button>
                 </div>
+            </form>
+        </div>
+    </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">شعار العيادة (Logo URL أو رفع صورة):</label>
-                    <input type="text" id="logoUrlInput" class="form-control" value="logo2.png">
+    <!-- نافذة إضافة طبيب جديد -->
+    <div id="addDoctorModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">➕ إضافة طبيب جديد للعيادة</h3>
+            <form onsubmit="saveNewDoctorToSQL(event)">
+                <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="newDocName" class="form-control" required placeholder="مثال: د. أحمد محمد"></div>
+                <div class="form-group"><label>التخصص / المسمى الوظيفي:</label><input type="text" id="newDocTitle" class="form-control" placeholder="مثال: اخصائي التغذية العلاجية"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="newDocPhone" class="form-control" placeholder="010xxxxxxxx"></div>
+                <div class="form-group"><label>ملاحظات إضافية:</label><textarea id="newDocNotes" class="form-control" rows="2" placeholder="ملاحظات..."></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ في SQL</button>
+                    <button type="button" onclick="closeAddDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
                 </div>
+            </form>
+        </div>
+    </div>
 
-                <div class="form-group" style="margin-bottom:12px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">أرقام تليفونات العيادة / الحجوزات:</label>
-                    <input type="text" id="clinicPhoneInput" class="form-control" value="01000931177">
+    <!-- نافذة تعديل بيانات الطبيب الحالي -->
+    <div id="editDoctorModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">✏️ تعديل بيانات الطبيب في SQL</h3>
+            <form onsubmit="updateDoctorInSQL(event)">
+                <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="editDocName" class="form-control" required></div>
+                <div class="form-group"><label>المسمى الوظيفي:</label><input type="text" id="editDocTitle" class="form-control"></div>
+                <div class="form-group"><label>هاتف العيادة:</label><input type="text" id="editDocPhone" class="form-control"></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--warning-orange); flex:1; justify-content:center; color:#fff;">تحديث البيانات</button>
+                    <button type="button" onclick="closeEditDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
                 </div>
-
-                <button type="submit" class="action-btn" style="background:var(--primary-green); width:100%; justify-content:center; padding:12px; font-size:13px; margin-top:10px;">💾 حفظ أو تحديث بيانات الطبيب في SQL</button>
             </form>
         </div>
     </div>
@@ -146,46 +169,79 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        function toggleMobileSidebar() {
-            document.getElementById('sidebarNav').classList.toggle('active');
-            document.getElementById('sidebarOverlay').classList.toggle('active');
-        }
-
         async function loadSettings() {
-            let { data, error } = await supabaseClient.from('clinic_settings').select('*').limit(1);
-            if (!error && data && data.length > 0) {
-                let s = data[0];
-                if (s.doctor_name) document.getElementById('docNameInput').value = s.doctor_name;
-                if (s.doctor_title) document.getElementById('docTitleInput').value = s.doctor_title;
-                if (s.logo_url) document.getElementById('logoUrlInput').value = s.logo_url;
-                if (s.phone) document.getElementById('clinicPhoneInput').value = s.phone;
+            try {
+                const { data } = await supabaseClient.from('clinic_settings').select('*').limit(1);
+                if (data && data.length > 0) {
+                    let s = data[0];
+                    if (s.doctor_name) document.getElementById('doctorName').value = s.doctor_name;
+                    if (s.doctor_title) document.getElementById('doctorTitle').value = s.doctor_title;
+                    if (s.logo_url) document.getElementById('logoUrl').value = s.logo_url;
+                    if (s.clinic_phone) document.getElementById('clinicPhone').value = s.clinic_phone;
+                }
+            } catch(e) {}
+        }
+
+        async function saveClinicSettings(e) {
+            e.preventDefault();
+            let doctor_name = document.getElementById('doctorName').value;
+            let doctor_title = document.getElementById('doctorTitle').value;
+            let logo_url = document.getElementById('logoUrl').value;
+            let clinic_phone = document.getElementById('clinicPhone').value;
+
+            try {
+                await supabaseClient.from('clinic_settings').delete().neq('id', 0);
+                const { error } = await supabaseClient.from('clinic_settings').insert([{
+                    doctor_name,
+                    doctor_title,
+                    logo_url,
+                    clinic_phone
+                }]);
+
+                if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
+                alert('✨ تم حفظ التعديلات وتحديث بيانات الطبيب في SQL بنجاح!');
+            } catch(err) {
+                alert('حدث خطأ في الاتصال بقاعدة البيانات.');
             }
         }
 
-        async function saveSettingsToSQL(event) {
-            event.preventDefault();
-            let payload = {
-                doctor_name: document.getElementById('docNameInput').value,
-                doctor_title: document.getElementById('docTitleInput').value,
-                logo_url: document.getElementById('logoUrlInput').value,
-                phone: document.getElementById('clinicPhoneInput').value
-            };
+        function openAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
+        function closeAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'none'; }
 
-            let { data: existing } = await supabaseClient.from('clinic_settings').select('id').limit(1);
-            let res;
-            if (existing && existing.length > 0) {
-                res = await supabaseClient.from('clinic_settings').update(payload).eq('id', existing[0].id);
-            } else {
-                res = await supabaseClient.from('clinic_settings').insert([payload]);
-            }
+        async function saveNewDoctorToSQL(e) {
+            e.preventDefault();
+            let name = document.getElementById('newDocName').value;
+            let title = document.getElementById('newDocTitle').value;
+            let phone = document.getElementById('newDocPhone').value;
+            let notes = document.getElementById('newDocNotes').value;
 
-            if (res.error) {
-                alert('خطأ أثناء حفظ الإعدادات: ' + res.error.message);
+            const { error } = await supabaseClient.from('doctors').insert([{ name, title, phone, notes }]);
+            if (error) {
+                alert('خطأ أثناء الحفظ في جدول doctors: ' + error.message);
                 return;
             }
 
-            alert('✨ تم حفظ وتحديث إعدادات العيادة بنجاح!');
-            loadSettings();
+            alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى SQL!');
+            closeAddDoctorModal();
+        }
+
+        function openEditDoctorModal() {
+            document.getElementById('editDocName').value = document.getElementById('doctorName').value;
+            document.getElementById('editDocTitle').value = document.getElementById('doctorTitle').value;
+            document.getElementById('editDocPhone').value = document.getElementById('clinicPhone').value;
+            document.getElementById('editDoctorModal').style.display = 'flex';
+        }
+        function closeEditDoctorModal() { document.getElementById('editDoctorModal').style.display = 'none'; }
+
+        async function updateDoctorInSQL(e) {
+            e.preventDefault();
+            document.getElementById('doctorName').value = document.getElementById('editDocName').value;
+            document.getElementById('doctorTitle').value = document.getElementById('editDocTitle').value;
+            document.getElementById('clinicPhone').value = document.getElementById('editDocPhone').value;
+            
+            // تنفيذ الحفظ التلقائي في قاعدة البيانات
+            await saveClinicSettings(e);
+            closeEditDoctorModal();
         }
 
         window.onload = loadSettings;
