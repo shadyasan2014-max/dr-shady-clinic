@@ -69,21 +69,12 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* تنسيق طباعة الصفحة بالكامل: إخفاء القائمة الجانبية والأزرار وتكبير الخطوط للضعف */
         @media print {
             @page { size: A4 portrait; margin: 10mm; }
             body { background: #fff !important; }
             .sidebar, .mobile-menu-toggle, .patient-actions-top, .modal-overlay, button { display: none !important; }
-            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; float: none !important; }
-            
-            /* تكبير خطوط الصفحة بالكامل عند طباعتها لتكون واضحة ومقروءة تماماً */
+            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
             #patientPdfArea { font-size: 16px !important; line-height: 1.6 !important; }
-            #patientPdfArea h2 { font-size: 22px !important; }
-            #patientPdfArea h3 { font-size: 18px !important; }
-            #patientPdfArea p, #patientPdfArea span, #patientPdfArea div { font-size: 15px !important; }
-            .metric-value { font-size: 18px !important; }
-            .metric-title { font-size: 13px !important; }
-            .card { border: 1px solid #cbd5e1 !important; box-shadow: none !important; margin-bottom: 12px !important; break-inside: avoid; }
         }
 
         @media (max-width: 950px) {
@@ -206,7 +197,7 @@
                 <button onclick="closeComprehensiveReportModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">✕</button>
             </div>
             
-            <div id="reportContentBody" style="font-size:13px; color:var(--text-dark); line-height:1.6; max-height: 75vh; overflow-y: auto;">
+            <div id="reportContentBody" style="font-size:16px; color:var(--text-dark); line-height:1.7; max-height: 75vh; overflow-y: auto;">
                 <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>
             </div>
 
@@ -449,7 +440,7 @@
             printWindow.document.close();
         }
 
-        // دالة طباعة صفحة ملف المريض بالكامل مع إخفاء القائمة الجانبية وتكبر الخطوط
+        // دالة طباعة صفحة ملف المريض بالكامل مع إخفاء القائمة الجانبية تماماً وتكبير الخطوط لراحتك
         function printFullPatientPage() {
             window.print();
         }
@@ -620,6 +611,13 @@
             printContainer.setAttribute('dir', 'rtl');
             printContainer.style.cssText = "direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 15px; background: #ffffff; color: #1e293b; width: 190mm; box-sizing: border-box;";
 
+            // دمج صورة الرسم البياني في ملف الـ PDF لضمان ظهورها بوضوح تام
+            let chartImageHtml = '';
+            if (weightChartInstance) {
+                let chartBase64 = weightChartInstance.toBase64Image();
+                chartImageHtml = `<div style="margin-bottom: 12px; text-align: center;"><h4 style="color: #064e3b; font-size: 14px; margin-bottom: 4px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 140px; object-fit: contain;" /></div>`;
+            }
+
             printContainer.innerHTML = `
                 <table style="width: 100%; border-bottom: 2px solid #059669; padding-bottom: 8px; margin-bottom: 12px; direction: rtl;">
                     <tr>
@@ -648,6 +646,8 @@
                         </td>
                     </tr>
                 </table>
+
+                ${chartImageHtml}
 
                 <div style="margin-bottom: 12px;">
                     <h4 style="color: #166534; border-bottom: 1px solid #bbf7d0; padding-bottom: 3px; margin-bottom: 6px; font-size: 12px;">🥗 الخطة الغذائية المخصصة:</h4>
