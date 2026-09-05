@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - إعدادات النظام وتخصيص العيادة</title>
+    <title>Dr. Shady Samir - إدارة الأطباء والطاقم الطبي</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
@@ -44,8 +44,12 @@
         .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; }
         .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
-        .action-btn { background: var(--primary-green); color: white; border: none; padding: 12px 20px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+        .action-btn { background: var(--primary-green); color: white; border: none; padding: 10px 18px; border-radius: 10px; font-weight: bold; font-size: 13px; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 6px; }
         .action-btn:hover { opacity: 0.9; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; background: white; border-radius: 10px; overflow: hidden; border: 1px solid var(--card-border); }
+        th, td { padding: 12px 15px; text-align: right; border-bottom: 1px solid var(--card-border); }
+        th { background-color: #f1f5f9; color: var(--sidebar-bg); font-weight: bold; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
@@ -86,8 +90,8 @@
                 <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
                 <li><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
                 <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
-                <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
-                <li class="active"><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
+                <li class="active"><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
         <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
@@ -97,34 +101,32 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div class="card">
-            <h2 style="margin-top:0; color:var(--sidebar-bg); font-size:18px; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:20px;">
-                ⚙️ إعدادات النظام وتخصيص العيادة (مربوط بـ SQL)
-            </h2>
-            <p style="font-size:12px; color:var(--text-gray); margin-bottom:20px;">إدارة بيانات الطبيب واللوجو وشعار العيادة</p>
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-green); padding-bottom: 12px; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+                <h2 style="margin: 0; color: var(--sidebar-bg); font-size: 18px;">👨‍⚕️ إدارة الأطباء والطاقم الطبي (مربوط بـ SQL)</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button onclick="openAddDoctorModal()" class="action-btn" style="background: var(--primary-green);">➕ إضافة طبيب جديد</button>
+                    <button onclick="openEditDoctorModal()" class="action-btn" style="background: var(--warning-orange);">✏️ تعديل بيانات طبيب</button>
+                </div>
+            </div>
 
-            <form onsubmit="saveClinicSettings(event)">
-                <div class="form-group">
-                    <label>اسم الطبيب ولقبه الأكاديمي:</label>
-                    <input type="text" id="doctorName" class="form-control" value="د. شادي سمير" required>
-                </div>
-                <div class="form-group">
-                    <label>المسمى الوظيفي والتخصص:</label>
-                    <input type="text" id="doctorTitle" class="form-control" value="استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)">
-                </div>
-                <div class="form-group">
-                    <label>شعار العيادة (Logo URL أو رابط الصورة):</label>
-                    <input type="text" id="logoUrl" class="form-control" placeholder="رابط اللوجو أو المسار">
-                </div>
-                <div class="form-group">
-                    <label>أرقام تليفونات العيادة / الحجوزات:</label>
-                    <input type="text" id="clinicPhone" class="form-control" value="01000931177">
-                </div>
+            <p style="font-size: 12px; color: var(--text-gray); margin-bottom: 15px;">قائمة الأطباء والاستشاريين المسجلين في النظام والعيادة</p>
 
-                <div style="display:flex; gap:10px; margin-top:20px; flex-wrap:wrap;">
-                    <button type="submit" class="action-btn" style="flex:2; justify-content:center;">💾 حفظ أو تحديث بيانات الطبيب في SQL</button>
-                    <button type="button" onclick="openAddDoctorModal()" class="action-btn" style="background:var(--accent-blue); flex:1; justify-content:center;">➕ إضافة طبيب جديد</button>
-                </div>
-            </form>
+            <div style="overflow-x: auto;">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>اسم الطبيب</th>
+                            <th>المسمى الوظيفي والتخصص</th>
+                            <th>رقم الهاتف</th>
+                            <th>ملاحظات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="doctorsTableBody">
+                        <tr><td colspan="5" style="text-align: center; color: gray; padding: 20px;">جاري جلب أطباء العيادة من قاعدة البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 
@@ -139,8 +141,32 @@
                 <div class="form-group"><label>ملاحظات إضافية:</label><textarea id="newDocNotes" class="form-control" rows="2" placeholder="ملاحظات..."></textarea></div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ الطبيب في SQL</button>
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center;">حفظ في SQL</button>
                     <button type="button" onclick="closeAddDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- نافذة تعديل بيانات الطبيب -->
+    <div id="editDoctorModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">✏️ تعديل بيانات طبيب مسجل</h3>
+            <form onsubmit="updateDoctorInSQL(event)">
+                <div class="form-group">
+                    <label>اختر الطبيب للتعديل:</label>
+                    <select id="selectDoctorDropdown" class="form-control" onchange="fillDoctorEditData()" required>
+                        <option value="">-- اختر الطبيب --</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>اسم الطبيب:</label><input type="text" id="editDocName" class="form-control" required></div>
+                <div class="form-group"><label>المسمى الوظيفي:</label><input type="text" id="editDocTitle" class="form-control"></div>
+                <div class="form-group"><label>رقم الهاتف:</label><input type="text" id="editDocPhone" class="form-control"></div>
+                <div class="form-group"><label>ملاحظات:</label><textarea id="editDocNotes" class="form-control" rows="2"></textarea></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--warning-orange); flex:1; justify-content:center; color:#fff;">تحديث بيانات الطبيب</button>
+                    <button type="button" onclick="closeEditDoctorModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center;">إغلاق</button>
                 </div>
             </form>
         </div>
@@ -151,49 +177,46 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function loadSettings() {
+        let cachedDoctorsList = [];
+
+        async function loadDoctorsFromSQL() {
+            let tbody = document.getElementById('doctorsTableBody');
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: gray; padding: 20px;">جاري التحميل...</td></tr>`;
+
             try {
-                const { data } = await supabaseClient.from('clinic_settings').select('*').limit(1);
-                if (data && data.length > 0) {
-                    let s = data[0];
-                    if (s.doctor_name) document.getElementById('doctorName').value = s.doctor_name;
-                    if (s.doctor_title) document.getElementById('doctorTitle').value = s.doctor_title;
-                    if (s.logo_url) document.getElementById('logoUrl').value = s.logo_url;
-                    if (s.clinic_phone) document.getElementById('clinicPhone').value = s.clinic_phone;
+                const { data, error } = await supabaseClient.from('doctors').select('*');
+                if (error) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger-red); padding: 20px;">تأكد من إنشاء جدول doctors في Supabase.</td></tr>`;
+                    return;
                 }
-            } catch(e) {}
-        }
 
-        async function saveClinicSettings(e) {
-            e.preventDefault();
-            let doctor_name = document.getElementById('doctorName').value;
-            let doctor_title = document.getElementById('doctorTitle').value;
-            let logo_url = document.getElementById('logoUrl').value;
-            let clinic_phone = document.getElementById('clinicPhone').value;
+                cachedDoctorsList = data || [];
+                if (cachedDoctorsList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: gray; padding: 20px;">لا توجد أطباء مسجلين حالياً.</td></tr>`;
+                    return;
+                }
 
-            try {
-                await supabaseClient.from('clinic_settings').delete().neq('id', 0);
-                const { error } = await supabaseClient.from('clinic_settings').insert([{
-                    doctor_name,
-                    doctor_title,
-                    logo_url,
-                    clinic_phone
-                }]);
+                let html = '';
+                cachedDoctorsList.forEach((doc, idx) => {
+                    html += `
+                        <tr>
+                            <td>${idx + 1}</td>
+                            <td><strong>${doc.name}</strong></td>
+                            <td>${doc.title || '-'}</td>
+                            <td>${doc.phone || '-'}</td>
+                            <td>${doc.notes || '-'}</td>
+                        </tr>
+                    `;
+                });
+                tbody.innerHTML = html;
 
-                if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
-                alert('✨ تم حفظ إعدادات العيادة وتحديث بيانات الطبيب في SQL بنجاح!');
-            } catch(err) {
-                alert('حدث خطأ في الاتصال بقاعدة البيانات.');
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في الاتصال بقاعدة البيانات.</td></tr>`;
             }
         }
 
-        function openAddDoctorModal() {
-            document.getElementById('addDoctorModal').style.display = 'flex';
-        }
-
-        function closeAddDoctorModal() {
-            document.getElementById('addDoctorModal').style.display = 'none';
-        }
+        function openAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
+        function closeAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'none'; }
 
         async function saveNewDoctorToSQL(e) {
             e.preventDefault();
@@ -202,27 +225,58 @@
             let phone = document.getElementById('newDocPhone').value;
             let notes = document.getElementById('newDocNotes').value;
 
-            const { error } = await supabaseClient.from('doctors').insert([{
-                name,
-                title,
-                phone,
-                notes
-            }]);
+            const { error } = await supabaseClient.from('doctors').insert([{ name, title, phone, notes }]);
+            if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
 
-            if (error) {
-                alert('خطأ أثناء حفظ الطبيب في جدول doctors: ' + error.message);
-                return;
-            }
-
-            alert('✨ تمت إضافة الطبيب الجديد وحفظه في جدول SQL بنجاح!');
+            alert('✨ تمت إضافة الطبيب الجديد بنجاح إلى SQL!');
             closeAddDoctorModal();
             document.getElementById('newDocName').value = '';
             document.getElementById('newDocTitle').value = '';
             document.getElementById('newDocPhone').value = '';
             document.getElementById('newDocNotes').value = '';
+            loadDoctorsFromSQL();
         }
 
-        window.onload = loadSettings;
+        function openEditDoctorModal() {
+            let dropdown = document.getElementById('selectDoctorDropdown');
+            dropdown.innerHTML = '<option value="">-- اختر الطبيب --</option>';
+            cachedDoctorsList.forEach((doc, idx) => {
+                dropdown.innerHTML += `<option value="${idx}">${doc.name} (${doc.title || 'طبيب'})</option>`;
+            });
+            document.getElementById('editDoctorModal').style.display = 'flex';
+        }
+        function closeEditDoctorModal() { document.getElementById('editDoctorModal').style.display = 'none'; }
+
+        function fillDoctorEditData() {
+            let idx = document.getElementById('selectDoctorDropdown').value;
+            if (idx === "") return;
+            let doc = cachedDoctorsList[idx];
+            document.getElementById('editDocName').value = doc.name || '';
+            document.getElementById('editDocTitle').value = doc.title || '';
+            document.getElementById('editDocPhone').value = doc.phone || '';
+            document.getElementById('editDocNotes').value = doc.notes || '';
+        }
+
+        async function updateDoctorInSQL(e) {
+            e.preventDefault();
+            let idx = document.getElementById('selectDoctorDropdown').value;
+            if (idx === "") { alert('الرجاء اختيار طبيب أولاً.'); return; }
+            let docId = cachedDoctorsList[idx].id;
+
+            let name = document.getElementById('editDocName').value;
+            let title = document.getElementById('editDocTitle').value;
+            let phone = document.getElementById('editDocPhone').value;
+            let notes = document.getElementById('editDocNotes').value;
+
+            const { error } = await supabaseClient.from('doctors').update({ name, title, phone, notes }).eq('id', docId);
+            if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
+
+            alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
+            closeEditDoctorModal();
+            loadDoctorsFromSQL();
+        }
+
+        window.onload = loadDoctorsFromSQL;
     </script>
 </body>
 </html>
