@@ -326,14 +326,14 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناغمة...</div>`;
 
             try {
                 let name = currentPatientName;
                 let code = activePatient.patient_code || activePatient.code || 'PG-0001';
                 let surgeryDate = activePatient.surgery_date || activePatient.date || '2026-08-26';
                 let prevDate = activePatient.prev_followup_date || '2026-08-27';
-                let currDate = activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : '2026-09-04';
+                let currDate = activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : '2026-09-02';
                 let currentWeight = activePatient.weight || '111';
                 let currentPlan = activePatient.diet_plan || 'لم يتم كتابة خطة.';
                 let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
@@ -364,7 +364,7 @@
                     <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة الغذائية (ترتيب زمني صحيح: النظام السابق بتاريخ 27 فوق، والنظام الحالي بتاريخ 04 تحته)
+                // 3. الأنظمة الغذائية (جعل النظام السابق بتاريخ 27 فوق، والنظام الحالي بتاريخ 02 تحته بوضوح)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                 
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
