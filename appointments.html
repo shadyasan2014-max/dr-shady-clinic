@@ -173,7 +173,7 @@
                 let html = '';
                 data.forEach((app, idx) => {
                     let name = app.patient_name || app.patient || app.title || 'مريض';
-                    let date = app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
+                    let date = app.appt_date || app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.appt_time || app.time || app.visit_time || '-';
                     let type = app.visit_type || app.type || app.category || 'متابعة';
                     let status = app.status || 'في الانتظار';
@@ -222,7 +222,7 @@
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             let appId = app.id || '';
             let appName = app.patient_name || app.patient || '';
-            let appDate = app.date || app.appointment_date || app.visit_date || '';
+            let appDate = app.appt_date || app.date || app.appointment_date || app.visit_date || '';
             let appTime = app.appt_time || app.time || '';
             
             document.getElementById('editApptId').value = appId;
@@ -245,11 +245,13 @@
             let time = document.getElementById('apptTime').value;
             let visit_type = document.getElementById('apptType').value;
 
-            // الأعمدة الصحيحة تماماً والمطابقة لجدول appointments لديك
+            // إرسال الأعمدة الإلزامية المطلوبة في جدول appointments لديك بدقة (appt_date و appt_time)
             let payload = {
                 patient_name: patient_name,
+                appt_date: date,
                 date: date,
                 appt_time: time,
+                time: time,
                 visit_type: visit_type,
                 status: 'في الانتظار'
             };
