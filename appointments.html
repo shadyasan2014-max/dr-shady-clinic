@@ -236,24 +236,17 @@
             let time = document.getElementById('apptTime').value;
             let visit_type = document.getElementById('apptType').value;
 
-            // إرسال البيانات بجميع الاحتمالات الممكنة لأسماء الأعمدة لضمان النجاح التام
             let payload = {
                 patient_name: patient_name,
-                name: patient_name,
-                patient: patient_name,
                 date: date,
                 appointment_date: date,
-                visit_date: date,
                 time: time,
-                appointment_time: time,
-                visit_type: visit_type,
-                type: visit_type
+                visit_type: visit_type
             };
 
             if (id) {
                 let { error } = await supabaseClient.from('appointments').update(payload).eq('id', id);
                 if (error) {
-                    // محاولة ثانية لو حدث خطأ بخصوص عمود معين
                     let { error: err2 } = await supabaseClient.from('appointments').update({ patient_name, date, time, visit_type }).eq('id', id);
                     if (err2) { alert('خطأ أثناء التعديل: ' + err2.message); return; }
                 }
@@ -266,7 +259,7 @@
             }
 
             closeAddAppointmentModal();
-            loadAppointmentsTable();
+            loadAppointmentsTable(); // تحديث الجدول فوراً بعد الحفظ والتعديل
         }
 
         async function deleteAppointment(id, name) {
