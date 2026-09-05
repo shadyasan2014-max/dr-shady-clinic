@@ -174,7 +174,7 @@
                 data.forEach((app, idx) => {
                     let name = app.patient_name || app.patient || app.title || 'مريض';
                     let date = app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
-                    let time = app.time || app.appointment_time || app.visit_time || '-';
+                    let time = app.appt_time || app.time || app.appointment_time || app.visit_time || '-';
                     let type = app.visit_type || app.type || app.category || 'متابعة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
@@ -223,7 +223,7 @@
             let appId = app.id || '';
             let appName = app.patient_name || app.patient || '';
             let appDate = app.date || app.appointment_date || app.visit_date || '';
-            let appTime = app.time || app.appointment_time || '';
+            let appTime = app.appt_time || app.time || app.appointment_time || '';
             
             document.getElementById('editApptId').value = appId;
             document.getElementById('originalPatientName').value = appName;
@@ -245,12 +245,17 @@
             let time = document.getElementById('apptTime').value;
             let visit_type = document.getElementById('apptType').value;
 
-            // إرسال الأعمدة الصحيحة فقط المعتمدة في جدول appointments بدون عمود name المفقود
-            let cleanPayload = {
+            // إرسال كافة الاحتمالات لأسماء الأعمدة (بما فيها appt_time و time) لتخطي القيد الإلزامي
+            let payload = {
                 patient_name: patient_name,
                 date: date,
+                appointment_date: date,
+                visit_date: date,
+                appt_time: time,
                 time: time,
-                visit_type: visit_type
+                appointment_time: time,
+                visit_type: visit_type,
+                type: visit_type
             };
 
             if (id || originalName) {
@@ -260,8 +265,8 @@
                 await delQuery;
             }
 
-            cleanPayload.status = 'في الانتظار';
-            let { error } = await supabaseClient.from('appointments').insert([cleanPayload]);
+            payload.status = 'في الانتظار';
+            let { error } = await supabaseClient.from('appointments').insert([payload]);
 
             if (error) { alert('خطأ أثناء الحفظ والتعديل: ' + error.message); return; }
 
