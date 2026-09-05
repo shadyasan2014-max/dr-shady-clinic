@@ -136,7 +136,14 @@
             <form onsubmit="saveOrUpdateAppointment(event)">
                 <input type="hidden" id="editApptId">
                 <input type="hidden" id="originalPatientName">
-                <div class="form-group"><label>اسم المريض:</label><input type="text" id="apptPatientName" class="form-control" required placeholder="اسم المريض بالكامل"></div>
+                
+                <div class="form-group">
+                    <label>اختر المريض من الحالات المسجلة:</label>
+                    <select id="apptPatientName" class="form-control" required style="border: 2px solid var(--warning-orange); background: #fffbeb; font-weight: bold;">
+                        <option value="">-- جاري تحميل أسماء الحالات والملفات --</option>
+                    </select>
+                </div>
+
                 <div class="form-group"><label>تاريخ الموعد:</label><input type="date" id="apptDate" class="form-control" required></div>
                 <div class="form-group"><label>وقت الموعد:</label><input type="time" id="apptTime" class="form-control" required></div>
                 <div class="form-group">
@@ -161,10 +168,28 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        let registeredPatientsList = [];
+
         async function loadAppointmentsTable() {
             let tbody = document.getElementById('appointmentsTableBody');
             try {
+                // جلب المواعيد والحالات المسجلة معاً
                 const { data, error } = await supabaseClient.from('appointments').select('*');
+                const { data: patData } = await supabaseClient.from('patients').select('*');
+                const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
+
+                registeredPatientsList = [];
+                if (patData) patData.forEach(p => {
+                    let pName = p.patient_name || p.name;
+                    if (pName && !registeredPatientsList.includes(pName)) registeredPatientsList.push(pName);
+                });
+                if (barData) barData.forEach(b => {
+                    let bName = b.patient_name || b.name;
+                    if (bName && !registeredPatientsList.includes(bName)) registeredPatientsList.push(bName);
+                });
+
+                updatePatientsDropdown();
+
                 if (error || !data || data.length === 0) {
                     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: gray; padding: 20px;">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
                     return;
@@ -208,11 +233,26 @@
             }
         }
 
+        function updatePatientsDropdown(selectedVal = '') {
+            let select = document.getElementById('apptPatientName');
+            if (registeredPatientsList.length === 0) {
+                select.innerHTML = `<option value="">-- لا توجد حالات مسجلة (أضف مرضى جدد أولاً) --</option>`;
+                return;
+            }
+
+            let html = `<option value="">-- اختر المريض من القائمة المسجلة --</option>`;
+            registeredPatientsList.forEach(name => {
+                let sel = (name === selectedVal) ? 'selected' : '';
+                html += `<option value="${name}" ${sel}>${name}</option>`;
+            });
+            select.innerHTML = html;
+        }
+
         function openAddAppointmentModal() {
             document.getElementById('modalTitle').innerText = '➕ حجز موعد جديد';
             document.getElementById('editApptId').value = '';
             document.getElementById('originalPatientName').value = '';
-            document.getElementById('apptPatientName').value = '';
+            updatePatientsDropdown();
             document.getElementById('apptDate').value = '';
             document.getElementById('apptTime').value = '';
             document.getElementById('addAppointmentModal').style.display = 'flex';
@@ -227,7 +267,7 @@
             
             document.getElementById('editApptId').value = appId;
             document.getElementById('originalPatientName').value = appName;
-            document.getElementById('apptPatientName').value = appName;
+            updatePatientsDropdown(appName);
             document.getElementById('apptDate').value = appDate;
             document.getElementById('apptTime').value = appTime;
             if(app.visit_type || app.type) document.getElementById('apptType').value = app.visit_type || app.type;
@@ -245,7 +285,11 @@
             let time = document.getElementById('apptTime').value;
             let visit_type = document.getElementById('apptType').value;
 
-            // إرسال الأعمدة الإلزامية المطلوبة في جدول appointments لديك بدقة (appt_date و appt_time)
+            if (!patient_name) {
+                alert('الرجاء اختيار المريض من القائمة');
+                return;
+            }
+
             let payload = {
                 patient_name: patient_name,
                 appt_date: date,
@@ -267,7 +311,7 @@
 
             if (error) { alert('خطأ أثناء الحفظ والتعديل: ' + error.message); return; }
 
-            alert('✨ تم تحديث بيانات الموعد وحفظه في SQL بنجاح!');
+            alert('✨ تم حفظ موعد المريض بنجاح في SQL!');
             closeAddAppointmentModal();
             loadAppointmentsTable();
         }
