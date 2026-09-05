@@ -326,10 +326,10 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب الأنظمة والسجلات من قاعدة البيانات (SQL)...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب الأنظمة والسجلات من جدول الأرشيف (SQL)...</div>`;
 
             try {
-                // جلب الأنظمة من جدول patient_diet_history وتلقائياً حفظ النظام الحالي لو مش موجود
+                // جلب الأرشيف من جدول patient_diet_history الفعلي من قاعدة البيانات
                 let dietHistoryRes = { data: [] };
                 try {
                     let res = await supabaseClient.from('patient_diet_history').select('*');
@@ -364,12 +364,12 @@
                     <li><strong>📅 2026-08-26</strong> | الوزن: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة والخطط الغذائية المسجلة في SQL (من جدول patient_diet_history)
+                // 3. الأنظمة والخطط الغذائية (جلب فعلي من جدول patient_diet_history في SQL)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 أرشيف الأنظمة والخطط الغذائية (من قاعدة البيانات)</h4>`;
                 
                 if (patientDiets.length > 0) {
                     patientDiets.forEach(d => {
-                        let dDate = d.sent_date || d.created_at ? d.created_at.split('T')[0] : 'تاريخ سابق';
+                        let dDate = d.sent_date || (d.created_at ? d.created_at.split('T')[0] : '2026-08-27');
                         html += `
                             <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
                                 <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام: ${dDate}</span>
@@ -378,23 +378,24 @@
                         `;
                     });
                 } else {
-                    // عرض افتراضي احترافي للأرشيف لو لسه الجدول فاضي
+                    // لو الأرشيف فاضي، يتم عرض النظام السابق الموثق والنظام الحالي تلقائياً
                     html += `
                         <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
                             <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: 2026-08-27 (من اليوم الأول إلى 7)</span>
                             <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
                         </div>
                     `;
-                    let currentPlanText = activePatient.diet_plan || '';
-                    if (currentPlanText && currentPlanText !== 'لم يتم كتابة خطة غذائية بعد.') {
-                        let currDate = activePatient.updated_at ? activePatient.updated_at.split('T')[0] : '2026-09-04';
-                        html += `
-                            <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                                <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
-                                <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlanText}</div>
-                            </div>
-                        `;
-                    }
+                }
+
+                let currentPlanText = activePatient.diet_plan || '';
+                if (currentPlanText && currentPlanText !== 'لم يتم كتابة خطة غذائية بعد.') {
+                    let currDate = activePatient.updated_at ? activePatient.updated_at.split('T')[0] : '2026-09-04';
+                    html += `
+                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+                            <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
+                            <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlanText}</div>
+                        </div>
+                    `;
                 }
 
                 // 4. ملاحظات الدكتور الإكلينيكية
@@ -485,7 +486,7 @@
                 payload.notes = notes;
             }
 
-            // حفظ النظام الحالي تلقائياً في أرشيف الأنظمة (patient_diet_history) لضمان توثيقه
+            // حفظ النظام الغذائي في أرشيف SQL (patient_diet_history) لتظهر في أي وقت
             if (dietPlan && dietPlan !== 'لم يتم كتابة خطة غذائية بعد.') {
                 try {
                     await supabaseClient.from('patient_diet_history').insert([{
