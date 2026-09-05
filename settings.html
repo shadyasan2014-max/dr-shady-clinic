@@ -213,12 +213,14 @@
             let title = document.getElementById('newDocTitle').value;
             let phone = document.getElementById('newDocPhone').value;
 
-            // إرسال القيم معاً لتجنب أي قيود إجبارية لـ doctor_name أو name في جدول الأطباء
+            // إرسال كافة الأسماء المحتملة للأعمدة لتجنب أي قيود في جدول الأطباء
             const { error } = await supabaseClient.from('doctors').insert([{ 
                 doctor_name: name, 
                 name: name, 
                 title: title, 
-                phone: phone 
+                specialty: title,
+                phone: phone,
+                clinic_phone: phone
             }]);
 
             if (error) {
