@@ -7,31 +7,30 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
-            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
-            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
-            --card-bg: #ffffff;             /* خلفية البطاقات */
-            --card-border: #e2e8f0;         /* حدود خفيفة */
-            --primary-green: #059669;       /* الأخضر الرئيسي */
-            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
-            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
-            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
-            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
-            --text-gray: #64748b;           /* نصوص رمادية */
+            --sidebar-bg: #064e3b;          
+            --main-bg: #f8fafc;             
+            --card-bg: #ffffff;             
+            --card-border: #e2e8f0;         
+            --primary-green: #059669;       
+            --accent-blue: #0284c7;         
+            --warning-orange: #f59e0b;      
+            --danger-red: #dc2626;          
+            --text-dark: #1e293b;           
+            --text-gray: #64748b;           
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        .brand-logo { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
         .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
         
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
-        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -40,10 +39,10 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid var(--card-border); }
-        .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 25px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px; }
         
-        .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        .notification-item { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; border: 1px solid var(--card-border); border-radius: 12px; margin-bottom: 12px; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.01); transition: 0.2s; }
+        .notification-item:hover { border-color: var(--primary-green); box-shadow: 0 2px 8px rgba(5,150,105,0.05); }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -65,7 +64,7 @@
             <div class="sidebar-brand">
                 <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
                 <h2>د. شادي سمير</h2>
-                <p>استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)</p>
+                <p>استشاري التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
                 <li><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
@@ -91,17 +90,16 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div class="top-header">
-            <div>
-                <h1>🔔 التنبيهات والإشعارات الذكية (SQL Live)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">متابعة المواعيد والزيارات القادمة وحالة الحالات بالعيادة</p>
-            </div>
-        </div>
-
         <div class="card">
-            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #eee; padding-bottom:10px;">📋 تنبيهات المواعيد والزيارات القادمة</h3>
-            <div id="notificationsContainer" style="margin-top: 10px;">
-                <div style="color:var(--text-gray); padding:15px; text-align:center;">جاري جلب التنبيهات من قاعدة البيانات...</div>
+            <div style="border-bottom: 2px solid var(--primary-green); padding-bottom: 12px; margin-bottom: 20px;">
+                <h2 style="margin: 0; color: var(--sidebar-bg); font-size: 18px;">🔔 التنبيهات والإشعارات الذكية (SQL Live)</h2>
+                <p style="font-size: 12px; color: var(--text-gray); margin: 4px 0 0 0;">متابعة المواعيد والزيارات القادمة وحالة الحالات بالعيادة</p>
+            </div>
+
+            <h3 style="font-size: 14px; color: var(--text-dark); margin-bottom: 15px;">📌 تنبيهات المواعيد والزيارات القادمة</h3>
+            
+            <div id="notificationsContainer">
+                <div style="text-align: center; color: gray; padding: 30px;">جاري جلب التنبيهات النشطة من قاعدة البيانات...</div>
             </div>
         </div>
     </div>
@@ -111,44 +109,63 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+        async function loadActiveNotifications() {
+            let container = document.getElementById('notificationsContainer');
+            try {
+                const { data, error } = await supabaseClient.from('appointments').select('*');
+                if (error || !data || data.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: gray; padding: 30px;">لا توجد تنبيهات جديدة أو مواعيد قادمة.</div>`;
+                    return;
+                }
+
+                // فلترة المواعيد: استبعاد أي ميعاد تمت زيارته أو حالته مكتملة / تمت
+                let activeAppointments = data.filter(app => {
+                    let status = (app.status || '').toLowerCase();
+                    let visitStatus = (app.visit_status || '').toLowerCase();
+                    // لو الحالة تشير إلى أن الزيارة تمت أو مكتملة، يتم إزالتها تلقائياً
+                    if (status.includes('تمت') || status.includes('مكتملة') || status.includes('خلصت') || 
+                        visitStatus.includes('تمت') || visitStatus.includes('مكتملة')) {
+                        return false;
+                    }
+                    return true;
+                });
+
+                if (activeAppointments.length === 0) {
+                    container.innerHTML = `<div style="text-align: center; color: gray; padding: 30px;">لا توجد مواعيد نشطة قادمة (تمت زيارة جميع الحالات المسجلة).</div>`;
+                    return;
+                }
+
+                let html = '';
+                activeAppointments.forEach(app => {
+                    let name = app.patient_name || app.name || 'مريض';
+                    let date = app.date || app.appointment_date || 'قريباً';
+                    let time = app.time || '';
+                    let type = app.visit_type || 'متابعة';
+
+                    html += `
+                        <div class="notification-item">
+                            <div>
+                                <strong style="color:var(--sidebar-bg); font-size:14px;">موعد حجز للمريض: ${name}</strong><br>
+                                <span style="font-size:12px; color:var(--text-gray);">نوع الزيارة: ${type} - الوقت: ${date} ${time}</span>
+                            </div>
+                            <a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn" style="background:var(--primary-green);">📁 فتح ملف المريض</a>
+                        </div>
+                    `;
+                });
+
+                container.innerHTML = html;
+
+            } catch(e) {
+                container.innerHTML = `<div style="text-align: center; color: var(--danger-red); padding: 30px;">خطأ في جلب البيانات من قاعدة البيانات.</div>`;
+            }
+        }
+
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        async function loadNotifications() {
-            let container = document.getElementById('notificationsContainer');
-            try {
-                let { data, error } = await supabaseClient.from('appointments').select('*');
-                if (error || !data || data.length === 0) {
-                    container.innerHTML = `<div style="color:var(--text-gray); padding:15px; text-align:center;">لا توجد تنبيهات أو مواعيد مسجلة حالياً.</div>`;
-                    return;
-                }
-
-                container.innerHTML = '';
-                data.forEach(app => {
-                    let name = app.patient_name || 'مريض';
-                    let type = app.visit_type || 'متابعة';
-                    let date = app.date || app.appointment_date || 'قريباً';
-                    let time = app.time || '';
-
-                    container.innerHTML += `
-                        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:12px 15px; border-radius:10px; margin-bottom:10px; display:flex; justify-content:space-between; align-items:center;">
-                            <div>
-                                <strong style="color:var(--text-dark);">موعد حجز للمريض: ${name}</strong><br>
-                                <span style="font-size:12px; color:var(--text-gray);">نوع الزيارة: ${type} - الوقت: ${date} ${time}</span>
-                            </div>
-                            <span style="background:#dcfce7; color:#166534; padding:4px 10px; border-radius:6px; font-size:11px; font-weight:bold;">نشط 🟢</span>
-                        </div>
-                    `;
-                });
-            } catch (err) {
-                console.error("Error loading notifications:", err);
-                container.innerHTML = `<div style="color:var(--danger-red); padding:15px; text-align:center;">خطأ أثناء تحميل التنبيهات.</div>`;
-            }
-        }
-
-        window.onload = loadNotifications;
+        window.onload = loadActiveNotifications;
     </script>
 </body>
 </html>
