@@ -277,7 +277,6 @@
             let title = document.getElementById('editDocTitle').value;
             let phone = document.getElementById('editDocPhone').value;
 
-            // تحديد اسم العمود الحقيقي بناءً على البيانات المخزنة مسبقاً لمنع أي خطأ في تحديث الـ SQL
             let updatePayload = {};
             if ('name' in docRecord) updatePayload.name = name;
             else if ('doctor_name' in docRecord) updatePayload.doctor_name = name;
@@ -296,7 +295,7 @@
 
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
             closeEditDoctorModal();
-            loadDoctorsFromSQL();
+            loadDoctorsFromSQL(); // تحديث الجدول فوراً بعد الحفظ
         }
 
         window.onload = loadDoctorsFromSQL;
