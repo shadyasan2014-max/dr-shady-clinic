@@ -326,16 +326,18 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري تجميع كافة سجلات المريض من قاعدة البيانات...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة من قاعدة البيانات...</div>`;
 
             try {
+                // جلب الجداول مع فحص مرن للاسم لتفادي اختلاف الحروف أو المسافات
+                let searchKey = currentPatientName.trim();
                 let [visitsRes, measurementsRes, labsRes, supplementsRes, bariatricRes, paymentsRes] = await Promise.all([
-                    supabaseClient.from('visits').select('*').eq('patient_name', currentPatientName),
-                    supabaseClient.from('measurements').select('*').eq('patient_name', currentPatientName),
-                    supabaseClient.from('labs').select('*').eq('patient_name', currentPatientName),
-                    supabaseClient.from('supplements').select('*').eq('patient_name', currentPatientName),
-                    supabaseClient.from('bariatric_cases').select('*').eq('patient_name', currentPatientName),
-                    supabaseClient.from('payments').select('*').eq('patient_name', currentPatientName)
+                    supabaseClient.from('visits').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
+                    supabaseClient.from('measurements').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
+                    supabaseClient.from('labs').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
+                    supabaseClient.from('supplements').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
+                    supabaseClient.from('bariatric_cases').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
+                    supabaseClient.from('payments').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`)
                 ]);
 
                 let html = `
@@ -346,53 +348,59 @@
                     </div>
                 `;
 
-                // الزيارات
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات والإيضاحات</h4>`;
+                // 1. الزيارات
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>`;
                 if (visitsRes.data && visitsRes.data.length > 0) {
                     html += `<ul>`;
-                    visitsRes.data.forEach(v => { html += `<li>تاريخ: ${v.visit_date || v.date || '-'} | نوع الزيارة: ${v.visit_type || '-'} | ملاحظات: ${v.notes || '-'}</li>`; });
+                    visitsRes.data.forEach(v => { html += `<li>التاريخ: ${v.visit_date || v.date || '-'} | نوع الزيارة: ${v.visit_type || '-'} | ملاحظات: ${v.notes || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px;">لا توجد زيارات مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد زيارات مسجلة.</p>`; }
 
-                // القياسات
+                // 2. القياسات والأوزان
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان</h4>`;
                 if (measurementsRes.data && measurementsRes.data.length > 0) {
                     html += `<ul>`;
-                    measurementsRes.data.forEach(m => { html += `<li>تاريخ: ${m.measurement_date || m.date || '-'} | الوزن: ${m.weight || '-'} كجم | BMI: ${m.bmi || '-'}</li>`; });
+                    measurementsRes.data.forEach(m => { html += `<li>التاريخ: ${m.measurement_date || m.date || '-'} | الوزن: ${m.weight || '-'} كجم | BMI: ${m.bmi || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px;">لا توجد قياسات مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد قياسات مسجلة.</p>`; }
 
-                // التحاليل
+                // 3. الخطط الغذائية والأنظمة
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الأنظمة والخطط الغذائية الموصوفة</h4>`;
+                if (activePatient.diet_plan && activePatient.diet_plan !== 'لم يتم كتابة خطة غذائية بعد.') {
+                    html += `<div style="background:#f0fdf4; padding:8px 12px; border-radius:6px; font-size:12px; color:#14532d; margin-bottom:8px; white-space:pre-line;">${activePatient.diet_plan}</div>`;
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">الخطة الحالية: ${activePatient.diet_plan || 'لا توجد أنظمة غذائية إضافية مسجلة.'}</p>`; }
+
+                // 4. التحاليل الطبية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🧪 التحاليل الطبية والملفات</h4>`;
                 if (labsRes.data && labsRes.data.length > 0) {
                     html += `<ul>`;
                     labsRes.data.forEach(l => { html += `<li>التحليل: ${l.lab_name || '-'} | النتيجة: ${l.result || '-'} | التاريخ: ${l.lab_date || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px;">لا توجد تحاليل مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد تحاليل مسجلة.</p>`; }
 
-                // المكملات
+                // 5. المكملات والفيتامينات
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💊 المكملات والفيتامينات الموصوفة</h4>`;
                 if (supplementsRes.data && supplementsRes.data.length > 0) {
                     html += `<ul>`;
                     supplementsRes.data.forEach(s => { html += `<li>الحالة: ${s.case_type || '-'} | الأدوية: ${s.supp_list || s.sup_name || '-'} | الجرعة: ${s.dosage || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px;">لا توجد مكملات مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد مكملات مسجلة.</p>`; }
 
-                // جراحات السمنة
+                // 6. جراحات السمنة
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>`;
                 if (bariatricRes.data && bariatricRes.data.length > 0) {
                     html += `<ul>`;
                     bariatricRes.data.forEach(b => { html += `<li>العملية: ${b.surgery_type || '-'} | التاريخ: ${b.surgery_date || '-'} | الجراح: ${b.surgeon || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px;">لا توجد جراحات سمنة مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد جراحات سمنة مسجلة.</p>`; }
 
-                // المدفوعات
+                // 7. المدفوعات المالية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💰 المعاملات المالية والكشوفات</h4>`;
                 if (paymentsRes.data && paymentsRes.data.length > 0) {
                     html += `<ul>`;
                     paymentsRes.data.forEach(pay => { html += `<li>الخدمة: ${pay.service_type || '-'} | المبلغ: ${pay.amount || '-'} جنيه | التاريخ: ${pay.payment_date || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px;">لا توجد معاملات مالية مسجلة.</p>`; }
+                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد معاملات مالية مسجلة.</p>`; }
 
                 bodyDiv.innerHTML = html;
 
