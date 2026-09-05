@@ -129,11 +129,12 @@
         </div>
     </div>
 
-    <!-- نافذة إضافة حجز موعد جديد -->
+    <!-- نافذة إضافة أو تعديل موعد -->
     <div id="addAppointmentModal" class="modal-overlay" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:2000; justify-content:center; align-items:center;">
         <div class="modal-box" style="background:white; padding:25px; border-radius:12px; width:450px; max-width:90%;">
-            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">➕ حجز موعد جديد</h3>
-            <form onsubmit="saveNewAppointment(event)">
+            <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; color:var(--sidebar-bg);">➕ حجز موعد جديد</h3>
+            <form onsubmit="saveOrUpdateAppointment(event)">
+                <input type="hidden" id="editApptId">
                 <div class="form-group"><label>اسم المريض:</label><input type="text" id="apptPatientName" class="form-control" required placeholder="اسم المريض بالكامل"></div>
                 <div class="form-group"><label>تاريخ الموعد:</label><input type="date" id="apptDate" class="form-control" required></div>
                 <div class="form-group"><label>وقت الموعد:</label><input type="time" id="apptTime" class="form-control" required></div>
@@ -170,9 +171,9 @@
 
                 let html = '';
                 data.forEach((app, idx) => {
-                    let name = app.patient_name || app.name || 'مريض';
-                    let date = app.date || app.appointment_date || app.visit_date || '-';
-                    let time = app.time || app.appointment_time || '-';
+                    let name = app.patient_name || app.name || app.patient || 'مريض';
+                    let date = app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
+                    let time = app.time || app.appointment_time || app.visit_time || '-';
                     let type = app.visit_type || app.type || 'متابعة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
@@ -192,8 +193,9 @@
                             <td>${time}</td>
                             <td>${type}</td>
                             <td>${statusBadge}</td>
-                            <td>
-                                <a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn" style="background:var(--accent-blue);">📁 فتح الملف</a>
+                            <td style="display:flex; gap:5px; flex-wrap:wrap;">
+                                <a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn" style="background:var(--accent-blue);">📁 فتح</a>
+                                <button onclick='prepareEditAppointment(${JSON.stringify(app)})' class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
                                 <button onclick="deleteAppointment('${appId}', '${name}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                             </td>
                         </tr>
@@ -203,6 +205,59 @@
             } catch(e) {
                 tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب البيانات من SQL.</td></tr>`;
             }
+        }
+
+        function openAddAppointmentModal() {
+            document.getElementById('modalTitle').innerText = '➕ حجز موعد جديد';
+            document.getElementById('editApptId').value = '';
+            document.getElementById('apptPatientName').value = '';
+            document.getElementById('apptDate').value = '';
+            document.getElementById('apptTime').value = '';
+            document.getElementById('addAppointmentModal').style.display = 'flex';
+        }
+
+        function prepareEditAppointment(app) {
+            document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
+            document.getElementById('editApptId').value = app.id || '';
+            document.getElementById('apptPatientName').value = app.patient_name || app.name || '';
+            document.getElementById('apptDate').value = app.date || app.appointment_date || app.visit_date || '';
+            document.getElementById('apptTime').value = app.time || app.appointment_time || '';
+            if(app.visit_type) document.getElementById('apptType').value = app.visit_type;
+            document.getElementById('addAppointmentModal').style.display = 'flex';
+        }
+
+        function closeAddAppointmentModal() { document.getElementById('addAppointmentModal').style.display = 'none'; }
+
+        async function saveOrUpdateAppointment(e) {
+            e.preventDefault();
+            let id = document.getElementById('editApptId').value;
+            let patient_name = document.getElementById('apptPatientName').value;
+            let date = document.getElementById('apptDate').value;
+            let time = document.getElementById('apptTime').value;
+            let visit_type = document.getElementById('apptType').value;
+
+            let payload = {
+                patient_name: patient_name,
+                name: patient_name,
+                date: date,
+                appointment_date: date,
+                time: time,
+                visit_type: visit_type
+            };
+
+            if (id) {
+                let { error } = await supabaseClient.from('appointments').update(payload).eq('id', id);
+                if (error) { alert('خطأ أثناء التعديل: ' + error.message); return; }
+                alert('✨ تم تحديث بيانات الموعد بنجاح!');
+            } else {
+                payload.status = 'في الانتظار';
+                let { error } = await supabaseClient.from('appointments').insert([payload]);
+                if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
+                alert('✨ تم حجز الموعد بنجاح في قاعدة البيانات!');
+            }
+
+            closeAddAppointmentModal();
+            loadAppointmentsTable();
         }
 
         async function deleteAppointment(id, name) {
@@ -219,36 +274,6 @@
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
 
             alert('🗑️ تم حذف الموعد بنجاح.');
-            loadAppointmentsTable();
-        }
-
-        function openAddAppointmentModal() { document.getElementById('addAppointmentModal').style.display = 'flex'; }
-        function closeAddAppointmentModal() { document.getElementById('addAppointmentModal').style.display = 'none'; }
-
-        async function saveNewAppointment(e) {
-            e.preventDefault();
-            let patient_name = document.getElementById('apptPatientName').value;
-            let date = document.getElementById('apptDate').value;
-            let time = document.getElementById('apptTime').value;
-            let visit_type = document.getElementById('apptType').value;
-
-            const { error } = await supabaseClient.from('appointments').insert([{
-                patient_name: patient_name,
-                name: patient_name,
-                date: date,
-                appointment_date: date,
-                time: time,
-                visit_type: visit_type,
-                status: 'في الانتظار'
-            }]);
-
-            if (error) { alert('خطأ أثناء حفظ الموعد: ' + error.message); return; }
-
-            alert('✨ تم حجز الموعد بنجاح في قاعدة البيانات!');
-            closeAddAppointmentModal();
-            document.getElementById('apptPatientName').value = '';
-            document.getElementById('apptDate').value = '';
-            document.getElementById('apptTime').value = '';
             loadAppointmentsTable();
         }
 
