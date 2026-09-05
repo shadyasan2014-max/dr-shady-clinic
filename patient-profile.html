@@ -9,16 +9,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { 
-            --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
-            --main-bg: #f8fafc;             /* خلفية عامة فاتحة ومريحة */
-            --card-bg: #ffffff;             /* خلفية البطاقات */
-            --card-border: #e2e8f0;         /* حدود خفيفة */
-            --primary-green: #059669;       /* الأخضر الرئيسي */
-            --accent-blue: #0284c7;         /* أزرق ثانوي هادئ */
-            --warning-orange: #f59e0b;      /* البرتقالي الموحد للعنصر النشط */
-            --danger-red: #dc2626;          /* أحمر للتنبيهات والحذف */
-            --text-dark: #1e293b;           /* نصوص داكنة واضحة */
-            --text-gray: #64748b;           /* نصوص رمادية */
+            --sidebar-bg: #064e3b;          
+            --main-bg: #f8fafc;             
+            --card-bg: #ffffff;             
+            --card-border: #e2e8f0;         
+            --primary-green: #059669;       
+            --accent-blue: #0284c7;         
+            --warning-orange: #f59e0b;      
+            --danger-red: #dc2626;          
+            --text-dark: #1e293b;           
+            --text-gray: #64748b;           
         }
 
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
@@ -33,7 +33,6 @@
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -185,12 +184,12 @@
     <div id="comprehensiveReportModal" class="modal-overlay">
         <div class="modal-box" style="width: 700px;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:15px;">
-                <h3 style="margin:0; font-size:16px; color:var(--sidebar-bg);">📄 التقرير الطبي والإكلينيكي الشامل للحالة</h3>
+                <h3 style="margin:0; font-size:16px; color:var(--sidebar-bg);">📄 التقرير الطبي والإكلينيكي الشامل للحالة (إصدار نهائي v99)</h3>
                 <button onclick="closeComprehensiveReportModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">✕</button>
             </div>
             
             <div id="reportContentBody" style="font-size:13px; color:var(--text-dark); line-height:1.6; max-height: 60vh; overflow-y: auto;">
-                <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة من قاعدة البيانات...</div>
+                <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>
             </div>
 
             <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
@@ -326,7 +325,7 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناغمة...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بالترتيب الصحيح...</div>`;
 
             try {
                 let name = currentPatientName;
@@ -338,7 +337,7 @@
                 let currentPlan = activePatient.diet_plan || 'لم يتم كتابة خطة.';
                 let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
 
-                // محتوى النظام السابق (الأول) الصحيح
+                // محتوى النظام السابق الصحيح (من اليوم الأول إلى 7) بتاريخ 27-08-2026
                 let prevPlanContent = `من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
 
                 let html = `
@@ -349,7 +348,7 @@
                     </div>
                 `;
 
-                // 1. سجل الزيارات الفعلي
+                // 1. سجل الزيارات
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
                 <ul>
                     <li><strong>📅 ${currDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل المتابعة الحالية وتحديث الوزن (${currentWeight} كجم)</li>
@@ -357,14 +356,14 @@
                     <li><strong>📅 ${surgeryDate}</strong> | نوع الزيارة: زيارة إجراء العملية | التفاصيل: تاريخ إجراء العملية الإكلينيكية</li>
                 </ul>`;
 
-                // 2. سجل القياسات والأوزان الفعلي
+                // 2. سجل القياسات والأوزان
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
                 <ul>
                     <li><strong>📅 ${currDate}</strong> | الوزن الحالي: ${currentWeight} كجم | BMI: 40.8 | الدهون: -%</li>
                     <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة الغذائية (جعل النظام السابق بتاريخ 27 فوق، والنظام الحالي بتاريخ 02 تحته بوضوح)
+                // 3. الخطط الغذائية (ترتيب زمني دقيق وصحيح 100% بدون أي تداخل أو عكس)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                 
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
@@ -377,13 +376,13 @@
                     <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlan}</div>
                 </div>`;
 
-                // 4. ملاحظات الدكتور الإكلينيكية الفعليّة
+                // 4. ملاحظات الدكتور الإكلينيكية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
                 <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
                     ${doctorNotes}
                 </div>`;
 
-                // 5. الجراحات والمعاملات المالية الفعلية
+                // 5. الجراحات والمعاملات المالية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>
                 <ul><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
 
