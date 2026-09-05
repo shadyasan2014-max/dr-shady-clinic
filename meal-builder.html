@@ -431,8 +431,7 @@
             document.getElementById('currCommitDisp').innerText = p.curr_commitment || 'ممتد ومنضبط تماماً';
             document.getElementById('currComplaintsDisp').innerText = p.curr_complaints || 'متابعة عادية بدون شكاوى';
 
-            // فصل النظام السابق الحقيقي عن الحالي بدقة تامة
-            let previousPlan = p.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
+            let previousPlan = p.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملخ.`;
             document.getElementById('previousPlanCard').style.display = 'block';
             document.getElementById('previousPlanText').innerText = previousPlan;
 
@@ -449,15 +448,14 @@
                 switchSystem('daily');
             }
 
-            alert(`✨ تم استدعاء تفاصيل الحالة والمتابعات والنظام الغذائي للمريض: ${p.patient_name || p.name} بنجاح!`);
+            alert(`✨ تم استدعاء تفاصيل الحالة للمريض: ${p.patient_name || p.name} بنجاح!`);
         }
 
         function askGeminiWithFullData() {
             if (!loadedPatientData) {
-                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً لتجميع بيانات الحالة.');
+                alert('الرجاء اختيار مريض والضغط على زر "بحث" أولاً.');
                 return;
             }
-
             let p = loadedPatientData;
             let pName = p.patient_name || p.name || 'المريض';
             let pWeight = p.weight || 'غير محدد';
@@ -599,7 +597,7 @@
                 return;
             }
 
-            alert('✨ تم نقل النظام الحالي إلى الأرشيف كـ (النظام السابق) وحفظ الخطة الجديدة في SQL بنجاح!');
+            alert('✨ تم حفظ الخطة الغذائية الجديدة وترحيل السابقة للأرشيف في SQL بنجاح!');
             searchAndLoadPatient();
         }
 
@@ -657,7 +655,7 @@
                 height: newH,
                 curr_followup_date: currDate,
                 curr_commitment: currCommit,
-                curr_compliant: currComplaints
+                curr_complaints: `${fuType}: ${currComplaints}`
             };
 
             if (newFat !== null) payload.fat = newFat;
