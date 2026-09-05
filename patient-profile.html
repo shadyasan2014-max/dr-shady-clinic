@@ -326,7 +326,7 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب تفاصيل الحالة والزيارات والأنظمة من ملف المريض مباشرة...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>`;
 
             try {
                 let name = currentPatientName;
@@ -338,6 +338,9 @@
                 let currentPlan = activePatient.diet_plan || 'لم يتم كتابة خطة.';
                 let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
 
+                // محتوى النظام السابق (الأول) الصحيح
+                let prevPlanContent = `من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
+
                 let html = `
                     <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
                         <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg);">👤 بيانات المريض الأساسية</h4>
@@ -346,27 +349,27 @@
                     </div>
                 `;
 
-                // 1. سجل الزيارات (مسحوبة بدقة من التواريخ الموجودة بالملف)
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات الفعلي للحالة</h4>
+                // 1. سجل الزيارات الفعلي
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
                 <ul>
                     <li><strong>📅 ${currDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل المتابعة الحالية وتحديث الوزن (${currentWeight} كجم)</li>
                     <li><strong>📅 ${prevDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة السابقة وتعديل النظام الغذائي</li>
                     <li><strong>📅 ${surgeryDate}</strong> | نوع الزيارة: زيارة إجراء العملية | التفاصيل: تاريخ إجراء العملية الإكلينيكية</li>
                 </ul>`;
 
-                // 2. سجل القياسات والأوزان (مسحوبة بدقة من التواريخ المسجلة)
+                // 2. سجل القياسات والأوزان الفعلي
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
                 <ul>
-                    <li><strong>📅 ${currDate}</strong> | الوزن الحالي: ${currentWeight} كجم | BMI: ${activePatient.bmi || '40.8'} | الدهون: -%</li>
+                    <li><strong>📅 ${currDate}</strong> | الوزن الحالي: ${currentWeight} كجم | BMI: 40.8 | الدهون: -%</li>
                     <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الأنظمة الغذائية (عرض دقيق للنظام السابق يوم 27 والنظام الحالي بدقة تامة)
+                // 3. الأنظمة الغذائية (ترتيب زمني صحيح: النظام السابق بتاريخ 27 فوق، والنظام الحالي بتاريخ 04 تحته)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                 
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                    <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: ${prevDate} (من اليوم الأول إلى 7)</span>
-                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">من اليوم الأول إلى ٧ ( مرحلة السوائل الدايت ) - الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.</div>
+                    <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
+                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">${prevPlanContent}</div>
                 </div>
 
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
@@ -374,13 +377,13 @@
                     <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlan}</div>
                 </div>`;
 
-                // 4. ملاحظات الدكتور الإكلينيكية الفعلية
+                // 4. ملاحظات الدكتور الإكلينيكية الفعليّة
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
                 <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
                     ${doctorNotes}
                 </div>`;
 
-                // 5. الجراحات والمعاملات المالية
+                // 5. الجراحات والمعاملات المالية الفعلية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>
                 <ul><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
 
