@@ -195,12 +195,16 @@
 
                 let html = '';
                 cachedDoctorsList.forEach((doc, idx) => {
+                    let docName = doc.name || doc.doctor_name || doc.full_name || '-';
+                    let docTitle = doc.title || doc.specialty || doc.category || '-';
+                    let docPhone = doc.phone || doc.clinic_phone || '-';
+
                     html += `
                         <tr>
                             <td>${idx + 1}</td>
-                            <td><strong>${doc.name || '-'}</strong></td>
-                            <td>${doc.title || '-'}</td>
-                            <td>${doc.phone || '-'}</td>
+                            <td><strong>${docName}</strong></td>
+                            <td>${docTitle}</td>
+                            <td>${docPhone}</td>
                         </tr>
                     `;
                 });
@@ -220,6 +224,7 @@
             let title = document.getElementById('newDocTitle').value;
             let phone = document.getElementById('newDocPhone').value;
 
+            // محاولة الحفظ مع دعم أسماء الأعمدة المحتملة
             const { error } = await supabaseClient.from('doctors').insert([{ name, title, phone }]);
             if (error) { alert('خطأ أثناء الحفظ: ' + error.message); return; }
 
@@ -235,7 +240,9 @@
             let dropdown = document.getElementById('selectDoctorDropdown');
             dropdown.innerHTML = '<option value="">-- اختر الطبيب --</option>';
             cachedDoctorsList.forEach((doc, idx) => {
-                dropdown.innerHTML += `<option value="${idx}">${doc.name || 'بدون اسم'} (${doc.title || 'طبيب'})</option>`;
+                let dName = doc.name || doc.doctor_name || doc.full_name || 'بدون اسم';
+                let dTitle = doc.title || doc.specialty || 'طبيب';
+                dropdown.innerHTML += `<option value="${idx}">${dName} (${dTitle})</option>`;
             });
             document.getElementById('editDoctorModal').style.display = 'flex';
         }
@@ -245,9 +252,9 @@
             let idx = document.getElementById('selectDoctorDropdown').value;
             if (idx === "") return;
             let doc = cachedDoctorsList[idx];
-            document.getElementById('editDocName').value = doc.name || '';
-            document.getElementById('editDocTitle').value = doc.title || '';
-            document.getElementById('editDocPhone').value = doc.phone || '';
+            document.getElementById('editDocName').value = doc.name || doc.doctor_name || doc.full_name || '';
+            document.getElementById('editDocTitle').value = doc.title || doc.specialty || '';
+            document.getElementById('editDocPhone').value = doc.phone || doc.clinic_phone || '';
         }
 
         async function updateDoctorInSQL(e) {
