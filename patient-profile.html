@@ -59,7 +59,7 @@
         .card h3 { margin-top: 0; font-size: 14px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 10px; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 600px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 650px; max-width: 95%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .form-group { margin-bottom: 12px; }
         .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 5px; }
         .form-control { width: 100%; padding: 9px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; }
@@ -190,7 +190,7 @@
             </div>
             
             <div id="reportContentBody" style="font-size:13px; color:var(--text-dark); line-height:1.6; max-height: 60vh; overflow-y: auto;">
-                <div style="text-align:center; padding:20px; color:gray;">جاري تجميع كافة سجلات المريض من قاعدة البيانات...</div>
+                <div style="text-align:center; padding:20px; color:gray;">جاري تجميع كافة سجلات المريض الشاملة من قاعدة البيانات...</div>
             </div>
 
             <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
@@ -326,19 +326,32 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة من قاعدة البيانات...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة سجلات المريض الشاملة وتواريخها من قاعدة البيانات...</div>`;
 
             try {
-                // جلب الجداول مع فحص مرن للاسم لتفادي اختلاف الحروف أو المسافات
-                let searchKey = currentPatientName.trim();
+                // جلب الداتا بشكل كامل من كل جدول ثم فلترتها محلياً لضمان عدم ضياع أي سجل بغض النظر عن طريقة حفظ الاسم
                 let [visitsRes, measurementsRes, labsRes, supplementsRes, bariatricRes, paymentsRes] = await Promise.all([
-                    supabaseClient.from('visits').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
-                    supabaseClient.from('measurements').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
-                    supabaseClient.from('labs').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
-                    supabaseClient.from('supplements').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
-                    supabaseClient.from('bariatric_cases').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`),
-                    supabaseClient.from('payments').select('*').or(`patient_name.ilike.%${searchKey}%,name.ilike.%${searchKey}%`)
+                    supabaseClient.from('visits').select('*'),
+                    supabaseClient.from('measurements').select('*'),
+                    supabaseClient.from('labs').select('*'),
+                    supabaseClient.from('supplements').select('*'),
+                    supabaseClient.from('bariatric_cases').select('*'),
+                    supabaseClient.from('payments').select('*')
                 ]);
+
+                let targetNameLower = currentPatientName.trim().toLowerCase();
+
+                let filterFunc = (item) => {
+                    let pName = (item.patient_name || item.name || '').trim().toLowerCase();
+                    return pName.includes(targetNameLower) || targetNameLower.includes(pName);
+                };
+
+                let patientVisits = (visitsRes.data || []).filter(filterFunc);
+                let patientMeasurements = (measurementsRes.data || []).filter(filterFunc);
+                let patientLabs = (labsRes.data || []).filter(filterFunc);
+                let patientSupplements = (supplementsRes.data || []).filter(filterFunc);
+                let patientBariatric = (bariatricRes.data || []).filter(filterFunc);
+                let patientPayments = (paymentsRes.data || []).filter(filterFunc);
 
                 let html = `
                     <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
@@ -348,57 +361,95 @@
                     </div>
                 `;
 
-                // 1. الزيارات
+                // 1. سجل الزيارات (أونلاين / بالعيادة) بالتاريخ
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>`;
-                if (visitsRes.data && visitsRes.data.length > 0) {
+                if (patientVisits.length > 0) {
                     html += `<ul>`;
-                    visitsRes.data.forEach(v => { html += `<li>التاريخ: ${v.visit_date || v.date || '-'} | نوع الزيارة: ${v.visit_type || '-'} | ملاحظات: ${v.notes || '-'}</li>`; });
+                    patientVisits.forEach(v => { 
+                        let vDate = v.visit_date || v.date || v.created_at || 'تاريخ غير محدد';
+                        let vType = v.visit_type || v.type || 'زيارة إكلينيكية';
+                        let vNotes = v.notes || 'لا توجد ملاحظات';
+                        html += `<li><strong>📅 ${vDate.split('T')[0]}</strong> | النوع: ${vType} | التفاصيل: ${vNotes}</li>`; 
+                    });
                     html += `</ul>`;
                 } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد زيارات مسجلة.</p>`; }
 
-                // 2. القياسات والأوزان
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان</h4>`;
-                if (measurementsRes.data && measurementsRes.data.length > 0) {
+                // 2. سجل القياسات والأوزان بالتاريخ
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">⚖️ سجل القياسات والأوزان والـ BMI</h4>`;
+                if (patientMeasurements.length > 0) {
                     html += `<ul>`;
-                    measurementsRes.data.forEach(m => { html += `<li>التاريخ: ${m.measurement_date || m.date || '-'} | الوزن: ${m.weight || '-'} كجم | BMI: ${m.bmi || '-'}</li>`; });
+                    patientMeasurements.forEach(m => { 
+                        let mDate = m.measurement_date || m.date || 'تاريخ غير محدد';
+                        html += `<li><strong>📅 ${mDate.split('T')[0]}</strong> | الوزن: ${m.weight || '-'} كجم | BMI: ${m.bmi || '-'} | الدهون: ${m.fat || '-'}%</li>`; 
+                    });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد قياسات مسجلة.</p>`; }
+                } else { 
+                    html += `<p style="color:gray; font-size:12px; padding-right:10px;">الوزن الحالي المسجل بالملف: ${activePatient.weight || '-'} كجم (تاريخ المتابعة: ${activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : 'اليوم'})</p>`; 
+                }
 
-                // 3. الخطط الغذائية والأنظمة
-                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الأنظمة والخطط الغذائية الموصوفة</h4>`;
-                if (activePatient.diet_plan && activePatient.diet_plan !== 'لم يتم كتابة خطة غذائية بعد.') {
-                    html += `<div style="background:#f0fdf4; padding:8px 12px; border-radius:6px; font-size:12px; color:#14532d; margin-bottom:8px; white-space:pre-line;">${activePatient.diet_plan}</div>`;
-                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">الخطة الحالية: ${activePatient.diet_plan || 'لا توجد أنظمة غذائية إضافية مسجلة.'}</p>`; }
+                // 3. الأنظمة والخطط الغذائية السابقة والحالية مع تواريخها
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الأنظمة والخطط الغذائية الموصوفة (السابقة والحالية)</h4>`;
+                let planContent = activePatient.diet_plan || '';
+                if (planContent && planContent !== 'لم يتم كتابة خطة غذائية بعد.') {
+                    let pDate = activePatient.updated_at ? activePatient.updated_at.split('T')[0] : (activePatient.created_at ? activePatient.created_at.split('T')[0] : 'تاريخ الإصدار');
+                    html += `
+                        <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
+                            <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام / التحديث: ${pDate}</span>
+                            <div style="font-size:12px; color:#14532d; white-space:pre-line;">${planContent}</div>
+                        </div>
+                    `;
+                } else { 
+                    html += `<p style="color:gray; font-size:12px; padding-right:10px;">لم يتم تسجيل خطط غذائية إضافية.</p>`; 
+                }
 
-                // 4. التحاليل الطبية
+                // 4. ملاحظات الدكتور الإكلينيكية
+                html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>`;
+                let drNotes = activePatient.medical_history || activePatient.notes || '';
+                if (drNotes && drNotes !== 'لا توجد ملاحظات مسجلة.') {
+                    html += `
+                        <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
+                            ${drNotes}
+                        </div>
+                    `;
+                } else { 
+                    html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد ملاحظات إكلينيكية مدونة.</p>`; 
+                }
+
+                // 5. التحاليل الطبية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🧪 التحاليل الطبية والملفات</h4>`;
-                if (labsRes.data && labsRes.data.length > 0) {
+                if (patientLabs.length > 0) {
                     html += `<ul>`;
-                    labsRes.data.forEach(l => { html += `<li>التحليل: ${l.lab_name || '-'} | النتيجة: ${l.result || '-'} | التاريخ: ${l.lab_date || '-'}</li>`; });
+                    patientLabs.forEach(l => { html += `<li>التاريخ: ${l.lab_date || l.date || '-'} | التحليل: ${l.lab_name || '-'} | النتيجة: ${l.result || '-'}</li>`; });
                     html += `</ul>`;
                 } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد تحاليل مسجلة.</p>`; }
 
-                // 5. المكملات والفيتامينات
+                // 6. المكملات والفيتامينات
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💊 المكملات والفيتامينات الموصوفة</h4>`;
-                if (supplementsRes.data && supplementsRes.data.length > 0) {
+                if (patientSupplements.length > 0) {
                     html += `<ul>`;
-                    supplementsRes.data.forEach(s => { html += `<li>الحالة: ${s.case_type || '-'} | الأدوية: ${s.supp_list || s.sup_name || '-'} | الجرعة: ${s.dosage || '-'}</li>`; });
+                    patientSupplements.forEach(s => { html += `<li>الحالة: ${s.case_type || '-'} | الأدوية والمكملات: ${s.supp_list || s.sup_name || '-'} | الجرعة: ${s.dosage || '-'}</li>`; });
                     html += `</ul>`;
                 } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد مكملات مسجلة.</p>`; }
 
-                // 6. جراحات السمنة
+                // 7. جراحات السمنة
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🩺 جراحات السمنة والعمليات</h4>`;
-                if (bariatricRes.data && bariatricRes.data.length > 0) {
+                if (patientBariatric.length > 0) {
                     html += `<ul>`;
-                    bariatricRes.data.forEach(b => { html += `<li>العملية: ${b.surgery_type || '-'} | التاريخ: ${b.surgery_date || '-'} | الجراح: ${b.surgeon || '-'}</li>`; });
+                    patientBariatric.forEach(b => { html += `<li>العملية: ${b.surgery_type || '-'} | التاريخ: ${b.surgery_date || '-'} | الجراح: ${b.surgeon || '-'}</li>`; });
                     html += `</ul>`;
-                } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد جراحات سمنة مسجلة.</p>`; }
+                } else { 
+                    if (activePatient.surgery_type) {
+                        html += `<ul><li>العملية المسجلة بالملف: ${activePatient.surgery_type} | التاريخ: ${activePatient.surgery_date || 'غير مسجل'}</li></ul>`;
+                    } else {
+                        html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد جراحات مسجلة.</p>`;
+                    }
+                }
 
-                // 7. المدفوعات المالية
+                // 8. المعاملات المالية
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">💰 المعاملات المالية والكشوفات</h4>`;
-                if (paymentsRes.data && paymentsRes.data.length > 0) {
+                if (patientPayments.length > 0) {
                     html += `<ul>`;
-                    paymentsRes.data.forEach(pay => { html += `<li>الخدمة: ${pay.service_type || '-'} | المبلغ: ${pay.amount || '-'} جنيه | التاريخ: ${pay.payment_date || '-'}</li>`; });
+                    patientPayments.forEach(pay => { html += `<li>التاريخ: ${pay.payment_date || pay.date || '-'} | الخدمة: ${pay.service_type || '-'} | المبلغ: ${pay.amount || '-'} جنيه</li>`; });
                     html += `</ul>`;
                 } else { html += `<p style="color:gray; font-size:12px; padding-right:10px;">لا توجد معاملات مالية مسجلة.</p>`; }
 
