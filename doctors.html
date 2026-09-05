@@ -244,7 +244,6 @@
                 dropdown.innerHTML += `<option value="${idx}">${dName} (${dTitle})</option>`;
             });
 
-            // تفريغ الحقول عند فتح المودال حتى يتم الاختيار بدقة
             document.getElementById('editDocName').value = '';
             document.getElementById('editDocTitle').value = '';
             document.getElementById('editDocPhone').value = '';
@@ -271,13 +270,28 @@
             e.preventDefault();
             let idx = document.getElementById('selectDoctorDropdown').value;
             if (idx === "") { alert('الرجاء اختيار طبيب أولاً من القائمة.'); return; }
-            let docId = cachedDoctorsList[idx].id;
+            let docRecord = cachedDoctorsList[idx];
+            let docId = docRecord.id;
 
             let name = document.getElementById('editDocName').value;
             let title = document.getElementById('editDocTitle').value;
             let phone = document.getElementById('editDocPhone').value;
 
-            const { error } = await supabaseClient.from('doctors').update({ name, title, phone }).eq('id', docId);
+            // تحديد اسم العمود الحقيقي بناءً على البيانات المخزنة مسبقاً لمنع أي خطأ في تحديث الـ SQL
+            let updatePayload = {};
+            if ('name' in docRecord) updatePayload.name = name;
+            else if ('doctor_name' in docRecord) updatePayload.doctor_name = name;
+            else updatePayload.name = name;
+
+            if ('title' in docRecord) updatePayload.title = title;
+            else if ('specialty' in docRecord) updatePayload.specialty = title;
+            else updatePayload.title = title;
+
+            if ('phone' in docRecord) updatePayload.phone = phone;
+            else if ('clinic_phone' in docRecord) updatePayload.clinic_phone = phone;
+            else updatePayload.phone = phone;
+
+            const { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', docId);
             if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
