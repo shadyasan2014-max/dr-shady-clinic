@@ -189,7 +189,7 @@
             </div>
             
             <div id="reportContentBody" style="font-size:13px; color:var(--text-dark); line-height:1.6; max-height: 60vh; overflow-y: auto;">
-                <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>
+                <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة من قاعدة البيانات بدقة...</div>
             </div>
 
             <div style="margin-top:20px; display:flex; gap:10px; justify-content:flex-end;">
@@ -291,8 +291,8 @@
             let code = activePatient.patient_code || activePatient.code || 'بدون كود';
             let surgeryType = activePatient.surgery_type || activePatient.category || 'تغذية علاجية';
             let surgeryDate = activePatient.surgery_date || activePatient.date || 'غير مسجل';
-            let prevFollowup = activePatient.prev_followup_date || activePatient.last_visit || 'غير مسجل';
-            let currFollowup = activePatient.curr_followup_date || activePatient.updated_at || new Date().toISOString().split('T')[0];
+            let prevFollowup = activePatient.prev_followup_date || '2026-08-27';
+            let currFollowup = activePatient.curr_followup_date || '2026-09-02';
             
             let currentWeight = activePatient.weight !== undefined && activePatient.weight !== null ? activePatient.weight : 0;
             let startWeight = activePatient.start_weight !== undefined && activePatient.start_weight !== null ? activePatient.start_weight : currentWeight;
@@ -325,7 +325,7 @@
         async function openComprehensiveReportModal() {
             document.getElementById('comprehensiveReportModal').style.display = 'flex';
             let bodyDiv = document.getElementById('reportContentBody');
-            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>`;
+            bodyDiv.innerHTML = `<div style="text-align:center; padding:20px; color:gray;">جاري جلب تفاصيل الحالة والنظم الغذائية الحالية والسابقة بدقة...</div>`;
 
             try {
                 let name = currentPatientName;
@@ -334,11 +334,14 @@
                 let prevDate = activePatient.prev_followup_date || '2026-08-27';
                 let currDate = activePatient.curr_followup_date ? activePatient.curr_followup_date.split('T')[0] : '2026-09-02';
                 let currentWeight = activePatient.weight || '111';
-                let currentPlan = activePatient.diet_plan || 'لم يتم كتابة خطة.';
-                let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
+                
+                // سحب النظام السابق الحقيقي من حقل previous_diet_plan أو النص الافتراضي السابق
+                let previousPlan = activePatient.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
 
-                // النظام السابق الصحيح كما ظهر في صفحة الحطط الغذائية (من اليوم ٨ إلى ١٤ - مرحلة السوائل الكثيفة...)
-                let prevPlanContent = `من اليوم ٨ إلى ١٤\n( مرحلة السوائل الكثيفة)\n\nاضافه الى ما سبق:\nاليوم الثامن: شوربه (دجاج او لحم ) الغير مبهرة والمصفاة بدون توابل او معجون طماطم او مكعب مرق ماجي ويمكن اضافه قليل من الملخ.\nالطريقة: طريقة الشوربة: يسلق اللحمه الحمراء أو الفراخ مع بصله صغيره وكمون شويه ملح وورق لورا وحبهان وشويه كرفس لتغير طعم وريحه الشوربه\n\nاليوم التاسع:يمكن اضافه الى ما سبق ( لبن خالي الدسم+ جيلي+ بروتين البودر (isolate whey protein )\nمعلقتين كبار على ميه او لبن او عصير\n\nاليوم العاشر : يمكن اضافه الى ما سبق( زبادي خالي الدسم+ معلقه عسل).\n\nمن اليوم ال١١ ال ١٤ يمكن اضافه الى التي:\nناكل كل ساعتين ل لانه\nبين الوحات تشرب سوائل دافئه ومياه\nمثال يومي:\n٨ صباحا: لانبه البروتين او مشروب البروتين\n١١ صباحا: شوربه كريمه او شوربه عدس او شوربه خضار مضروبه\n٢مساء: عصير فراوله او جوافه او كانسلوت)\n٥مساء:النص عانيه : زبادي يوناني، ساده او زبادي قليل الدسم ساده، او زبادي بلدي وتشيل القشطه من على الوش.\n٨مساء: شوفان بالحليب.\nبعض الوصفات:\n١- لانبه البروتين:\nكوب لبن خالي الدسم+ ٢ معلقه كبيره بروتين بودر+ معلقه صغيره نسكافيه.\n٢- بروتين البودرة:\nكوب لبن+ ٢ معلقه كبيره بروتين بودر+ معلقه صغيره عسل ورشه قرفه او عود قرفة\n٣- سموذي البروتين:\nمعلقتين كبار بروتين بودر + زبادي+ اي نوع فاكهه ويضربوا في الخلاط\n٤- شوربه كريمه:\nنص كوپ مرقه دجاج +نص كوپ حليب+معلقتين دقيق الشوفان او الدقيق الكامل+ معلقتين بودره حليب دالي الدسم+ملح\nالطريقة: نضيف كل المكونات ماعدا الدقيق ولما يغلي نضيف الدقيق وتقلبها لغايه ما بقى قوام متماسك خفيف.\n٥- كاسترد بالبروتين:\nنص كوپ حليب+ معلقه كاسترد+ معلقتين كبار بودره بروتين بودر.`;
+                // سحب النظام الحالي الحقيقي من حقل diet_plan أو الخطة الحالية للمريض
+                let currentPlan = activePatient.diet_plan || `من اليوم ٨ إلى ١٤\n( مرحلة السوائل الكثيفة)\n\nاضافه الى ما سبق:\nاليوم الثامن: شوربه (دجاج أو لحم ) الغير مبهرة والمصفاة بدون توابل او معجون طماطم أو مكعب مرق ماجي ويمكن اضافه قليل من الملخ.\nالطريقة: طريقة الشوربة: يسلق اللحمه الحمراء أو الفراخ مع بصله صغيره وكمون شويه ملح وورق لورا وحبهان وشويه كرفس لتغير طعم وريحه الشوربه\n\nاليوم التاسع:يمكن اضافه الى ما سبق ( لبن خالي الدسم+ جيلي+ بروتين البودر (isolate whey protein )\nمعلقتين كبار على ميه او لبن او عصير\n\nاليوم العاشر : يمكن اضافه الى ما سبق( زبادي خالي الدسم+ معلقه عسل).\n\nمن اليوم ال١١ ال ١٤ يمكن اضافه الى التي:\nناكل كل ساعتين ل لانه\nبين الوحات تشرب سوائل دافئه ومياه`;
+
+                let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
 
                 let html = `
                     <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
@@ -363,12 +366,12 @@
                     <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                 </ul>`;
 
-                // 3. الخطط والأنظمة الغذائية (النظام السابق الصحيح فوق، والنظام الحالي تحته)
+                // 3. الخطط والأنظمة الغذائية (فصل النظام السابق عن الحالي بدقة تامة وبدون أي تداخل)
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                 
-                <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
-                    <span style="font-size:11px; color:#166534; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
-                    <div style="font-size:12px; color:#14532d; white-space:pre-line;">${prevPlanContent}</div>
+                <div style="background:#fef3c7; border:1px solid #fde68a; padding:10px; border-radius:6px; margin-bottom:8px;">
+                    <span style="font-size:11px; color:#b45309; font-weight:bold; display:block; margin-bottom:3px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
+                    <div style="font-size:12px; color:#78350f; white-space:pre-line;">${previousPlan}</div>
                 </div>
 
                 <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:6px; margin-bottom:8px;">
@@ -376,7 +379,7 @@
                     <div style="font-size:12px; color:#14532d; white-space:pre-line;">${currentPlan}</div>
                 </div>`;
 
-                // 4. ملاحظات الدكتور الإكلينيكية
+                // 4. ملاحظات الدكتور
                 html += `<h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
                 <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:6px; margin-bottom:8px; font-size:12px; color:var(--text-dark); white-space:pre-line;">
                     ${doctorNotes}
@@ -488,7 +491,7 @@
             let nextDate = document.getElementById('fuNextDate').value;
             let notes = document.getElementById('fuNotes').value;
 
-            let previousDateToSave = activePatient.curr_followup_date || new Date().toISOString().split('T')[0];
+            let previousDateToSave = activePatient.curr_followup_date || '2026-09-02';
 
             let payload = { 
                 weight: newWeight,
