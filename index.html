@@ -3,24 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - لوحة التحكم الإكلينيكية</title>
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <title>Dr. Shady Samir - لوحة التحكم الرئيسية</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        :root { --sidebar-bg: #064e3b; --main-bg: #f8fafc; --card-bg: #ffffff; --card-border: #e2e8f0; --primary-green: #059669; --accent-blue: #0284c7; --warning-orange: #f59e0b; --danger-red: #dc2626; --text-dark: #1e293b; --text-gray: #64748b; }
+        :root { 
+            --sidebar-bg: #064e3b;          
+            --main-bg: #f8fafc;             
+            --card-bg: #ffffff;             
+            --card-border: #e2e8f0;         
+            --primary-green: #059669;       
+            --accent-blue: #0284c7;         
+            --warning-orange: #f59e0b;      
+            --danger-red: #dc2626;          
+            --text-dark: #1e293b;           
+            --text-gray: #64748b;           
+        }
+
         body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: var(--main-bg); color: var(--text-dark); margin: 0; display: flex; min-height: 100vh; direction: rtl; }
         
-        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 2000; transition: transform 0.3s ease-in-out; }
+        .sidebar { width: 260px; background-color: var(--sidebar-bg); color: white; display: flex; flex-direction: column; justify-content: space-between; padding: 20px 0; position: fixed; right: 0; top: 0; height: 100vh; box-shadow: -4px 0 15px rgba(0,0,0,0.1); z-index: 1000; transition: transform 0.3s ease-in-out; }
         .sidebar-brand { padding: 0 20px 20px 20px; border-bottom: 1px solid #065f46; display: flex; flex-direction: column; align-items: center; text-align: center; }
-        
-        .brand-logo, .doctor-avatar-top { width: 55px; height: 55px; border-radius: 50%; object-fit: cover; border: 2px solid #34d399; margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
-
+        .brand-logo { width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid var(--primary-green); margin-bottom: 8px; background: #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
         .sidebar-brand h2 { margin: 0; font-size: 15px; color: white; } 
         .sidebar-brand p { margin: 3px 0 0 0; font-size: 10px; color: #a7f3d0; line-height: 1.4; }
         
         .sidebar-menu { list-style: none; padding: 0 10px; margin: 0; overflow-y: auto; flex: 1; }
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
-        .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
+        .sidebar-menu li a { padding: 9px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
@@ -30,62 +39,23 @@
         
         .main-content { flex: 1; margin-right: 260px; padding: 25px; box-sizing: border-box; width: calc(100% - 260px); }
         
-        .top-header-bar { display: flex; justify-content: space-between; align-items: center; background: var(--card-bg); border: 1px solid var(--card-border); padding: 12px 25px; border-radius: 14px; margin-bottom: 20px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 10px; }
-        .doctor-profile-top { display: flex; align-items: center; gap: 12px; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); margin-bottom: 20px; }
+        
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 15px; margin-bottom: 20px; }
+        
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; background: white; }
+        th, td { padding: 10px 12px; text-align: right; border-bottom: 1px solid var(--card-border); }
+        th { background-color: #f1f5f9; color: var(--sidebar-bg); font-weight: bold; }
 
-        .global-search-box { flex: 1; max-width: 350px; position: relative; }
-        .global-search-input { width: 100%; padding: 9px 15px; border: 1px solid var(--card-border); border-radius: 20px; font-size: 13px; background-color: #f8fafc; outline: none; box-sizing: border-box; }
-
-        select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold; border-radius: 8px; padding: 6px 10px; }
-
-        .search-results-dropdown { position: absolute; top: 100%; right: 0; left: 0; background: white; border: 1px solid var(--card-border); border-radius: 10px; box-shadow: 0 8px 20px rgba(0,0,0,0.1); max-height: 220px; overflow-y: auto; z-index: 1000; display: none; margin-top: 5px; }
-        .search-result-item { padding: 10px 15px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
-        .search-result-item:hover { background-color: #ecfdf5; color: #065f46; }
-
-        .welcome-banner { background: var(--card-bg); border: 1px solid var(--card-border); padding: 20px 25px; border-radius: 14px; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); flex-wrap: wrap; gap: 15px; }
-
-        .stats-grid-5 { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
-        .stat-card-box { background: var(--card-bg); border: 1px solid var(--card-border); padding: 15px; border-radius: 12px; box-shadow: 0 2px 4px rgba(0,0,0,0.01); display: flex; flex-direction: column; justify-content: space-between; }
-        .stat-card-top { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-gray); margin-bottom: 8px; }
-        .stat-card-value { font-size: 20px; font-weight: bold; color: var(--text-dark); }
-        .stat-trend { font-size: 10px; color: var(--primary-green); margin-top: 4px; font-weight: bold; }
-
-        .middle-grid-3 { display: grid; grid-template-columns: 280px 1fr 300px; gap: 15px; margin-bottom: 20px; }
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .card h3 { margin-top: 0; font-size: 13px; color: var(--text-dark); border-bottom: 1px solid #f1f5f9; padding-bottom: 8px; margin-bottom: 12px; display: flex; align-items: center; gap: 6px; }
-
-        .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 8px; margin-bottom: 8px; font-size: 11px; cursor: pointer; transition: 0.2s; }
-        .alert-item.danger { background: #fef2f2; border: 1px solid #fecaca; color: #991b1b; }
-        .alert-item.warning { background: #fffbeb; border: 1px solid #fde68a; color: #92400e; }
-        .alert-item.info { background: #eff6ff; border: 1px solid #bfdbfe; color: #1e40af; }
-        .alert-item.success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #166534; }
-
-        .mini-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: right; }
-        .mini-table th { color: var(--text-gray); padding: 8px; border-bottom: 2px solid #f1f5f9; font-weight: 600; font-size: 11px; }
-        .mini-table td { padding: 10px 8px; border-bottom: 1px solid #f8fafc; vertical-align: middle; }
-
-        .bottom-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px; margin-bottom: 20px; }
-        .action-btn { border: none; padding: 6px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; color: white; background: var(--primary-green); display: inline-flex; align-items: center; gap: 4px; text-decoration: none; }
-
-        /* Modal styling */
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3000; justify-content: center; align-items: center; }
-        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 600px; max-width: 90%; max-height: 85vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
-
-        .mobile-menu-toggle { display: none; background: #064e3b; color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
+        .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        @media (max-width: 1200px) {
-            .stats-grid-5 { grid-template-columns: repeat(3, 1fr); }
-            .middle-grid-3 { grid-template-columns: 1fr; }
-            .bottom-grid-3 { grid-template-columns: 1fr; }
-        }
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
             .mobile-menu-toggle { display: flex !important; }
-            .stats-grid-5 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -95,9 +65,9 @@
     <div class="sidebar" id="sidebarNav">
         <div>
             <div class="sidebar-brand">
-                <img id="sidebarLogo" src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
-                <h2 id="sidebarDocName">د. شادي سمير</h2>
-                <p id="sidebarDocTitle">استشاري التغذية العلاجية (سمنة - نحافة - ما بعد جراحات السمنة)</p>
+                <img src="logo2.png" alt="Logo" class="brand-logo" onerror="this.src='logo.jpeg'">
+                <h2>د. شادي سمير</h2>
+                <p>استشاري التغذية العلاجية</p>
             </div>
             <ul class="sidebar-menu">
                 <li class="active"><a href="index.html" onclick="toggleMobileSidebar()">🏠 الرئيسية</a></li>
@@ -123,172 +93,19 @@
     <div class="main-content">
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
-        <div class="top-header-bar">
-            <div class="doctor-profile-top">
-                <img id="topAvatarImg" src="logo2.png" alt="Doctor" class="doctor-avatar-top" onerror="this.src='logo.jpeg'">
-                <div>
-                    <h4 id="topDocName" style="margin:0; font-size:14px; color:var(--text-dark);">د. شادي سمير</h4>
-                    <span style="font-size:10px; color:var(--primary-green); font-weight:bold;">طبيب معالج نشط</span>
-                </div>
-            </div>
-
-            <!-- اختيار الطبيب العامل على السيستم -->
-            <div style="display:flex; align-items:center; gap:6px; background:#fffbeb; padding:4px 10px; border:2px solid var(--warning-orange); border-radius:10px;">
-                <span style="font-size:11px; font-weight:bold; color:#92400e;">👨‍⚕️ الطبيب المناوب:</span>
-                <select id="activeDoctorSelect" onchange="changeActiveDoctor(this.value)" style="border:none !important; background:transparent !important; padding:2px; font-size:12px; cursor:pointer;">
-                    <option value="د. شادي سمير">د. شادي سمير</option>
-                </select>
-            </div>
-
-            <div class="global-search-box">
-                <input type="text" id="globalSearchInput" class="global-search-input" placeholder="🔍 البحث الشامل (بالاسم، الكود، أو الهاتف)..." onkeyup="performGlobalSearch()">
-                <div id="searchResultsDropdown" class="search-results-dropdown"></div>
-            </div>
-
-            <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-size:12px; color:var(--text-gray);" id="currentDateDisplay">-</span>
-            </div>
-        </div>
-
-        <div class="welcome-banner">
-            <div>
-                <h2 style="margin:0; font-size:18px; color:var(--text-dark);">مرحباً بك، <span id="welcomeDocName">د. شادي</span> 👋</h2>
-                <p style="margin:3px 0 0 0; font-size:12px; color:var(--text-gray);">إليك ملخص الحلقات والعيادة اليوم</p>
-            </div>
-            <div style="display:flex; gap:10px; align-items:center;">
-                <button onclick="openAuditLogsModal()" class="action-btn" style="background:var(--accent-blue);">📋 سجلات الدخول والنشاطات</button>
-                <button onclick="window.location.href='patients.html'" class="action-btn" style="background:var(--primary-green);">➕ إضافة حالة جديدة</button>
-            </div>
-        </div>
-
-        <div class="stats-grid-5">
-            <div class="stat-card-box">
-                <div class="stat-card-top"><span>إجمالي الإيرادات</span> <span>💰</span></div>
-                <div class="stat-card-value" style="color:var(--primary-green);" id="statRevenue">0 EGP</div>
-                <div class="stat-trend">جنيه مصري</div>
-            </div>
-            <div class="stat-card-box">
-                <div class="stat-card-top"><span>متابعات اليوم</span> <span>📋</span></div>
-                <div class="stat-card-value" id="statFollowups">0</div>
-                <div class="stat-trend">🟢 مسجلة اليوم</div>
-            </div>
-            <div class="stat-card-box">
-                <div class="stat-card-top"><span>مواعيد اليوم</span> <span>📅</span></div>
-                <div class="stat-card-value" style="color:var(--accent-blue);" id="statAppointments">0</div>
-                <div class="stat-trend">⏰ مجدولة</div>
-            </div>
-            <div class="stat-card-box">
-                <div class="stat-card-top"><span>مرضى جدد</span> <span>👤</span></div>
-                <div class="stat-card-value" id="statNewPatients">0</div>
-                <div class="stat-trend">✨ هذا الأسبوع</div>
-            </div>
-            <div class="stat-card-box">
-                <div class="stat-card-top"><span>مرضى اليوم</span> <span>👥</span></div>
-                <div class="stat-card-value" style="color:var(--warning-orange);" id="statTodayTotal">0</div>
-                <div class="stat-trend">⚡ إجمالي الحالات</div>
-            </div>
-        </div>
-
-        <div class="middle-grid-3">
+        <div class="dashboard-grid">
             <div class="card">
-                <h3>🔔 التنبيهات الذكية</h3>
-                <div class="alert-item danger" onclick="window.location.href='patients.html'">
-                    <span>⚠️ مرضى متأخرين عن المتابعة</span>
-                    <strong id="alertDelayedCount">0</strong>
-                </div>
-                <div class="alert-item warning" onclick="window.location.href='appointments.html'">
-                    <span>⏰ مواعيد غداً (خلال 24 ساعة)</span>
-                    <strong id="alertTomorrowCount">0</strong>
-                </div>
-                <div class="alert-item info" onclick="window.location.href='labs.html'">
-                    <span>🧪 تحاليل مستحقة للمراجعة</span>
-                    <strong>0</strong>
-                </div>
-                <div class="alert-item success" onclick="window.location.href='reports.html'">
-                    <span>🎯 مرضى حققوا الهدف بنجاح</span>
-                    <strong>0</strong>
+                <h3 style="margin-top:0; color:var(--sidebar-bg); font-size:15px; border-bottom:1px solid #eee; padding-bottom:8px;">📌 مواعيد قادمة وتذكيرات</h3>
+                <div id="upcomingAppointmentsBox" style="max-height: 200px; overflow-y: auto; font-size: 13px;">
+                    <p style="color: gray; text-align: center; padding: 15px;">جاري جلب المواعيد القادمة...</p>
                 </div>
             </div>
 
             <div class="card">
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-                    <h3 style="margin:0; border:none; padding:0;">📅 مواعيد اليوم (<span id="todayDateLabel">اليوم</span>)</h3>
-                    <a href="appointments.html" style="font-size:11px; color:var(--accent-blue); text-decoration:none; font-weight:bold;">عرض الجدول الكامل</a>
+                <h3 style="margin-top:0; color:var(--sidebar-bg); font-size:15px; border-bottom:1px solid #eee; padding-bottom:8px;">🔔 التنبيهات الذكية</h3>
+                <div style="font-size: 13px; color: var(--text-gray); padding: 10px 0;">
+                    <p>✔️ النظام يعمل بانتظام مع قاعدة بيانات SQL.</p>
                 </div>
-                <div style="overflow-x: auto;">
-                    <table class="mini-table">
-                        <thead>
-                            <tr>
-                                <th>الوقت</th>
-                                <th>المريض</th>
-                                <th>نوع الزيارة</th>
-                                <th>الحالة</th>
-                                <th>الإجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="todayAppointmentsTableBody">
-                            <tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">جاري تحميل مواعيد اليوم...</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-
-            <div class="card" style="text-align: center;">
-                <h3>🩺 توزيع الحالات والعيادة</h3>
-                <div style="height: 160px; width: 100%; position: relative; margin-bottom: 10px;">
-                    <canvas id="casesPieChart"></canvas>
-                </div>
-                <button onclick="window.location.href='patients.html'" class="action-btn" style="width:100%; justify-content:center; background:var(--text-dark);">عرض جميع الحالات المسجلة</button>
-            </div>
-        </div>
-
-        <div class="bottom-grid-3">
-            <div class="card">
-                <h3>📈 تطور الوزن العام للعيادة</h3>
-                <div style="height: 160px; width: 100%; position: relative;">
-                    <canvas id="weightTrendChart"></canvas>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>📌 مواعيد قادمة وتذكيرات</h3>
-                <div id="upcomingRemindersList" style="font-size:11px; color:var(--text-gray);">
-                    <div style="padding: 8px; color: gray;">جاري جلب المواعيد القادمة...</div>
-                </div>
-            </div>
-
-            <div class="card">
-                <h3>🔔 آخر النشاطات والتنبيهات</h3>
-                <div id="recentActivityList" style="font-size:11px; color:var(--text-gray);">
-                    <div style="padding: 8px; border-bottom: 1px solid #f1f5f9;">تم تحديث قاعدة بيانات SQL بنجاح 🟢</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- نافذة سجلات الدخول والنشاطات (Audit Logs) -->
-    <div id="auditModal" class="modal-overlay">
-        <div class="modal-box">
-            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; padding-bottom:10px; margin-bottom:15px;">
-                <h3 style="margin:0; font-size:15px; color:var(--text-dark);">📋 سجل نشاطات الأطباء والدخول على السيستم</h3>
-                <button onclick="closeAuditModal()" style="border:none; background:none; font-size:16px; cursor:pointer; font-weight:bold;">✕</button>
-            </div>
-            <div style="overflow-x: auto;">
-                <table class="mini-table">
-                    <thead>
-                        <tr>
-                            <th>الطبيب المعالج</th>
-                            <th>الإجراء / النشاط</th>
-                            <th>التاريخ والوقت</th>
-                        </tr>
-                    </thead>
-                    <tbody id="auditTableBody">
-                        <tr><td colspan="3" style="text-align:center; padding:15px; color:gray;">جاري جلب السجلات...</td></tr>
-                    </tbody>
-                </table>
-            </div>
-            <div style="margin-top: 15px; text-align: left;">
-                <button onclick="closeAuditModal()" class="action-btn" style="background:#64748b;">إغلاق</button>
             </div>
         </div>
     </div>
@@ -298,332 +115,36 @@
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        let globalPatientsMasterList = [];
-        let pieChartInstance = null;
-        let trendChartInstance = null;
+        async function loadUpcomingAppointments() {
+            let box = document.getElementById('upcomingAppointmentsBox');
+            try {
+                // جلب المواعيد من جدول appointments
+                const { data, error } = await supabaseClient.from('appointments').select('*').limit(5);
+                if (error || !data || data.length === 0) {
+                    box.innerHTML = `<p style="color: gray; text-align: center; padding: 15px;">لا توجد مواعيد قادمة مسجلة.</p>`;
+                    return;
+                }
+
+                let html = `<table><thead><tr><th>المريض</th><th>التاريخ والوقت</th><th>الحالة</th></tr></thead><tbody>`;
+                data.forEach(app => {
+                    let pName = app.patient_name || app.name || 'مريض';
+                    let appDate = app.date || app.appointment_date || 'قريبآ';
+                    let status = app.status || 'مجدولة';
+                    html += `<tr><td><strong>${pName}</strong></td><td>${appDate}</td><td><span style="color:var(--primary-green);">${status}</span></td></tr>`;
+                });
+                html += `</tbody></table>`;
+                box.innerHTML = html;
+            } catch(e) {
+                box.innerHTML = `<p style="color: gray; text-align: center; padding: 15px;">لا توجد مواعيد قادمة مسجلة.</p>`;
+            }
+        }
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
-        async function loadDoctorsListForDropdown() {
-            let dropdown = document.getElementById('activeDoctorSelect');
-            let { data, error } = await supabaseClient.from('doctors').select('*');
-            if (!error && data && data.length > 0) {
-                dropdown.innerHTML = '';
-                data.forEach(d => {
-                    let name = d.doctor_name || d.name || 'طبيب';
-                    dropdown.innerHTML += `<option value="${name}">${name}</option>`;
-                });
-            }
-
-            // استرجاع الطبيب النشط لو كان محفوظاً
-            let savedDoc = localStorage.getItem('active_clinic_doctor');
-            if (savedDoc) {
-                dropdown.value = savedDoc;
-                updateActiveDoctorUI(savedDoc);
-            } else {
-                localStorage.setItem('active_clinic_doctor', dropdown.value);
-                logSystemActivity(dropdown.value, 'تسجيل الدخول والبدء على السيستم');
-            }
-        }
-
-        function changeActiveDoctor(docName) {
-            localStorage.setItem('active_clinic_doctor', docName);
-            updateActiveDoctorUI(docName);
-            logSystemActivity(docName, 'تبديل الحساب والعمل على السيستم');
-            alert(`✨ تم تفعيل حساب الطبيب: ${docName} بنجاح!`);
-        }
-
-        function updateActiveDoctorUI(docName) {
-            document.getElementById('sidebarDocName').innerText = docName;
-            document.getElementById('topDocName').innerText = docName;
-            document.getElementById('welcomeDocName').innerText = docName;
-        }
-
-        async function logSystemActivity(doctorName, actionText) {
-            try {
-                await supabaseClient.from('audit_logs').insert([{
-                    doctor_name: doctorName,
-                    action: actionText,
-                    timestamp: new Date().toISOString()
-                }]);
-            } catch (e) {
-                console.log("Audit log saved locally or table pending");
-            }
-        }
-
-        async function openAuditLogsModal() {
-            document.getElementById('auditModal').style.display = 'flex';
-            let tbody = document.getElementById('auditTableBody');
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:15px; color:gray;">جاري جلب السجلات...</td></tr>`;
-
-            let { data, error } = await supabaseClient.from('audit_logs').select('*').order('timestamp', { ascending: false }).limit(20);
-            if (error || !data || data.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:15px; color:gray;">لا توجد سجلات دخول مسجلة حالياً (أو الجدول قيد التنشيط). ملاحظة: الطبيب الحالي النشط هو: ${localStorage.getItem('active_clinic_doctor') || 'د. شادي سمير'}</td></tr>`;
-                return;
-            }
-
-            tbody.innerHTML = '';
-            data.forEach(log => {
-                let dName = log.doctor_name || 'طبيب';
-                let act = log.action || 'نشاط على السيستم';
-                let time = log.timestamp ? new Date(log.timestamp).toLocaleString('ar-EG') : 'وقت سابق';
-                tbody.innerHTML += `
-                    <tr>
-                        <td><strong>${dName}</strong></td>
-                        <td>${act}</td>
-                        <td>${time}</td>
-                    </tr>
-                `;
-            });
-        }
-
-        function closeAuditModal() {
-            document.getElementById('auditModal').style.display = 'none';
-        }
-
-        async function loadDashboardData() {
-            await loadDoctorsListForDropdown();
-
-            let options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-            let todayFormattedStr = new Date().toLocaleDateString('ar-EG', options);
-            document.getElementById('currentDateDisplay').innerText = todayFormattedStr;
-            document.getElementById('todayDateLabel').innerText = new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric' });
-
-            let dToday = new Date();
-            let year = dToday.getFullYear();
-            let month = String(dToday.getMonth() + 1).padStart(2, '0');
-            let day = String(dToday.getDate()).padStart(2, '0');
-            let todaySqlStr = `${year}-${month}-${day}`;
-
-            let dTomorrow = new Date(dToday);
-            dTomorrow.setDate(dTomorrow.getDate() + 1);
-            let tYear = dTomorrow.getFullYear();
-            let tMonth = String(dTomorrow.getMonth() + 1).padStart(2, '0');
-            let tDay = String(dTomorrow.getDate()).padStart(2, '0');
-            let tomorrowSqlStr = `${tYear}-${tMonth}-${tDay}`;
-
-            try {
-                const { data: settingsData } = await supabaseClient.from('clinic_settings').select('*').limit(1);
-                if (settingsData && settingsData.length > 0) {
-                    let s = settingsData[0];
-                    if (s.doctor_title) {
-                        document.getElementById('sidebarDocTitle').innerText = s.doctor_title;
-                    }
-                    if (s.logo_url && s.logo_url.trim() !== "") {
-                        document.getElementById('sidebarLogo').src = s.logo_url;
-                        document.getElementById('topAvatarImg').src = s.logo_url;
-                    }
-                }
-
-                const { data: patData } = await supabaseClient.from('patients').select('*');
-                const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
-                const { data: appData } = await supabaseClient.from('appointments').select('*');
-                const { data: payData } = await supabaseClient.from('payments').select('*');
-
-                globalPatientsMasterList = [];
-                if (patData) patData.forEach(p => globalPatientsMasterList.push({ ...p, _table: 'patients' }));
-                if (barData) barData.forEach(b => globalPatientsMasterList.push({ ...b, _table: 'bariatric_cases' }));
-
-                let totalPat = globalPatientsMasterList.length;
-
-                let todayAppointments = [];
-                let tomorrowCount = 0;
-                let upcomingAppointments = [];
-                
-                if (appData) {
-                    appData.forEach(app => {
-                        let appDate = app.date || app.appointment_date || '';
-                        if (appDate.includes(todaySqlStr) || appDate === todaySqlStr) {
-                            todayAppointments.push(app);
-                        }
-                        if (appDate.includes(tomorrowSqlStr) || appDate === tomorrowSqlStr) {
-                            tomorrowCount++;
-                        }
-                        if (appDate > todaySqlStr) {
-                            upcomingAppointments.push(app);
-                        }
-                    });
-                }
-
-                let totalRevenue = 0;
-                if (payData) {
-                    payData.forEach(pay => {
-                        totalRevenue += parseFloat(pay.amount || pay.price || 0);
-                    });
-                }
-
-                document.getElementById('statRevenue').innerText = totalRevenue.toLocaleString() + ' EGP';
-                document.getElementById('statFollowups').innerText = todayAppointments.length;
-                document.getElementById('statAppointments').innerText = appData ? appData.length : 0;
-                document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
-                document.getElementById('statTodayTotal').innerText = totalPat;
-
-                document.getElementById('alertDelayedCount').innerText = Math.floor(totalPat / 3);
-                document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
-
-                renderTodayAppointments(todayAppointments);
-                renderUpcomingReminders(upcomingAppointments);
-
-                renderPieChart(patData ? patData.length : 0, barData ? barData.length : 0);
-                renderTrendChart();
-
-            } catch (err) {
-                console.error("Error loading dashboard data:", err);
-            }
-        }
-
-        function renderTodayAppointments(todayList) {
-            let tbody = document.getElementById('todayAppointmentsTableBody');
-            tbody.innerHTML = '';
-
-            if (todayList.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:gray; padding:15px;">لا توجد مواعيد مسجلة لتاريخ اليوم.</td></tr>`;
-                return;
-            }
-
-            todayList.forEach(app => {
-                let time = app.time || '10:00 ص';
-                let name = app.patient_name || 'مريض';
-                let type = app.visit_type || 'متابعة';
-                let status = app.status || 'مؤكد';
-                let statusBadge = status === 'مؤكد' ? '<span style="color:#166534; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:bold;">مؤكد</span>' : '<span style="color:#92400e; background:#fef3c7; padding:2px 6px; border-radius:4px; font-weight:bold;">في الانتظار</span>';
-
-                tbody.innerHTML += `
-                    <tr>
-                        <td>${time}</td>
-                        <td><strong>${name}</strong></td>
-                        <td>${type}</td>
-                        <td>${statusBadge}</td>
-                        <td><a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn">📁 فتح الملف</a></td>
-                    </tr>
-                `;
-            });
-        }
-
-        function renderUpcomingReminders(upcomingList) {
-            let container = document.getElementById('upcomingRemindersList');
-            container.innerHTML = '';
-
-            if (upcomingList.length === 0) {
-                container.innerHTML = `<div style="padding: 8px; color: gray;">لا توجد مواعيد قادمة مسجلة.</div>`;
-                return;
-            }
-
-            upcomingList.slice(0, 4).forEach(app => {
-                let name = app.patient_name || 'مريض';
-                let date = app.date || app.appointment_date || 'قريباً';
-                let time = app.time || '';
-                let type = app.visit_type || 'متابعة';
-
-                container.innerHTML += `
-                    <div style="padding: 8px 0; border-bottom: 1px solid #f1f5f9; display: flex; justify-content: space-between; align-items: center;">
-                        <div>
-                            <strong>${name}</strong><br>
-                            <span style="color:var(--text-gray);">${type} - ${date} ${time}</span>
-                        </div>
-                        <a href="patient-profile.html?name=${encodeURIComponent(name)}" style="font-size:10px; color:var(--accent-blue); text-decoration:none; font-weight:bold;">ملف الحالة</a>
-                    </div>
-                `;
-            });
-        }
-
-        function performGlobalSearch() {
-            let query = document.getElementById('globalSearchInput').value.toLowerCase().trim();
-            let dropdown = document.getElementById('searchResultsDropdown');
-
-            if (query === '') {
-                dropdown.style.display = 'none';
-                return;
-            }
-
-            let matches = globalPatientsMasterList.filter(p => {
-                let name = (p.patient_name || p.name || '').toLowerCase();
-                let phone = (p.phone || '').toLowerCase();
-                let code = (p.patient_code || p.code || '').toLowerCase();
-                return name.includes(query) || phone.includes(query) || code.includes(query);
-            });
-
-            if (matches.length === 0) {
-                dropdown.innerHTML = `<div class="search-result-item" style="color:gray;">لا توجد نتائج مطابقة لـ "${query}"</div>`;
-                dropdown.style.display = 'block';
-                return;
-            }
-
-            let html = '';
-            matches.forEach(p => {
-                let name = p.patient_name || p.name || 'بدون اسم';
-                let code = p.patient_code || p.code || 'بدون كود';
-                let phone = p.phone || 'غير مسجل';
-                let cat = p.category || p.surgery_type || 'تغذية';
-
-                html += `
-                    <div class="search-result-item" onclick="window.location.href='patient-profile.html?name=${encodeURIComponent(name)}'">
-                        <div>
-                            <strong>${name}</strong> <span style="font-size:11px; color:var(--accent-blue);">(${code})</span><br>
-                            <span style="font-size:11px; color:var(--text-gray);">الهاتف: ${phone} | التصنيف: ${cat}</span>
-                        </div>
-                        <span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">فتح الملف 📂</span>
-                    </div>
-                `;
-            });
-
-            dropdown.innerHTML = html;
-            dropdown.style.display = 'block';
-        }
-
-        function renderPieChart(patientsCount, bariatricCount) {
-            const ctx = document.getElementById('casesPieChart').getContext('2d');
-            if (pieChartInstance) pieChartInstance.destroy();
-
-            pieChartInstance = new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['مرضى عامة ونحافة', 'جراحات سمنة'],
-                    datasets: [{
-                        data: [patientsCount, bariatricCount],
-                        backgroundColor: ['#0284c7', '#059669'],
-                        borderWidth: 2
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
-                }
-            });
-        }
-
-        function renderTrendChart() {
-            const ctx = document.getElementById('weightTrendChart').getContext('2d');
-            if (trendChartInstance) trendChartInstance.destroy();
-
-            trendChartInstance = new Chart(ctx, {
-                type: 'line',
-                data: {
-                    labels: ['الأسبوع الماضي', 'قبل 5 أيام', 'قبل 4 أيام', 'قبل 3 أيام', 'قبل يومين', 'أمس', 'اليوم'],
-                    datasets: [{
-                        label: 'متوسط الوزن العام (كجم)',
-                        data: [110, 108, 107, 107.5, 106, 104, 102.4],
-                        borderColor: '#059669',
-                        backgroundColor: 'rgba(5, 150, 105, 0.1)',
-                        borderWidth: 2.5,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { grid: { color: '#f1f5f9' } }, x: { grid: { display: false } } }
-                }
-            });
-        }
-
-        window.onload = loadDashboardData;
+        window.onload = loadUpcomingAppointments;
     </script>
 </body>
 </html>
