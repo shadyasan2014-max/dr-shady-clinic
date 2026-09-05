@@ -171,10 +171,17 @@
                 let html = '';
                 data.forEach((app, idx) => {
                     let name = app.patient_name || app.name || 'مريض';
-                    let date = app.date || app.appointment_date || 'قريباً';
-                    let time = app.time || '';
+                    let date = app.date || app.appointment_date || '-';
+                    let time = app.time || '-';
                     let type = app.visit_type || 'متابعة';
-                    let status = app.status || 'مؤكدة';
+                    let status = app.status || 'في الانتظار';
+
+                    let statusBadge = '';
+                    if (status.includes('تمت') || status.includes('مكتملة')) {
+                        statusBadge = `<span style="color:#166534; background:#dcfce7; padding:3px 8px; border-radius:6px; font-weight:bold;">✅ تمت الزيارة</span>`;
+                    } else {
+                        statusBadge = `<span style="color:#92400e; background:#fef3c7; padding:3px 8px; border-radius:6px; font-weight:bold;">⏰ في الانتظار</span>`;
+                    }
 
                     html += `
                         <tr>
@@ -183,7 +190,7 @@
                             <td>${date}</td>
                             <td>${time}</td>
                             <td>${type}</td>
-                            <td><span style="color:var(--primary-green); font-weight:bold;">${status}</span></td>
+                            <td>${statusBadge}</td>
                             <td><a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn">📁 فتح الملف</a></td>
                         </tr>
                     `;
@@ -211,7 +218,7 @@
                 appointment_date: date,
                 time: time,
                 visit_type: visit_type,
-                status: 'مؤكدة'
+                status: 'في الانتظار'
             }]);
 
             if (error) { alert('خطأ أثناء حفظ الموعد: ' + error.message); return; }
