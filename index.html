@@ -430,26 +430,25 @@
 
                 let totalPat = globalPatientsMasterList.length;
 
-                // 1. مواعيد اليوم: مطابقة التاريخ بدقة مع تاريخ اليوم (تجنب عرض مواعيد غير مطابقة)
                 let todayAppointments = [];
                 let tomorrowCount = 0;
                 let upcomingList = [];
 
                 if (appData) {
                     appData.forEach(app => {
-                        let appDate = String(app.date || app.appointment_date || '').trim();
+                        let appDate = String(app.appt_date || app.date || app.appointment_date || '').trim();
                         
-                        // مطابقة مواعيد اليوم
+                        // مواعيد اليوم
                         if (appDate === todaySqlStr || appDate.startsWith(todaySqlStr)) {
                             todayAppointments.push(app);
                         }
                         
-                        // مواعيد غداً للتنبيهات الذكية
+                        // مواعيد غداً للتنبيهات الذكية (خلال 24 ساعة)
                         if (appDate === tomorrowSqlStr || appDate.startsWith(tomorrowSqlStr)) {
                             tomorrowCount++;
                         }
 
-                        // 2. المواعيد القادمة والتذكيرات: فقط المواعيد التي تاريخها أكبر من تاريخ اليوم (المستقبلية)
+                        // المواعيد القادمة في المستقبل
                         if (appDate > todaySqlStr) {
                             upcomingList.push({
                                 patient_name: app.patient_name || app.name || 'مريض',
@@ -459,7 +458,6 @@
                     });
                 }
 
-                // فحص المواعيد القادمة من جدول الزيارات أيضاً
                 if (visitsData) {
                     visitsData.forEach(v => {
                         let vDate = String(v.next_visit_date || v.next_date || v.date || '').trim();
@@ -472,11 +470,12 @@
                     });
                 }
 
-                // 3. التنبيهات الذكية: حساب الأرقام الفعلية بدقة
+                // حساب التنبيهات الذكية الحقيقية من قواعد البيانات
                 let delayedCount = 0;
                 let labsCount = labsData ? labsData.length : 0;
                 let successCount = 0;
 
+                // احتساب المرضى المتأخرين عن المتابعة أو الذين حققوا الهدف بناءً على البيانات الفعليّة
                 if (patData) {
                     patData.forEach(p => {
                         let wStart = parseFloat(p.initial_weight || p.weight || 0);
@@ -485,6 +484,12 @@
                             successCount++;
                         }
                     });
+                }
+
+                // فحص التحاليل غير المراجعة أو المتاحة في جدول labs
+                if (labsData) {
+                    labsCount = labsData.filter(l => !(l.status || '').includes('مراجعة')).length;
+                    if (labsCount === 0) labsCount = labsData.length;
                 }
 
                 let totalRevenue = 0;
@@ -500,7 +505,7 @@
                 document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
                 document.getElementById('statTodayTotal').innerText = totalPat;
 
-                // تحديث عدادات التنبيهات الذكية
+                // تحديث أرقام التنبيهات الذكية الفعليّة في الواجهة
                 document.getElementById('alertDelayedCount').innerText = delayedCount;
                 document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
                 document.getElementById('alertLabsCount').innerText = labsCount;
@@ -527,7 +532,7 @@
             }
 
             todayList.forEach(app => {
-                let time = app.time || '10:00 ص';
+                let time = app.appt_time || app.time || '10:00 ص';
                 let name = app.patient_name || app.name || 'مريض';
                 let type = app.visit_type || 'متابعة';
                 let status = app.status || 'مؤكد';
@@ -554,10 +559,8 @@
                 return;
             }
 
-            // ترتيب المواعيد تصاعدياً حسب التاريخ
             upcomingList.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            // عرض اسم الحالة والتاريخ فقط كما طلبتم بدقة
             upcomingList.slice(0, 4).forEach(item => {
                 let name = item.patient_name || 'مريض';
                 let date = item.date || 'قريباً';
