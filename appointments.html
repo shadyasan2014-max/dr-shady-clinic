@@ -171,8 +171,8 @@
 
                 let html = '';
                 data.forEach((app, idx) => {
-                    let name = app.patient_name || app.name || app.patient || 'مريض';
-                    let date = app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
+                    let name = app.patient_name || app.patient || 'مريض';
+                    let date = app.date || app.appointment_date || app.visit_date || '-';
                     let time = app.time || app.appointment_time || app.visit_time || '-';
                     let type = app.visit_type || app.type || 'متابعة';
                     let status = app.status || 'في الانتظار';
@@ -219,7 +219,7 @@
         function prepareEditAppointment(app) {
             document.getElementById('modalTitle').innerText = '✏️ تعديل بيانات الموعد';
             document.getElementById('editApptId').value = app.id || '';
-            document.getElementById('apptPatientName').value = app.patient_name || app.name || '';
+            document.getElementById('apptPatientName').value = app.patient_name || app.patient || '';
             document.getElementById('apptDate').value = app.date || app.appointment_date || app.visit_date || '';
             document.getElementById('apptTime').value = app.time || app.appointment_time || '';
             if(app.visit_type) document.getElementById('apptType').value = app.visit_type;
@@ -238,7 +238,6 @@
 
             let payload = {
                 patient_name: patient_name,
-                name: patient_name,
                 date: date,
                 appointment_date: date,
                 time: time,
