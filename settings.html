@@ -112,7 +112,7 @@
             </div>
 
             <form onsubmit="saveOrUpdateDoctorSQL(event)">
-                <input type="hidden" id="selectedDoctorId">
+                <input type="hidden" id="originalDoctorName">
                 <div class="form-group">
                     <label>اسم الطبيب ولقبه الأكاديمي:</label>
                     <input type="text" id="doctorName" class="form-control" required placeholder="مثال: د. شادي سمير">
@@ -184,21 +184,22 @@
             if (idx === "") return;
             let doc = cachedDoctors[idx];
 
-            document.getElementById('doctorName').value = doc.doctor_name || doc.name || '';
+            let docName = doc.doctor_name || doc.name || '';
+            document.getElementById('doctorName').value = docName;
+            document.getElementById('originalDoctorName').value = docName;
             document.getElementById('doctorTitle').value = doc.title || doc.specialty || '';
             document.getElementById('clinicPhone').value = doc.phone || '';
-            document.getElementById('selectedDoctorId').value = doc.id || '';
         }
 
         async function saveOrUpdateDoctorSQL(e) {
             e.preventDefault();
-            let id = document.getElementById('selectedDoctorId').value;
+            let originalName = document.getElementById('originalDoctorName').value;
             let name = document.getElementById('doctorName').value;
             let title = document.getElementById('doctorTitle').value;
             let phone = document.getElementById('clinicPhone').value;
 
-            if (!id) {
-                alert('الرجاء اختيار طبيب أولاً من القائمة العلوية لتعديله.');
+            if (!originalName) {
+                alert('الرجاء اختيار طبيب من القائمة العلوية أولاً لتعديله.');
                 return;
             }
 
@@ -210,29 +211,36 @@
                 phone: phone
             };
 
-            let { error } = await supabaseClient.from('doctors').update(updatePayload).eq('id', id);
+            // التحديث بالاسم القديم الأصلي لضمان التطابق الفعلي في SQL
+            let { error } = await supabaseClient.from('doctors')
+                .update(updatePayload)
+                .or(`doctor_name.eq.${originalName},name.eq.${originalName}`);
+
             if (error) { alert('خطأ أثناء التحديث: ' + error.message); return; }
 
             alert('✨ تم تحديث بيانات الطبيب في SQL بنجاح!');
-            await loadDoctorsDropdown(); // تحديث القائمة فوراً
+            document.getElementById('originalDoctorName').value = name;
+            await loadDoctorsDropdown();
         }
 
         async function deleteSelectedDoctor() {
-            let id = document.getElementById('selectedDoctorId').value;
-            let name = document.getElementById('doctorName').value;
-            if (!id) { alert('الرجاء اختيار طبيب من القائمة أولاً للحذف.'); return; }
+            let originalName = document.getElementById('originalDoctorName').value;
+            if (!originalName) { alert('الرجاء اختيار طبيب من القائمة أولاً للحذف.'); return; }
 
-            if (!confirm(`هل أنت متأكد من حذف الطبيب (${name})؟`)) return;
+            if (!confirm(`هل أنت متأكد من حذف الطبيب (${originalName})؟`)) return;
 
-            let { error } = await supabaseClient.from('doctors').delete().eq('id', id);
+            let { error } = await supabaseClient.from('doctors')
+                .delete()
+                .or(`doctor_name.eq.${originalName},name.eq.${originalName}`);
+
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
 
             alert('🗑️ تم حذف الطبيب بنجاح.');
             document.getElementById('doctorName').value = '';
             document.getElementById('doctorTitle').value = '';
             document.getElementById('clinicPhone').value = '';
-            document.getElementById('selectedDoctorId').value = '';
-            await loadDoctorsDropdown(); // تحديث القائمة فوراً
+            document.getElementById('originalDoctorName').value = '';
+            await loadDoctorsDropdown();
         }
 
         function openAddDoctorModal() { document.getElementById('addDoctorModal').style.display = 'flex'; }
@@ -259,7 +267,7 @@
             document.getElementById('newDocName').value = '';
             document.getElementById('newDocTitle').value = '';
             document.getElementById('newDocPhone').value = '';
-            await loadDoctorsDropdown(); // تحديث القائمة فوراً
+            await loadDoctorsDropdown();
         }
 
         window.onload = loadDoctorsDropdown;
