@@ -722,8 +722,33 @@
         }
 
         function sendPlanWhatsApp() {
-            let notes = document.getElementById('previousPlanText').innerText;
-            let msg = `🌟 أهلاً بك في عيادة د. شادي سمير\n\nإليك خطتك الطبية:\n${notes}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
+            let activePlanText = "";
+            
+            if (currentSystem === 'period') {
+                let periodTextElem = document.getElementById('periodSystemText');
+                activePlanText = periodTextElem ? periodTextElem.value : "";
+            } else if (currentSystem === 'daily') {
+                let mealInputs = document.querySelectorAll('.meal-input');
+                let parts = [];
+                mealInputs.forEach(input => {
+                    if(input.value.trim() !== "") {
+                        let label = input.previousElementSibling ? input.previousElementSibling.innerText : "";
+                        parts.push(label + " " + input.value);
+                    }
+                });
+                activePlanText = "النظام اليومي:\n" + parts.join("\n");
+            } else {
+                let periodTextElem = document.getElementById('periodSystemText');
+                activePlanText = periodTextElem ? periodTextElem.value : document.getElementById('doctorNotesInput').value;
+            }
+
+            if (!activePlanText || activePlanText.trim() === "") {
+                activePlanText = loadedPatientData && loadedPatientData.diet_plan ? loadedPatientData.diet_plan : document.getElementById('doctorNotesInput').value;
+            }
+
+            let pName = loadedPatientData ? (loadedPatientData.patient_name || loadedPatientData.name || 'عزيزي المريض') : 'عزيزي المريض';
+            let msg = `🌟 أهلاً بك يا ${pName} في عيادة د. شادي سمير\n\nإليك خطتك الطبية الجديدة:\n${activePlanText}\n\nمع تمنياتنا بدوام الصحة والعافية! 🩺`;
+            
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
