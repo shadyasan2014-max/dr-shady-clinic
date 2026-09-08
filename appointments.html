@@ -52,6 +52,8 @@
         .form-group label { display: block; font-size: 13px; font-weight: bold; color: var(--text-gray); margin-bottom: 6px; }
         .form-control { width: 100%; padding: 10px 14px; border: 1px solid var(--card-border); border-radius: 10px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); direction: rtl; text-align: right; }
 
+        .sort-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 7px 12px !important; font-size: 12px; cursor: pointer; }
+
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
@@ -104,8 +106,25 @@
             </h2>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
-                <h3 style="margin:0; font-size:15px; color:var(--text-dark);">📌 جميع المواعيد المسجلة في النظام</h3>
-                <button onclick="openAddAppointmentModal()" class="action-btn" style="background:var(--accent-blue); padding: 10px 16px;">➕ حجز موعد جديد</button>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <h3 style="margin:0; font-size:15px; color:var(--text-dark);">📌 جميع المواعيد المسجلة في النظام</h3>
+                </div>
+                
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <!-- خيارات الترتيب -->
+                    <div style="display:flex; align-items:center; gap:5px;">
+                        <span style="font-size:12px; font-weight:bold; color:var(--text-gray);">🗂️ الترتيب:</span>
+                        <select id="sortOrderSelect" class="sort-select" onchange="loadAppointmentsTable()">
+                            <option value="status_asc">حسب الحالة (في الانتظار أولاً)</option>
+                            <option value="date_asc">التاريخ (تصاعدي - الأقرب أولاً)</option>
+                            <option value="date_desc">التاريخ (تنازلي - الأبعد أولاً)</option>
+                            <option value="name_asc">اسم المريض (تصاعدي أ-ي)</option>
+                            <option value="name_desc">اسم المريض (تنازلي ي-أ)</option>
+                        </select>
+                    </div>
+
+                    <button onclick="openAddAppointmentModal()" class="action-btn" style="background:var(--accent-blue); padding: 9px 16px;">➕ حجز موعد جديد</button>
+                </div>
             </div>
 
             <div style="overflow-x: auto;">
@@ -172,8 +191,9 @@
 
         async function loadAppointmentsTable() {
             let tbody = document.getElementById('appointmentsTableBody');
+            let sortType = document.getElementById('sortOrderSelect').value;
+
             try {
-                // جلب المواعيد والحالات المسجلة معاً
                 const { data, error } = await supabaseClient.from('appointments').select('*');
                 const { data: patData } = await supabaseClient.from('patients').select('*');
                 const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
@@ -194,6 +214,36 @@
                     tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: gray; padding: 20px;">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
                     return;
                 }
+
+                // تطبيق خيارات الترتيب حسب طلب د. شادي
+                data.sort((a, b) => {
+                    let nameA = (a.patient_name || a.name || '').toLowerCase();
+                    let nameB = (b.patient_name || b.name || '').toLowerCase();
+                    let dateA = a.appt_date || a.date || a.appointment_date || '1970-01-01';
+                    let dateB = b.appt_date || b.date || b.appointment_date || '1970-01-01';
+                    let statusA = String(a.status || 'في الانتظار');
+                    let statusB = String(b.status || 'في الانتظار');
+
+                    let isFinishedA = statusA.includes('تمت') || statusA.includes('مكتملة') ? 1 : 0;
+                    let isFinishedB = statusB.includes('تمت') || statusB.includes('مكتملة') ? 1 : 0;
+
+                    if (sortType === 'status_asc') {
+                        // "في الانتظار" أولاً (0)، و"تمت الزيارة" في الآخر (1)
+                        if (isFinishedA !== isFinishedB) {
+                            return isFinishedA - isFinishedB;
+                        }
+                        return new Date(dateA) - new Date(dateB);
+                    } else if (sortType === 'date_asc') {
+                        return new Date(dateA) - new Date(dateB);
+                    } else if (sortType === 'date_desc') {
+                        return new Date(dateB) - new Date(dateA);
+                    } else if (sortType === 'name_asc') {
+                        return nameA.localeCompare(nameB, 'ar');
+                    } else if (sortType === 'name_desc') {
+                        return nameB.localeCompare(nameA, 'ar');
+                    }
+                    return 0;
+                });
 
                 let html = '';
                 data.forEach((app, idx) => {
