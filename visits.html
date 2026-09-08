@@ -141,20 +141,32 @@
 
         async function loadVisitsTable() {
             let tbody = document.getElementById('visitsTableBody');
-            let sortType = document.getElementById('sortVisitsSelect').value;
+            let sortType = document.getElementById('sortVisitsSelect'.value);
 
             try {
-                const { data, error } = await supabaseClient.from('visits').select('*');
-                if (error || !data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: gray; padding: 20px;">لا توجد زيارات مسجلة حالياً.</td></tr>`;
+                // جلب البيانات من جدول visits أو appointments لضمان ظهور كل السجلات
+                let { data: visData } = await supabaseClient.from('visits').select('*');
+                let { data: appData } = await supabaseClient.from('appointments').select('*');
+
+                let combinedList = [];
+                if (visData) visData.forEach(v => combinedList.push({ ...v, _sourceTable: 'visits' }));
+                if (appData) appData.forEach(a => {
+                    // إذا لم تكن موجودة في visits أو لجلب كافة المواعيد والزيارات
+                    combinedList.push({ ...a, visit_date: a.appt_date || a.date, visit_type: a.visit_type || 'متابعة', _sourceTable: 'appointments' });
+                });
+
+                if (combinedList.length === 0) {
+                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: gray; padding: 20px;">لا توجد زيارات أو مواعيد مسجلة حالياً.</td></tr>`;
                     return;
                 }
 
-                data.sort((a, b) => {
+                let sortSelectVal = document.getElementById('sortVisitsSelect').value;
+
+                combinedList.sort((a, b) => {
                     let nameA = (a.patient_name || a.name || '').toLowerCase();
                     let nameB = (b.patient_name || b.name || '').toLowerCase();
-                    let dateA = a.visit_date || a.date || a.created_at || '1970-01-01';
-                    let dateB = b.visit_date || b.date || b.created_at || '1970-01-01';
+                    let dateA = a.visit_date || a.appt_date || a.date || '1970-01-01';
+                    let dateB = b.visit_date || b.appt_date || b.date || '1970-01-01';
                     
                     let statusA = String(a.status || a.visit_status || a.state || 'في الانتظار');
                     let statusB = String(b.status || b.visit_status || b.state || 'في الانتظار');
@@ -162,31 +174,32 @@
                     let isFinishedA = statusA.includes('تمت') || statusA.includes('مكتملة') ? 1 : 0;
                     let isFinishedB = statusB.includes('تمت') || statusB.includes('مكتملة') ? 1 : 0;
 
-                    if (sortType === 'status_asc') {
+                    if (sortSelectVal === 'status_asc') {
                         if (isFinishedA !== isFinishedB) {
                             return isFinishedA - isFinishedB;
                         }
                         return new Date(dateB) - new Date(dateA);
-                    } else if (sortType === 'date_desc') {
+                    } else if (sortSelectVal === 'date_desc') {
                         return new Date(dateB) - new Date(dateA);
-                    } else if (sortType === 'date_asc') {
+                    } else if (sortSelectVal === 'date_asc') {
                         return new Date(dateA) - new Date(dateB);
-                    } else if (sortType === 'name_asc') {
+                    } else if (sortSelectVal === 'name_asc') {
                         return nameA.localeCompare(nameB, 'ar');
-                    } else if (sortType === 'name_desc') {
+                    } else if (sortSelectVal === 'name_desc') {
                         return nameB.localeCompare(nameA, 'ar');
                     }
                     return 0;
                 });
 
                 let html = '';
-                data.forEach((v, idx) => {
+                combinedList.forEach((v, idx) => {
                     let name = v.patient_name || v.name || 'مريض';
-                    let dateTime = v.visit_date || v.date || v.created_at || '-';
+                    let dateTime = (v.visit_date || v.appt_date || v.date || '-') + ' ' + (v.appt_time || v.time || '');
                     let typeMethod = (v.visit_type || 'متابعة') + ' <br><span style="font-size:10px; color:var(--accent-blue);">' + (v.visit_method || 'حجز بالعيادة') + '</span>';
                     
                     let status = v.status || v.visit_status || v.state || 'في الانتظار';
                     let vId = v.id;
+                    let tableName = v._sourceTable || 'visits';
 
                     let statusBadge = '';
                     if (String(status).includes('تمت') || String(status).includes('مكتملة')) {
@@ -204,8 +217,7 @@
                             <td>${statusBadge}</td>
                             <td>
                                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                    <button onclick="editVisit('${vId}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
-                                    <button onclick="deleteVisit('${vId}', '${name}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
+                                    <button onclick="deleteVisit('${vId}', '${name}', '${tableName}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                                 </div>
                             </td>
                         </tr>
@@ -213,20 +225,16 @@
                 });
                 tbody.innerHTML = html;
             } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب بيانات الزيارات من SQL.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب بيانات الزيارات.</td></tr>`;
             }
         }
 
-        async function deleteVisit(id, name) {
-            if (!confirm(`هل أنت متأكد من حذف زيارة المريض (${name})؟`)) return;
-            let { error } = await supabaseClient.from('visits').delete().eq('id', id);
+        async function deleteVisit(id, name, tableName) {
+            if (!confirm(`هل أنت متأكد من حذف سجل المريض (${name})؟`)) return;
+            let { error } = await supabaseClient.from(tableName).delete().eq('id', id);
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
-            alert('🗑️ تم حذف الزيارة بنجاح.');
+            alert('🗑️ تم الحذف بنجاح.');
             loadVisitsTable();
-        }
-
-        function editVisit(id) {
-            alert('ميزة التعديل السريع متاحة عبر الملف الإكلينيكي للحالة.');
         }
 
         function toggleMobileSidebar() {
