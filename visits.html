@@ -102,7 +102,6 @@
                     📋 سجل الزيارات والفحوصات الإكلينيكية (SQL Live)
                 </h2>
 
-                <!-- خيارات الترتيب -->
                 <div style="display:flex; align-items:center; gap:6px;">
                     <span style="font-size:12px; font-weight:bold; color:var(--text-gray);">🗂️ الترتيب:</span>
                     <select id="sortVisitsSelect" class="sort-select" onchange="loadVisitsTable()">
@@ -151,20 +150,19 @@
                     return;
                 }
 
-                // تطبيق الترتيب المطلوب
                 data.sort((a, b) => {
                     let nameA = (a.patient_name || a.name || '').toLowerCase();
                     let nameB = (b.patient_name || b.name || '').toLowerCase();
                     let dateA = a.visit_date || a.date || a.created_at || '1970-01-01';
                     let dateB = b.visit_date || b.date || b.created_at || '1970-01-01';
-                    let statusA = String(a.status || a.visit_status || 'في الانتظار');
-                    let statusB = String(b.status || b.visit_status || 'في الانتظار');
+                    
+                    let statusA = String(a.status || a.visit_status || a.state || 'في الانتظار');
+                    let statusB = String(b.status || b.visit_status || b.state || 'في الانتظار');
 
                     let isFinishedA = statusA.includes('تمت') || statusA.includes('مكتملة') ? 1 : 0;
                     let isFinishedB = statusB.includes('تمت') || statusB.includes('مكتملة') ? 1 : 0;
 
                     if (sortType === 'status_asc') {
-                        // "في الانتظار" أولاً (0)، و"تمت الزيارة" في الآخر (1)
                         if (isFinishedA !== isFinishedB) {
                             return isFinishedA - isFinishedB;
                         }
@@ -186,7 +184,8 @@
                     let name = v.patient_name || v.name || 'مريض';
                     let dateTime = v.visit_date || v.date || v.created_at || '-';
                     let typeMethod = (v.visit_type || 'متابعة') + ' <br><span style="font-size:10px; color:var(--accent-blue);">' + (v.visit_method || 'حجز بالعيادة') + '</span>';
-                    let status = v.status || v.visit_status || 'في الانتظار';
+                    
+                    let status = v.status || v.visit_status || v.state || 'في الانتظار';
                     let vId = v.id;
 
                     let statusBadge = '';
