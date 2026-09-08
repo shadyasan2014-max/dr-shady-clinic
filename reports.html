@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dr. Shady Samir - التقارير الإحصائية والمالية</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root { 
@@ -43,10 +44,10 @@
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; background-color: var(--card-bg); padding: 15px 25px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.03); border: 1px solid var(--card-border); }
         .top-header h1 { margin: 0; font-size: 18px; color: var(--text-dark); }
         
-        .stats-grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
-        .stat-card h3 { margin: 0 0 10px 0; font-size: 13px; color: var(--text-gray); }
-        .stat-value { font-size: 24px; font-weight: bold; color: var(--primary-green); }
+        .stats-grid-4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 18px; border-radius: 12px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.02); }
+        .stat-card h3 { margin: 0 0 8px 0; font-size: 12px; color: var(--text-gray); }
+        .stat-value { font-size: 20px; font-weight: bold; color: var(--primary-green); }
 
         .card { background-color: var(--card-bg); border: 1px solid var(--card-border); padding: 20px; border-radius: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.02); margin-bottom: 20px; }
 
@@ -54,12 +55,15 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
+        @media (max-width: 1024px) {
+            .stats-grid-4 { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
             .sidebar.active { transform: translateX(0); }
             .main-content { margin-right: 0 !important; width: 100% !important; padding: 12px !important; }
             .mobile-menu-toggle { display: flex !important; }
-            .stats-grid-3 { grid-template-columns: 1fr; }
+            .stats-grid-4 { grid-template-columns: 1fr; }
         }
     </style>
 </head>
@@ -85,9 +89,9 @@
                 <li><a href="supplements.html" onclick="toggleMobileSidebar()">💊 المكملات</a></li>
                 <li><a href="bariatric.html" onclick="toggleMobileSidebar()">🩺 جراحات السمنة</a></li>
                 <li><a href="payments.html" onclick="toggleMobileSidebar()">💰 المدفوعات</a></li>
-                <li class="active"><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
                 <li><a href="notifications.html" onclick="toggleMobileSidebar()">🔔 التنبيهات</a></li>
                 <li><a href="doctors.html" onclick="toggleMobileSidebar()">👨‍⚕️ الأطباء والطاقم</a></li>
+                <li class="active"><a href="reports.html" onclick="toggleMobileSidebar()">📊 التقارير</a></li>
                 <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
@@ -100,29 +104,64 @@
         <div class="top-header">
             <div>
                 <h1>📊 التقارير الإحصائية والمالية الشاملة (SQL Live)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">متابعة حركة الإيرادات وحجم الحالات والعمليات بالعيادة</p>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">متابعة حركة الإيرادات وحجم الحالات والعمليات بالعيادة (يومي، أسبوعي، شهري، سنوي، ومن بدائيات العمل)</p>
             </div>
         </div>
 
-        <div class="stats-grid-3">
+        <!-- إحصائيات الإيرادات المالية بالفترات -->
+        <h3 style="font-size:14px; color:var(--text-dark); margin-bottom:10px;">💰 تقرير الإيرادات المالية</h3>
+        <div class="stats-grid-4">
             <div class="stat-card">
-                <h3>إجمالي إيرادات العيادة</h3>
-                <div class="stat-value" id="totalRevenueReport">0 جنيه</div>
+                <h3>إيرادات اليوم</h3>
+                <div class="stat-value" id="revDaily">0 جنيه</div>
             </div>
             <div class="stat-card">
-                <h3>إجمالي الحالات المسجلة</h3>
-                <div class="stat-value" id="totalPatientsReport" style="color: var(--accent-blue);">0</div>
+                <h3>إيرادات هذا الأسبوع</h3>
+                <div class="stat-value" id="revWeekly">0 جنيه</div>
             </div>
             <div class="stat-card">
-                <h3>إجمالي العمليات الجراحية</h3>
-                <div class="stat-value" id="totalBariatricReport" style="color: var(--warning-orange);">0</div>
+                <h3>إيرادات هذا الشهر</h3>
+                <div class="stat-value" id="revMonthly">0 جنيه</div>
+            </div>
+            <div class="stat-card" style="border-right: 4px solid var(--primary-green);">
+                <h3>إجمالي الشامل (من البدائيات)</h3>
+                <div class="stat-value" id="revAllTime">0 جنيه</div>
+            </div>
+        </div>
+
+        <!-- إحصائيات الحالات والعمليات بالفترات -->
+        <h3 style="font-size:14px; color:var(--text-dark); margin-bottom:10px; margin-top:20px;">👥 تقرير تسجيل الحالات والعمليات الجراحية</h3>
+        <div class="stats-grid-4">
+            <div class="stat-card">
+                <h3>حالات اليوم</h3>
+                <div class="stat-value" id="patDaily" style="color: var(--accent-blue);">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>حالات هذا الأسبوع</h3>
+                <div class="stat-value" id="patWeekly" style="color: var(--accent-blue);">0</div>
+            </div>
+            <div class="stat-card">
+                <h3>حالات هذا الشهر</h3>
+                <div class="stat-value" id="patMonthly" style="color: var(--accent-blue);">0</div>
+            </div>
+            <div class="stat-card" style="border-right: 4px solid var(--accent-blue);">
+                <h3>إجمالي الحالات (من البدائيات)</h3>
+                <div class="stat-value" id="patAllTime" style="color: var(--accent-blue);">0</div>
+            </div>
+        </div>
+
+        <!-- قسم الرسم البياني التحليلي للإيرادات والحالات -->
+        <div class="card">
+            <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #eee; padding-bottom:10px;">📈 المخطط البياني لحركة الإيرادات والعمليات</h3>
+            <div style="height: 280px; width: 100%; position: relative;">
+                <canvas id="reportsChart"></canvas>
             </div>
         </div>
 
         <div class="card">
             <h3 style="margin-top:0; font-size:14px; border-bottom:1px solid #eee; padding-bottom:10px;">📋 ملخص الأداء الإكلينيكي والمالي</h3>
             <p style="font-size:12px; color:var(--text-gray); line-height:1.6; margin:0;">
-                هذه التقارير يتم استخراجها وحسابها لحظياً من قاعدة بيانات السحابية (Supabase SQL) لتعكس بدقة حجم العمل الإكلينيكي في عيادة د. شادي سمير، مما يتيح متابعة الإيرادات، نمو المرضى، وحالات جراحات السمنة بضغطة زر.
+                هذه التقارير يتم استخراجها وحسابها لحظياً من قاعدة البيانات السحابية (Supabase SQL) لتعكس بدقة حركة الإيرادات اليومية، الأسبوعية، الشهرية، والسنوية، بالإضافة إلى إجمالي الحالات المسجلة منذ بدائيات عمل عيادة د. شادي سمير وحتى تاريخ اليوم.
             </p>
         </div>
     </div>
@@ -131,6 +170,8 @@
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        let reportsChartInstance = null;
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -143,20 +184,108 @@
                 let { data: patData } = await supabaseClient.from('patients').select('*');
                 let { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
 
-                let totalRev = 0;
+                let now = new Date();
+                let todayStr = now.toISOString().split('T')[0];
+                
+                // حساب بداية الأسبوع (قبل 7 أيام)
+                let weekAgo = new Date();
+                weekAgo.setDate(now.getDate() - 7);
+
+                let currentMonth = now.getMonth();
+                let currentYear = now.getFullYear();
+
+                let revDaily = 0, revWeekly = 0, revMonthly = 0, revAllTime = 0;
+                let patDaily = 0, patWeekly = 0, patMonthly = 0, patAllTime = 0;
+
+                // معالجة المدفوعات والإيرادات
                 if (payData) {
                     payData.forEach(p => {
-                        totalRev += parseFloat(p.amount || p.price || 0);
+                        let amount = parseFloat(p.amount || p.price || 0);
+                        revAllTime += amount;
+
+                        let pDateStr = p.created_at || p.date || '';
+                        if (pDateStr) {
+                            let pDate = new Date(pDateStr);
+                            let pDateOnly = pDateStr.split('T')[0];
+
+                            if (pDateOnly === todayStr) revDaily += amount;
+                            if (pDate >= weekAgo) revWeekly += amount;
+                            if (pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear) revMonthly += amount;
+                        }
                     });
                 }
 
-                document.getElementById('totalRevenueReport').innerText = totalRev.toLocaleString() + ' جنيه';
-                document.getElementById('totalPatientsReport').innerText = patData ? patData.length : 0;
-                document.getElementById('totalBariatricReport').innerText = barData ? barData.length : 0;
+                // معالجة المرضى والحالات
+                let allPatients = [];
+                if (patData) patData.forEach(p => allPatients.push(p));
+                if (barData) barData.forEach(b => allPatients.push(b));
+
+                patAllTime = allPatients.length;
+
+                allPatients.forEach(p => {
+                    let pDateStr = p.created_at || p.date || '';
+                    if (pDateStr) {
+                        let pDate = new Date(pDateStr);
+                        let pDateOnly = pDateStr.split('T')[0];
+
+                        if (pDateOnly === todayStr) patDaily++;
+                        if (pDate >= weekAgo) patWeekly++;
+                        if (pDate.getMonth() === currentMonth && pDate.getFullYear() === currentYear) patMonthly++;
+                    }
+                });
+
+                // عرض القيم في البطاقات
+                document.getElementById('revDaily').innerText = revDaily.toLocaleString() + ' جنيه';
+                document.getElementById('revWeekly').innerText = revWeekly.toLocaleString() + ' جنيه';
+                document.getElementById('revMonthly').innerText = revMonthly.toLocaleString() + ' جنيه';
+                document.getElementById('revAllTime').innerText = revAllTime.toLocaleString() + ' جنيه';
+
+                document.getElementById('patDaily').innerText = patDaily;
+                document.getElementById('patWeekly').innerText = patWeekly;
+                document.getElementById('patMonthly').innerText = patMonthly;
+                document.getElementById('patAllTime').innerText = patAllTime;
+
+                // رسم المخطط البياني (Chart.js)
+                renderReportsChart(revDaily, revWeekly, revMonthly, revAllTime);
 
             } catch (err) {
-                console.error("Error loading reports:", err);
+                console.error("Error loading comprehensive reports:", err);
             }
+        }
+
+        function renderReportsChart(daily, weekly, monthly, allTime) {
+            const ctx = document.getElementById('reportsChart').getContext('2d');
+            if (reportsChartInstance) reportsChartInstance.destroy();
+
+            reportsChartInstance = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: ['اليوم', 'هذا الأسبوع', 'هذا الشهر', 'الإجمالي الشامل (من البدائيات)'],
+                    datasets: [{
+                        label: 'إيرادات الإيصالات (جنيه مصري)',
+                        data: [daily, weekly, monthly, allTime],
+                        backgroundColor: ['#0284c7', '#f59e0b', '#059669', '#064e3b'],
+                        borderWidth: 1,
+                        borderRadius: 8
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' }
+                        },
+                        x: {
+                            grid: { display: false }
+                        }
+                    }
+                }
+            });
         }
 
         window.onload = loadReportsData;
