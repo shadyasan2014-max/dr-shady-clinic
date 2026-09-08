@@ -50,6 +50,13 @@
 
         .sort-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 7px 12px !important; font-size: 12px; cursor: pointer; }
 
+        .form-group { margin-bottom: 12px; }
+        .form-group label { display: block; font-size: 12px; font-weight: bold; color: var(--text-gray); margin-bottom: 4px; }
+        .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
+
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
+        .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
@@ -134,6 +141,46 @@
         </div>
     </div>
 
+    <!-- نافذة تعديل بيانات الزيارة -->
+    <div id="editVisitModal" class="modal-overlay">
+        <div class="modal-box">
+            <h3 style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:8px; font-size:15px; color:var(--sidebar-bg);">✏️ تعديل أو تأجيل موعد الزيارة</h3>
+            <form onsubmit="saveVisitEdits(event)">
+                <input type="hidden" id="editVisitId">
+                <input type="hidden" id="editTableName">
+
+                <div class="form-group">
+                    <label>اسم المريض:</label>
+                    <input type="text" id="editPatientName" class="form-control" readonly style="background:#e2e8f0; font-weight:bold;">
+                </div>
+                <div class="form-group">
+                    <label>تاريخ الزيارة:</label>
+                    <input type="date" id="editVisitDate" class="form-control" required>
+                </div>
+                <div class="form-group">
+                    <label>وقت الزيارة:</label>
+                    <input type="time" id="editVisitTime" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>نوع الزيارة:</label>
+                    <input type="text" id="editVisitType" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>حالة الزيارة:</label>
+                    <select id="editVisitStatus" class="form-control" style="border: 2px solid var(--warning-orange); background: #fffbeb; font-weight: bold;">
+                        <option value="في الانتظار">⏰ في الانتظار</option>
+                        <option value="تمت الزيارة">✅ تمت الزيارة</option>
+                    </select>
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">حفظ التعديلات</button>
+                    <button type="button" onclick="closeEditVisitModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
@@ -182,7 +229,7 @@
                         return new Date(dateA) - new Date(dateB);
                     } else if (sortSelectVal === 'name_asc') {
                         return nameA.localeCompare(nameB, 'ar');
-                    } else if (sortType === 'name_desc') {
+                    } else if (sortSelectVal === 'name_desc') {
                         return nameB.localeCompare(nameA, 'ar');
                     }
                     return 0;
@@ -214,7 +261,7 @@
                             <td>${statusBadge}</td>
                             <td>
                                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                    <button onclick="toggleVisitStatus('${vId}', '${tableName}', '${status}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل الحالة</button>
+                                    <button onclick='openEditVisitModal(${JSON.stringify(v)})' class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
                                     <button onclick="deleteVisit('${vId}', '${name}', '${tableName}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                                 </div>
                             </td>
@@ -227,31 +274,56 @@
             }
         }
 
-        async function toggleVisitStatus(id, tableName, currentStatus) {
-            let newStatus = (currentStatus.includes('تمت') || currentStatus.includes('مكتملة')) ? 'في الانتظار' : 'تمت الزيارة';
+        function openEditVisitModal(v) {
+            document.getElementById('editVisitId').value = v.id;
+            document.getElementById('editTableName').value = v._sourceTable || 'visits';
+            document.getElementById('editPatientName').value = v.patient_name || v.name || '';
+            document.getElementById('editVisitDate').value = v.visit_date || v.appt_date || v.date || '';
+            document.getElementById('editVisitTime').value = v.appt_time || v.time || '';
+            document.getElementById('editVisitType').value = v.visit_type || 'متابعة';
             
-            let updatePayload = {};
+            let st = v.status || v.visit_status || v.state || 'في الانتظار';
+            document.getElementById('editVisitStatus').value = (st.includes('تمت') || st.includes('مكتملة')) ? 'تمت الزيارة' : 'في الانتظار';
+
+            document.getElementById('editVisitModal').style.display = 'flex';
+        }
+
+        function closeEditVisitModal() {
+            document.getElementById('editVisitModal').style.display = 'none';
+        }
+
+        async function saveVisitEdits(e) {
+            e.preventDefault();
+            let id = document.getElementById('editVisitId').value;
+            let tableName = document.getElementById('editTableName').value;
+            let date = document.getElementById('editVisitDate').value;
+            let time = document.getElementById('editVisitTime').value;
+            let type = document.getElementById('editVisitType').value;
+            let status = document.getElementById('editVisitStatus').value;
+
+            let payload = {};
             if (tableName === 'appointments') {
-                updatePayload.status = newStatus;
+                payload = { appt_date: date, date: date, appt_time: time, time: time, visit_type: type, status: status };
             } else {
-                updatePayload.status = newStatus;
-                updatePayload.visit_status = newStatus;
+                payload = { visit_date: date, visit_type: type, status: status, visit_status: status };
             }
 
-            let { error } = await supabaseClient.from(tableName).update(updatePayload).eq('id', id);
+            let { error } = await supabaseClient.from(tableName).update(payload).eq('id', id);
             if (error) {
-                alert('خطأ أثناء تحديث حالة الزيارة: ' + error.message);
+                alert('خطأ أثناء حفظ التعديلات: ' + error.message);
                 return;
             }
-            alert(`✨ تم تغيير حالة الزيارة إلى (${newStatus}) بنجاح!`);
+
+            alert('✨ تم تعديل بيانات الزيارة بنجاح في SQL!');
+            closeEditVisitModal();
             loadVisitsTable();
         }
 
         async function deleteVisit(id, name, tableName) {
-            if (!confirm(`هل أنت متأكد من حذف سجل المريض (${name})؟`)) return;
+            if (!confirm(`هل أنت متأكد من إلغاء/حذف زيارة المريض (${name})؟`)) return;
             let { error } = await supabaseClient.from(tableName).delete().eq('id', id);
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
-            alert('🗑️ تم الحذف بنجاح.');
+            alert('🗑️ تم إلغاء وحذف الزيارة بنجاح.');
             loadVisitsTable();
         }
 
