@@ -141,17 +141,14 @@
 
         async function loadVisitsTable() {
             let tbody = document.getElementById('visitsTableBody');
-            let sortType = document.getElementById('sortVisitsSelect'.value);
 
             try {
-                // جلب البيانات من جدول visits أو appointments لضمان ظهور كل السجلات
                 let { data: visData } = await supabaseClient.from('visits').select('*');
                 let { data: appData } = await supabaseClient.from('appointments').select('*');
 
                 let combinedList = [];
                 if (visData) visData.forEach(v => combinedList.push({ ...v, _sourceTable: 'visits' }));
                 if (appData) appData.forEach(a => {
-                    // إذا لم تكن موجودة في visits أو لجلب كافة المواعيد والزيارات
                     combinedList.push({ ...a, visit_date: a.appt_date || a.date, visit_type: a.visit_type || 'متابعة', _sourceTable: 'appointments' });
                 });
 
@@ -185,7 +182,7 @@
                         return new Date(dateA) - new Date(dateB);
                     } else if (sortSelectVal === 'name_asc') {
                         return nameA.localeCompare(nameB, 'ar');
-                    } else if (sortSelectVal === 'name_desc') {
+                    } else if (sortType === 'name_desc') {
                         return nameB.localeCompare(nameA, 'ar');
                     }
                     return 0;
@@ -217,6 +214,7 @@
                             <td>${statusBadge}</td>
                             <td>
                                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                                    <button onclick="toggleVisitStatus('${vId}', '${tableName}', '${status}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل الحالة</button>
                                     <button onclick="deleteVisit('${vId}', '${name}', '${tableName}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                                 </div>
                             </td>
@@ -227,6 +225,26 @@
             } catch(e) {
                 tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب بيانات الزيارات.</td></tr>`;
             }
+        }
+
+        async function toggleVisitStatus(id, tableName, currentStatus) {
+            let newStatus = (currentStatus.includes('تمت') || currentStatus.includes('مكتملة')) ? 'في الانتظار' : 'تمت الزيارة';
+            
+            let updatePayload = {};
+            if (tableName === 'appointments') {
+                updatePayload.status = newStatus;
+            } else {
+                updatePayload.status = newStatus;
+                updatePayload.visit_status = newStatus;
+            }
+
+            let { error } = await supabaseClient.from(tableName).update(updatePayload).eq('id', id);
+            if (error) {
+                alert('خطأ أثناء تحديث حالة الزيارة: ' + error.message);
+                return;
+            }
+            alert(`✨ تم تغيير حالة الزيارة إلى (${newStatus}) بنجاح!`);
+            loadVisitsTable();
         }
 
         async function deleteVisit(id, name, tableName) {
