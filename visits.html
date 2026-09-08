@@ -129,7 +129,7 @@
                             <th>اسم المريض</th>
                             <th>تاريخ ووقت الزيارة</th>
                             <th>نوع وطريقة الزيارة</th>
-                            <th>حالة الزيارة (تمت أم لا)</th>
+                            <th>حالة الزيارة</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
@@ -169,7 +169,9 @@
                     <label>حالة الزيارة:</label>
                     <select id="editVisitStatus" class="form-control" style="border: 2px solid var(--warning-orange); background: #fffbeb; font-weight: bold;">
                         <option value="في الانتظار">⏰ في الانتظار</option>
+                        <option value="أجلت">⏳ أجلت</option>
                         <option value="تمت الزيارة">✅ تمت الزيارة</option>
+                        <option value="اتلغت">❌ اتلغت</option>
                     </select>
                 </div>
 
@@ -215,13 +217,17 @@
                     let statusA = String(a.status || a.visit_status || a.state || 'في الانتظار');
                     let statusB = String(b.status || b.visit_status || b.state || 'في الانتظار');
 
-                    let isFinishedA = statusA.includes('تمت') || statusA.includes('مكتملة') ? 1 : 0;
-                    let isFinishedB = statusB.includes('تمت') || statusB.includes('مكتملة') ? 1 : 0;
+                    // تحديد أولوية الترتيب: في الانتظار وأجلت أولاً، ثم تمت الزيارة واتلغت في الآخر
+                    let getPriority = (st) => {
+                        if (st.includes('في الانتظار') || st.includes('أجلت')) return 0;
+                        return 1;
+                    };
+
+                    let pA = getPriority(statusA);
+                    let pB = getPriority(statusB);
 
                     if (sortSelectVal === 'status_asc') {
-                        if (isFinishedA !== isFinishedB) {
-                            return isFinishedA - isFinishedB;
-                        }
+                        if (pA !== pB) return pA - pB;
                         return new Date(dateB) - new Date(dateA);
                     } else if (sortSelectVal === 'date_desc') {
                         return new Date(dateB) - new Date(dateA);
@@ -246,10 +252,14 @@
                     let tableName = v._sourceTable || 'visits';
 
                     let statusBadge = '';
-                    if (String(status).includes('تمت') || String(status).includes('مكتملة')) {
+                    if (status.includes('تمت')) {
                         statusBadge = `<span style="color:#166534; background:#dcfce7; padding:3px 8px; border-radius:6px; font-weight:bold;">✅ تمت الزيارة</span>`;
+                    } else if (status.includes('أجلت')) {
+                        statusBadge = `<span style="color:#92400e; background:#fef3c7; padding:3px 8px; border-radius:6px; font-weight:bold;">⏳ أجلت</span>`;
+                    } else if (status.includes('اتلغت')) {
+                        statusBadge = `<span style="color:#991b1b; background:#fef2f2; padding:3px 8px; border-radius:6px; font-weight:bold;">❌ اتلغت</span>`;
                     } else {
-                        statusBadge = `<span style="color:#92400e; background:#fef3c7; padding:3px 8px; border-radius:6px; font-weight:bold;">⏰ في الانتظار</span>`;
+                        statusBadge = `<span style="color:#b45309; background:#fffbeb; padding:3px 8px; border-radius:6px; font-weight:bold;">⏰ في الانتظار</span>`;
                     }
 
                     html += `
@@ -283,7 +293,7 @@
             document.getElementById('editVisitType').value = v.visit_type || 'متابعة';
             
             let st = v.status || v.visit_status || v.state || 'في الانتظار';
-            document.getElementById('editVisitStatus').value = (st.includes('تمت') || st.includes('مكتملة')) ? 'تمت الزيارة' : 'في الانتظار';
+            document.getElementById('editVisitStatus').value = st;
 
             document.getElementById('editVisitModal').style.display = 'flex';
         }
