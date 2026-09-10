@@ -237,7 +237,7 @@
                     </div>
                 </div>
 
-                <!-- زرارين بجوار بعضهما: التوليد بالـ AI وحفظ مباشر بدون نظام -->
+                <!-- الأزرار بجوار بعضها -->
                 <div style="text-align: center; margin-bottom: 20px; display: flex; justify-content: center; gap: 10px; flex-wrap: wrap;">
                     <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); padding: 12px 25px; font-size: 14px; color:#fff;">
                         🤖 تحليل بيانات الـ 30 نقطة وتوليد النظام الذكي بالـ AI
@@ -322,19 +322,25 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
+        // دالة جلب واستدعاء البيانات للتحقق والتعديل بدقة
         async function loadPatientDataForEditing() {
             const urlParams = new URLSearchParams(window.location.search);
             let codeParam = urlParams.get('code') || urlParams.get('name');
-            if (!codeParam) return;
+            if (!codeParam) {
+                console.log("No code parameter found in URL.");
+                return;
+            }
 
+            console.log("Searching for patient with code/name:", codeParam);
+
+            // البحث المرن بالـ patient_code أو الاسم
             const { data, error } = await supabaseClient
                 .from('patients')
                 .select('*')
-                .or(`patient_code.eq.${codeParam},patient_name.ilike.%${codeParam}%`)
-                .limit(1);
+                .or(`patient_code.eq.${codeParam},patient_name.ilike.%${codeParam}%,name.ilike.%${codeParam}%`);
 
             if (error) {
-                console.error("Error loading patient:", error);
+                console.error("Error loading patient from Supabase:", error.message);
                 return;
             }
 
@@ -342,7 +348,7 @@
                 let p = data[0];
                 existingRecordId = p.id;
                 
-                document.getElementById('pCode').value = p.patient_code || '';
+                document.getElementById('pCode').value = p.patient_code || codeParam;
                 document.getElementById('pName').value = p.patient_name || p.name || '';
                 document.getElementById('pAge').value = p.age || 30;
                 document.getElementById('pGender').value = p.gender || 'male';
@@ -375,7 +381,9 @@
                 document.getElementById('pSinceWhen').value = p.obesity_since || '';
                 document.getElementById('pDailyLifestyle').value = p.daily_lifestyle || '';
                 
-                console.log("Patient loaded for editing successfully ID:", existingRecordId);
+                alert(`✨ تم العثور على بيانات المريض (${p.patient_name || p.name}) وتم جلبها بنجاح للتعديل! (ID: ${existingRecordId})`);
+            } else {
+                console.warn("No patient found with code/name:", codeParam);
             }
         }
 
@@ -392,7 +400,7 @@
             document.getElementById('planTypeModal').style.display = 'none';
         }
 
-        // دالة حفظ البيانات مباشرة بدون توليد أي نظام ذكي
+        // دالة حفظ البيانات مباشرة بدون نظام
         async function saveDirectWithoutPlan() {
             let code = document.getElementById('pCode').value || 'SS-' + Math.floor(1000 + Math.random() * 9000);
             let name = document.getElementById('pName').value || 'المريض';
@@ -439,22 +447,29 @@
                 obesity_since: document.getElementById('pSinceWhen').value,
                 daily_lifestyle: document.getElementById('pDailyLifestyle').value,
                 category: mainGoal,
-                notes: `التقييم الشامل (30 نقطة) - حفظ مباشر بدون نظام`
+                notes: `التقييم الشامل (30 نقطة) - حفظ مباشر`
             };
 
             let res;
             if (existingRecordId) {
                 res = await supabaseClient.from('patients').update(directPayload).eq('id', existingRecordId);
             } else {
-                res = await supabaseClient.from('patients').insert([directPayload]);
+                // التحقق هل الكود موجود مسبقاً لتفادي أي خطأ
+                let { data: existingCheck } = await supabaseClient.from('patients').select('id').eq('patient_code', code).maybeSingle();
+                if (existingCheck) {
+                    existingRecordId = existingCheck.id;
+                    res = await supabaseClient.from('patients').update(directPayload).eq('id', existingRecordId);
+                } else {
+                    res = await supabaseClient.from('patients').insert([directPayload]);
+                }
             }
 
             if (res.error) {
-                alert('خطأ أثناء الحفظ المباشر في SQL: ' + res.error.message);
+                alert('خطأ أثناء الحفظ في SQL: ' + res.error.message);
                 return;
             }
 
-            alert('✨ تم حفظ بيانات المريض مباشرة في قاعدة بيانات SQL بنجاح تام!');
+            alert('✨ تم حفظ أو تحديث بيانات المريض مباشرة في قاعدة بيانات SQL بنجاح تام!');
         }
 
         function generateSelectedPlan(planType) {
@@ -640,6 +655,7 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
+        // تشغيل دالة الاستدعاء فور تحميل الصفحة
         window.addEventListener('DOMContentLoaded', loadPatientDataForEditing);
     </script>
 </body>
