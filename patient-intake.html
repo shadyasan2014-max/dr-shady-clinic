@@ -323,12 +323,24 @@
             let codeParam = urlParams.get('code') || urlParams.get('name');
             if (!codeParam) return;
 
-            const { data, error } = await supabaseClient.from('patients').select('*').or(`patient_code.eq.${codeParam},patient_name.ilike.%${codeParam}%`).limit(1);
+            // جلب البيانات من جدول patients بناءً على الكود الممرر في الرابط
+            const { data, error } = await supabaseClient
+                .from('patients')
+                .select('*')
+                .or(`patient_code.eq.${codeParam},patient_name.ilike.%${codeParam}%`)
+                .limit(1);
+
+            if (error) {
+                console.error("Error loading patient:", error);
+                return;
+            }
+
             if (data && data.length > 0) {
                 let p = data[0];
                 existingRecordId = p.id;
+                
                 document.getElementById('pCode').value = p.patient_code || '';
-                document.getElementById('pName').value = p.patient_name || '';
+                document.getElementById('pName').value = p.patient_name || p.name || '';
                 document.getElementById('pAge').value = p.age || 30;
                 document.getElementById('pGender').value = p.gender || 'male';
                 document.getElementById('pHeight').value = p.height || 175;
@@ -360,7 +372,7 @@
                 document.getElementById('pSinceWhen').value = p.obesity_since || '';
                 document.getElementById('pDailyLifestyle').value = p.daily_lifestyle || '';
                 
-                alert(`✨ تم استدعاء بيانات المريض (${p.patient_name}) بنجاح من SQL للتعديل المباشر!`);
+                console.log("Patient loaded for editing successfully ID:", existingRecordId);
             }
         }
 
@@ -481,6 +493,7 @@
             generatedPlanPayload = {
                 patient_code: code,
                 patient_name: name,
+                name: name,
                 age: age,
                 gender: gender,
                 height: height,
@@ -559,7 +572,8 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        window.onload = loadPatientDataForEditing;
+        // تشغيل دالة الاستدعاء فور تحميل الصفحة بالكامل
+        window.addEventListener('DOMContentLoaded', loadPatientDataForEditing);
     </script>
 </body>
 </html>
