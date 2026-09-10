@@ -323,7 +323,6 @@
             let codeParam = urlParams.get('code') || urlParams.get('name');
             if (!codeParam) return;
 
-            // جلب البيانات من جدول patients بناءً على الكود الممرر في الرابط
             const { data, error } = await supabaseClient
                 .from('patients')
                 .select('*')
@@ -572,7 +571,6 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // تشغيل دالة الاستدعاء فور تحميل الصفحة بالكامل
         window.addEventListener('DOMContentLoaded', loadPatientDataForEditing);
     </script>
 </body>
