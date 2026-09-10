@@ -325,7 +325,7 @@
                 surgery_date: document.getElementById('barSurgeryDate').value || null,
                 weight: parseFloat(document.getElementById('barWeight').value) || 0,
                 notes: document.getElementById('barNotes').value,
-                surgeon_name: activeDoctor // تجاوز القيد الإلزامي بقيمة الطبيب النشط الحالي
+                surgeon_name: activeDoctor
             };
 
             const { error } = await supabaseClient.from('bariatric_cases').insert([payload]);
