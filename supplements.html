@@ -135,8 +135,8 @@
                         <tr>
                             <th>اسم المريض</th>
                             <th>نوع الحالة / العملية</th>
-                            <th>الأدوية والمكملات</th>
-                            <th>الجرعات والمدة</th>
+                            <th>الأدوية والمكملات والجرعات (متعدد الأسطر)</th>
+                            <th>تعليمات إكلينيكية</th>
                             <th>الإجراءات والروشتة</th>
                         </tr>
                     </thead>
@@ -167,7 +167,7 @@
             <strong>تاريخ الروشتة:</strong> <span id="printDate">-</span>
         </div>
 
-        <h4 style="color:#064e3b; border-bottom:1px solid #ddd; padding-bottom:5px;">💊 البروتوكول العلاجي والمكملات:</h4>
+        <h4 style="color:#064e3b; border-bottom:1px solid #ddd; padding-bottom:5px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
         <div id="printSupplementsContent" style="font-size:14px; line-height:1.8; margin-bottom:20px; white-space: pre-line;">
             - محتوى الروشتة...
         </div>
@@ -222,20 +222,12 @@
                     <input type="text" id="otherCaseInput" class="form-control" placeholder="اكتب اسم العملية أو الحالة هنا...">
                 </div>
 
-                <!-- حقل كتابة أسماء الأدوية والمكملات -->
+                <!-- حقل المكملات والجرعات المدمج في خانة واحدة ومتعدد الأسطر -->
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المكمل / الأدوية:</label>
-                    <input type="text" id="supName" class="form-control" placeholder="مثال: فيتامين د3، كالسيوم، أوميغا 3..." required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">الجرعات:</label>
-                    <input type="text" id="supDosage" class="form-control" placeholder="مثال: قرص مرتين يومياً..." required>
-                </div>
-
-                <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">المدة الزمنية:</label>
-                    <input type="text" id="supDuration" class="form-control" placeholder="مثال: 3 أشهر..." required>
+                    <label style="font-size:11px; font-weight:bold; color:var(--primary-green); display:block; margin-bottom:4px;">💊 أسماء الأدوية والمكملات والجرعات (يمكنك الكتابة في عدة أسطر):</label>
+                    <textarea id="supName" class="form-control" rows="5" placeholder="مثال:
+1. Omnivora amp حقنة عضل كل أسبوع لمدة 3 شهور
+2. Calcitron tab قرص يوميا مساء بعد الغداء" required style="white-space: pre-line;"></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
@@ -295,16 +287,16 @@
 
             supplementsList = data;
             supplementsList.forEach(s => {
-                let medName = s.supp_list || s.sup_name || '-';
+                let medContent = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${s.patient_name || 'غير محدد'}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${s.case_type || '-'}</span></td>
-                        <td><strong>${medName}</strong></td>
-                        <td>الجرعة: ${s.dosage || '-'}<br><small style="color:var(--text-gray)">المدة: ${s.duration || '-'}</small></td>
+                        <td style="max-width:300px; white-space:pre-line;">${medContent}</td>
+                        <td style="max-width:180px; font-size:12px; color:var(--text-gray);">${s.notes || '-'}</td>
                         <td>
                             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
-                                <button onclick="printPrescription('${s.id}')" class="action-btn" style="background:var(--accent-blue);">🖨️ طباعة الروشتة</button>
+                                <button onclick="printPrescription('${s.id}')" class="action-btn" style="background:var(--accent-blue);">🖨️ طباعة</button>
                                 <button onclick="openEditSupplementModal('${s.id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
                                 <button onclick="deleteSupplement('${s.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                             </div>
@@ -314,7 +306,6 @@
             });
         }
 
-        // دالة طباعة الروشتة الإكلينيكية باللوجو والبيانات
         function printPrescription(id) {
             let s = supplementsList.find(item => String(item.id) === String(id));
             if (!s) return;
@@ -323,7 +314,7 @@
             document.getElementById('printCaseType').innerText = s.case_type || '-';
             document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-EG');
             
-            let medText = `الأدوية والمكملات: ${s.supp_list || s.sup_name || '-'}\nالجرعة المقترحة: ${s.dosage || '-'}\nالمدة الزمنية: ${s.duration || '-'}\n\nتعليمات إكلينيكية هامة:\n${s.notes || 'لا توجد تعليمات إضافية.'}`;
+            let medText = `${s.supp_list || s.sup_name || '-'}\n\nتعليمات إكلينيكية وملاحظات:\n${s.notes || 'لا توجد تعليمات إضافية.'}`;
             document.getElementById('printSupplementsContent').innerText = medText;
 
             document.getElementById('printPrescriptionArea').style.display = 'block';
@@ -351,8 +342,6 @@
             document.getElementById('otherCaseInput').value = '';
             document.getElementById('otherCaseBox').style.display = 'none';
             document.getElementById('supName').value = '';
-            document.getElementById('supDosage').value = '';
-            document.getElementById('supDuration').value = '';
             document.getElementById('supNotes').value = '';
             document.getElementById('supplementModal').style.display = 'flex';
         }
@@ -387,8 +376,6 @@
             }
 
             document.getElementById('supName').value = s.supp_list || s.sup_name || '';
-            document.getElementById('supDosage').value = s.dosage || '';
-            document.getElementById('supDuration').value = s.duration || '';
             document.getElementById('supNotes').value = s.notes || '';
             document.getElementById('supplementModal').style.display = 'flex';
         }
@@ -419,34 +406,21 @@
                 caseType = document.getElementById('otherCaseInput').value.trim() || 'حالة خاصة';
             }
 
+            let generatedText = "";
             if (caseType.includes('تكميم')) {
-                document.getElementById('supName').value = 'فيتامين متعدد (Multivitamin) + كالسيوم + بروتين ببتيد';
-                document.getElementById('supDosage').value = 'قرص يومياً + سكوب بروتين';
-                document.getElementById('supDuration').value = '3 أشهر أولى';
-                document.getElementById('supNotes').value = 'التركيز على السوائل والبروتين الصافي أولاً.';
+                generatedText = "1. Multivitamin قرص يوميا بعد العشاء\n2. Calcium قرص مرتين يوميا بين الوجبات\n3. بروتين ببتيد سكوب على كوب حليب مرتين يوميا";
             } else if (caseType.includes('تحويل') || caseType.includes('ساسي')) {
-                document.getElementById('supName').value = 'مجموعة فيتامينات شاملة + كالسيوم + حديد + بروتين ببتيد';
-                document.getElementById('supDosage').value = 'قرص مرتين يومياً + سكوب بروتين صباحاً';
-                document.getElementById('supDuration').value = '6 أشهر مستمرة';
-                document.getElementById('supNotes').value = 'التفريق بين أخذ الحديد والكالسيوم بساعتين على الأقل، ومتابعة التحاليل الشهرية.';
+                generatedText = "1. Multivitamin شامل قرص مرتين يوميا\n2. Calcium citrate قرص مرتين يوميا\n3. Iron (حديد) قرص يوميا صباحا على معدة فارغة\n4. أوميغا 3 كبسولة مرتين يوميا";
             } else if (caseType.includes('مونجارو') || caseType.includes('ميزوثرابي')) {
-                document.getElementById('supName').value = 'حقن إكلينيكية + فيتامين ب المركب + أوميغا 3';
-                document.getElementById('supDosage').value = 'حقنة أسبوعياً + كبسولة يومياً';
-                document.getElementById('supDuration').value = '3 أشهر';
-                document.getElementById('supNotes').value = 'شرب كميات كافية من الماء، ومتابعة قياسات السكر والوزن أسبوعياً.';
+                generatedText = "1. حقن إكلينيكية أسبوعيا حسب الجرعة المحددة\n2. فيتامين ب المركب قرص يوميا\n3. أوميغا 3 كبسولة يوميا مع الغداء";
             } else if (caseType.includes('نحافة')) {
-                document.getElementById('supName').value = 'مكملات زيادة السعرات (Mass Gainer) + أوميغا 3 + فاتح شهية طبيعي';
-                document.getElementById('supDosage').value = 'مخبوز بمعدل كوب مرتين يومياً';
-                document.getElementById('supDuration').value = '3 أشهر';
-                document.getElementById('supNotes').value = 'زيادة الوجبات بشكل تدريجي مع التركيز على الدهون الصحية.';
+                generatedText = "1. Mass Gainer سكوب مرتين يوميا بعد الوجبات\n2. مكمل فتح شهية ودروب فيتامينات\n3. أوميغا 3 كبسولة ثلاث مرات يوميا";
             } else {
-                document.getElementById('supName').value = 'مكملات دعم التغذية العلاجية العامة';
-                document.getElementById('supDosage').value = 'قرص يومياً مع الوجبة الرئيسية';
-                document.getElementById('supDuration').value = 'شهرين';
-                document.getElementById('supNotes').value = 'الالتزام بنظام التغذية المحدد وشرب الماء بانتظام.';
+                generatedText = "1. فيتامين دعم عام قرص يوميا\n2. مكمل غذائي مقوي للمناعة قرص يوميا";
             }
 
-            alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
+            document.getElementById('supName').value = generatedText;
+            alert(`🤖 قام الذكاء الاصطناعي بتوليد البروتوكول المتعدد الأسطر بنجاح!`);
         }
 
         async function saveSupplementToSQL(event) {
@@ -466,8 +440,8 @@
                 case_type: caseType,
                 supp_list: medValue,
                 sup_name: medValue,
-                dosage: document.getElementById('supDosage').value,
-                duration: document.getElementById('supDuration').value,
+                dosage: '-', // تم دمجها مع النص الرئيسي
+                duration: '-', // تم دمجها مع النص الرئيسي
                 notes: document.getElementById('supNotes').value
             };
 
@@ -483,7 +457,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ وتعديل البروتوكول في قاعدة البيانات بنجاح!');
+            alert('✨ تم حفظ وتعديل الروشتة والبروتوكول في قاعدة البيانات بنجاح!');
             closeSupplementModal();
             loadSupplementsData();
         }
