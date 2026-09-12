@@ -67,9 +67,8 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* تصميم ترويسة الروشتة للطباعة الاحترافية بدون تداخل */
-        .prescription-print-area { display: none; background: #fff; padding: 30px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
-        .pres-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 20px; }
+        /* قالب طباعة الروشتة باستخدام الجداول لمنع تداخل الأحرف وتنسيق الأسطر */
+        .prescription-print-area { display: none; background: #fff; padding: 25px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -148,34 +147,47 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة المحترف بدون تداخل للأحرف -->
+    <!-- قالب طباعة الروشتة المبني بالجدول لمنع أي تداخل للأحرف -->
     <div id="printPrescriptionArea" class="prescription-print-area">
-        <div class="pres-header">
-            <div>
-                <h2 style="margin:0; color:#064e3b; font-size:24px;">د. شادي سمير</h2>
-                <p style="margin:4px 0; color:#059669; font-weight:bold; font-size:15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-                <p style="margin:0; font-size:12px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
-            </div>
-            <div>
-                <img src="logo2.png" alt="Logo" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
-            </div>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 20px;">
+            <tr>
+                <td style="text-align: right; vertical-align: middle;">
+                    <h2 style="margin:0; color:#064e3b; font-size:24px;">د. شادي سمير</h2>
+                    <p style="margin:4px 0; color:#059669; font-weight:bold; font-size:15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                    <p style="margin:0; font-size:12px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
+                </td>
+                <td style="text-align: left; vertical-align: middle;">
+                    <img src="logo2.png" alt="Logo" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
+                </td>
+            </tr>
+        </table>
 
-        <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:20px; font-size:14px; border:1px solid #e2e8f0; line-height: 1.8;">
-            <strong>اسم المريض:</strong> <span id="printPatientName" style="font-weight:bold; color:#1e293b;">-</span><br>
-            <strong>نوع الحالة / العملية:</strong> <span id="printCaseType">-</span><br>
-            <strong>تاريخ الروشتة:</strong> <span id="printDate" style="font-weight:bold; color:#059669;">-</span>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+            <tr>
+                <td style="padding: 12px 15px; font-size: 14px; line-height: 2.0; color: #1e293b;">
+                    <strong>اسم المريض:</strong> <span id="printPatientName" style="font-weight:bold;">-</span><br>
+                    <strong>نوع الحالة / العملية:</strong> <span id="printCaseType">-</span><br>
+                    <strong>تاريخ الروشتة:</strong> <span id="printDate" style="font-weight:bold; color:#059669;">-</span>
+                </td>
+            </tr>
+        </table>
 
-        <h4 style="color:#064e3b; border-bottom:2px solid #cbd5e1; padding-bottom:8px; margin-bottom:15px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
-        <div id="printSupplementsContent" style="font-size:15px; line-height:2.4; margin-bottom:40px; white-space: pre-wrap; color:#1e293b; font-weight:500;">
-            - محتوى الروشتة...
-        </div>
+        <h4 style="color:#064e3b; border-bottom:2px solid #cbd5e1; padding-bottom:8px; margin-bottom:15px; font-size: 15px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
+        
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+            <tr>
+                <td id="printSupplementsContent" style="font-size: 14px; line-height: 2.2; color: #1e293b; font-weight: 500; padding: 5px 0;">
+                    - محتوى الروشتة...
+                </td>
+            </tr>
+        </table>
 
-        <div style="margin-top:60px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:20px; font-size:14px; color:#475569;">
-            <span>توقيع الطبيب: ........................</span>
-            <span>خاتم العيادة</span>
-        </div>
+        <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 20px; margin-top: 40px;">
+            <tr>
+                <td style="text-align: right; font-size: 13px; color: #475569;">توقيع الطبيب: ........................</td>
+                <td style="text-align: left; font-size: 13px; color: #475569;">خاتم العيادة</td>
+            </tr>
+        </table>
     </div>
 
     <!-- نافذة وصف أو تعديل مكملات وفيتامينات -->
@@ -320,8 +332,11 @@
             document.getElementById('printCaseType').innerText = s.case_type || '-';
             document.getElementById('printDate').innerText = s.prescription_date || new Date().toLocaleDateString('ar-EG');
             
-            let medText = `${s.supp_list || s.sup_name || '-'}\n\nتعليمات إكلينيكية وملاحظات:\n${s.notes || 'لا توجد تعليمات إضافية.'}`;
-            document.getElementById('printSupplementsContent').innerText = medText;
+            // تحويل الأسطر لتعمل بشكل سليم داخل جدول الطباعة
+            let formattedMeds = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
+            let notesText = s.notes ? `<br><br><strong>تعليمات إكلينيكية وملاحظات:</strong><br>${s.notes.replace(/\n/g, '<br>')}` : '';
+            
+            document.getElementById('printSupplementsContent').innerHTML = formattedMeds + notesText;
 
             let printArea = document.getElementById('printPrescriptionArea');
             printArea.style.display = 'block';
