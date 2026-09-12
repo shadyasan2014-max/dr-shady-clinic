@@ -67,7 +67,7 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* قالب طباعة الروشتة باستخدام الجداول لمنع تداخل الأحرف وتنسيق الأسطر */
+        /* قالب طباعة الروشتة الاحترافي بالجدول لضبط الأسطر وعدم تداخل الأحرف */
         .prescription-print-area { display: none; background: #fff; padding: 25px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
@@ -147,7 +147,7 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة المبني بالجدول لمنع أي تداخل للأحرف -->
+    <!-- قالب طباعة الروشتة المبني بالجدول للأسطر المتعددة -->
     <div id="printPrescriptionArea" class="prescription-print-area">
         <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 20px;">
             <tr>
@@ -176,7 +176,7 @@
         
         <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
             <tr>
-                <td id="printSupplementsContent" style="font-size: 14px; line-height: 2.2; color: #1e293b; font-weight: 500; padding: 5px 0;">
+                <td id="printSupplementsContent" style="font-size: 14px; line-height: 2.4; color: #1e293b; font-weight: 500; padding: 5px 0;">
                     - محتوى الروشتة...
                 </td>
             </tr>
@@ -304,7 +304,8 @@
 
             supplementsList = data;
             supplementsList.forEach(s => {
-                let medContent = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
+                let rawText = s.supp_list || s.sup_name || '-';
+                let medContent = rawText.replace(/\n/g, '<br>');
                 let pDate = s.prescription_date || 'غير محدد';
                 tbody.innerHTML += `
                     <tr>
@@ -332,8 +333,8 @@
             document.getElementById('printCaseType').innerText = s.case_type || '-';
             document.getElementById('printDate').innerText = s.prescription_date || new Date().toLocaleDateString('ar-EG');
             
-            // تحويل الأسطر لتعمل بشكل سليم داخل جدول الطباعة
-            let formattedMeds = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
+            let rawMeds = s.supp_list || s.sup_name || '-';
+            let formattedMeds = rawMeds.replace(/\n/g, '<br>');
             let notesText = s.notes ? `<br><br><strong>تعليمات إكلينيكية وملاحظات:</strong><br>${s.notes.replace(/\n/g, '<br>')}` : '';
             
             document.getElementById('printSupplementsContent').innerHTML = formattedMeds + notesText;
@@ -368,6 +369,7 @@
             document.getElementById('supplementModal').style.display = 'flex';
         }
 
+        // تم إصلاح استدعاء النص لتوزيع الروشتة في أسطر متعددة داخل الـ Textarea بدقة تامة
         async function openEditSupplementModal(id) {
             await loadPatientsDropdown();
 
@@ -398,6 +400,7 @@
                 document.getElementById('otherCaseBox').style.display = 'none';
             }
 
+            // استخدام النص الخام المباشر لضمان ظهور الأسطر المتعددة والمسافات في التعديل
             document.getElementById('supName').value = s.supp_list || s.sup_name || '';
             document.getElementById('supNotes').value = s.notes || '';
             document.getElementById('supplementModal').style.display = 'flex';
