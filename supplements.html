@@ -396,9 +396,7 @@
                 document.getElementById('otherCaseBox').style.display = 'none';
             }
 
-            // معالجة النصوص لجعلها تقبل الأسطر المتعددة عند سحبها من قاعدة البيانات
-            let rawMeds = s.supp_list || s.sup_name || '';
-            document.getElementById('supName').value = rawMeds;
+            document.getElementById('supName').value = s.supp_list || s.sup_name || '';
             document.getElementById('supNotes').value = s.notes || '';
             document.getElementById('supplementModal').style.display = 'flex';
         }
@@ -446,9 +444,10 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد البروتوكول المتعدد الأسطر بنجاح!`);
         }
 
+        // تم إصلاح دالة الحفظ بالكامل لتعمل بسلاسة تامة مع الـ ID الحقيقي
         async function saveSupplementToSQL(event) {
             event.preventDefault();
-            let editId = document.getElementById('editingSupplementId القديم أو الجديد').value || document.getElementById('editingSupplementId').value;
+            let editId = document.getElementById('editingSupplementId').value;
             let isUpdate = (editId && editId !== "" && editId !== "undefined" && editId !== "null");
 
             let caseType = document.getElementById('caseTypeSelect').value;
