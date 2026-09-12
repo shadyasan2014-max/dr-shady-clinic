@@ -155,9 +155,9 @@
                     <img src="logo2.png" alt="Logo" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid #059669; background:#fff;" onerror="this.src='logo.jpeg'">
                 </td>
                 <td style="text-align: right; vertical-align: middle; width: 82%; padding-right: 15px;">
-                    <h2 id="printDoctorName" style="margin:0; color:#064e3b; font-size:26px; font-weight:bold;">د. شادي سمير</h2>
-                    <p id="printDoctorTitle" style="margin:4px 0 2px 0; color:#059669; font-weight:bold; font-size:15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-                    <p style="margin:0; font-size:13px; color:#64748b;">عيادة التغذية المتقدمة وجراحات السمنة &nbsp;|&nbsp; <strong style="color:#0284c7;">هاتف العيادة:</strong> <span id="printDoctorPhone" style="direction: ltr; display: inline-block;">01000931177</span></p>
+                    <h2 style="margin:0; color:#064e3b; font-size:26px; font-weight:bold;">د. شادي سمير</h2>
+                    <p style="margin:4px 0 2px 0; color:#059669; font-weight:bold; font-size:15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                    <p style="margin:0; font-size:13px; color:#64748b;">عيادة التغذية المتقدمة وجراحات السمنة &nbsp;|&nbsp; <strong style="color:#0284c7;">هاتف العيادة:</strong> <span style="direction: ltr; display: inline-block;">01000931177</span></p>
                 </td>
             </tr>
         </table>
@@ -187,11 +187,11 @@
             </tr>
         </table>
 
-        <!-- التوقيع وخاتم العيادة بكامل الكلمات وبدون قص -->
+        <!-- التوقيع وخاتم العيادة بكامل الكلمات وبشكل واضح ومريح للعين -->
         <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 25px; margin-top: 50px;">
             <tr>
-                <td style="text-align: right; font-size: 14px; color: #1e293b; font-weight: bold; width: 45%;">توقيع الطبيب: .......................................</td>
-                <td style="text-align: left; font-size: 14px; color: #1e293b; font-weight: bold; width: 55%; padding-left: 10px;">خاتم العيادة: ....................................................</td>
+                <td style="text-align: right; font-size: 14px; color: #1e293b; font-weight: bold; width: 40%;">توقيع الطبيب: ..............................</td>
+                <td style="text-align: left; font-size: 14px; color: #1e293b; font-weight: bold; width: 60%; padding-left: 10px;">خاتم العيادة: ....................................................</td>
             </tr>
         </table>
     </div>
@@ -231,8 +231,8 @@
                             <option value="تصحيح">تصحيح</option>
                         </optgroup>
                         <optgroup label="حالات العيادة العامة">
-                            <option value="smina">سمنة</option>
-                            <option value="nihafa">نحافة</option>
+                            <option value="سمنة">سمنة</option>
+                            <option value="نحافة">نحافة</option>
                             <option value="حقن مونجارو او حقن ميزوثرابي">حقن مونجارو أو حقن ميزوثرابي</option>
                         </optgroup>
                         <option value="اخرى">اخرى</option>
@@ -271,29 +271,6 @@
 
         let supplementsList = [];
         let patientsDirectory = {};
-        let currentActiveDoctor = {
-            name: "د. شادي سمير",
-            title: "استشاري التغذية العلاجية وجراحات السمنة",
-            phone: "01000931177"
-        };
-
-        // جلب بيانات الطبيب النشط حالياً من جدول doctors (نفس جدول الإعدادات)
-        async function fetchActiveDoctorInfo() {
-            try {
-                let { data, error } = await supabaseClient.from('doctors').select('*');
-                if (!error && data && data.length > 0) {
-                    // اختيار أول طبيب نشط أو الطبيب المسجل في الإعدادات
-                    let doc = data[0]; 
-                    currentActiveDoctor = {
-                        name: doc.name || doc.doctor_name || "د. شادي سمير",
-                        title: doc.title || doc.specialty || "استشاري التغذية العلاجية وجراحات السمنة",
-                        phone: doc.phone || doc.mobile || doc.clinic_phone || "01000931177"
-                    };
-                }
-            } catch(e) {
-                console.log("استخدام بيانات الطبيب الافتراضية");
-            }
-        }
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -346,7 +323,6 @@
         }
 
         async function loadSupplementsData() {
-            await fetchActiveDoctorInfo();
             let { data, error } = await supabaseClient.from('supplements').select('*');
             let tbody = document.getElementById('supplementsTableBody');
             tbody.innerHTML = '';
@@ -382,16 +358,10 @@
 
         async function printPrescription(id) {
             await loadPatientsDropdown();
-            await fetchActiveDoctorInfo();
             let s = supplementsList.find(item => String(item.id) === String(id));
             if (!s) return;
 
             let pInfo = patientsDirectory[s.patient_name] || { code: 'غير محدد', phone: 'غير محدد', age: 'غير محدد', surgeryDate: 'غير مسجل' };
-
-            // تحديث بيانات الطبيب النشط تلقائياً في הروشتة
-            document.getElementById('printDoctorName').innerText = currentActiveDoctor.name;
-            document.getElementById('printDoctorTitle').innerText = currentActiveDoctor.title;
-            document.getElementById('printDoctorPhone').innerText = currentActiveDoctor.phone;
 
             document.getElementById('printPatientName').innerText = s.patient_name || 'غير محدد';
             document.getElementById('printPatientCode').innerText = pInfo.code;
