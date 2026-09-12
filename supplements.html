@@ -67,7 +67,8 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        .prescription-print-area { display: none; background: #fff; padding: 25px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
+        /* قالب طباعة الروشتة الاحترافي المنسق بالكامل */
+        .prescription-print-area { display: none; background: #fff; padding: 30px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -146,45 +147,47 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة -->
+    <!-- قالب طباعة الروشتة الاحترافي الكامل -->
     <div id="printPrescriptionArea" class="prescription-print-area">
-        <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 20px;">
+        <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 25px;">
             <tr>
-                <td style="text-align: right; vertical-align: middle;">
-                    <h2 style="margin:0; color:#064e3b; font-size:24px;">د. شادي سمير</h2>
-                    <p style="margin:4px 0; color:#059669; font-weight:bold; font-size:15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-                    <p style="margin:0; font-size:12px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
+                <td style="text-align: right; vertical-align: middle; width: 80%;">
+                    <h2 style="margin:0; color:#064e3b; font-size:26px; font-weight:bold;">د. شادي سمير</h2>
+                    <p style="margin:5px 0 3px 0; color:#059669; font-weight:bold; font-size:16px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                    <p style="margin:0; font-size:12px; color:#64748b;">عيادة التغذية المتقدمة وجراحات السمنة | هاتف العيادة: 010xxxxxxxx</p>
                 </td>
-                <td style="text-align: left; vertical-align: middle;">
-                    <img src="logo2.png" alt="Logo" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
+                <td style="text-align: left; vertical-align: middle; width: 20%;">
+                    <img src="logo2.png" alt="Logo" style="width:75px; height:75px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
                 </td>
             </tr>
         </table>
 
-        <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; margin-bottom: 20px;">
+        <!-- بيانات المريض الكاملة -->
+        <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 25px;">
             <tr>
-                <td style="padding: 12px 15px; font-size: 14px; line-height: 2.0; color: #1e293b;">
-                    <strong>اسم المريض:</strong> <span id="printPatientName" style="font-weight:bold;">-</span><br>
-                    <strong>نوع الحالة / العملية:</strong> <span id="printCaseType">-</span><br>
-                    <strong>تاريخ الروشتة:</strong> <span id="printDate" style="font-weight:bold; color:#059669;">-</span>
+                <td style="padding: 15px 20px; font-size: 14px; line-height: 2.2; color: #1e293b;">
+                    <strong style="color: #064e3b;">اسم المريض:</strong> <span id="printPatientName" style="font-weight:bold; font-size:15px;">-</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+                    <strong style="color: #064e3b;">كود المريض:</strong> <span id="printPatientCode">-</span><br>
+                    <strong style="color: #064e3b;">نوع الحالة / العملية:</strong> <span id="printCaseType">-</span> &nbsp;&nbsp;|&nbsp;&nbsp; 
+                    <strong style="color: #064e3b;">تاريخ الروشتة:</strong> <span id="printDate" style="font-weight:bold; color:#059669;">-</span>
                 </td>
             </tr>
         </table>
 
-        <h4 style="color:#064e3b; border-bottom:2px solid #cbd5e1; padding-bottom:8px; margin-bottom:15px; font-size: 15px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
+        <h4 style="color:#064e3b; border-bottom:2px solid #cbd5e1; padding-bottom:8px; margin-bottom:15px; font-size: 16px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
         
-        <table style="width: 100%; border-collapse: collapse; margin-bottom: 40px;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 50px;">
             <tr>
-                <td id="printSupplementsContent" style="font-size: 14px; line-height: 2.2; color: #1e293b; font-weight: 500; padding: 5px 0;">
+                <td id="printSupplementsContent" style="font-size: 15px; line-height: 2.4; color: #1e293b; font-weight: 500; padding: 5px 10px; text-align: right;">
                     - محتوى الروشتة...
                 </td>
             </tr>
         </table>
 
-        <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 20px; margin-top: 40px;">
+        <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 20px; margin-top: 50px;">
             <tr>
-                <td style="text-align: right; font-size: 13px; color: #475569;">توقيع الطبيب: ........................</td>
-                <td style="text-align: left; font-size: 13px; color: #475569;">خاتم العيادة</td>
+                <td style="text-align: right; font-size: 14px; color: #475569; font-weight: bold;">توقيع الطبيب: ........................................</td>
+                <td style="text-align: left; font-size: 14px; color: #475569; font-weight: bold;">خاتم العيادة: ........................</td>
             </tr>
         </table>
     </div>
@@ -263,6 +266,7 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let supplementsList = [];
+        let patientsDirectory = {}; // لحفظ بيانات المرضى (الكود وغيرها)
 
         function toggleMobileSidebar() {
             document.getElementById('sidebarNav').classList.toggle('active');
@@ -276,15 +280,31 @@
             let dropdown = document.getElementById('patientSelect');
             dropdown.innerHTML = '<option value="">-- اختر مريض من القائمة --</option>';
 
+            patientsDirectory = {};
             let allPatients = [];
-            if (patData) patData.forEach(p => allPatients.push(p.patient_name || p.name));
-            if (barData) barData.forEach(b => allPatients.push(b.patient_name || b.name));
+
+            if (patData) {
+                patData.forEach(p => {
+                    let name = p.patient_name || p.name;
+                    if (name) {
+                        patientsDirectory[name] = p.patient_code || p.code || 'غير محدد';
+                        allPatients.push(name);
+                    }
+                });
+            }
+            if (barData) {
+                barData.forEach(b => {
+                    let name = b.patient_name || b.name;
+                    if (name) {
+                        patientsDirectory[name] = b.patient_code || b.code || 'غير محدد';
+                        allPatients.push(name);
+                    }
+                });
+            }
 
             let uniquePatients = [...new Set(allPatients)];
             uniquePatients.forEach(name => {
-                if (name) {
-                    dropdown.innerHTML += `<option value="${name}">${name}</option>`;
-                }
+                dropdown.innerHTML += `<option value="${name}">${name}</option>`;
             });
         }
 
@@ -322,17 +342,18 @@
             });
         }
 
-        function printPrescription(id) {
+        async function printPrescription(id) {
             let s = supplementsList.find(item => String(item.id) === String(id));
             if (!s) return;
 
             document.getElementById('printPatientName').innerText = s.patient_name || 'غير محدد';
+            document.getElementById('printPatientCode').innerText = patientsDirectory[s.patient_name] || 'غير محدد';
             document.getElementById('printCaseType').innerText = s.case_type || '-';
             document.getElementById('printDate').innerText = s.prescription_date || new Date().toISOString().split('T')[0];
             
             let rawMeds = s.supp_list || s.sup_name || '-';
             let formattedMeds = rawMeds.replace(/\n/g, '<br>');
-            let notesText = s.notes ? `<br><br><strong>تعليمات إكلينيكية وملاحظات:</strong><br>${s.notes.replace(/\n/g, '<br>')}` : '';
+            let notesText = s.notes ? `<br><br><strong style="color:#064e3b;">تعليمات إكلينيكية وملاحظات:</strong><br>${s.notes.replace(/\n/g, '<br>')}` : '';
             
             document.getElementById('printSupplementsContent').innerHTML = formattedMeds + notesText;
 
@@ -444,11 +465,10 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد البروتوكول المتعدد الأسطر بنجاح!`);
         }
 
-        // دالة الحفظ والتعديل المؤمنة بـ UUID (يتعامل مع الـ ID كـ String حصرياً)
         async function saveSupplementToSQL(event) {
             event.preventDefault();
-            let editId = document.getElementById('editingSupplementId').value;
-            let isUpdate = (editId && editId !== "" && editId !== "undefined" && editId !== "null");
+            let rawId = document.getElementById('editingSupplementId').value;
+            let isUpdate = (rawId && rawId !== "" && rawId !== "undefined" && rawId !== "null");
 
             let caseType = document.getElementById('caseTypeSelect').value;
             if (caseType === 'اخرى') {
@@ -470,8 +490,7 @@
 
             let res;
             if (isUpdate) {
-                // إرسال الـ ID كنص صريح (UUID) لتطابق تام مع سوبابيس
-                res = await supabaseClient.from('supplements').update(payload).eq('id', String(editId));
+                res = await supabaseClient.from('supplements').update(payload).eq('id', String(rawId));
             } else {
                 res = await supabaseClient.from('supplements').insert([payload]);
             }
@@ -497,6 +516,7 @@
             loadSupplementsData();
         }
 
+        loadPatientsDropdown();
         window.onload = loadSupplementsData;
     </script>
 </body>
