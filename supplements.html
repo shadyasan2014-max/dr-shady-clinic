@@ -67,8 +67,12 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* قالب طباعة الروشتة الاحترافي المتكامل */
+        /* قالب طباعة الروشتة الاحترافي المتكامل (يدعم الصفحات المتعددة بدون قص) */
         .prescription-print-area { display: none; background: #fff; padding: 15px 20px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
+        
+        .prescription-print-area * {
+            page-break-inside: avoid; /* يمنع قطع سطر الأدوية منتصف السطر */
+        }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -147,7 +151,7 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة الاحترافي المتكامل -->
+    <!-- قالب طباعة الروشتة الاحترافي المتكامل (يدعم الصفحات المتعددة تلقائياً) -->
     <div id="printPrescriptionArea" class="prescription-print-area">
         <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #059669; padding-bottom: 10px; margin-bottom: 20px;">
             <tr>
@@ -187,8 +191,8 @@
             </tr>
         </table>
 
-        <!-- التوقيع وخاتم العيادة في أول وأخر السطر وبمسافة مظبوطة تماماً -->
-        <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 20px; margin-top: 30px;">
+        <!-- التوقيع وخاتم العيادة -->
+        <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 20px; margin-top: 30px; page-break-before: auto;">
             <tr>
                 <td style="text-align: right; vertical-align: top; font-size: 14px; color: #1e293b; font-weight: bold; width: 55%;">
                     توقيع الطبيب:
@@ -385,7 +389,7 @@
             printArea.style.display = 'block';
             
             const opt = { 
-                margin: 5, 
+                margin: [10, 10, 10, 10], 
                 filename: `Prescription-${s.patient_name || 'Patient'}.pdf`, 
                 image: { type: 'jpeg', quality: 0.98 }, 
                 html2canvas: { scale: 2, useCORS: true }, 
