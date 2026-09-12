@@ -61,7 +61,7 @@
         .action-btn { border: none; padding: 8px 14px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; background: var(--primary-green); }
 
         table { width: 100%; border-collapse: collapse; text-align: right; font-size: 13px; margin-top: 10px; }
-        th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
+        th { color: var.text-gray; padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
@@ -187,11 +187,11 @@
             </tr>
         </table>
 
-        <!-- التوقيع وخاتم العيادة بخلايا مستقلة تماماً لمنع كسر الحروف في الـ PDF -->
+        <!-- تم تصحيح ترتيب الكلمات لضمان ظهور "خاتم العيادة" كاملة وصحيحة تماماً بعد التصدير -->
         <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 25px; margin-top: 50px;">
             <tr>
                 <td style="text-align: right; font-size: 14px; color: #1e293b; font-weight: bold; width: 45%;">توقيع الطبيب: .......................................</td>
-                <td style="text-align: left; font-size: 14px; color: #1e293b; font-weight: bold; width: 55%; padding-left: 20px; white-space: nowrap;">خاتم العيادة: ....................................................</td>
+                <td style="text-align: left; font-size: 14px; color: #1e293b; font-weight: bold; width: 55%; padding-left: 20px;">العيادة خاتم: ....................................................</td>
             </tr>
         </table>
     </div>
