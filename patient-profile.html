@@ -175,6 +175,14 @@
                     </div>
                 </div>
 
+                <!-- قسم الأدوية والمكملات والروشتات (المضاف حديثاً) -->
+                <div class="card">
+                    <h3>💊 سجل الأدوية والمكملات الطبية</h3>
+                    <div id="pSupplementsBox" style="font-size: 12px; line-height: 1.6; color: var(--text-dark);">
+                        جاري جلب سجل الأدوية...
+                    </div>
+                </div>
+
                 <div class="card">
                     <h3>🥗 الخطة الغذائية والملاحظات الطبية</h3>
                     <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:12px;">
@@ -329,6 +337,38 @@
             document.getElementById('pDietPlan').innerText = dietPlan;
 
             renderWeightChart(startWeight, currentWeight);
+            loadPatientSupplements(name);
+        }
+
+        // جلب وعرض الأدوية والروشتات الخاصة بالمريض وتواريخها من جدول supplements
+        async function loadPatientSupplements(patientName) {
+            let suppBox = document.getElementById('pSupplementsBox');
+            suppBox.innerHTML = 'جاري التحميل...';
+
+            let { data: supps, error } = await supabaseClient.from('supplements').select('*').eq('patient_name', patientName);
+            
+            if (error || !supps || supps.length === 0) {
+                suppBox.innerHTML = '<span style="color: var(--text-gray);">لا توجد أدوية أو روشتات مسجلة لهذه الحالة حتى الآن.</span>';
+                return;
+            }
+
+            let html = '';
+            supps.forEach(s => {
+                let medsText = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
+                let pDate = s.prescription_date || 'تاريخ غير محدد';
+                let cType = s.case_type || 'بروتوكول علاجي';
+                html += `
+                    <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:8px; margin-bottom:8px;">
+                        <div style="display:flex; justify-content:space-between; margin-bottom:4px; font-weight:bold; color:var(--primary-green);">
+                            <span>💊 ${cType}</span>
+                            <span style="color:var(--accent-blue);">📅 تاريخ الروشتة: ${pDate}</span>
+                        </div>
+                        <div style="color:var(--text-dark); line-height:1.6; padding-right:5px;">${medsText}</div>
+                        ${s.notes ? `<div style="margin-top:4px; font-size:11px; color:var(--text-gray);"><strong>ملاحظات:</strong> ${s.notes}</div>` : ''}
+                    </div>
+                `;
+            });
+            suppBox.innerHTML = html;
         }
 
         async function openComprehensiveReportModal() {
@@ -347,6 +387,18 @@
                 let doctorNotes = activePatient.medical_history || activePatient.notes || 'الحالة مستقرة وتسير بانتظام.';
                 let previousPlan = activePatient.previous_diet_plan || `من اليوم الأول إلى ٧\n( مرحلة السوائل الدايت )\n- الشوربة (دجاج أو لحم) الغير مبهرة والمصفاة بدون توابل أو معجون طماطم أو مكعب مرق ماجي ويمكن إضافة قليل من الملح.`;
 
+                // جلب الأدوية لتقرير الحالة
+                let { data: supps } = await supabaseClient.from('supplements').select('*').eq('patient_name', name);
+                let suppsHtml = '';
+                if (supps && supps.length > 0) {
+                    supps.forEach(s => {
+                        let mText = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
+                        suppsHtml += `<div style="margin-bottom:6px;"><strong>📅 ${s.prescription_date || 'غير محدد'} (${s.case_type || 'علاج'}):</strong><br>${mText}</div>`;
+                    });
+                } else {
+                    suppsHtml = 'لا توجد أدوية مسجلة.';
+                }
+
                 let html = `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px;">
                         <div>
@@ -362,6 +414,11 @@
                         <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg); font-size:14px;">👤 بيانات المريض الأساسية</h4>
                         <p style="margin:0; font-size:13px;"><strong>الاسم:</strong> ${name} | <strong>الكود:</strong> ${code} | <strong>الهاتف:</strong> ${activePatient.phone || 'غير مسجل'}</p>
                         <p style="margin:3px 0 0 0; color:var(--text-gray); font-size:11px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
+                    </div>
+
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">💊 سجل الأدوية والمكملات والروشتات الطبية</h4>
+                    <div style="background:#f8fafc; padding:8px; border-radius:6px; font-size:12px; margin-bottom:8px; line-height:1.6;">
+                        ${suppsHtml}
                     </div>
 
                     <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:13px; margin:10px 0 5px 0;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
@@ -409,7 +466,6 @@
             }
         }
 
-        // دالة طباعة مخصصة ومكبرة الخط للتقرير الطبي
         function printReportModalContent() {
             let reportHtml = document.getElementById('reportContentBody').innerHTML;
             let printWindow = window.open('', '_blank', 'width=850,height=1000');
@@ -440,7 +496,6 @@
             printWindow.document.close();
         }
 
-        // دالة طباعة صفحة ملف المريض بالكامل مع إخفاء القائمة الجانبية تماماً وتكبير الخطوط لراحتك
         function printFullPatientPage() {
             window.print();
         }
@@ -611,7 +666,6 @@
             printContainer.setAttribute('dir', 'rtl');
             printContainer.style.cssText = "direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 15px; background: #ffffff; color: #1e293b; width: 190mm; box-sizing: border-box;";
 
-            // دمج صورة الرسم البياني في ملف الـ PDF لضمان ظهورها بوضوح تام
             let chartImageHtml = '';
             if (weightChartInstance) {
                 let chartBase64 = weightChartInstance.toBase64Image();
