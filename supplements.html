@@ -67,9 +67,9 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* تصميم ترويسة الروشتة للطباعة */
-        .prescription-print-area { display: none; background: #fff; padding: 20px; direction: rtl; text-align: right; }
-        .pres-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-green); padding-bottom: 15px; margin-bottom: 20px; }
+        /* تصميم ترويسة الروشتة للطباعة الاحترافية بدون قلب الحروف */
+        .prescription-print-area { display: none; background: #fff; padding: 30px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .pres-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 20px; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -135,8 +135,8 @@
                         <tr>
                             <th>اسم المريض</th>
                             <th>نوع الحالة / العملية</th>
-                            <th>الأدوية والمكملات والجرعات (متعدد الأسطر)</th>
-                            <th>تعليمات إكلينيكية</th>
+                            <th>الأدوية والمكملات والجرعات</th>
+                            <th>تاريخ الروشتة</th>
                             <th>الإجراءات والروشتة</th>
                         </tr>
                     </thead>
@@ -148,31 +148,31 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة المخفي -->
+    <!-- قالب طباعة الروشتة الاحترافي -->
     <div id="printPrescriptionArea" class="prescription-print-area">
         <div class="pres-header">
             <div>
-                <h2 style="margin:0; color:#064e3b; font-size:20px;">د. شادي سمير</h2>
-                <p style="margin:3px 0; color:#059669; font-weight:bold; font-size:13px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                <h2 style="margin:0; color:#064e3b; font-size:22px;">د. شادي سمير</h2>
+                <p style="margin:4px 0; color:#059669; font-weight:bold; font-size:14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
                 <p style="margin:0; font-size:11px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
             </div>
             <div>
-                <img src="logo2.png" alt="Logo" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
+                <img src="logo2.png" alt="Logo" style="width:65px; height:65px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
             </div>
         </div>
 
-        <div style="background:#f8fafc; padding:12px; border-radius:8px; margin-bottom:15px; font-size:13px;">
-            <strong>اسم المريض:</strong> <span id="printPatientName">-</span><br>
+        <div style="background:#f8fafc; padding:12px; border-radius:8px; margin-bottom:20px; font-size:13px; border:1px solid #e2e8f0;">
+            <strong>اسم المريض:</strong> <span id="printPatientName" style="font-weight:bold; color:#1e293b;">-</span><br>
             <strong>نوع الحالة / العملية:</strong> <span id="printCaseType">-</span><br>
-            <strong>تاريخ الروشتة:</strong> <span id="printDate">-</span>
+            <strong>تاريخ الروشتة:</strong> <span id="printDate" style="font-weight:bold; color:#059669;">-</span>
         </div>
 
-        <h4 style="color:#064e3b; border-bottom:1px solid #ddd; padding-bottom:5px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
-        <div id="printSupplementsContent" style="font-size:14px; line-height:1.8; margin-bottom:20px; white-space: pre-line;">
+        <h4 style="color:#064e3b; border-bottom:1px solid #cbd5e1; padding-bottom:6px; margin-bottom:12px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
+        <div id="printSupplementsContent" style="font-size:14px; line-height:2.0; margin-bottom:30px; white-space: pre-line; color:#1e293b; font-weight:500;">
             - محتوى الروشتة...
         </div>
 
-        <div style="margin-top:40px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #ccc; padding-top:15px; font-size:12px;">
+        <div style="margin-top:50px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:15px; font-size:13px; color:#475569;">
             <span>توقيع الطبيب: ........................</span>
             <span>خاتم العيادة</span>
         </div>
@@ -194,6 +194,11 @@
                     <select id="patientSelect" class="form-control" required>
                         <option value="">-- اختر مريض من القائمة --</option>
                     </select>
+                </div>
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">تاريخ كتابة الروشتة:</label>
+                    <input type="date" id="prescriptionDate" class="form-control" required>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
@@ -222,16 +227,16 @@
                     <input type="text" id="otherCaseInput" class="form-control" placeholder="اكتب اسم العملية أو الحالة هنا...">
                 </div>
 
-                <!-- حقل المكملات والجرعات المدمج في خانة واحدة ومتعدد الأسطر -->
+                <!-- حقل المكملات والجرعات المدمج -->
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--primary-green); display:block; margin-bottom:4px;">💊 أسماء الأدوية والمكملات والجرعات (يمكنك الكتابة في عدة أسطر):</label>
+                    <label style="font-size:11px; font-weight:bold; color:var(--primary-green); display:block; margin-bottom:4px;">💊 أسماء الأدوية والمكملات والجرعات (عدة أسطر):</label>
                     <textarea id="supName" class="form-control" rows="5" placeholder="مثال:
 1. Omnivora amp حقنة عضل كل أسبوع لمدة 3 شهور
 2. Calcitron tab قرص يوميا مساء بعد الغداء" required style="white-space: pre-line;"></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
-                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">تعليمات إكلينيكية:</label>
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">تعليمات إكلينيكية وملاحظات:</label>
                     <textarea id="supNotes" class="form-control" rows="2" placeholder="تجنب أخذ الحديد مع الكالسيوم معاً..."></textarea>
                 </div>
 
@@ -288,12 +293,13 @@
             supplementsList = data;
             supplementsList.forEach(s => {
                 let medContent = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
+                let pDate = s.prescription_date || 'غير محدد';
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${s.patient_name || 'غير محدد'}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${s.case_type || '-'}</span></td>
                         <td style="max-width:300px; white-space:pre-line;">${medContent}</td>
-                        <td style="max-width:180px; font-size:12px; color:var(--text-gray);">${s.notes || '-'}</td>
+                        <td style="font-weight:bold; color:var(--primary-green);">${pDate}</td>
                         <td>
                             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
                                 <button onclick="printPrescription('${s.id}')" class="action-btn" style="background:var(--accent-blue);">🖨️ طباعة</button>
@@ -312,14 +318,14 @@
 
             document.getElementById('printPatientName').innerText = s.patient_name || 'غير محدد';
             document.getElementById('printCaseType').innerText = s.case_type || '-';
-            document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-EG');
+            document.getElementById('printDate').innerText = s.prescription_date || new Date().toLocaleDateString('ar-EG');
             
             let medText = `${s.supp_list || s.sup_name || '-'}\n\nتعليمات إكلينيكية وملاحظات:\n${s.notes || 'لا توجد تعليمات إضافية.'}`;
             document.getElementById('printSupplementsContent').innerText = medText;
 
-            document.getElementById('printPrescriptionArea').style.display = 'block';
+            let printArea = document.getElementById('printPrescriptionArea');
+            printArea.style.display = 'block';
             
-            const element = document.getElementById('printPrescriptionArea');
             const opt = { 
                 margin: 10, 
                 filename: `Prescription-${s.patient_name || 'Patient'}.pdf`, 
@@ -328,8 +334,8 @@
                 jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
             };
 
-            html2pdf().from(element).set(opt).save().then(() => {
-                document.getElementById('printPrescriptionArea').style.display = 'none';
+            html2pdf().from(printArea).set(opt).save().then(() => {
+                printArea.style.display = 'none';
             });
         }
 
@@ -338,6 +344,8 @@
             document.getElementById('editingSupplementId').value = '';
             document.getElementById('modalTitle').innerText = '💊 وصف مكملات وفيتامينات جديدة';
             document.getElementById('patientSelect').value = '';
+            // تعيين تاريخ اليوم تلقائياً عند الفتح
+            document.getElementById('prescriptionDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('caseTypeSelect').value = '';
             document.getElementById('otherCaseInput').value = '';
             document.getElementById('otherCaseBox').style.display = 'none';
@@ -359,6 +367,7 @@
             document.getElementById('editingSupplementId').value = s.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بروتوكول المكملات';
             document.getElementById('patientSelect').value = s.patient_name || '';
+            document.getElementById('prescriptionDate').value = s.prescription_date || new Date().toISOString().split('T')[0];
             
             let caseType = s.case_type || '';
             let standardOptions = ['تكميم', 'تحويل مسار', 'تحويل كلاسيكي', 'ساسي', 'تصحيح', 'سمنة', 'نحافة', 'حقن مونجارو او حقن ميزوثرابي'];
@@ -437,11 +446,12 @@
 
             let payload = {
                 patient_name: document.getElementById('patientSelect').value,
+                prescription_date: document.getElementById('prescriptionDate').value,
                 case_type: caseType,
                 supp_list: medValue,
                 sup_name: medValue,
-                dosage: '-', // تم دمجها مع النص الرئيسي
-                duration: '-', // تم دمجها مع النص الرئيسي
+                dosage: '-',
+                duration: '-',
                 notes: document.getElementById('supNotes').value
             };
 
@@ -457,7 +467,7 @@
                 return;
             }
 
-            alert('✨ تم حفظ وتعديل الروشتة والبروتوكول في قاعدة البيانات بنجاح!');
+            alert('✨ تم حفظ وتعديل الروشتة في قاعدة البيانات بنجاح!');
             closeSupplementModal();
             loadSupplementsData();
         }
