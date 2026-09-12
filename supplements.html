@@ -298,7 +298,6 @@
             document.getElementById('supplementModal').style.display = 'flex';
         }
 
-        // تم إصلاح دالة التعديل لجلب السجل المطلوب مباشرة من سوبابيس بالـ ID لضمان عدم حدوث أي خطأ في المطابقة
         async function openEditSupplementModal(id) {
             await loadPatientsDropdown();
 
@@ -392,10 +391,11 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
         }
 
+        // تم إصلاح دالة الحفظ لضمان تحويل وتوافق الـ ID ديناميكياً مع قاعدة البيانات ومنع أي إخفاق في التحديث
         async function saveSupplementToSQL(event) {
             event.preventDefault();
-            let editId = document.getElementById('editingSupplementId').value;
-            let isUpdate = (editId && editId !== "" && editId !== "undefined" && editId !== "null");
+            let rawId = document.getElementById('editingSupplementId').value;
+            let isUpdate = (rawId && rawId !== "" && rawId !== "undefined" && rawId !== "null");
 
             let caseType = document.getElementById('caseTypeSelect').value;
             if (caseType === 'اخرى') {
@@ -416,7 +416,14 @@
 
             let res;
             if (isUpdate) {
-                res = await supabaseClient.from('supplements').update(payload).eq('id', editId).select();
+                // محاولة التحديث بالـ ID سواء كان رقم أو نص (UUID)
+                let parsedId = isNaN(rawId) ? rawId : Number(rawId);
+                res = await supabaseClient.from('supplements').update(payload).eq('id', parsedId).select();
+                
+                // لو فشل التحديث لسبب ما، جرب كـ String بشكل صريح
+                if (res.error || !res.data || res.data.length === 0) {
+                    res = await supabaseClient.from('supplements').update(payload).eq('id', String(rawId)).select();
+                }
             } else {
                 res = await supabaseClient.from('supplements').insert([payload]).select();
             }
@@ -428,12 +435,13 @@
 
             alert('✨ تم حفظ وتعديل البروتوكول في قاعدة البيانات بنجاح!');
             closeSupplementModal();
-            loadSupplementsData();
+            loadSupplementsData(); // إعادة تحميل الجدول فوراً لتظهر البيانات المحدثة
         }
 
         async function deleteSupplement(id) {
             if (!confirm('هل أنت متأكد من حذف هذا البروتوكول نهائياً؟')) return;
-            const { error } = await supabaseClient.from('supplements').delete().eq('id', id);
+            let parsedId = isNaN(id) ? id : Number(id);
+            const { error } = await supabaseClient.from('supplements').delete().eq('id', parsedId);
             if (error) {
                 alert('خطأ في الحذف: ' + error.message);
                 return;
