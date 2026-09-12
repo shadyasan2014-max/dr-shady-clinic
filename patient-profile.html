@@ -69,6 +69,24 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
+        /* تنسيق الطباعة المباشرة النظيف بدون فراغات وبحجم لوجو وخط مظبوطين تماماً */
+        @media print {
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: #fff !important; font-size: 14px !important; }
+            .sidebar, .mobile-menu-toggle, .patient-actions-top, .modal-overlay, button, .pdf-header-banner { display: none !important; }
+            .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
+            #patientPdfArea { font-size: 14px !important; line-height: 1.6 !important; }
+            .patient-header-card { background: #fff !important; border: 1px solid #cbd5e1 !important; padding: 12px !important; border-radius: 8px !important; margin-bottom: 10px !important; }
+            .patient-avatar { width: 50px !important; height: 50px !important; border-width: 2px !important; }
+            .card { background: #fff !important; border: 1px solid #cbd5e1 !important; padding: 12px !important; border-radius: 8px !important; margin-bottom: 10px !important; page-break-inside: avoid; }
+            .metric-card { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; padding: 8px !important; }
+            h2 { font-size: 18px !important; }
+            h3 { font-size: 15px !important; }
+            h4, .metric-title { font-size: 12px !important; }
+            .metric-value { font-size: 15px !important; }
+            p, div, li, strong, span { font-size: 13.5px !important; color: #1e293b !important; }
+        }
+
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
             .sidebar.active { transform: translateX(0); }
@@ -489,44 +507,9 @@
             printWindow.document.close();
         }
 
-        // تم ضبط كود الطباعة المباشرة للصفحة بـ CSS مخصص ونظيف وبدون صفحات فارغة وبخط مقروء (15px)
+        // استخدام الـ window.print المباشر للقسم الخاص بملف المريض حصرياً مع ضبط الهوامش وإخفاء الخلفيات تماماً
         function printFullPatientPage() {
-            let printWin = window.open('', '_blank', 'width=900,height=1100');
-            let contentBox = document.getElementById('patientPdfArea').innerHTML;
-            printWin.document.write(`
-                <!DOCTYPE html>
-                <html lang="ar" dir="rtl">
-                <head>
-                    <meta charset="UTF-8">
-                    <title>طباعة ملف المريض الشامل</title>
-                    <style>
-                        @page { size: A4 portrait; margin: 10mm; }
-                        body { font-family: 'Tahoma', Arial, sans-serif; direction: rtl; padding: 10px; color: #1e293b; margin: 0; font-size: 15px; line-height: 1.7; background: #fff; }
-                        .patient-actions-top, button, .sidebar, .mobile-menu-toggle { display: none !important; }
-                        .pdf-header-banner { border-bottom: 2px solid #059669 !important; padding-bottom: 8px !important; margin-bottom: 12px !important; display: flex !important; justify-content: space-between !important; align-items: center !important; }
-                        .patient-header-card { background: #fff !important; border: 1px solid #cbd5e1 !important; padding: 12px !important; border-radius: 8px !important; margin-bottom: 12px !important; }
-                        .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 12px; }
-                        .metric-card { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; padding: 8px !important; border-radius: 6px !important; text-align: center; }
-                        .metric-title { font-size: 12px !important; color: #64748b !important; margin-bottom: 4px !important; }
-                        .metric-value { font-size: 15px !important; font-weight: bold !important; color: #1e293b !important; }
-                        .card { background: #fff !important; border: 1px solid #cbd5e1 !important; padding: 12px !important; border-radius: 8px !important; margin-bottom: 12px !important; page-break-inside: avoid; }
-                        .card h3 { font-size: 15px !important; color: #064e3b !important; border-bottom: 1px solid #e2e8f0 !important; padding-bottom: 6px !important; margin-bottom: 8px !important; }
-                        p, div, li, strong, span { font-size: 14px !important; color: #1e293b !important; }
-                        canvas { max-height: 130px !important; width: 100% !important; }
-                    </style>
-                </head>
-                <body>
-                    ${contentBox}
-                    <script>
-                        window.onload = function() {
-                            window.print();
-                            window.close();
-                        };
-                    <\/script>
-                </body>
-                </html>
-            `);
-            printWin.document.close();
+            window.print();
         }
 
         function closeComprehensiveReportModal() {
