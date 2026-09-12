@@ -69,17 +69,17 @@
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
 
-        /* تكبير حجم الخطوط بوضوح في الطباعة والتقرير الشامل (16px للنصوص و 18-20px للعناوين) */
+        /* خطوط كبيرة جداً وواضحة جداً في الطباعة (18px للنصوص و 22-26px للعناوين) */
         @media print {
-            @page { size: A4 portrait; margin: 12mm; }
-            body { background: #fff !important; font-size: 16px !important; }
+            @page { size: A4 portrait; margin: 10mm; }
+            body { background: #fff !important; font-size: 18px !important; }
             .sidebar, .mobile-menu-toggle, .patient-actions-top, .modal-overlay, button { display: none !important; }
             .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
-            #reportContentBody { font-size: 16px !important; line-height: 1.8 !important; }
-            h2 { font-size: 22px !important; }
-            h3 { font-size: 18px !important; }
-            h4 { font-size: 17px !important; }
-            p, div, li, strong { font-size: 15px !important; }
+            #reportContentBody { font-size: 18px !important; line-height: 1.9 !important; }
+            h2 { font-size: 26px !important; }
+            h3 { font-size: 22px !important; }
+            h4 { font-size: 20px !important; }
+            p, div, li, strong { font-size: 18px !important; }
         }
 
         @media (max-width: 950px) {
@@ -182,7 +182,7 @@
 
                 <div class="card">
                     <h3>💊 سجل الأدوية والمكملات الطبية</h3>
-                    <div id="pSupplementsBox" style="font-size: 14px; line-height: 1.7; color: var(--text-dark);">
+                    <div id="pSupplementsBox" style="font-size: 15px; line-height: 1.8; color: var(--text-dark);">
                         جاري جلب سجل الأدوية...
                     </div>
                 </div>
@@ -190,12 +190,12 @@
                 <div class="card">
                     <h3>🥗 الخطة الغذائية والملاحظات الطبية</h3>
                     <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:12px;">
-                        <strong style="font-size:14px; color:#166534; display:block; margin-bottom:5px;">🍽️ تفاصيل الخطة الغذائية المخصصة:</strong>
-                        <p id="pDietPlan" style="font-size:14px; line-height:1.8; color:#14532d; margin:0; white-space: pre-line;">لم يتم كتابة خطة غذائية بعد.</p>
+                        <strong style="font-size:15px; color:#166534; display:block; margin-bottom:5px;">🍽️ تفاصيل الخطة الغذائية المخصصة:</strong>
+                        <p id="pDietPlan" style="font-size:15px; line-height:1.8; color:#14532d; margin:0; white-space: pre-line;">لم يتم كتابة خطة غذائية بعد.</p>
                     </div>
 
                     <h3 style="margin-top:10px; border-bottom:none; padding-bottom:0;">📝 ملاحظات الدكتور الإكلينيكية</h3>
-                    <p id="pNotes" style="font-size:14px; line-height:1.8; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border); white-space: pre-line;">جاري تحميل الملاحظات...</p>
+                    <p id="pNotes" style="font-size:15px; line-height:1.8; color:var(--text-dark); background:#f8fafc; padding:10px; border-radius:8px; border:1px solid var(--card-border); white-space: pre-line;">جاري تحميل الملاحظات...</p>
                 </div>
             </div>
         </div>
@@ -205,11 +205,11 @@
     <div id="comprehensiveReportModal" class="modal-overlay">
         <div class="modal-box" style="width: 750px;">
             <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:15px;">
-                <h3 style="margin:0; font-size:17px; color:var(--sidebar-bg);">📄 التقرير الطبي والإكلينيكي الشامل للحالة</h3>
+                <h3 style="margin:0; font-size:18px; color:var(--sidebar-bg);">📄 التقرير الطبي والإكلينيكي الشامل للحالة</h3>
                 <button onclick="closeComprehensiveReportModal()" style="border:none; background:none; font-size:18px; cursor:pointer; font-weight:bold;">✕</button>
             </div>
             
-            <div id="reportContentBody" style="font-size:15px; color:var(--text-dark); line-height:1.8; max-height: 75vh; overflow-y: auto;">
+            <div id="reportContentBody" style="font-size:16px; color:var(--text-dark); line-height:1.9; max-height: 75vh; overflow-y: auto;">
                 <div style="text-align:center; padding:20px; color:gray;">جاري جلب كافة تفاصيل الحالة بدقة متناهية...</div>
             </div>
 
@@ -366,8 +366,8 @@
                             <span>💊 ${cType}</span>
                             <span style="color:var(--accent-blue);">📅 تاريخ الروشتة: ${pDate}</span>
                         </div>
-                        <div style="color:var(--text-dark); line-height:1.7; padding-right:5px; font-size:14px;">${medsText}</div>
-                        ${s.notes ? `<div style="margin-top:6px; font-size:13px; color:var(--text-gray);"><strong>ملاحظات:</strong> ${s.notes}</div>` : ''}
+                        <div style="color:var(--text-dark); line-height:1.8; padding-right:5px; font-size:15px;">${medsText}</div>
+                        ${s.notes ? `<div style="margin-top:6px; font-size:14px; color:var(--text-gray);"><strong>ملاحظات:</strong> ${s.notes}</div>` : ''}
                     </div>
                 `;
             });
@@ -395,7 +395,7 @@
                 if (supps && supps.length > 0) {
                     supps.forEach(s => {
                         let mText = (s.supp_list || s.sup_name || '-').replace(/\n/g, '<br>');
-                        suppsHtml += `<div style="margin-bottom:10px;"><strong>📅 ${s.prescription_date || 'غير محدد'} (${s.case_type || 'علاج'}):</strong><br>${mText}</div>`;
+                        suppsHtml += `<div style="margin-bottom:12px;"><strong>📅 ${s.prescription_date || 'غير محدد'} (${s.case_type || 'علاج'}):</strong><br>${mText}</div>`;
                     });
                 } else {
                     suppsHtml = 'لا توجد أدوية مسجلة.';
@@ -404,60 +404,60 @@
                 let html = `
                     <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px;">
                         <div>
-                            <h2 style="margin: 0; color: #064e3b; font-size: 20px;">د. شادي سمير</h2>
-                            <p style="margin: 3px 0 0 0; color: #059669; font-weight: bold; font-size: 14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                            <h2 style="margin: 0; color: #064e3b; font-size: 22px;">د. شادي سمير</h2>
+                            <p style="margin: 3px 0 0 0; color: #059669; font-weight: bold; font-size: 15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
                         </div>
                         <div style="text-align: left;">
-                            <img src="logo2.png" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;" onerror="this.src='logo.jpeg'">
+                            <img src="logo2.png" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;" onerror="this.src='logo.jpeg'">
                         </div>
                     </div>
 
-                    <div style="background:#f8fafc; padding:12px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:12px;">
-                        <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg); font-size:16px;">👤 بيانات المريض الأساسية</h4>
-                        <p style="margin:0; font-size:14.5px;"><strong>الاسم:</strong> ${name} | <strong>الكود:</strong> ${code} | <strong>الهاتف:</strong> ${activePatient.phone || 'غير مسجل'}</p>
-                        <p style="margin:3px 0 0 0; color:var(--text-gray); font-size:12px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
+                    <div style="background:#f8fafc; padding:15px; border-radius:8px; border:1px solid var(--card-border); margin-bottom:15px;">
+                        <h4 style="margin:0 0 5px 0; color:var(--sidebar-bg); font-size:18px;">👤 بيانات المريض الأساسية</h4>
+                        <p style="margin:0; font-size:16px;"><strong>الاسم:</strong> ${name} | <strong>الكود:</strong> ${code} | <strong>الهاتف:</strong> ${activePatient.phone || 'غير مسجل'}</p>
+                        <p style="margin:5px 0 0 0; color:var(--text-gray); font-size:13px;">تاريخ إصدار التقرير: ${new Date().toLocaleDateString('ar-EG')}</p>
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">💊 سجل الأدوية والمكملات والروشتات الطبية</h4>
-                    <div style="background:#f8fafc; padding:10px; border-radius:6px; font-size:14px; margin-bottom:12px; line-height:1.8;">
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">💊 سجل الأدوية والمكملات والروشتات الطبية</h4>
+                    <div style="background:#f8fafc; padding:12px; border-radius:6px; font-size:15px; margin-bottom:15px; line-height:1.9;">
                         ${suppsHtml}
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:14px; line-height:1.8;">
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">📋 سجل الزيارات (أونلاين / بالعيادة)</h4>
+                    <ul style="margin:0; padding-right:20px; font-size:15px; line-height:1.9;">
                         <li><strong>📅 ${currDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: تسجيل المتابعة الحالية وتحديث الوزن (${currentWeight} كجم)</li>
                         <li><strong>📅 ${prevDate}</strong> | نوع الزيارة: متابعة أونلاين | التفاصيل: المتابعة السابقة وتعديل النظام الغذائي</li>
                         <li><strong>📅 ${surgeryDate}</strong> | نوع الزيارة: زيارة إجراء العملية | التفاصيل: تاريخ إجراء العملية الإكلينيكية</li>
                     </ul>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:14px; line-height:1.8;">
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">⚖️ سجل القياسات والأوزان والـ BMI</h4>
+                    <ul style="margin:0; padding-right:20px; font-size:15px; line-height:1.9;">
                         <li><strong>📅 ${currDate}</strong> | الوزن الحالي: ${currentWeight} كجم | BMI: 40.8 | الدهون: -%</li>
                         <li><strong>📅 ${prevDate}</strong> | وزن المتابعة السابقة: 114 كجم | BMI: 41.9 | الدهون: -%</li>
                     </ul>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">🥗 الخطط والأنظمة الغذائية الموصوفة (السابقة والحالية)</h4>
                     
-                    <div style="background:#fef3c7; border:1px solid #fde68a; padding:10px; border-radius:8px; margin-bottom:10px;">
-                        <span style="font-size:13.5px; color:#b45309; font-weight:bold; display:block; margin-bottom:4px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
-                        <div style="font-size:14px; color:#78350f; white-space:pre-line; line-height:1.8;">${previousPlan}</div>
+                    <div style="background:#fef3c7; border:1px solid #fde68a; padding:12px; border-radius:8px; margin-bottom:12px;">
+                        <span style="font-size:15px; color:#b45309; font-weight:bold; display:block; margin-bottom:5px;">📅 تاريخ إرسال النظام السابق: ${prevDate}</span>
+                        <div style="font-size:15.5px; color:#78350f; white-space:pre-line; line-height:1.9;">${previousPlan}</div>
                     </div>
 
-                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:10px; border-radius:8px; margin-bottom:10px;">
-                        <span style="font-size:13.5px; color:#166534; font-weight:bold; display:block; margin-bottom:4px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
-                        <div style="font-size:14px; color:#14532d; white-space:pre-line; line-height:1.8;">${currentPlan}</div>
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; padding:12px; border-radius:8px; margin-bottom:12px;">
+                        <span style="font-size:15px; color:#166534; font-weight:bold; display:block; margin-bottom:5px;">📅 تاريخ إرسال النظام الحالي: ${currDate}</span>
+                        <div style="font-size:15.5px; color:#14532d; white-space:pre-line; line-height:1.9;">${currentPlan}</div>
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
-                    <div style="background:#f8fafc; border:1px solid var(--card-border); padding:10px; border-radius:8px; margin-bottom:10px; font-size:14px; color:var(--text-dark); white-space:pre-line; line-height:1.8;">
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">📝 ملاحظات الدكتور وتوصياته الطبية</h4>
+                    <div style="background:#f8fafc; border:1px solid var(--card-border); padding:12px; border-radius:8px; margin-bottom:12px; font-size:15.5px; color:var(--text-dark); white-space:pre-line; line-height:1.9;">
                         ${doctorNotes}
                     </div>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">🩺 جراحات السمنة والعمليات</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:14px; line-height:1.8;"><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">🩺 جراحات السمنة والعمليات</h4>
+                    <ul style="margin:0; padding-right:20px; font-size:15px; line-height:1.9;"><li>العملية المسجلة بالملف: ${activePatient.surgery_type || 'تصحيح'} | التاريخ: ${surgeryDate}</li></ul>
 
-                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:4px; font-size:15px; margin:10px 0 5px 0;">💰 المعاملات المالية والكشوفات</h4>
-                    <ul style="margin:0; padding-right:20px; font-size:14px; line-height:1.8;"><li>التاريخ: ${currDate} | الخدمة: متابعة إكلينيكية | المبلغ: 200 جنيه</li></ul>
+                    <h4 style="color:var(--primary-green); border-bottom:1px solid #eee; padding-bottom:6px; font-size:17px; margin:15px 0 8px 0;">💰 المعاملات المالية والكشوفات</h4>
+                    <ul style="margin:0; padding-right:20px; font-size:15px; line-height:1.9;"><li>التاريخ: ${currDate} | الخدمة: متابعة إكلينيكية | المبلغ: 200 جنيه</li></ul>
                 `;
 
                 bodyDiv.innerHTML = html;
@@ -478,8 +478,8 @@
                     <meta charset="UTF-8">
                     <title>طباعة التقرير الطبي الشامل</title>
                     <style>
-                        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; padding: 25px; color: #1e293b; margin: 0; font-size: 15px; line-height: 1.8; }
-                        h2, h3, h4 { margin: 8px 0; color: #064e3b; }
+                        body { font-family: 'Segoe UI', Tahoma, Arial, sans-serif; direction: rtl; padding: 25px; color: #1e293b; margin: 0; font-size: 16px; line-height: 1.9; }
+                        h2, h3, h4 { margin: 10px 0; color: #064e3b; }
                         ul { margin: 0; padding-right: 20px; }
                         div { box-sizing: border-box; }
                     </style>
@@ -666,38 +666,38 @@
 
             let printContainer = document.createElement('div');
             printContainer.setAttribute('dir', 'rtl');
-            printContainer.style.cssText = "direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 15px; background: #ffffff; color: #1e293b; width: 190mm; box-sizing: border-box; font-size: 15px;";
+            printContainer.style.cssText = "direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Arial, sans-serif; padding: 15px; background: #ffffff; color: #1e293b; width: 190mm; box-sizing: border-box; font-size: 16px;";
 
             let chartImageHtml = '';
             if (weightChartInstance) {
                 let chartBase64 = weightChartInstance.toBase64Image();
-                chartImageHtml = `<div style="margin-bottom: 12px; text-align: center;"><h4 style="color: #064e3b; font-size: 15px; margin-bottom: 4px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 140px; object-fit: contain;" /></div>`;
+                chartImageHtml = `<div style="margin-bottom: 15px; text-align: center;"><h4 style="color: #064e3b; font-size: 16px; margin-bottom: 6px;">📈 منحنى تطور الوزن</h4><img src="${chartBase64}" style="width: 100%; max-height: 140px; object-fit: contain;" /></div>`;
             }
 
             printContainer.innerHTML = `
-                <table style="width: 100%; border-bottom: 2px solid #059669; padding-bottom: 8px; margin-bottom: 12px; direction: rtl;">
+                <table style="width: 100%; border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px; direction: rtl;">
                     <tr>
                         <td style="text-align: right; vertical-align: middle;">
-                            <h2 style="margin: 0; color: #064e3b; font-size: 19px;">${docInfo.name}</h2>
-                            <p style="margin: 2px 0; color: #059669; font-weight: bold; font-size: 13px;">${docInfo.title}</p>
-                            <p style="margin: 0; font-size: 11.5px; color: #64748b;">هاتف العيادة: ${docInfo.phone}</p>
+                            <h2 style="margin: 0; color: #064e3b; font-size: 20px;">${docInfo.name}</h2>
+                            <p style="margin: 3px 0; color: #059669; font-weight: bold; font-size: 14px;">${docInfo.title}</p>
+                            <p style="margin: 0; font-size: 12px; color: #64748b;">هاتف العيادة: ${docInfo.phone}</p>
                         </td>
                         <td style="text-align: left; vertical-align: middle;">
-                            <img src="${docInfo.logo}" crossorigin="anonymous" onerror="this.onerror=null; this.src='logo.jpeg';" style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;">
+                            <img src="${docInfo.logo}" crossorigin="anonymous" onerror="this.onerror=null; this.src='logo.jpeg';" style="width: 50px; height: 50px; border-radius: 50%; object-fit: cover; border: 2px solid #059669;">
                         </td>
                     </tr>
                 </table>
 
-                <table style="width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 8px; margin-bottom: 12px; direction: rtl; font-size: 13px;">
+                <table style="width: 100%; background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 8px; margin-bottom: 15px; direction: rtl; font-size: 14px;">
                     <tr>
                         <td style="text-align: right; vertical-align: middle; width: 50%;">
-                            <h3 style="margin: 0 0 3px 0; font-size: 15px; color: #064e3b;">اسم المريض: ${patientName}</h3>
-                            <p style="margin: 0 0 3px 0; color: #64748b;">كود الحالة: <strong>${patientCode}</strong> | الهاتف: ${patientPhone}</p>
+                            <h3 style="margin: 0 0 4px 0; font-size: 16px; color: #064e3b;">اسم المريض: ${patientName}</h3>
+                            <p style="margin: 0 0 4px 0; color: #64748b;">كود الحالة: <strong>${patientCode}</strong> | الهاتف: ${patientPhone}</p>
                             <p style="margin: 0; color: #64748b;">التصنيف: ${surgeryType}</p>
                         </td>
-                        <td style="text-align: right; vertical-align: middle; width: 50%; border-right: 1px solid #e2e8f0; padding-right: 10px;">
-                            <p style="margin: 0 0 3px 0; color: #059669; font-weight: bold;">الوزن الحالي: ${currWeight} | BMI: ${bmiValue}</p>
-                            <p style="margin: 0 0 3px 0; color: #64748b;">الدهون: ${fatVal} | العضلات: ${muscleVal}</p>
+                        <td style="text-align: right; vertical-align: middle; width: 50%; border-right: 1px solid #e2e8f0; padding-right: 12px;">
+                            <p style="margin: 0 0 4px 0; color: #059669; font-weight: bold;">الوزن الحالي: ${currWeight} | BMI: ${bmiValue}</p>
+                            <p style="margin: 0 0 4px 0; color: #64748b;">الدهون: ${fatVal} | العضلات: ${muscleVal}</p>
                             <p style="margin: 0; color: #64748b;">تاريخ العملية: ${surgeryDate}</p>
                         </td>
                     </tr>
@@ -705,21 +705,21 @@
 
                 ${chartImageHtml}
 
-                <div style="margin-bottom: 12px;">
-                    <h4 style="color: #166534; border-bottom: 1px solid #bbf7d0; padding-bottom: 3px; margin-bottom: 6px; font-size: 14px;">🥗 الخطة الغذائية المخصصة:</h4>
-                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 10px; border-radius: 6px; font-size: 13px; line-height: 1.8; white-space: pre-line; color: #14532d; text-align: right;">
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: #166534; border-bottom: 1px solid #bbf7d0; padding-bottom: 4px; margin-bottom: 8px; font-size: 15px;">🥗 الخطة الغذائية المخصصة:</h4>
+                    <div style="background: #f0fdf4; border: 1px solid #bbf7d0; padding: 12px; border-radius: 6px; font-size: 14px; line-height: 1.9; white-space: pre-line; color: #14532d; text-align: right;">
                         ${dietPlanText}
                     </div>
                 </div>
 
-                <div style="margin-bottom: 10px;">
-                    <h4 style="color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 3px; margin-bottom: 6px; font-size: 14px;">📝 ملاحظات وتوصيات الطبيب:</h4>
-                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 10px; border-radius: 6px; font-size: 13px; line-height: 1.8; white-space: pre-line; color: #334155; text-align: right;">
+                <div style="margin-bottom: 12px;">
+                    <h4 style="color: #1e293b; border-bottom: 1px solid #e2e8f0; padding-bottom: 4px; margin-bottom: 8px; font-size: 15px;">📝 ملاحظات وتوصيات الطبيب:</h4>
+                    <div style="background: #f8fafc; border: 1px solid #e2e8f0; padding: 12px; border-radius: 6px; font-size: 14px; line-height: 1.9; white-space: pre-line; color: #334155; text-align: right;">
                         ${notesText}
                     </div>
                 </div>
 
-                <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 8px; margin-top: 20px; font-size: 10px; color: #94a3b8;">
+                <div style="text-align: center; border-top: 1px solid #e2e8f0; padding-top: 10px; margin-top: 25px; font-size: 11px; color: #94a3b8;">
                     تم إصدار هذا التقرير إلكترونياً من نظام عيادات ${docInfo.name} للتغذية العلاجية وجراحات السمنة.
                 </div>
             `;
