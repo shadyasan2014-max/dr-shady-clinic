@@ -444,11 +444,11 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد البروتوكول المتعدد الأسطر بنجاح!`);
         }
 
-        // دالة الحفظ والتعديل المؤمنة بالكامل لضمان تحديث الصف بالـ ID الصحيح
+        // دالة الحفظ والتعديل المؤمنة بـ UUID (يتعامل مع الـ ID كـ String حصرياً)
         async function saveSupplementToSQL(event) {
             event.preventDefault();
-            let rawId = document.getElementById('editingSupplementId').value;
-            let isUpdate = (rawId && rawId !== "" && rawId !== "undefined" && rawId !== "null");
+            let editId = document.getElementById('editingSupplementId').value;
+            let isUpdate = (editId && editId !== "" && editId !== "undefined" && editId !== "null");
 
             let caseType = document.getElementById('caseTypeSelect').value;
             if (caseType === 'اخرى') {
@@ -470,9 +470,8 @@
 
             let res;
             if (isUpdate) {
-                // تحويل الـ ID لرقم أو نص حسب طبيعة الجدول وتحديد الشرط بدقة
-                let formattedId = isNaN(rawId) ? rawId : Number(rawId);
-                res = await supabaseClient.from('supplements').update(payload).eq('id', formattedId);
+                // إرسال الـ ID كنص صريح (UUID) لتطابق تام مع سوبابيس
+                res = await supabaseClient.from('supplements').update(payload).eq('id', String(editId));
             } else {
                 res = await supabaseClient.from('supplements').insert([payload]);
             }
@@ -489,8 +488,7 @@
 
         async function deleteSupplement(id) {
             if (!confirm('هل أنت متأكد من حذف هذا البروتوكول نهائياً؟')) return;
-            let formattedId = isNaN(id) ? id : Number(id);
-            const { error } = await supabaseClient.from('supplements').delete().eq('id', formattedId);
+            const { error } = await supabaseClient.from('supplements').delete().eq('id', String(id));
             if (error) {
                 alert('خطأ في الحذف: ' + error.message);
                 return;
