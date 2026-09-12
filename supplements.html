@@ -67,8 +67,8 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* تصميم ترويسة الروشتة للطباعة الاحترافية بدون قلب الحروف */
-        .prescription-print-area { display: none; background: #fff; padding: 30px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        /* تصميم ترويسة الروشتة للطباعة الاحترافية بدون تداخل */
+        .prescription-print-area { display: none; background: #fff; padding: 30px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
         .pres-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 20px; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
@@ -148,31 +148,31 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة الاحترافي -->
+    <!-- قالب طباعة الروشتة المحترف بدون تداخل للأحرف -->
     <div id="printPrescriptionArea" class="prescription-print-area">
         <div class="pres-header">
             <div>
-                <h2 style="margin:0; color:#064e3b; font-size:22px;">د. شادي سمير</h2>
-                <p style="margin:4px 0; color:#059669; font-weight:bold; font-size:14px;">استشاري التغذية العلاجية وجراحات السمنة</p>
-                <p style="margin:0; font-size:11px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
+                <h2 style="margin:0; color:#064e3b; font-size:24px;">د. شادي سمير</h2>
+                <p style="margin:4px 0; color:#059669; font-weight:bold; font-size:15px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                <p style="margin:0; font-size:12px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
             </div>
             <div>
-                <img src="logo2.png" alt="Logo" style="width:65px; height:65px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
+                <img src="logo2.png" alt="Logo" style="width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
             </div>
         </div>
 
-        <div style="background:#f8fafc; padding:12px; border-radius:8px; margin-bottom:20px; font-size:13px; border:1px solid #e2e8f0;">
+        <div style="background:#f8fafc; padding:15px; border-radius:8px; margin-bottom:20px; font-size:14px; border:1px solid #e2e8f0; line-height: 1.8;">
             <strong>اسم المريض:</strong> <span id="printPatientName" style="font-weight:bold; color:#1e293b;">-</span><br>
             <strong>نوع الحالة / العملية:</strong> <span id="printCaseType">-</span><br>
             <strong>تاريخ الروشتة:</strong> <span id="printDate" style="font-weight:bold; color:#059669;">-</span>
         </div>
 
-        <h4 style="color:#064e3b; border-bottom:1px solid #cbd5e1; padding-bottom:6px; margin-bottom:12px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
-        <div id="printSupplementsContent" style="font-size:14px; line-height:2.0; margin-bottom:30px; white-space: pre-line; color:#1e293b; font-weight:500;">
+        <h4 style="color:#064e3b; border-bottom:2px solid #cbd5e1; padding-bottom:8px; margin-bottom:15px;">💊 البروتوكول العلاجي والمكملات والجرعات:</h4>
+        <div id="printSupplementsContent" style="font-size:15px; line-height:2.4; margin-bottom:40px; white-space: pre-wrap; color:#1e293b; font-weight:500;">
             - محتوى الروشتة...
         </div>
 
-        <div style="margin-top:50px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:15px; font-size:13px; color:#475569;">
+        <div style="margin-top:60px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #cbd5e1; padding-top:20px; font-size:14px; color:#475569;">
             <span>توقيع الطبيب: ........................</span>
             <span>خاتم العيادة</span>
         </div>
@@ -227,12 +227,12 @@
                     <input type="text" id="otherCaseInput" class="form-control" placeholder="اكتب اسم العملية أو الحالة هنا...">
                 </div>
 
-                <!-- حقل المكملات والجرعات المدمج -->
+                <!-- حقل المكملات والجرعات المتعدد الأسطر -->
                 <div class="form-group" style="margin-bottom:10px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--primary-green); display:block; margin-bottom:4px;">💊 أسماء الأدوية والمكملات والجرعات (عدة أسطر):</label>
-                    <textarea id="supName" class="form-control" rows="5" placeholder="مثال:
+                    <textarea id="supName" class="form-control" rows="6" placeholder="مثال:
 1. Omnivora amp حقنة عضل كل أسبوع لمدة 3 شهور
-2. Calcitron tab قرص يوميا مساء بعد الغداء" required style="white-space: pre-line;"></textarea>
+2. Calcitron tab قرص يوميا مساء بعد الغداء" required style="white-space: pre-wrap; line-height: 1.6;"></textarea>
                 </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
@@ -298,7 +298,7 @@
                     <tr>
                         <td><strong>${s.patient_name || 'غير محدد'}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${s.case_type || '-'}</span></td>
-                        <td style="max-width:300px; white-space:pre-line;">${medContent}</td>
+                        <td style="max-width:300px; white-space:pre-line; line-height:1.6;">${medContent}</td>
                         <td style="font-weight:bold; color:var(--primary-green);">${pDate}</td>
                         <td>
                             <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
@@ -344,7 +344,6 @@
             document.getElementById('editingSupplementId').value = '';
             document.getElementById('modalTitle').innerText = '💊 وصف مكملات وفيتامينات جديدة';
             document.getElementById('patientSelect').value = '';
-            // تعيين تاريخ اليوم تلقائياً عند الفتح
             document.getElementById('prescriptionDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('caseTypeSelect').value = '';
             document.getElementById('otherCaseInput').value = '';
