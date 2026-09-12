@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dr. Shady Samir - وصف مكملات وفيتامينات</title>
+    <title>Dr. Shady Samir - وصف وطباعة روشتة المكملات</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         :root { 
             --sidebar-bg: #064e3b;          /* أخضر داكن فخم للسايدبار */
@@ -30,7 +31,6 @@
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الموحد */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -66,6 +66,10 @@
 
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+
+        /* تصميم ترويسة الروشتة للطباعة */
+        .prescription-print-area { display: none; background: #fff; padding: 20px; direction: rtl; text-align: right; }
+        .pres-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--primary-green); padding-bottom: 15px; margin-bottom: 20px; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -115,8 +119,8 @@
 
         <div class="top-header">
             <div>
-                <h1>💊 سجل المكملات والفيتامينات (SQL Live)</h1>
-                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة البروتوكولات العلاجية والمكملات لمرضى العيادة</p>
+                <h1>💊 سجل المكملات والفيتامينات والروشتات (SQL Live)</h1>
+                <p style="margin: 3px 0 0 0; font-size: 12px; color: var(--text-gray);">إدارة وطباعة البروتوكولات العلاجية والمكملات لمرضى العيادة</p>
             </div>
             <div style="display:flex; gap:10px; align-items:center;">
                 <button onclick="openSupplementModal()" class="action-btn" style="background: var(--primary-green); padding: 10px 16px;">➕ وصف مكمل جديد</button>
@@ -132,17 +136,45 @@
                             <th>اسم المريض</th>
                             <th>نوع الحالة / العملية</th>
                             <th>الأدوية والمكملات</th>
-                            <th>الجرعات</th>
-                            <th>المدة الزمنية</th>
-                            <th>تعليمات إكلينيكية</th>
-                            <th>الإجراءات</th>
+                            <th>الجرعات والمدة</th>
+                            <th>الإجراءات والروشتة</th>
                         </tr>
                     </thead>
                     <tbody id="supplementsTableBody">
-                        <tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل المكملات من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل المكملات من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
+        </div>
+    </div>
+
+    <!-- قالب طباعة الروشتة المخفي -->
+    <div id="printPrescriptionArea" class="prescription-print-area">
+        <div class="pres-header">
+            <div>
+                <h2 style="margin:0; color:#064e3b; font-size:20px;">د. شادي سمير</h2>
+                <p style="margin:3px 0; color:#059669; font-weight:bold; font-size:13px;">استشاري التغذية العلاجية وجراحات السمنة</p>
+                <p style="margin:0; font-size:11px; color:#64748b;">عيادة التغذية المتقدمة | هاتف: 010xxxxxxxx</p>
+            </div>
+            <div>
+                <img src="logo2.png" alt="Logo" style="width:60px; height:60px; border-radius:50%; object-fit:cover; border:2px solid #059669;" onerror="this.src='logo.jpeg'">
+            </div>
+        </div>
+
+        <div style="background:#f8fafc; padding:12px; border-radius:8px; margin-bottom:15px; font-size:13px;">
+            <strong>اسم المريض:</strong> <span id="printPatientName">-</span><br>
+            <strong>نوع الحالة / العملية:</strong> <span id="printCaseType">-</span><br>
+            <strong>تاريخ الروشتة:</strong> <span id="printDate">-</span>
+        </div>
+
+        <h4 style="color:#064e3b; border-bottom:1px solid #ddd; padding-bottom:5px;">💊 البروتوكول العلاجي والمكملات:</h4>
+        <div id="printSupplementsContent" style="font-size:14px; line-height:1.8; margin-bottom:20px; white-space: pre-line;">
+            - محتوى الروشتة...
+        </div>
+
+        <div style="margin-top:40px; display:flex; justify-content:space-between; align-items:center; border-top:1px dashed #ccc; padding-top:15px; font-size:12px;">
+            <span>توقيع الطبيب: ........................</span>
+            <span>خاتم العيادة</span>
         </div>
     </div>
 
@@ -257,7 +289,7 @@
 
             if (error || !data || data.length === 0) {
                 supplementsList = [];
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مكملات مسجلة حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد مكملات مسجلة حالياً.</td></tr>`;
                 return;
             }
 
@@ -269,17 +301,44 @@
                         <td><strong>${s.patient_name || 'غير محدد'}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${s.case_type || '-'}</span></td>
                         <td><strong>${medName}</strong></td>
-                        <td>${s.dosage || '-'}</td>
-                        <td>${s.duration || '-'}</td>
-                        <td>${s.notes || '-'}</td>
+                        <td>الجرعة: ${s.dosage || '-'}<br><small style="color:var(--text-gray)">المدة: ${s.duration || '-'}</small></td>
                         <td>
-                            <div style="display:flex; gap:6px; align-items:center;">
+                            <div style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+                                <button onclick="printPrescription('${s.id}')" class="action-btn" style="background:var(--accent-blue);">🖨️ طباعة الروشتة</button>
                                 <button onclick="openEditSupplementModal('${s.id}')" class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
                                 <button onclick="deleteSupplement('${s.id}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                             </div>
                         </td>
                     </tr>
                 `;
+            });
+        }
+
+        // دالة طباعة الروشتة الإكلينيكية باللوجو والبيانات
+        function printPrescription(id) {
+            let s = supplementsList.find(item => String(item.id) === String(id));
+            if (!s) return;
+
+            document.getElementById('printPatientName').innerText = s.patient_name || 'غير محدد';
+            document.getElementById('printCaseType').innerText = s.case_type || '-';
+            document.getElementById('printDate').innerText = new Date().toLocaleDateString('ar-EG');
+            
+            let medText = `الأدوية والمكملات: ${s.supp_list || s.sup_name || '-'}\nالجرعة المقترحة: ${s.dosage || '-'}\nالمدة الزمنية: ${s.duration || '-'}\n\nتعليمات إكلينيكية هامة:\n${s.notes || 'لا توجد تعليمات إضافية.'}`;
+            document.getElementById('printSupplementsContent').innerText = medText;
+
+            document.getElementById('printPrescriptionArea').style.display = 'block';
+            
+            const element = document.getElementById('printPrescriptionArea');
+            const opt = { 
+                margin: 10, 
+                filename: `Prescription-${s.patient_name || 'Patient'}.pdf`, 
+                image: { type: 'jpeg', quality: 0.98 }, 
+                html2canvas: { scale: 2, useCORS: true }, 
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' } 
+            };
+
+            html2pdf().from(element).set(opt).save().then(() => {
+                document.getElementById('printPrescriptionArea').style.display = 'none';
             });
         }
 
@@ -310,7 +369,6 @@
             let s = data;
             document.getElementById('editingSupplementId').value = s.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بروتوكول المكملات';
-            
             document.getElementById('patientSelect').value = s.patient_name || '';
             
             let caseType = s.case_type || '';
@@ -391,7 +449,6 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
         }
 
-        // تم إصلاح المنطق بالكامل لضمان تنفيذ التعديل الفعلي بناءً على الـ ID الحقيقي
         async function saveSupplementToSQL(event) {
             event.preventDefault();
             let editId = document.getElementById('editingSupplementId').value;
@@ -416,7 +473,6 @@
 
             let res;
             if (isUpdate) {
-                // تنفيذ التحديث المباشر وتتبع النتيجة
                 res = await supabaseClient.from('supplements').update(payload).eq('id', editId);
             } else {
                 res = await supabaseClient.from('supplements').insert([payload]);
@@ -429,7 +485,7 @@
 
             alert('✨ تم حفظ وتعديل البروتوكول في قاعدة البيانات بنجاح!');
             closeSupplementModal();
-            await loadSupplementsData(); // إعادة تحميل الجدول فوراً لتظهر البيانات المحدثة
+            loadSupplementsData();
         }
 
         async function deleteSupplement(id) {
