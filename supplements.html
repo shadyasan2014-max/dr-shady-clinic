@@ -283,8 +283,8 @@
             });
         }
 
-        function openSupplementModal() {
-            loadPatientsDropdown();
+        async function openSupplementModal() {
+            await loadPatientsDropdown();
             document.getElementById('editingSupplementId').value = '';
             document.getElementById('modalTitle').innerText = '💊 وصف مكملات وفيتامينات جديدة';
             document.getElementById('patientSelect').value = '';
@@ -298,13 +298,15 @@
             document.getElementById('supplementModal').style.display = 'flex';
         }
 
-        function openEditSupplementModal(id) {
-            loadPatientsDropdown();
+        async function openEditSupplementModal(id) {
+            await loadPatientsDropdown();
             let s = supplementsList.find(item => String(item.id) === String(id));
             if (!s) return;
 
             document.getElementById('editingSupplementId').value = s.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بروتوكول المكملات';
+            
+            // تعيين اسم المريض بعد تحميل القائمة المنسدلة بانتظام
             document.getElementById('patientSelect').value = s.patient_name || '';
             
             let caseType = s.case_type || '';
@@ -385,9 +387,11 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
         }
 
+        // تم تعزيز وتأمين دالة الحفظ الشاملة لضمان تعديل السجل المجدول بالـ ID الفعلي في SQL
         async function saveSupplementToSQL(event) {
             event.preventDefault();
             let editId = document.getElementById('editingSupplementId').value;
+            let isUpdate = (editId && editId !== "" && editId !== "undefined" && editId !== "null");
 
             let caseType = document.getElementById('caseTypeSelect').value;
             if (caseType === 'اخرى') {
@@ -395,47 +399,35 @@
             }
 
             let medValue = document.getElementById('supName').value;
+            let patientNameVal = document.getElementById('patientSelect').value;
 
+            // إرسال حمولة شاملة تشمل جميع الاحتمالات الممكنة لأسماء الأعمدة في سوبابيس
             let payload = {
-                patient_name: document.getElementById('patientSelect').value,
+                patient_name: patientNameVal,
                 case_type: caseType,
                 supp_list: medValue,
                 sup_name: medValue,
+                supplement_name: medValue,
                 dosage: document.getElementById('supDosage').value,
                 duration: document.getElementById('supDuration').value,
                 notes: document.getElementById('supNotes').value
             };
 
             let res;
-            if (editId && editId !== "") {
-                res = await supabaseClient.from('supplements').update(payload).eq('id', editId);
+            if (isUpdate) {
+                res = await supabaseClient.from('supplements').update(payload).eq('id', editId).select();
             } else {
-                res = await supabaseClient.from('supplements').insert([payload]);
+                res = await supabaseClient.from('supplements').insert([payload]).select();
             }
 
             if (res.error) {
-                let basicPayload = {
-                    patient_name: payload.patient_name,
-                    case_type: payload.case_type,
-                    supp_list: medValue,
-                    dosage: payload.dosage,
-                    duration: payload.duration,
-                    notes: payload.notes
-                };
-                if (editId && editId !== "") {
-                    res = await supabaseClient.from('supplements').update(basicPayload).eq('id', editId);
-                } else {
-                    res = await supabaseClient.from('supplements').insert([basicPayload]);
-                }
-                if (res.error) {
-                    alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
-                    return;
-                }
+                alert('خطأ أثناء الحفظ في قاعدة البيانات: ' + res.error.message);
+                return;
             }
 
             alert('✨ تم حفظ وتعديل البروتوكول في قاعدة البيانات بنجاح!');
             closeSupplementModal();
-            loadSupplementsData();
+            loadSupplementsData(); // إعادة تحميل الجدول فوراً لتظهر البيانات المعدلة
         }
 
         async function deleteSupplement(id) {
