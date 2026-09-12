@@ -67,7 +67,7 @@
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
 
-        /* قالب طباعة الروشتة المنظم بالجدول لضبط اللوجو والهاتف بدقة تامة */
+        /* قالب طباعة الروشتة الاحترافي بالهندسة الدقيقة */
         .prescription-print-area { display: none; background: #fff; padding: 30px; direction: rtl; text-align: right; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; width: 210mm; box-sizing: border-box; }
 
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
@@ -147,7 +147,7 @@
         </div>
     </div>
 
-    <!-- قالب طباعة الروشتة الاحترافي (اللوجو يمين وتفاصيل الدكتور يسار) -->
+    <!-- قالب طباعة الروشتة الاحترافي بالكامل (بدون تداخل ودون قص) -->
     <div id="printPrescriptionArea" class="prescription-print-area">
         <table style="width: 100%; border-collapse: collapse; border-bottom: 3px solid #059669; padding-bottom: 15px; margin-bottom: 25px;">
             <tr>
@@ -162,7 +162,7 @@
             </tr>
         </table>
 
-        <!-- بيانات المريض وتاريخ العملية -->
+        <!-- بيانات المريض وتاريخ العملية بوضوح تام -->
         <table style="width: 100%; border-collapse: collapse; background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; margin-bottom: 25px;">
             <tr>
                 <td style="padding: 15px 20px; font-size: 14px; line-height: 2.2; color: #1e293b;">
@@ -187,10 +187,11 @@
             </tr>
         </table>
 
+        <!-- التوقيع والخاتم منسق وغير مقصوص -->
         <table style="width: 100%; border-collapse: collapse; border-top: 1px dashed #cbd5e1; padding-top: 20px; margin-top: 50px;">
             <tr>
-                <td style="text-align: right; font-size: 14px; color: #475569; font-weight: bold;">توقيع الطبيب: ........................................</td>
-                <td style="text-align: left; font-size: 14px; color: #475569; font-weight: bold;">خاتم العيادة: ........................</td>
+                <td style="text-align: right; font-size: 14px; color: #475569; font-weight: bold; width: 50%;">توقيع الطبيب: ........................................</td>
+                <td style="text-align: left; font-size: 14px; color: #475569; font-weight: bold; width: 50%; padding-left: 10px;">خاتم العيادة: ........................................</td>
             </tr>
         </table>
     </div>
