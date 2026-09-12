@@ -298,11 +298,17 @@
             document.getElementById('supplementModal').style.display = 'flex';
         }
 
+        // تم إصلاح دالة التعديل لجلب السجل المطلوب مباشرة من سوبابيس بالـ ID لضمان عدم حدوث أي خطأ في المطابقة
         async function openEditSupplementModal(id) {
             await loadPatientsDropdown();
-            let s = supplementsList.find(item => String(item.id) === String(id));
-            if (!s) return;
 
+            let { data, error } = await supabaseClient.from('supplements').select('*').eq('id', id).single();
+            if (error || !data) {
+                alert('تعذر استدعاء بيانات السجل للتعديل!');
+                return;
+            }
+
+            let s = data;
             document.getElementById('editingSupplementId').value = s.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل بروتوكول المكملات';
             
@@ -386,7 +392,6 @@
             alert(`🤖 قام الذكاء الاصطناعي بتوليد بروتوكول المكملات لحالة "${caseType}" بنجاح!`);
         }
 
-        // تم تنظيف وتصحيح حقول الإرسال لتتطابق بدقة مع أعمدة الجدول الفعلي في سوبابيس
         async function saveSupplementToSQL(event) {
             event.preventDefault();
             let editId = document.getElementById('editingSupplementId').value;
