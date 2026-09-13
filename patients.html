@@ -30,7 +30,6 @@
         .sidebar-menu li { padding: 0; margin: 3px 0; border-radius: 8px; cursor: pointer; font-size: 13px; color: #cbd5e1; }
         .sidebar-menu li a { padding: 10px 15px; display: flex; align-items: center; gap: 12px; color: inherit; text-decoration: none; width: 100%; box-sizing: border-box; border-radius: 8px; }
         
-        /* ضبط العنصر النشط والـ Hover باللون البرتقالي الإكلينيكي الجميل */
         .sidebar-menu li:hover, .sidebar-menu li.active { background-color: var(--warning-orange) !important; color: white !important; font-weight: bold; }
         .sidebar-menu li:hover a, .sidebar-menu li.active a { color: white !important; }
 
@@ -46,7 +45,6 @@
 
         .form-control { width: 100%; padding: 9px 12px; border: 1px solid var(--card-border); border-radius: 8px; font-size: 13px; background-color: #f8fafc; box-sizing: border-box; color: var(--text-dark); }
         
-        /* توحيد لون عناصر الـ Select باللون البرتقالي الإكلينيكي الجميل */
         select, .form-select { border: 2px solid var(--warning-orange) !important; color: #92400e !important; background-color: #fffbeb !important; font-weight: bold !important; border-radius: 8px !important; padding: 8px 12px !important; }
 
         .action-btn { border: none; padding: 7px 12px; border-radius: 8px; font-weight: bold; font-size: 11px; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; color: white; }
@@ -55,7 +53,6 @@
         th { color: var(--text-gray); padding: 10px; border-bottom: 2px solid var(--card-border); font-weight: 600; font-size: 12px; background: #f8fafc; }
         td { padding: 12px 10px; border-bottom: 1px solid #f1f5f9; vertical-align: middle; }
 
-        /* نافذة الاختيارات عند إضافة مريض */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2500; justify-content: center; align-items: center; }
         .modal-box { background: white; padding: 25px; border-radius: 12px; width: 450px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
         .category-option-btn { width: 100%; background: #f8fafc; border: 1px solid var(--card-border); padding: 11px 15px; border-radius: 10px; font-weight: bold; font-size: 13px; color: var(--text-dark); cursor: pointer; margin-bottom: 8px; text-align: right; transition: 0.2s; display: flex; align-items: center; justify-content: space-between; }
@@ -64,6 +61,7 @@
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
+        .voice-mic-btn { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
 
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
@@ -114,6 +112,7 @@
             </div>
             
             <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+                <button type="button" class="voice-mic-btn" onclick="startPageVoiceCommand()">🎙️ أمر صوتي ("إضافة" / "طباعة")</button>
                 <button onclick="openPatientCategoryModal()" class="action-btn" style="background: var(--primary-green); padding: 8px 15px; font-size: 12px;">➕ إضافة حالة جديدة</button>
                 <input type="text" id="patientSearchInput" class="form-control" placeholder="بحث بالاسم أو الهاتف أو الكود..." style="width: 200px; padding: 7px;" onkeyup="filterPatientsTable()">
                 <button onclick="filterPatientsTable()" class="action-btn" style="background: var(--accent-blue);">🔍 بحث</button>
@@ -350,7 +349,41 @@
             loadPatientsList();
         }
 
+        function startPageVoiceCommand() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('متصفحك لا يدعم الأوامر الصوتية.');
+                return;
+            }
+            const rec = new SpeechRecognition();
+            rec.lang = 'ar-EG';
+            rec.continuous = false;
+            rec.interimResults = false;
+
+            rec.onresult = function(event) {
+                const res = event.results[0][0].transcript.trim();
+                console.log('🎙️ النص المسموع حرفياً:', res);
+
+                if (/إضافة|جديد|حالة/i.test(res)) {
+                    openPatientCategoryModal();
+                } else if (/طباعة|اطبع|طبع/i.test(res)) {
+                    window.print();
+                }
+            };
+
+            rec.onerror = function(event) {
+                console.error('⚠️ خطأ المايك:', event.error);
+            };
+
+            try {
+                rec.start();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
         window.onload = loadPatientsList;
     </script>
+    <script src="clinic-core.js"></script>
 </body>
 </html>
