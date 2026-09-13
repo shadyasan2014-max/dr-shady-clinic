@@ -467,7 +467,6 @@
                     });
                 }
 
-                // حساب التنبيهات الذكية الفعليّة بناءً على البيانات المسجلة بدقة
                 let delayedCount = 0;
                 let labsCount = labsData ? labsData.length : 0;
                 let successCount = barData ? barData.length : 0;
@@ -495,7 +494,6 @@
                 document.getElementById('statNewPatients').innerText = totalPat > 0 ? Math.min(totalPat, 3) : 0;
                 document.getElementById('statTodayTotal').innerText = totalPat;
 
-                // تحديث العدادات الذكية بالأرقام الصحيحة
                 document.getElementById('alertDelayedCount').innerText = delayedCount;
                 document.getElementById('alertTomorrowCount').innerText = tomorrowCount;
                 document.getElementById('alertLabsCount').innerText = labsCount;
@@ -525,8 +523,15 @@
                 let time = app.appt_time || app.time || '10:00 ص';
                 let name = app.patient_name || app.name || 'مريض';
                 let type = app.visit_type || 'متابعة';
-                let status = app.status || 'مؤكد';
-                let statusBadge = status === 'مؤكد' ? '<span style="color:#166534; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:bold;">مؤكد</span>' : '<span style="color:#92400e; background:#fef3c7; padding:2px 6px; border-radius:4px; font-weight:bold;">في الانتظار</span>';
+                let status = app.status || 'في الانتظار';
+                
+                // هنا يتم عرض الحالة بشكل ديناميكي من قاعدة البيانات
+                let statusBadge = '';
+                if (String(status).includes('تمت') || String(status).includes('مكتملة')) {
+                    statusBadge = '<span style="color:#166534; background:#dcfce7; padding:2px 6px; border-radius:4px; font-weight:bold;">✅ تمت الزيارة</span>';
+                } else {
+                    statusBadge = '<span style="color:#92400e; background:#fef3c7; padding:2px 6px; border-radius:4px; font-weight:bold;">⏰ في الانتظار</span>';
+                }
 
                 tbody.innerHTML += `
                     <tr>
@@ -660,7 +665,11 @@
             });
         }
 
+        // تحديث البيانات فور تحميل الصفحة أو العودة لها من تبويب آخر
         window.onload = loadDashboardData;
+        window.addEventListener('pageshow', (event) => {
+            loadDashboardData();
+        });
     </script>
 
     <!-- زرار الأوامر الصوتية العائم لكافة الصفحات -->
