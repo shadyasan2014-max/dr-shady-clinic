@@ -300,7 +300,6 @@
         }
 
         function openAddAppointmentModal() {
-            console.log('✅ تم استدعاء دالة فتح نافذة الحجز بنجاح');
             document.getElementById('modalTitle').innerText = '➕ حجز موعد جديد';
             document.getElementById('editApptId').value = '';
             document.getElementById('originalPatientName').value = '';
@@ -331,7 +330,7 @@
         async function saveOrUpdateAppointment(e) {
             e.preventDefault();
             let id = document.getElementById('editApptId').value;
-            let originalName = document.getElementById('originalPatientName').value;
+            let originalName = document.getElementById('originalPatientName.value');
             let patient_name = document.getElementById('apptPatientName').value;
             let date = document.getElementById('apptDate').value;
             let time = document.getElementById('apptTime').value;
@@ -405,13 +404,11 @@
                 const res = event.results[0][0].transcript.trim();
                 console.log('🎙️ النص المسموع حرفياً:', res);
 
-                setTimeout(() => {
-                    if (/حجز|موعد|جديد|اجز/i.test(res)) {
-                        openAddAppointmentModal();
-                    } else if (/طباعة|اطبع|طبع/i.test(res)) {
-                        window.print();
-                    }
-                }, 100);
+                if (/حجز|موعد|جديد|اجز/i.test(res)) {
+                    openAddAppointmentModal();
+                } else if (/طباعة|اطبع|طبع/i.test(res)) {
+                    window.print();
+                }
             };
 
             rec.onerror = function(event) {
