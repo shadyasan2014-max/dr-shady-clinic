@@ -32,3 +32,10 @@ function handleGlobalVoice(cmd) {
         }
     }
 }
+
+
+floatingDiv.style.cssText = 'position: fixed; bottom: 25px; left: 25px; z-index: 9999;';
+
+
+floatingDiv.style.cssText = 'position: fixed; bottom: 25px; left: 25px; z-index: 2147483647; background: transparent;';
+
