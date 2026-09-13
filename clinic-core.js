@@ -27,7 +27,6 @@ function handleGlobalVoice(cmd) {
     if (cmd.includes('اطبع') || cmd.includes('طباعة')) {
         window.print();
     } else if (cmd.includes('حجز') || cmd.includes('جديد')) {
-        // لو الدالة مشعّلة في الصفحة الحالية (زي صفحة المواعيد)، نادِ عليها بأمان
         if (typeof openAddAppointmentModal === 'function') {
             openAddAppointmentModal();
         }
