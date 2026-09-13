@@ -57,6 +57,7 @@
         .mobile-menu-toggle { display: none; background: var(--sidebar-bg); color: white; border: none; padding: 12px; font-size: 15px; border-radius: 10px; cursor: pointer; margin-bottom: 15px; font-weight: bold; width: 100%; text-align: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1); justify-content: center; align-items: center; gap: 8px; }
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
         .sidebar-overlay.active { display: block; }
+        .voice-mic-btn { background: #e0f2fe; border: 1px solid #bae6fd; color: #0369a1; padding: 6px 12px; border-radius: 8px; font-size: 12px; cursor: pointer; font-weight: bold; display: inline-flex; align-items: center; gap: 5px; }
 
         @media (max-width: 950px) {
             .sidebar { transform: translateX(100%); position: fixed; right: 0; top: 0; height: 100vh; z-index: 9999; transition: transform 0.3s ease-in-out; }
@@ -101,9 +102,12 @@
         <button class="mobile-menu-toggle" onclick="toggleMobileSidebar()">☰ القائمة الرئيسية للعيادة</button>
 
         <div class="card">
-            <h2 style="margin-top:0; color:var(--sidebar-bg); font-size:18px; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:20px;">
-                📅 جدول مواعيد وحجوزات العيادة (SQL Live)
-            </h2>
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:2px solid var(--primary-green); padding-bottom:10px; margin-bottom:20px; flex-wrap:wrap; gap:10px;">
+                <h2 style="margin:0; color:var(--sidebar-bg); font-size:18px;">
+                    📅 جدول مواعيد وحجوزات العيادة (SQL Live)
+                </h2>
+                <button type="button" class="voice-mic-btn" onclick="startPageVoiceCommand()">🎙️ أمر صوتي للصفحة ("حجز جديد" / "طباعة")</button>
+            </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
                 <div style="display:flex; align-items:center; gap:10px;">
@@ -215,7 +219,6 @@
                     return;
                 }
 
-                // تطبيق خيارات الترتيب حسب طلب د. شادي
                 data.sort((a, b) => {
                     let nameA = (a.patient_name || a.name || '').toLowerCase();
                     let nameB = (b.patient_name || b.name || '').toLowerCase();
@@ -228,7 +231,6 @@
                     let isFinishedB = statusB.includes('تمت') || statusB.includes('مكتملة') ? 1 : 0;
 
                     if (sortType === 'status_asc') {
-                        // "في الانتظار" أولاً (0)، و"تمت الزيارة" في الآخر (1)
                         if (isFinishedA !== isFinishedB) {
                             return isFinishedA - isFinishedB;
                         }
@@ -388,7 +390,29 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
+        function startPageVoiceCommand() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert('متصفحك لا يدعم الأوامر الصوتية.');
+                return;
+            }
+            const rec = new SpeechRecognition();
+            rec.lang = 'ar-EG';
+            rec.onresult = function(event) {
+                const res = event.results[0][0].transcript.toLowerCase();
+                if (res.includes('حجز') || res.includes('جديد')) {
+                    openAddAppointmentModal();
+                } else if (res.includes('طباعة') || res.includes('اطبع')) {
+                    window.print();
+                } else {
+                    alert('الأمر المسموع: ' + res);
+                }
+            };
+            rec.start();
+        }
+
         window.onload = loadAppointmentsTable;
     </script>
+    <script src="clinic-core.js"></script>
 </body>
 </html>
