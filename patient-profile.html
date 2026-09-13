@@ -75,56 +75,17 @@
             .sidebar, .mobile-menu-toggle, .patient-actions-top, .modal-overlay, button { display: none !important; }
             .main-content { margin: 0 !important; width: 100% !important; padding: 0 !important; }
             #patientPdfArea { font-size: 12px !important; line-height: 1.4 !important; width: 100% !important; }
-            
-            .pdf-header-banner { 
-                display: flex !important; 
-                border-bottom: 2px solid #059669 !important; 
-                padding-bottom: 8px !important; 
-                margin-bottom: 10px !important; 
-            }
-
-            .card { 
-                background: #fff !important; 
-                border: 1px solid #cbd5e1 !important; 
-                padding: 8px !important; 
-                border-radius: 6px !important; 
-                margin-bottom: 6px !important; 
-                page-break-inside: auto !important; 
-            }
-            
-            .patient-header-card { 
-                background: #fff !important; 
-                border: 1px solid #cbd5e1 !important; 
-                padding: 8px !important; 
-                border-radius: 6px !important; 
-                margin-bottom: 6px !important; 
-            }
-
-            .metrics-grid { 
-                gap: 6px !important; 
-                margin-bottom: 6px !important; 
-            }
-
-            .metric-card { 
-                background: #f8fafc !important; 
-                border: 1px solid #cbd5e1 !important; 
-                padding: 5px !important; 
-            }
-
+            .card { background: #fff !important; border: 1px solid #cbd5e1 !important; padding: 8px !important; border-radius: 6px !important; margin-bottom: 6px !important; page-break-inside: auto !important; }
+            .patient-header-card { background: #fff !important; border: 1px solid #cbd5e1 !important; padding: 8px !important; border-radius: 6px !important; margin-bottom: 6px !important; }
+            .metrics-grid { gap: 6px !important; margin-bottom: 6px !important; }
+            .metric-card { background: #f8fafc !important; border: 1px solid #cbd5e1 !important; padding: 5px !important; }
             h2 { font-size: 15px !important; margin: 2px 0 !important; }
             h3 { font-size: 13px !important; margin-bottom: 4px !important; padding-bottom: 3px !important; }
             h4, .metric-title { font-size: 10.5px !important; }
             .metric-value { font-size: 12.5px !important; }
             p, div, li, strong, span { font-size: 12px !important; color: #1e293b !important; }
-            
-            #weightChartContainer {
-                height: 100px !important;
-                width: 100% !important;
-            }
-            #weightChart {
-                width: 100% !important;
-                height: 100% !important;
-            }
+            #weightChartContainer { height: 100px !important; width: 100% !important; }
+            #weightChart { width: 100% !important; height: 100% !important; }
         }
 
         @media (max-width: 950px) {
@@ -368,20 +329,28 @@
             let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات مسجلة.';
             let dietPlan = activePatient.diet_plan || 'لم يتم كتابة خطة غذائية بعد.';
 
-            // جلب أحدث القياسات من جدول measurements
+            // جلب أحدث القياسات من جدول measurements بطريقة شاملة (الكود أو الاسم)
             try {
-                let { data: measList } = await supabaseClient
-                    .from('measurements')
-                    .select('*')
-                    .or(`patient_name.ilike.%${name}%,name.ilike.%${name}%,patient_code.eq.${code}`);
+                let measList = null;
+                if (code && code !== 'بدون كود') {
+                    let resCode = await supabaseClient.from('measurements').select('*').eq('patient_code', code);
+                    measList = resCode.data;
+                }
+                if ((!measList || measList.length === 0) && name) {
+                    let resName = await supabaseClient.from('measurements').select('*').or(`patient_name.ilike.%${name}%,name.ilike.%${name}%`);
+                    measList = resName.data;
+                }
 
                 if (measList && measList.length > 0) {
-                    measList.sort((a, b) => new Date(b.measurement_date || b.date || 0) - new Date(a.measurement_date || a.date || 0));
+                    measList.sort((a, b) => new Date(b.measurement_date || b.date || b.created_at || 0) - new Date(a.measurement_date || a.date || a.created_at || 0));
                     let latestM = measList[0];
-
                     if (latestM.weight !== undefined && latestM.weight !== null) currentWeight = latestM.weight;
-                    if (latestM.fat !== undefined && latestM.fat !== null) currentFat = latestM.fat;
-                    if (latestM.muscle !== undefined && latestM.muscle !== null) currentMuscle = latestM.muscle;
+                    
+                    let fatVal = latestM.fat ?? latestM.fat_percentage ?? latestM.body_fat ?? latestM.fat_pct;
+                    if (fatVal !== undefined && fatVal !== null) currentFat = fatVal;
+
+                    let muscleVal = latestM.muscle ?? latestM.muscle_mass ?? latestM.muscle_percentage ?? latestM.muscle_pct;
+                    if (muscleVal !== undefined && muscleVal !== null) currentMuscle = muscleVal;
                 }
             } catch (err) {
                 console.log('ملاحظة في جلب القياسات:', err);
