@@ -329,28 +329,32 @@
             let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات مسجلة.';
             let dietPlan = activePatient.diet_plan || 'لم يتم كتابة خطة غذائية بعد.';
 
-            // جلب أحدث القياسات من جدول measurements بطريقة شاملة (الكود أو الاسم)
+            // جلب القياسات ومطابقتها بمرونة في JavaScript
             try {
-                let measList = null;
-                if (code && code !== 'بدون كود') {
-                    let resCode = await supabaseClient.from('measurements').select('*').eq('patient_code', code);
-                    measList = resCode.data;
-                }
-                if ((!measList || measList.length === 0) && name) {
-                    let resName = await supabaseClient.from('measurements').select('*').or(`patient_name.ilike.%${name}%,name.ilike.%${name}%`);
-                    measList = resName.data;
-                }
+                let { data: allMeas, error: measErr } = await supabaseClient
+                    .from('measurements')
+                    .select('*');
 
-                if (measList && measList.length > 0) {
-                    measList.sort((a, b) => new Date(b.measurement_date || b.date || b.created_at || 0) - new Date(a.measurement_date || a.date || a.created_at || 0));
-                    let latestM = measList[0];
-                    if (latestM.weight !== undefined && latestM.weight !== null) currentWeight = latestM.weight;
-                    
-                    let fatVal = latestM.fat ?? latestM.fat_percentage ?? latestM.body_fat ?? latestM.fat_pct;
-                    if (fatVal !== undefined && fatVal !== null) currentFat = fatVal;
+                if (allMeas && allMeas.length > 0) {
+                    let patientMeas = allMeas.filter(m => {
+                        let mCode = (m.patient_code || m.code || '').toString().trim();
+                        let mName = (m.patient_name || m.name || '').toString().trim();
+                        return (mCode && code && mCode === code.trim()) ||
+                               (mName && name && (mName.includes(name) || name.includes(mName)));
+                    });
 
-                    let muscleVal = latestM.muscle ?? latestM.muscle_mass ?? latestM.muscle_percentage ?? latestM.muscle_pct;
-                    if (muscleVal !== undefined && muscleVal !== null) currentMuscle = muscleVal;
+                    if (patientMeas.length > 0) {
+                        patientMeas.sort((a, b) => new Date(b.measurement_date || b.date || b.created_at || 0) - new Date(a.measurement_date || a.date || a.created_at || 0));
+                        let latestM = patientMeas[0];
+
+                        if (latestM.weight !== undefined && latestM.weight !== null) currentWeight = latestM.weight;
+                        
+                        let fatVal = latestM.fat ?? latestM.fat_percentage ?? latestM.body_fat ?? latestM.fat_pct ?? latestM.body_fat_percentage;
+                        if (fatVal !== undefined && fatVal !== null) currentFat = fatVal;
+
+                        let muscleVal = latestM.muscle ?? latestM.muscle_mass ?? latestM.muscle_percentage ?? latestM.muscle_pct;
+                        if (muscleVal !== undefined && muscleVal !== null) currentMuscle = muscleVal;
+                    }
                 }
             } catch (err) {
                 console.log('ملاحظة في جلب القياسات:', err);
