@@ -1,5 +1,5 @@
 (function() {
-    // 1. حقن الـ CSS بحيث لا يتم تطبيق أي إخفاء إلا على الشاشات الأقل من 950 بكسل (موبايل وتابلت فقط)
+    // 1. حقن الـ CSS للقائمة الجانبية والموبايل
     const style = document.createElement('style');
     style.innerHTML = `
         .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1500; }
@@ -47,19 +47,16 @@
     `;
     document.head.appendChild(style);
 
-    // 2. ضبط العناصر عند التحميل
     window.addEventListener('DOMContentLoaded', () => {
         const sidebar = document.querySelector('.sidebar');
         if (sidebar && !sidebar.id) {
             sidebar.id = 'sidebarNav';
         }
 
-        // إخفاء القائمة افتراضياً على الموبايل فقط
         if (window.innerWidth <= 950 && sidebar) {
             sidebar.classList.remove('active');
         }
 
-        // إضافة الـ Overlay للموبايل
         if (!document.getElementById('sidebarOverlay')) {
             const overlay = document.createElement('div');
             overlay.className = 'sidebar-overlay';
@@ -68,7 +65,6 @@
             document.body.appendChild(overlay);
         }
 
-        // إضافة زر القائمة على الموبايل فقط داخل الـ main-content
         const mainContent = document.querySelector('.main-content');
         if (mainContent && !document.querySelector('.mobile-menu-toggle')) {
             const menuBtn = document.createElement('button');
@@ -80,7 +76,6 @@
     });
 })();
 
-// دالة فتح وإغلاق القائمة في الموبايل
 function toggleMobileSidebar() {
     const nav = document.getElementById('sidebarNav');
     const overlay = document.getElementById('sidebarOverlay');
