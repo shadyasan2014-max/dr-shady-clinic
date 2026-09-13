@@ -84,7 +84,7 @@
 function toggleMobileSidebar() {
     const nav = document.getElementById('sidebarNav');
 
-    // إضافة زرار الأوامر الصوتية العائم تلقائياً في أي صفحة فيها clinic-core.js
+   // إضافة زرار الأوامر الصوتية العائم تلقائياً في أي صفحة فيها clinic-core.js
 document.addEventListener('DOMContentLoaded', () => {
     if (!document.getElementById('globalVoiceFloatingContainer')) {
         const floatingDiv = document.createElement('div');
@@ -189,8 +189,4 @@ function handleGlobalVoice(cmd) {
     } else {
         alert(`تم سماع الأمر: "${cmd}"`);
     }
-}
-    const overlay = document.getElementById('sidebarOverlay');
-    if (nav) nav.classList.toggle('active');
-    if (overlay) overlay.classList.toggle('active');
 }
