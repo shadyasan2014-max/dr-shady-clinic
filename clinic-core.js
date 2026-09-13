@@ -80,11 +80,17 @@
     });
 })();
 
-// دالة فتح وإغلاق القائمة
+// دالة فتح وإغلاق القائمة في الموبايل
 function toggleMobileSidebar() {
     const nav = document.getElementById('sidebarNav');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (nav) nav.classList.toggle('active');
+    if (overlay) overlay.classList.toggle('active');
+}
 
-   // إضافة زرار الأوامر الصوتية العائم تلقائياً في أي صفحة فيها clinic-core.js
+// ==========================================
+// 🎙️ نظام الأوامر الصوتية العائم لكافة الصفحات
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
     if (!document.getElementById('globalVoiceFloatingContainer')) {
         const floatingDiv = document.createElement('div');
