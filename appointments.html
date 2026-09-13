@@ -115,7 +115,6 @@
                 </div>
                 
                 <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                    <!-- خيارات الترتيب -->
                     <div style="display:flex; align-items:center; gap:5px;">
                         <span style="font-size:12px; font-weight:bold; color:var(--text-gray);">🗂️ الترتيب:</span>
                         <select id="sortOrderSelect" class="sort-select" onchange="loadAppointmentsTable()">
@@ -398,16 +397,18 @@
             }
             const rec = new SpeechRecognition();
             rec.lang = 'ar-EG';
+            
             rec.onresult = function(event) {
-                const res = event.results[0][0].transcript.toLowerCase();
-                if (res.includes('حجز') || res.includes('جديد')) {
+                const res = event.results[0][0].transcript.trim().toLowerCase();
+                console.log('النص المسموع:', res);
+
+                if (res.includes('حجز') || res.includes('جديد') || res.includes('موعد')) {
                     openAddAppointmentModal();
                 } else if (res.includes('طباعة') || res.includes('اطبع')) {
                     window.print();
-                } else {
-                    alert('الأمر المسموع: ' + res);
                 }
             };
+
             rec.start();
         }
 
