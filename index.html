@@ -662,5 +662,106 @@
 
         window.onload = loadDashboardData;
     </script>
+
+    <!-- زرار الأوامر الصوتية العائم لكافة الصفحات -->
+<div id="globalVoiceFloatingContainer" style="position: fixed; bottom: 25px; left: 25px; z-index: 9999;">
+    <button onclick="toggleGlobalVoiceCommand()" id="voiceGlobalBtn" style="background: #059669; color: white; border: none; padding: 12px 18px; border-radius: 30px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(0,0,0,0.25); display: flex; align-items: center; gap: 8px; font-size: 14px; transition: 0.2s;">
+        <span>🎙️</span> <span id="voiceGlobalText">أوامر صوتية</span>
+    </button>
+</div>
+
+<script>
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let globalRec = null;
+    let globalListening = false;
+
+    function toggleGlobalVoiceCommand() {
+        if (!SpeechRecognition) {
+            alert('متصفحك لا يدعم الأوامر الصوتية. يرجى استخدام Google Chrome أو Microsoft Edge.');
+            return;
+        }
+
+        if (!globalRec) {
+            globalRec = new SpeechRecognition();
+            globalRec.lang = 'ar-EG';
+            globalRec.interimResults = false;
+            globalRec.maxAlternatives = 1;
+
+            globalRec.onstart = function() {
+                globalListening = true;
+                const txt = document.getElementById('voiceGlobalText');
+                const btn = document.getElementById('voiceGlobalBtn');
+                if (txt) txt.innerText = 'جاري الاستماع... 🔴';
+                if (btn) btn.style.background = '#dc2626';
+            };
+
+            globalRec.onresult = function(event) {
+                const transcript = event.results[0][0].transcript.trim().toLowerCase();
+                console.log('الأمر الصوتي المسموع:', transcript);
+                handleGlobalVoice(transcript);
+            };
+
+            globalRec.onerror = function(event) {
+                console.error('خطأ في التعرف الصوتي:', event.error);
+                resetGlobalBtn();
+            };
+
+            globalRec.onend = function() {
+                globalListening = false;
+                resetGlobalBtn();
+            };
+        }
+
+        if (globalListening) {
+            globalRec.stop();
+        } else {
+            try {
+                globalRec.start();
+            } catch (e) {
+                globalRec.stop();
+            }
+        }
+    }
+
+    function resetGlobalBtn() {
+        const txt = document.getElementById('voiceGlobalText');
+        const btn = document.getElementById('voiceGlobalBtn');
+        if (txt) txt.innerText = 'أوامر صوتية';
+        if (btn) btn.style.background = '#059669';
+    }
+
+    function handleGlobalVoice(cmd) {
+        const navMap = {
+            'الرئيسية': 'index.html',
+            'المرضى': 'patients.html',
+            'المواعيد': 'appointments.html',
+            'الزيارات': 'visits.html',
+            'القياسات': 'measurements.html',
+            'الخطط الغذائية': 'meal-builder.html',
+            'قاعدة الأطعمة': 'food-database.html',
+            'التحاليل': 'labs.html',
+            'المكملات': 'supplements.html',
+            'جراحات السمنة': 'bariatric.html',
+            'المدفوعات': 'payments.html',
+            'التقارير': 'reports.html',
+            'التنبيهات': 'notifications.html',
+            'الأطباء': 'doctors.html',
+            'الإعدادات': 'settings.html'
+        };
+
+        for (let key in navMap) {
+            if (cmd.includes(key)) {
+                window.location.href = navMap[key];
+                return;
+            }
+        }
+
+        if (cmd.includes('اطبع') || cmd.includes('طباعة')) {
+            window.print();
+        } else {
+            alert(`تم سماع الأمر: "${cmd}"`);
+        }
+    }
+</script>
 </body>
 </html>
