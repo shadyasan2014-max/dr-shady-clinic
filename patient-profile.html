@@ -369,16 +369,20 @@
             let notes = activePatient.medical_history || activePatient.notes || 'لا توجد ملاحظات مسجلة.';
             let dietPlan = activePatient.diet_plan || 'لم يتم كتابة خطة غذائية بعد.';
 
-            // جلب أحدث القياسات من جدول measurements بطريقة شاملة (الكود أو الاسم)
+            // جلب أحدث القياسات من جدول measurements وطباعتها في الـ Console للتشخيص الفوري
             try {
                 let { data: allMeas } = await supabaseClient.from('measurements').select('*');
+                console.log("جدول measurements بالكامل:", allMeas);
+
                 if (allMeas && allMeas.length > 0) {
                     let patientMeas = allMeas.filter(m => {
-                        let mCode = (m.patient_code || m.code || '').toString().trim();
-                        let mName = (m.patient_name || m.name || '').toString().trim();
-                        return (mCode && code && mCode === code.trim()) ||
-                               (mName && name && (mName.includes(name) || name.includes(mName)));
+                        let mCode = (m.patient_code || m.code || m.patientCode || '').toString().trim();
+                        let mName = (m.patient_name || m.name || m.patientName || '').toString().trim();
+                        return (code && mCode && mCode.toLowerCase() === code.toString().trim().toLowerCase()) ||
+                               (name && mName && (mName.includes(name) || name.includes(mName)));
                     });
+
+                    console.log("القياسات المطابقة للمريض:", patientMeas);
 
                     if (patientMeas.length > 0) {
                         patientMeas.sort((a, b) => new Date(b.measurement_date || b.date || b.created_at || 0) - new Date(a.measurement_date || a.date || a.created_at || 0));
@@ -839,7 +843,6 @@
             });
         }
 
-        // إعدادات الأوامر الصوتية
         let recognition = null;
         let isListening = false;
 
