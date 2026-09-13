@@ -402,13 +402,13 @@
             rec.interimResults = false;
 
             rec.onresult = function(event) {
-                const res = event.results[0][0].transcript.trim().toLowerCase();
+                const res = event.results[0][0].transcript.trim();
                 console.log('🎙️ النص المسموع حرفياً:', res);
 
                 setTimeout(() => {
-                    if (res.includes('حجز') || res.includes('جديد') || res.includes('موعد')) {
+                    if (/حجز|موعد|جديد|اجز/i.test(res)) {
                         openAddAppointmentModal();
-                    } else if (res.includes('طباعة') || res.includes('اطبع')) {
+                    } else if (/طباعة|اطبع|طبع/i.test(res)) {
                         window.print();
                     }
                 }, 100);
