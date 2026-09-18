@@ -213,7 +213,7 @@
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOiJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let registeredPatientsList = [];
@@ -245,6 +245,7 @@
             let sortType = document.getElementById('sortOrderSelect').value;
 
             try {
+                // جلب المواعيد وتجنب أي خطأ في حال اختلاف أسماء الأعمدة القديمة
                 const { data, error } = await supabaseClient.from('appointments').select('*');
                 const { data: patData } = await supabaseClient.from('patients').select('*');
                 const { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
@@ -299,8 +300,10 @@
                     let name = app.patient_name || app.patient || app.title || 'مريض';
                     let date = app.appt_date || app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.appt_time || app.time || app.visit_time || '-';
+                    
+                    // قراءة مرنة للحقول القديمة والجديدة لضمان ظهور البيانات أياً كان اسم الحقل في الداتا
                     let vType = app.visit_type || 'عيادة';
-                    let vReason = app.visit_reason || app.type || 'متابعة';
+                    let vReason = app.visit_reason || app.type || app.category || 'متابعة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
 
@@ -330,6 +333,7 @@
                 });
                 tbody.innerHTML = html;
             } catch(e) {
+                console.error(e);
                 tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب البيانات من SQL.</td></tr>`;
             }
         }
