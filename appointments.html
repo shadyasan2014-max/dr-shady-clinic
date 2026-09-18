@@ -138,7 +138,7 @@
                             <th>اسم المريض</th>
                             <th>تاريخ الموعد</th>
                             <th>الوقت</th>
-                            <th>نوع الزيارة</th>
+                            <th>سبب الزيارة</th>
                             <th>الحالة</th>
                             <th>الإجراء</th>
                         </tr>
@@ -170,18 +170,23 @@
                 <div class="form-group"><label>وقت الموعد:</label><input type="time" id="apptTime" class="form-control" required></div>
                 
                 <div class="form-group">
-                    <label>نوع الزيارة:</label>
+                    <label>سبب الزيارة:</label>
                     <select id="apptType" class="form-control" onchange="checkCustomVisitType(this.value)">
-                        <option value="عيادة">عيادة</option>
-                        <option value="أون لاين">أون لاين</option>
-                        <option value="آخر">آخر</option>
+                        <option value="كشف">كشف</option>
+                        <option value="متابعة">متابعة</option>
+                        <option value="متابعة ما بعد جراحات السمنة">متابعة ما بعد جراحات السمنة</option>
+                        <option value="متابعة سمنة">متابعة سمنة</option>
+                        <option value="متابعة نحافة">متابعة نحافة</option>
+                        <option value="متابعة حقن مونجارو">متابعة حقن مونجارو</option>
+                        <option value="متابعة حقن ميزوثرابي">متابعة حقن ميزوثرابي</option>
+                        <option value="غيرها">غيرها</option>
                     </select>
                 </div>
 
-                <!-- حقل إضافي يظهر فقط عند اختيار "آخر" -->
+                <!-- حقل إضافي يظهر فقط عند اختيار "غيرها" -->
                 <div class="form-group" id="customVisitTypeBox" style="display: none;">
-                    <label>اكتب نوع الزيارة المخصص:</label>
-                    <input type="text" id="customApptType" class="form-control" placeholder="اكتب هنا...">
+                    <label>اكتب سبب الزيارة المخصص:</label>
+                    <input type="text" id="customApptType" class="form-control" placeholder="اكتب السبب هنا...">
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
@@ -201,7 +206,7 @@
 
         function checkCustomVisitType(val) {
             let box = document.getElementById('customVisitTypeBox');
-            if (val === 'آخر') {
+            if (val === 'غيرها') {
                 box.style.display = 'block';
                 document.getElementById('customApptType').required = true;
             } else {
@@ -269,7 +274,7 @@
                     let name = app.patient_name || app.patient || app.title || 'مريض';
                     let date = app.appt_date || app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.appt_time || app.time || app.visit_time || '-';
-                    let type = app.visit_type || app.type || app.category || 'عيادة';
+                    let type = app.visit_type || app.type || app.category || 'متابعة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
 
@@ -324,7 +329,7 @@
             updatePatientsDropdown();
             document.getElementById('apptDate').value = '';
             document.getElementById('apptTime').value = '';
-            document.getElementById('apptType').value = 'عيادة';
+            document.getElementById('apptType').value = 'متابعة';
             document.getElementById('customVisitTypeBox').style.display = 'none';
             document.getElementById('customApptType').value = '';
             document.getElementById('addAppointmentModal').style.display = 'flex';
@@ -336,7 +341,7 @@
             let appName = app.patient_name || app.patient || '';
             let appDate = app.appt_date || app.date || app.appointment_date || app.visit_date || '';
             let appTime = app.appt_time || app.time || '';
-            let vType = app.visit_type || app.type || 'عيادة';
+            let vType = app.visit_type || app.type || 'متابعة';
             
             document.getElementById('editApptId').value = appId;
             document.getElementById('originalPatientName').value = appName;
@@ -344,16 +349,17 @@
             document.getElementById('apptDate').value = appDate;
             document.getElementById('apptTime').value = appTime;
 
+            let standardTypes = ['كشف', 'متابعة', 'متابعة ما بعد جراحات السمنة', 'متابعة سمنة', 'متابعة نحافة', 'متابعة حقن مونجارو', 'متابعة حقن ميزوثرابي'];
             let typeSelect = document.getElementById('apptType');
             let customBox = document.getElementById('customVisitTypeBox');
             let customInput = document.getElementById('customApptType');
 
-            if (vType === 'عيادة' || vType === 'أون لاين') {
+            if (standardTypes.includes(vType)) {
                 typeSelect.value = vType;
                 customBox.style.display = 'none';
                 customInput.value = '';
             } else {
-                typeSelect.value = 'آخر';
+                typeSelect.value = 'غيرها';
                 customBox.style.display = 'block';
                 customInput.value = vType;
             }
@@ -372,14 +378,13 @@
             let time = document.getElementById('apptTime').value;
             
             let selectedType = document.getElementById('apptType').value;
-            let visit_type = (selectedType === 'آخر') ? document.getElementById('customApptType').value.trim() : selectedType;
+            let visit_type = (selectedType === 'غيرها') ? document.getElementById('customApptType').value.trim() : selectedType;
 
             if (!patient_name) {
                 alert('الرجاء اختيار المريض من القائمة');
                 return;
             }
 
-            // تم الاعتماد على visit_type فقط لتوافق الجدول في قاعدة البيانات
             let payload = {
                 patient_name: patient_name,
                 appt_date: date,
