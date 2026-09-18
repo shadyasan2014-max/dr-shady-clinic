@@ -379,6 +379,7 @@
                 return;
             }
 
+            // تم الاعتماد على visit_type فقط لتوافق الجدول في قاعدة البيانات
             let payload = {
                 patient_name: patient_name,
                 appt_date: date,
@@ -386,7 +387,6 @@
                 appt_time: time,
                 time: time,
                 visit_type: visit_type,
-                type: visit_type,
                 status: 'في الانتظار'
             };
 
