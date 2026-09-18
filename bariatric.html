@@ -129,6 +129,7 @@
                 <table>
                     <thead>
                         <tr>
+                            <th>كود المريض</th>
                             <th>اسم المريض</th>
                             <th>نوع الجراحة</th>
                             <th>تاريخ العملية</th>
@@ -138,7 +139,7 @@
                         </tr>
                     </thead>
                     <tbody id="bariatricTableBody">
-                        <tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل الحالات الجراحية من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">جاري تحميل الحالات الجراحية من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -151,6 +152,11 @@
             <h3 id="modalTitle" style="margin-top:0; border-bottom:1px solid #eee; padding-bottom:10px; font-size:15px; color:var(--text-dark);">🩺 تسجيل حالة جراحية جديدة</h3>
             <form onsubmit="saveBariatricToSQL(event)">
                 <input type="hidden" id="editingBariatricId">
+
+                <div class="form-group" style="margin-bottom:10px;">
+                    <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">كود المريض (Patient Code):</label>
+                    <input type="text" id="patientCode" class="form-control" placeholder="مثال: SS-0001" required>
+                </div>
 
                 <div class="form-group" style="margin-bottom:10px;">
                     <label style="font-size:11px; font-weight:bold; color:var(--text-gray); display:block; margin-bottom:4px;">اسم المريض:</label>
@@ -206,6 +212,15 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
+        async function checkDuplicateBariatricCode(code, currentId) {
+            let query = supabaseClient.from('bariatric_cases').select('id').eq('patient_code', code);
+            if (currentId) {
+                query = query.neq('id', currentId);
+            }
+            let { data } = await query.maybeSingle();
+            return data ? true : false;
+        }
+
         async function loadPatientsDropdown() {
             let { data: patData } = await supabaseClient.from('patients').select('*');
             let { data: barData } = await supabaseClient.from('bariatric_cases').select('*');
@@ -232,12 +247,13 @@
 
             if (error || !data || data.length === 0) {
                 bariatricList = [];
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات جراحية مسجلة حالياً.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; color:var(--text-gray); padding:20px;">لا توجد حالات جراحية مسجلة حالياً.</td></tr>`;
                 return;
             }
 
             bariatricList = data;
             bariatricList.forEach(b => {
+                let code = b.patient_code || b.code || '-';
                 let patName = b.patient_name || b.name || 'غير محدد';
                 let sType = b.surgery_type || b.type || '-';
                 let sDate = b.surgery_date || b.date || '-';
@@ -246,6 +262,7 @@
 
                 tbody.innerHTML += `
                     <tr>
+                        <td><strong style="color:var(--accent-blue);">${code}</strong></td>
                         <td><strong>${patName}</strong></td>
                         <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 8px; border-radius:6px; font-size:11px; font-weight:bold;">${sType}</span></td>
                         <td>${sDate}</td>
@@ -266,6 +283,7 @@
             loadPatientsDropdown();
             document.getElementById('editingBariatricId').value = '';
             document.getElementById('modalTitle').innerText = '🩺 تسجيل حالة جراحية جديدة';
+            document.getElementById('patientCode').value = '';
             document.getElementById('patientSelect').value = '';
             document.getElementById('surgeryType').value = '';
             document.getElementById('surgeryDate').value = new Date().toISOString().split('T')[0];
@@ -281,6 +299,7 @@
 
             document.getElementById('editingBariatricId').value = b.id;
             document.getElementById('modalTitle').innerText = '✏️ تعديل الحالة الجراحية';
+            document.getElementById('patientCode').value = b.patient_code || b.code || '';
             document.getElementById('patientSelect').value = b.patient_name || b.name || '';
             document.getElementById('surgeryType').value = b.surgery_type || b.type || '';
             document.getElementById('surgeryDate').value = b.surgery_date || b.date || '';
@@ -296,8 +315,16 @@
         async function saveBariatricToSQL(event) {
             event.preventDefault();
             let editId = document.getElementById('editingBariatricId').value;
+            let code = document.getElementById('patientCode').value.trim();
+
+            let isDuplicate = await checkDuplicateBariatricCode(code, editId);
+            if (isDuplicate) {
+                alert(`❌ عذراً يا دكتور، الكود (${code}) مسجل مسبقاً لحالة جراحية أخرى في قاعدة البيانات.`);
+                return;
+            }
 
             let payload = {
+                patient_code: code,
                 patient_name: document.getElementById('patientSelect').value,
                 surgery_type: document.getElementById('surgeryType').value,
                 surgery_date: document.getElementById('surgeryDate').value,
@@ -313,8 +340,8 @@
             }
 
             if (res.error) {
-                // محاولة احتياطية لو عمود الجراح غير موجود بالاسم الحالي
                 let basicPayload = {
+                    patient_code: code,
                     patient_name: payload.patient_name,
                     surgery_type: payload.surgery_type,
                     surgery_date: payload.surgery_date,
