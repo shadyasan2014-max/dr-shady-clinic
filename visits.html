@@ -177,7 +177,7 @@
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
                     <button type="submit" class="action-btn" style="background:var(--primary-green); flex:1; justify-content:center; padding:10px;">حفظ التعديلات</button>
-                    <button type="button" onclick="closeEditVisitModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إلغاء</button>
+                    <button type="button" onclick="closeEditVisitModal()" class="action-btn" style="background:#cbd5e1; color:#334155; flex:1; justify-content:center; padding:10px;">إغلاق</button>
                 </div>
             </form>
         </div>
@@ -215,9 +215,8 @@
                     let dateB = b.visit_date || b.appt_date || b.date || '1970-01-01';
                     
                     let statusA = String(a.status || a.visit_status || a.state || 'في الانتظار');
-                    let statusB = String(b.status || b.visit_status || b.state || 'في الانتظار');
+                    let statusB = String(b.status || a.visit_status || b.state || 'في الانتظار');
 
-                    // تحديد أولوية الترتيب: في الانتظار وأجلت أولاً، ثم تمت الزيارة واتلغت في الآخر
                     let getPriority = (st) => {
                         if (st.includes('في الانتظار') || st.includes('أجلت')) return 0;
                         return 1;
@@ -271,7 +270,7 @@
                             <td>${statusBadge}</td>
                             <td>
                                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
-                                    <button onclick='openEditVisitModal(${JSON.stringify(v)})' class="action-btn" style="background:var(--warning-orange);">✏️ تعديل</button>
+                                    <button onclick='openEditVisitModal(${JSON.stringify(v)})' class="action-btn" style="background:var(--warning-orange);">✏️ تعديل وتأجيل</button>
                                     <button onclick="deleteVisit('${vId}', '${name}', '${tableName}')" class="action-btn" style="background:var(--danger-red);">🗑️ حذف</button>
                                 </div>
                             </td>
@@ -324,16 +323,16 @@
                 return;
             }
 
-            alert('✨ تم تعديل بيانات الزيارة بنجاح في SQL!');
+            alert('✨ تم تعديل بيانات الزيارة وتحديث حالتها بنجاح في SQL!');
             closeEditVisitModal();
             loadVisitsTable();
         }
 
         async function deleteVisit(id, name, tableName) {
-            if (!confirm(`هل أنت متأكد من إلغاء/حذف زيارة المريض (${name})؟`)) return;
+            if (!confirm(`هل أنت متأكد من حذف زيارة المريض (${name})؟`)) return;
             let { error } = await supabaseClient.from(tableName).delete().eq('id', id);
             if (error) { alert('خطأ أثناء الحذف: ' + error.message); return; }
-            alert('🗑️ تم إلغاء وحذف الزيارة بنجاح.');
+            alert('🗑️ تم حذف الزيارة بنجاح.');
             loadVisitsTable();
         }
 
