@@ -314,9 +314,22 @@
         async function saveBariatricCaseQuick(event) {
             event.preventDefault();
             let activeDoctor = localStorage.getItem('active_clinic_doctor') || 'د. شادي سمير';
+            let codeInput = document.getElementById('barCode').value.trim();
             
+            // فحص هل الكود مسجل مسبقاً في جدول bariatric_cases
+            let { data: existing } = await supabaseClient
+                .from('bariatric_cases')
+                .select('id')
+                .eq('patient_code', codeInput)
+                .maybeSingle();
+
+            if (existing) {
+                alert(`❌ عذراً يا دكتور، الكود (${codeInput}) مسجل بالفعل لحالة جراحية أخرى. برجاء تغيير الكود.`);
+                return; // إيقاف الحفظ والتنبيه بتغيير الكود
+            }
+
             let payload = {
-                patient_code: document.getElementById('barCode').value,
+                patient_code: codeInput,
                 patient_name: document.getElementById('barName').value,
                 phone: document.getElementById('barPhone').value,
                 surgery_type: document.getElementById('barSurgeryType').value,
