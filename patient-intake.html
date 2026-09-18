@@ -322,6 +322,19 @@
             document.getElementById('sidebarOverlay').classList.toggle('active');
         }
 
+        // دالة فحص وتأكيد عدم تكرار الكود قبل الحفظ
+        async function checkDuplicateCode(code) {
+            let query = supabaseClient.from('patients').select('id').eq('patient_code', code);
+            if (existingRecordId) {
+                query = query.neq('id', existingRecordId); // استثناء المريض الحالي عند التعديل
+            }
+            let { data, error } = await query.maybeSingle();
+            if (data) {
+                return true; // الكود مكرر ومستخدم لحالة أخرى
+            }
+            return false; // الكود غير مكرر ويمكن استخدامه
+        }
+
         // دالة جلب واستدعاء البيانات للتحقق والتعديل بدقة
         async function loadPatientDataForEditing() {
             const urlParams = new URLSearchParams(window.location.search);
@@ -333,7 +346,6 @@
 
             console.log("Searching for patient with code/name:", codeParam);
 
-            // البحث المرن بالـ patient_code أو الاسم
             const { data, error } = await supabaseClient
                 .from('patients')
                 .select('*')
@@ -381,7 +393,7 @@
                 document.getElementById('pSinceWhen').value = p.obesity_since || '';
                 document.getElementById('pDailyLifestyle').value = p.daily_lifestyle || '';
                 
-                alert(`✨ تم العثور على بيانات المريض (${p.patient_name || p.name}) وتم جلبها بنجاح للتعديل! (ID: ${existingRecordId})`);
+                alert(`✨ تم العثور على بيانات المريض (${p.patient_name || p.name}) وتم جلبها بنجاح للتعديل!`);
             } else {
                 console.warn("No patient found with code/name:", codeParam);
             }
@@ -400,9 +412,17 @@
             document.getElementById('planTypeModal').style.display = 'none';
         }
 
-        // دالة حفظ البيانات مباشرة بدون نظام
+        // دالة حفظ البيانات مباشرة بدون نظام مع فحص منع تكرار الكود
         async function saveDirectWithoutPlan() {
-            let code = document.getElementById('pCode').value || 'SS-' + Math.floor(1000 + Math.random() * 9000);
+            let code = document.getElementById('pCode').value.trim() || 'SS-' + Math.floor(1000 + Math.random() * 9000);
+            
+            // فحص تكرار الكود قبل الحفظ
+            let isDuplicate = await checkDuplicateCode(code);
+            if (isDuplicate) {
+                alert(`❌ عذراً يا دكتور، الكود (${code}) مسجل مسبقاً لحالة أخرى في قاعدة البيانات. يرجى استخدام كود فريد.`);
+                return;
+            }
+
             let name = document.getElementById('pName').value || 'المريض';
             let age = parseFloat(document.getElementById('pAge').value) || 30;
             let gender = document.getElementById('pGender').value;
@@ -454,14 +474,7 @@
             if (existingRecordId) {
                 res = await supabaseClient.from('patients').update(directPayload).eq('id', existingRecordId);
             } else {
-                // التحقق هل الكود موجود مسبقاً لتفادي أي خطأ
-                let { data: existingCheck } = await supabaseClient.from('patients').select('id').eq('patient_code', code).maybeSingle();
-                if (existingCheck) {
-                    existingRecordId = existingCheck.id;
-                    res = await supabaseClient.from('patients').update(directPayload).eq('id', existingRecordId);
-                } else {
-                    res = await supabaseClient.from('patients').insert([directPayload]);
-                }
+                res = await supabaseClient.from('patients').insert([directPayload]);
             }
 
             if (res.error) {
@@ -472,10 +485,19 @@
             alert('✨ تم حفظ أو تحديث بيانات المريض مباشرة في قاعدة بيانات SQL بنجاح تام!');
         }
 
-        function generateSelectedPlan(planType) {
+        async function generateSelectedPlan(planType) {
+            let code = document.getElementById('pCode').value.trim() || 'SS-' + Math.floor(1000 + Math.random() * 9000);
+            
+            // فحص تكرار الكود قبل توليد الخطة
+            let isDuplicate = await checkDuplicateCode(code);
+            if (isDuplicate) {
+                closePlanTypeModal();
+                alert(`❌ عذراً يا دكتور، الكود (${code}) مسجل مسبقاً لحالة أخرى في قاعدة البيانات. يرجى استخدام كود فريد.`);
+                return;
+            }
+
             closePlanTypeModal();
 
-            let code = document.getElementById('pCode').value || 'SS-' + Math.floor(1000 + Math.random() * 9000);
             let name = document.getElementById('pName').value || 'المريض';
             let age = parseFloat(document.getElementById('pAge').value) || 30;
             let gender = document.getElementById('pGender').value;
@@ -619,6 +641,12 @@
         async function saveIntakeToSQL() {
             if (!generatedPlanPayload) return;
 
+            let isDuplicate = await checkDuplicateCode(generatedPlanPayload.patient_code);
+            if (isDuplicate) {
+                alert(`❌ عذراً يا دكتور، الكود (${generatedPlanPayload.patient_code}) مسجل مسبقاً لحالة أخرى في قاعدة البيانات.`);
+                return;
+            }
+
             let res;
             if (existingRecordId) {
                 res = await supabaseClient.from('patients').update(generatedPlanPayload).eq('id', existingRecordId);
@@ -655,7 +683,6 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(msg)}`, '_blank');
         }
 
-        // تشغيل دالة الاستدعاء فور تحميل الصفحة
         window.addEventListener('DOMContentLoaded', loadPatientDataForEditing);
     </script>
 </body>
