@@ -215,7 +215,7 @@
                     let dateB = b.visit_date || b.appt_date || b.date || '1970-01-01';
                     
                     let statusA = String(a.status || a.visit_status || a.state || 'في الانتظار');
-                    let statusB = String(b.status || a.visit_status || b.state || 'في الانتظار');
+                    let statusB = String(b.status || b.visit_status || b.state || 'في الانتظار');
 
                     let getPriority = (st) => {
                         if (st.includes('في الانتظار') || st.includes('أجلت')) return 0;
