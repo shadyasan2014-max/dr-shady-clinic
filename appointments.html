@@ -168,13 +168,20 @@
 
                 <div class="form-group"><label>تاريخ الموعد:</label><input type="date" id="apptDate" class="form-control" required></div>
                 <div class="form-group"><label>وقت الموعد:</label><input type="time" id="apptTime" class="form-control" required></div>
+                
                 <div class="form-group">
                     <label>نوع الزيارة:</label>
-                    <select id="apptType" class="form-control">
-                        <option value="متابعة">متابعة</option>
-                        <option value="استشارة أولية">استشارة أولية</option>
-                        <option value="ما بعد جراحة السمنة">ما بعد جراحة السمنة</option>
+                    <select id="apptType" class="form-control" onchange="checkCustomVisitType(this.value)">
+                        <option value="عيادة">عيادة</option>
+                        <option value="أون لاين">أون لاين</option>
+                        <option value="آخر">آخر</option>
                     </select>
+                </div>
+
+                <!-- حقل إضافي يظهر فقط عند اختيار "آخر" -->
+                <div class="form-group" id="customVisitTypeBox" style="display: none;">
+                    <label>اكتب نوع الزيارة المخصص:</label>
+                    <input type="text" id="customApptType" class="form-control" placeholder="اكتب هنا...">
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
@@ -191,6 +198,17 @@
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let registeredPatientsList = [];
+
+        function checkCustomVisitType(val) {
+            let box = document.getElementById('customVisitTypeBox');
+            if (val === 'آخر') {
+                box.style.display = 'block';
+                document.getElementById('customApptType').required = true;
+            } else {
+                box.style.display = 'none';
+                document.getElementById('customApptType').required = false;
+            }
+        }
 
         async function loadAppointmentsTable() {
             let tbody = document.getElementById('appointmentsTableBody');
@@ -251,7 +269,7 @@
                     let name = app.patient_name || app.patient || app.title || 'مريض';
                     let date = app.appt_date || app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.appt_time || app.time || app.visit_time || '-';
-                    let type = app.visit_type || app.type || app.category || 'متابعة';
+                    let type = app.visit_type || app.type || app.category || 'عيادة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
 
@@ -306,6 +324,9 @@
             updatePatientsDropdown();
             document.getElementById('apptDate').value = '';
             document.getElementById('apptTime').value = '';
+            document.getElementById('apptType').value = 'عيادة';
+            document.getElementById('customVisitTypeBox').style.display = 'none';
+            document.getElementById('customApptType').value = '';
             document.getElementById('addAppointmentModal').style.display = 'flex';
         }
 
@@ -315,13 +336,28 @@
             let appName = app.patient_name || app.patient || '';
             let appDate = app.appt_date || app.date || app.appointment_date || app.visit_date || '';
             let appTime = app.appt_time || app.time || '';
+            let vType = app.visit_type || app.type || 'عيادة';
             
             document.getElementById('editApptId').value = appId;
             document.getElementById('originalPatientName').value = appName;
             updatePatientsDropdown(appName);
             document.getElementById('apptDate').value = appDate;
             document.getElementById('apptTime').value = appTime;
-            if(app.visit_type || app.type) document.getElementById('apptType').value = app.visit_type || app.type;
+
+            let typeSelect = document.getElementById('apptType');
+            let customBox = document.getElementById('customVisitTypeBox');
+            let customInput = document.getElementById('customApptType');
+
+            if (vType === 'عيادة' || vType === 'أون لاين') {
+                typeSelect.value = vType;
+                customBox.style.display = 'none';
+                customInput.value = '';
+            } else {
+                typeSelect.value = 'آخر';
+                customBox.style.display = 'block';
+                customInput.value = vType;
+            }
+
             document.getElementById('addAppointmentModal').style.display = 'flex';
         }
 
@@ -330,11 +366,13 @@
         async function saveOrUpdateAppointment(e) {
             e.preventDefault();
             let id = document.getElementById('editApptId').value;
-            let originalName = document.getElementById('originalPatientName.value');
+            let originalName = document.getElementById('originalPatientName').value;
             let patient_name = document.getElementById('apptPatientName').value;
             let date = document.getElementById('apptDate').value;
             let time = document.getElementById('apptTime').value;
-            let visit_type = document.getElementById('apptType').value;
+            
+            let selectedType = document.getElementById('apptType').value;
+            let visit_type = (selectedType === 'آخر') ? document.getElementById('customApptType').value.trim() : selectedType;
 
             if (!patient_name) {
                 alert('الرجاء اختيار المريض من القائمة');
@@ -348,6 +386,7 @@
                 appt_time: time,
                 time: time,
                 visit_type: visit_type,
+                type: visit_type,
                 status: 'في الانتظار'
             };
 
