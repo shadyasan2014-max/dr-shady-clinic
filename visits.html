@@ -128,13 +128,14 @@
                             <th>#</th>
                             <th>اسم المريض</th>
                             <th>تاريخ ووقت الزيارة</th>
-                            <th>نوع وطريقة الزيارة</th>
+                            <th>سبب الزيارة</th>
+                            <th>نوع الزيارة</th>
                             <th>حالة الزيارة</th>
                             <th>الإجراءات</th>
                         </tr>
                     </thead>
                     <tbody id="visitsTableBody">
-                        <tr><td colspan="6" style="text-align: center; color: gray; padding: 20px;">جاري جلب سجل الزيارات من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="7" style="text-align: center; color: gray; padding: 20px;">جاري جلب سجل الزيارات من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -160,6 +161,10 @@
                 <div class="form-group">
                     <label>وقت الزيارة:</label>
                     <input type="time" id="editVisitTime" class="form-control">
+                </div>
+                <div class="form-group">
+                    <label>سبب الزيارة:</label>
+                    <input type="text" id="editVisitReason" class="form-control">
                 </div>
                 <div class="form-group">
                     <label>نوع الزيارة:</label>
@@ -198,11 +203,17 @@
                 let combinedList = [];
                 if (visData) visData.forEach(v => combinedList.push({ ...v, _sourceTable: 'visits' }));
                 if (appData) appData.forEach(a => {
-                    combinedList.push({ ...a, visit_date: a.appt_date || a.date, visit_type: a.visit_type || 'متابعة', _sourceTable: 'appointments' });
+                    combinedList.push({ 
+                        ...a, 
+                        visit_date: a.appt_date || a.date, 
+                        visit_reason: a.visit_reason || a.type || 'متابعة', 
+                        visit_type: a.visit_type || 'عيادة', 
+                        _sourceTable: 'appointments' 
+                    });
                 });
 
                 if (combinedList.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: gray; padding: 20px;">لا توجد زيارات أو مواعيد مسجلة حالياً.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: gray; padding: 20px;">لا توجد زيارات أو مواعيد مسجلة حالياً.</td></tr>`;
                     return;
                 }
 
@@ -244,7 +255,8 @@
                 combinedList.forEach((v, idx) => {
                     let name = v.patient_name || v.name || 'مريض';
                     let dateTime = (v.visit_date || v.appt_date || v.date || '-') + ' ' + (v.appt_time || v.time || '');
-                    let typeMethod = (v.visit_type || 'متابعة') + ' <br><span style="font-size:10px; color:var(--accent-blue);">' + (v.visit_method || 'حجز بالعيادة') + '</span>';
+                    let vReason = v.visit_reason || v.type || 'متابعة';
+                    let vType = v.visit_type || 'عيادة';
                     
                     let status = v.status || v.visit_status || v.state || 'في الانتظار';
                     let vId = v.id;
@@ -266,7 +278,8 @@
                             <td>${idx + 1}</td>
                             <td><strong>${name}</strong></td>
                             <td>${dateTime}</td>
-                            <td>${typeMethod}</td>
+                            <td>${vReason}</td>
+                            <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 6px; border-radius:4px; font-weight:bold;">${vType}</span></td>
                             <td>${statusBadge}</td>
                             <td>
                                 <div style="display:flex; gap:5px; flex-wrap:wrap;">
@@ -279,7 +292,7 @@
                 });
                 tbody.innerHTML = html;
             } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب بيانات الزيارات.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب بيانات الزيارات.</td></tr>`;
             }
         }
 
@@ -289,7 +302,8 @@
             document.getElementById('editPatientName').value = v.patient_name || v.name || '';
             document.getElementById('editVisitDate').value = v.visit_date || v.appt_date || v.date || '';
             document.getElementById('editVisitTime').value = v.appt_time || v.time || '';
-            document.getElementById('editVisitType').value = v.visit_type || 'متابعة';
+            document.getElementById('editVisitReason').value = v.visit_reason || v.type || 'متابعة';
+            document.getElementById('editVisitType').value = v.visit_type || 'عيادة';
             
             let st = v.status || v.visit_status || v.state || 'في الانتظار';
             document.getElementById('editVisitStatus').value = st;
@@ -307,14 +321,15 @@
             let tableName = document.getElementById('editTableName').value;
             let date = document.getElementById('editVisitDate').value;
             let time = document.getElementById('editVisitTime').value;
+            let reason = document.getElementById('editVisitReason').value;
             let type = document.getElementById('editVisitType').value;
             let status = document.getElementById('editVisitStatus').value;
 
             let payload = {};
             if (tableName === 'appointments') {
-                payload = { appt_date: date, date: date, appt_time: time, time: time, visit_type: type, status: status };
+                payload = { appt_date: date, date: date, appt_time: time, time: time, visit_reason: reason, visit_type: type, status: status };
             } else {
-                payload = { visit_date: date, visit_type: type, status: status, visit_status: status };
+                payload = { visit_date: date, visit_reason: reason, visit_type: type, status: status, visit_status: status };
             }
 
             let { error } = await supabaseClient.from(tableName).update(payload).eq('id', id);
