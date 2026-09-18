@@ -138,13 +138,14 @@
                             <th>اسم المريض</th>
                             <th>تاريخ الموعد</th>
                             <th>الوقت</th>
+                            <th>نوع الزيارة</th>
                             <th>سبب الزيارة</th>
                             <th>الحالة</th>
                             <th>الإجراء</th>
                         </tr>
                     </thead>
                     <tbody id="appointmentsTableBody">
-                        <tr><td colspan="7" style="text-align: center; color: gray; padding: 20px;">جاري جلب المواعيد من قاعدة البيانات...</td></tr>
+                        <tr><td colspan="8" style="text-align: center; color: gray; padding: 20px;">جاري جلب المواعيد من قاعدة البيانات...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -169,9 +170,24 @@
                 <div class="form-group"><label>تاريخ الموعد:</label><input type="date" id="apptDate" class="form-control" required></div>
                 <div class="form-group"><label>وقت الموعد:</label><input type="time" id="apptTime" class="form-control" required></div>
                 
+                <!-- 1. نوع الزيارة -->
+                <div class="form-group">
+                    <label>نوع الزيارة:</label>
+                    <select id="apptType" class="form-control" onchange="checkCustomVisitType(this.value)">
+                        <option value="عيادة">عيادة</option>
+                        <option value="أون لاين">أون لاين</option>
+                        <option value="آخر">آخر</option>
+                    </select>
+                </div>
+                <div class="form-group" id="customVisitTypeBox" style="display: none;">
+                    <label>اكتب نوع الزيارة المخصص:</label>
+                    <input type="text" id="customApptType" class="form-control" placeholder="اكتب نوع الزيارة هنا...">
+                </div>
+
+                <!-- 2. سبب الزيارة -->
                 <div class="form-group">
                     <label>سبب الزيارة:</label>
-                    <select id="apptType" class="form-control" onchange="checkCustomVisitType(this.value)">
+                    <select id="apptReason" class="form-control" onchange="checkCustomVisitReason(this.value)">
                         <option value="كشف">كشف</option>
                         <option value="متابعة">متابعة</option>
                         <option value="متابعة ما بعد جراحات السمنة">متابعة ما بعد جراحات السمنة</option>
@@ -182,11 +198,9 @@
                         <option value="غيرها">غيرها</option>
                     </select>
                 </div>
-
-                <!-- حقل إضافي يظهر فقط عند اختيار "غيرها" -->
-                <div class="form-group" id="customVisitTypeBox" style="display: none;">
+                <div class="form-group" id="customVisitReasonBox" style="display: none;">
                     <label>اكتب سبب الزيارة المخصص:</label>
-                    <input type="text" id="customApptType" class="form-control" placeholder="اكتب السبب هنا...">
+                    <input type="text" id="customApptReason" class="form-control" placeholder="اكتب السبب هنا...">
                 </div>
 
                 <div style="display:flex; gap:10px; margin-top:15px;">
@@ -199,19 +213,30 @@
 
     <script>
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iOiJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         let registeredPatientsList = [];
 
         function checkCustomVisitType(val) {
             let box = document.getElementById('customVisitTypeBox');
-            if (val === 'غيرها') {
+            if (val === 'آخر') {
                 box.style.display = 'block';
                 document.getElementById('customApptType').required = true;
             } else {
                 box.style.display = 'none';
                 document.getElementById('customApptType').required = false;
+            }
+        }
+
+        function checkCustomVisitReason(val) {
+            let box = document.getElementById('customVisitReasonBox');
+            if (val === 'غيرها') {
+                box.style.display = 'block';
+                document.getElementById('customApptReason').required = true;
+            } else {
+                box.style.display = 'none';
+                document.getElementById('customApptReason').required = false;
             }
         }
 
@@ -237,7 +262,7 @@
                 updatePatientsDropdown();
 
                 if (error || !data || data.length === 0) {
-                    tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: gray; padding: 20px;">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: gray; padding: 20px;">لا توجد مواعيد مسجلة حالياً.</td></tr>`;
                     return;
                 }
 
@@ -274,7 +299,8 @@
                     let name = app.patient_name || app.patient || app.title || 'مريض';
                     let date = app.appt_date || app.date || app.appointment_date || app.visit_date || app.created_at?.split('T')[0] || '-';
                     let time = app.appt_time || app.time || app.visit_time || '-';
-                    let type = app.visit_type || app.type || app.category || 'متابعة';
+                    let vType = app.visit_type || 'عيادة';
+                    let vReason = app.visit_reason || app.type || 'متابعة';
                     let status = app.status || 'في الانتظار';
                     let appId = app.id;
 
@@ -291,7 +317,8 @@
                             <td><strong>${name}</strong></td>
                             <td>${date}</td>
                             <td>${time}</td>
-                            <td>${type}</td>
+                            <td><span style="background:#e0f2fe; color:#0369a1; padding:3px 6px; border-radius:4px; font-weight:bold;">${vType}</span></td>
+                            <td>${vReason}</td>
                             <td>${statusBadge}</td>
                             <td style="display:flex; gap:5px; flex-wrap:wrap;">
                                 <a href="patient-profile.html?name=${encodeURIComponent(name)}" class="action-btn" style="background:var(--accent-blue);">📁 فتح</a>
@@ -303,7 +330,7 @@
                 });
                 tbody.innerHTML = html;
             } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب البيانات من SQL.</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align: center; color: var(--danger-red); padding: 20px;">خطأ في جلب البيانات من SQL.</td></tr>`;
             }
         }
 
@@ -329,9 +356,15 @@
             updatePatientsDropdown();
             document.getElementById('apptDate').value = '';
             document.getElementById('apptTime').value = '';
-            document.getElementById('apptType').value = 'متابعة';
+            
+            document.getElementById('apptType').value = 'عيادة';
             document.getElementById('customVisitTypeBox').style.display = 'none';
             document.getElementById('customApptType').value = '';
+
+            document.getElementById('apptReason').value = 'متابعة';
+            document.getElementById('customVisitReasonBox').style.display = 'none';
+            document.getElementById('customApptReason').value = '';
+
             document.getElementById('addAppointmentModal').style.display = 'flex';
         }
 
@@ -341,7 +374,9 @@
             let appName = app.patient_name || app.patient || '';
             let appDate = app.appt_date || app.date || app.appointment_date || app.visit_date || '';
             let appTime = app.appt_time || app.time || '';
-            let vType = app.visit_type || app.type || 'متابعة';
+            
+            let vType = app.visit_type || 'عيادة';
+            let vReason = app.visit_reason || app.type || 'متابعة';
             
             document.getElementById('editApptId').value = appId;
             document.getElementById('originalPatientName').value = appName;
@@ -349,19 +384,35 @@
             document.getElementById('apptDate').value = appDate;
             document.getElementById('apptTime').value = appTime;
 
-            let standardTypes = ['كشف', 'متابعة', 'متابعة ما بعد جراحات السمنة', 'متابعة سمنة', 'متابعة نحافة', 'متابعة حقن مونجارو', 'متابعة حقن ميزوثرابي'];
+            // ضبط نوع الزيارة
             let typeSelect = document.getElementById('apptType');
-            let customBox = document.getElementById('customVisitTypeBox');
-            let customInput = document.getElementById('customApptType');
+            let customTypeBox = document.getElementById('customVisitTypeBox');
+            let customTypeInput = document.getElementById('customApptType');
 
-            if (standardTypes.includes(vType)) {
+            if (vType === 'عيادة' || vType === 'أون لاين') {
                 typeSelect.value = vType;
-                customBox.style.display = 'none';
-                customInput.value = '';
+                customTypeBox.style.display = 'none';
+                customTypeInput.value = '';
             } else {
-                typeSelect.value = 'غيرها';
-                customBox.style.display = 'block';
-                customInput.value = vType;
+                typeSelect.value = 'آخر';
+                customTypeBox.style.display = 'block';
+                customTypeInput.value = vType;
+            }
+
+            // ضبط سبب الزيارة
+            let standardReasons = ['كشف', 'متابعة', 'متابعة ما بعد جراحات السمنة', 'متابعة سمنة', 'متابعة نحافة', 'متابعة حقن مونجارو', 'متابعة حقن ميزوثرابي'];
+            let reasonSelect = document.getElementById('apptReason');
+            let customReasonBox = document.getElementById('customVisitReasonBox');
+            let customReasonInput = document.getElementById('customApptReason');
+
+            if (standardReasons.includes(vReason)) {
+                reasonSelect.value = vReason;
+                customReasonBox.style.display = 'none';
+                customReasonInput.value = '';
+            } else {
+                reasonSelect.value = 'غيرها';
+                customReasonBox.style.display = 'block';
+                customReasonInput.value = vReason;
             }
 
             document.getElementById('addAppointmentModal').style.display = 'flex';
@@ -378,7 +429,10 @@
             let time = document.getElementById('apptTime').value;
             
             let selectedType = document.getElementById('apptType').value;
-            let visit_type = (selectedType === 'غيرها') ? document.getElementById('customApptType').value.trim() : selectedType;
+            let visit_type = (selectedType === 'آخر') ? document.getElementById('customApptType').value.trim() : selectedType;
+
+            let selectedReason = document.getElementById('apptReason').value;
+            let visit_reason = (selectedReason === 'غيرها') ? document.getElementById('customApptReason').value.trim() : selectedReason;
 
             if (!patient_name) {
                 alert('الرجاء اختيار المريض من القائمة');
@@ -392,6 +446,7 @@
                 appt_time: time,
                 time: time,
                 visit_type: visit_type,
+                visit_reason: visit_reason,
                 status: 'في الانتظار'
             };
 
