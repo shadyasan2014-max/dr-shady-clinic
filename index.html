@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script>document.documentElement.style.visibility = "hidden";</script>
     <title>Dr. Shady Samir - لوحة التحكم الإكلينيكية</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -117,7 +118,7 @@
                 <li><a href="settings.html" onclick="toggleMobileSidebar()">⚙️ الإعدادات</a></li>
             </ul>
         </div>
-        <div class="sidebar-footer"><button class="btn-logout" onclick="alert('تم تسجيل الخروج')">🚪 تسجيل خروج</button></div>
+        <div class="sidebar-footer"><button class="btn-logout" onclick="logoutFromSystem()">🚪 تسجيل خروج</button></div>
     </div>
 
     <div class="main-content">
@@ -297,6 +298,18 @@
         const SUPABASE_URL = 'https://clgywbneeicehmamybrc.supabase.co';
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSjZzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
         const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        async function logoutFromSystem() {
+            const { error } = await supabaseClient.auth.signOut();
+            if (error) {
+                alert('تعذر تسجيل الخروج. حاول مرة أخرى.');
+                console.error(error);
+                return;
+            }
+            localStorage.removeItem('active_clinic_doctor');
+            window.location.replace('login.html');
+        }
+
 
         let globalPatientsMasterList = [];
         let pieChartInstance = null;
@@ -665,10 +678,34 @@
             });
         }
 
-        // تحديث البيانات فور تحميل الصفحة أو العودة لها من تبويب آخر
-        window.onload = loadDashboardData;
-        window.addEventListener('pageshow', (event) => {
-            loadDashboardData();
+        // لا يتم تحميل لوحة التحكم أو بياناتها إلا بعد التحقق من جلسة Supabase.
+        async function protectDashboardEntry() {
+            try {
+                const { data, error } = await supabaseClient.auth.getSession();
+                if (error || !data.session) {
+                    window.location.replace('login.html');
+                    return;
+                }
+                document.documentElement.style.visibility = 'visible';
+                await loadDashboardData();
+            } catch (error) {
+                console.error('تعذر التحقق من جلسة الدخول:', error);
+                window.location.replace('login.html');
+            }
+        }
+
+        window.addEventListener('load', protectDashboardEntry, { once: true });
+
+        // تحديث البيانات عند الرجوع للصفحة، بعد التأكد من استمرار الجلسة.
+        window.addEventListener('pageshow', async (event) => {
+            if (event.persisted) {
+                const { data } = await supabaseClient.auth.getSession();
+                if (!data.session) {
+                    window.location.replace('login.html');
+                    return;
+                }
+                await loadDashboardData();
+            }
         });
     </script>
 
