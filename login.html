@@ -53,7 +53,7 @@ input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.1);ba
 </main>
 <script>
 const SUPABASE_URL='https://clgywbneeicehmamybrc.supabase.co';
-const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNsZ3l3Ym5lZWljZWhtYW15YnJjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODc5NDE1NjQsImV4cCI6MjEwMzUxNzU2NH0.EMnxZSJzvM3d0392f_Oun__P0i4Iwik5LXpumOaGJ0';
+const SUPABASE_ANON_KEY='sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
 const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const form=document.getElementById('loginForm'),button=document.getElementById('submitBtn'),message=document.getElementById('message');
 document.getElementById('togglePassword').addEventListener('click',()=>{const input=document.getElementById('password');const show=input.type==='password';input.type=show?'text':'password';document.getElementById('togglePassword').textContent=show?'إخفاء':'إظهار';});
