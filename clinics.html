@@ -339,11 +339,26 @@ th {
                     placeholder="كل عنوان في سطر منفصل"></textarea>
                 </div>
 
-                <div class="field full">
-                    <label>مسار اللوجو أو رابط الصورة</label>
-                    <input id="logoPath"
-                    placeholder="مثال: logo.jpeg">
-                </div>
+               <div class="field full">
+    <label>لوجو العيادة</label>
+
+    <input
+        type="file"
+        id="logoFile"
+        accept="image/png,image/jpeg,image/webp"
+    >
+
+    <div style="margin-top:12px">
+        <img
+            id="logoPreview"
+            src=""
+            alt="معاينة اللوجو"
+            style="display:none;width:110px;height:110px;
+            object-fit:contain;border:1px solid #ddd;
+            border-radius:12px;padding:5px;background:white"
+        >
+    </div>
+</div>
 
             </div>
 
