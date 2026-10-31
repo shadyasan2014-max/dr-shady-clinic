@@ -207,8 +207,12 @@ form.addEventListener('reset',()=>{
 });
 
 function showMessage(element,text,type){
-    element.textContent=text;
-    element.className='message '+type;
+    if (typeof text === 'object' && text !== null) {
+        text = JSON.stringify(text, null, 2);
+    }
+
+    element.textContent = String(text || 'حدث خطأ غير معروف');
+    element.className = 'message ' + type;
 }
 
 async function initialize(){
@@ -427,22 +431,26 @@ form.addEventListener('submit',async event=>{
             body:payload
         });
 
-        if(error){
-           let details = '';
+       if(error){
+    let errorText = error.message || 'تعذر إنشاء المستخدم';
 
-try {
-    const response = error.context;
+    try {
+        const response = error.context;
 
-    if (response) {
-        const errorData = await response.json();
+        if (response && typeof response.json === 'function') {
+            const errorData = await response.json();
 
-        details =
-            errorData.details ||
-            errorData.error ||
-            JSON.stringify(errorData);
+            if (typeof errorData === 'string') {
+                errorText = errorData;
+            } else {
+                errorText = JSON.stringify(errorData, null, 2);
+            }
+        }
+    } catch (e) {
+        errorText = error.message || String(e);
     }
-} catch (e) {
-    details = error.message || 'خطأ غير معروف';
+
+    throw new Error(errorText);
 }
 
 if (typeof details !== 'string') {
