@@ -677,6 +677,7 @@
             });
         }
 
+        
         function sendIntakeWhatsApp() {
             if (!generatedPlanPayload) return;
             let msg = `🌟 أهلاً بك يا ${generatedPlanPayload.patient_name} (كود: ${generatedPlanPayload.patient_code})\n\nإليك تقييمك الشامل وخطتك الغذائية:\n\n${generatedPlanPayload.diet_plan}\n\nمع تمنياتنا بدوام الصحة! 🩺`;
