@@ -425,6 +425,39 @@ const db = window.supabase.createClient(
 
 let clinics = [];
 
+    let selectedLogoFile = null;
+
+document.getElementById('logoFile').addEventListener('change', function() {
+
+    const file = this.files[0];
+    const preview = document.getElementById('logoPreview');
+
+    selectedLogoFile = file || null;
+
+    if (!file) {
+        preview.style.display = 'none';
+        return;
+    }
+
+    if (!file.type.startsWith('image/')) {
+        alert('من فضلك اختر صورة صحيحة.');
+        this.value = '';
+        selectedLogoFile = null;
+        return;
+    }
+
+    if (file.size > 3 * 1024 * 1024) {
+        alert('حجم الصورة يجب ألا يتجاوز 3 ميجابايت.');
+        this.value = '';
+        selectedLogoFile = null;
+        return;
+    }
+
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = 'block';
+});
+    
+
 const form = document.getElementById('clinicForm');
 const formPanel = document.getElementById('clinicFormPanel');
 
