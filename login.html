@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -38,49 +39,144 @@ input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.1);ba
 </div>
 <div class="brand-note">إدارة منظمة • متابعة دقيقة • رعاية أفضل</div>
 </section>
+
 <section class="form-panel">
 <div class="eyebrow">مرحباً بعودتك</div>
 <h2>تسجيل الدخول</h2>
-<p class="sub">اكتب البريد الإلكتروني أو رقم الموبايل وكلمة المرور للدخول إلى حسابك.</p>
+<p class="sub">اكتب اسم المستخدم أو البريد الإلكتروني أو رقم الموبايل وكلمة المرور للدخول إلى حسابك.</p>
+
 <form id="loginForm">
-<div class="field"><label for="loginIdentifier">اسم المستخدم أو رقم الموبايل أو البريد الإلكتروني</label><input id="loginIdentifier" name="loginIdentifier" type="text" inputmode="text" autocomplete="username" placeholder="اكتب الإيميل أو رقم الموبايل" required></div>
-<div class="field"><label for="password">كلمة المرور</label><div class="password-wrap"><input id="password" name="password" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور" required><button class="toggle" type="button" id="togglePassword">إظهار</button></div></div>
+<div class="field">
+<label for="loginIdentifier">اسم المستخدم أو رقم الموبايل أو البريد الإلكتروني</label>
+<input id="loginIdentifier" name="loginIdentifier" type="text" autocomplete="username" placeholder="اكتب بيانات الدخول" required>
+</div>
+
+<div class="field">
+<label for="password">كلمة المرور</label>
+<div class="password-wrap">
+<input id="password" name="password" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور" required>
+<button class="toggle" type="button" id="togglePassword">إظهار</button>
+</div>
+</div>
+
 <button class="submit" id="submitBtn" type="submit">دخول إلى النظام</button>
 <div id="message" class="message" role="alert"></div>
 </form>
+
 <div class="foot">© نظام إدارة العيادات — جميع الحقوق محفوظة</div>
 </section>
 </main>
+
 <script>
 const SUPABASE_URL='https://clgywbneeicehmamybrc.supabase.co';
 const SUPABASE_ANON_KEY='sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
-const client=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const form=document.getElementById('loginForm'),button=document.getElementById('submitBtn'),message=document.getElementById('message');
-document.getElementById('togglePassword').addEventListener('click',()=>{const input=document.getElementById('password');const show=input.type==='password';input.type=show?'text':'password';document.getElementById('togglePassword').textContent=show?'إخفاء':'إظهار';});
-function showMessage(text,type='error'){message.textContent=text;message.className='message '+type;}
-form.addEventListener('submit',async event=>{event.preventDefault();message.className='message';button.disabled=true;button.textContent='جارٍ التحقق...';try{
-const identifier=document.getElementById('loginIdentifier').value.trim();
-const password=document.getElementById('password').value;
-let credentials;
-if(identifier.includes('@')) {
-  credentials={email:identifier,password};
-} else {
-  const digits=identifier.replace(/[\\s()-]/g,'');
-  if(/^\\+?\\d+$/.test(digits)) {
-    let phone=digits;
-    if(/^01\\d{9}$/.test(phone)) phone='+2'+phone;
-    else if(/^20\\d{10}$/.test(phone)) phone='+'+phone;
-    else if(/^\\d{10,15}$/.test(phone) && !phone.startsWith('+')) phone='+'+phone;
-    credentials={phone,password};
-  } else {
-    throw new Error('تسجيل الدخول باسم المستخدم غير مُفعّل حاليًا. استخدم البريد الإلكتروني أو رقم الهاتف المسجل في Supabase.');
-  }
+
+const client=window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+const form=document.getElementById('loginForm');
+const button=document.getElementById('submitBtn');
+const message=document.getElementById('message');
+
+document.getElementById('togglePassword').addEventListener('click',()=>{
+  const input=document.getElementById('password');
+  const show=input.type==='password';
+  input.type=show?'text':'password';
+  document.getElementById('togglePassword').textContent=show?'إخفاء':'إظهار';
+});
+
+function showMessage(text,type='error'){
+  message.textContent=text;
+  message.className='message '+type;
 }
-const {data,error}=await client.auth.signInWithPassword(credentials);
-if(error)throw error;if(!data.session)throw new Error('لم يتم إنشاء جلسة دخول. حاول مرة أخرى.');
-showMessage('تم تسجيل الدخول. جارٍ فتح النظام...','info');window.location.replace('index.html');
-}catch(error){showMessage(error.message||'تعذر تسجيل الدخول. راجع البيانات وحاول مرة أخرى.');button.disabled=false;button.textContent='دخول إلى النظام';}});
-client.auth.getSession().then(({data})=>{if(data.session)window.location.replace('index.html');});
+
+function normalizePhone(value){
+  let phone=value.replace(/[\s()-]/g,'');
+
+  if(/^01\d{9}$/.test(phone)) return '+2'+phone;
+  if(/^20\d{10}$/.test(phone)) return '+'+phone;
+  if(/^\d{10,15}$/.test(phone)) return '+'+phone;
+
+  return phone;
+}
+
+async function resolveUsername(username){
+  const cleanUsername=username.trim().toLowerCase();
+
+  const {data,error}=await client
+    .from('user_profiles')
+    .select('username,is_active')
+    .ilike('username',cleanUsername)
+    .maybeSingle();
+
+  if(error) throw new Error('تعذر التحقق من اسم المستخدم. حاول مرة أخرى.');
+
+  if(!data) throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة.');
+
+  if(data.is_active===false){
+    throw new Error('هذا الحساب غير نشط. راجع مدير النظام.');
+  }
+
+  return cleanUsername+'@users.clinic.internal';
+}
+
+form.addEventListener('submit',async event=>{
+  event.preventDefault();
+
+  message.className='message';
+  button.disabled=true;
+  button.textContent='جارٍ التحقق...';
+
+  try{
+    const identifier=document.getElementById('loginIdentifier').value.trim();
+    const password=document.getElementById('password').value;
+
+    if(!identifier || !password){
+      throw new Error('اكتب بيانات الدخول وكلمة المرور.');
+    }
+
+    let credentials;
+
+    if(identifier.includes('@')){
+      credentials={email:identifier.toLowerCase(),password};
+    }else{
+      const digits=identifier.replace(/[\s()-]/g,'');
+
+      if(/^\+?\d+$/.test(digits)){
+        credentials={
+          phone:normalizePhone(digits),
+          password
+        };
+      }else{
+        const internalEmail=await resolveUsername(identifier);
+        credentials={
+          email:internalEmail,
+          password
+        };
+      }
+    }
+
+    const {data,error}=await client.auth.signInWithPassword(credentials);
+
+    if(error) throw error;
+    if(!data.session) throw new Error('لم يتم إنشاء جلسة دخول.');
+
+    showMessage('تم تسجيل الدخول بنجاح. جارٍ فتح النظام...','info');
+
+    window.location.replace('index.html');
+
+  }catch(error){
+    showMessage(error.message||'تعذر تسجيل الدخول. راجع البيانات وحاول مرة أخرى.');
+    button.disabled=false;
+    button.textContent='دخول إلى النظام';
+  }
+});
+
+client.auth.getSession().then(({data})=>{
+  if(data.session) window.location.replace('index.html');
+});
 </script>
 </body>
 </html>
