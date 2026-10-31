@@ -314,6 +314,7 @@
             loadLabsData();
         }
 
+        
         async function deleteLab(id) {
             if (!confirm('هل أنت متأكد من حذف هذا التحليل نهائياً؟')) return;
             const { error } = await supabaseClient.from('labs').delete().eq('id', id);
