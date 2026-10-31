@@ -7,176 +7,512 @@
 <meta name="theme-color" content="#064e3b">
 <title>تسجيل الدخول | نظام إدارة العيادات</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-:root{--dark:#064e3b;--green:#059669;--orange:#f59e0b;--bg:#f4f8f6;--text:#1e293b;--muted:#64748b;--border:#e2e8f0}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:linear-gradient(135deg,#f4f8f6,#e8f3ed);color:var(--text);display:flex;align-items:center;justify-content:center;padding:24px}
-.shell{width:min(100%,980px);min-height:570px;display:grid;grid-template-columns:1fr 1fr;background:#fff;border:1px solid var(--border);border-radius:24px;overflow:hidden;box-shadow:0 20px 60px rgba(6,78,59,.12)}
-.brand-panel{background:var(--dark);color:#fff;padding:52px 42px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
-.brand-panel:before,.brand-panel:after{content:"";position:absolute;border:1px solid rgba(255,255,255,.1);border-radius:50%;width:330px;height:330px;left:-130px;bottom:-160px}
-.brand-panel:after{width:230px;height:230px;left:-80px;bottom:-110px}
-.brand{position:relative;z-index:1;text-align:center}.brand img{width:92px;height:92px;object-fit:contain;background:#fff;border-radius:50%;padding:7px;border:3px solid #34d399;box-shadow:0 8px 24px rgba(0,0,0,.18)}
-.brand h1{font-size:24px;margin:18px 0 8px}.brand p{color:#a7f3d0;font-size:14px;line-height:1.9;margin:0}.brand-note{position:relative;z-index:1;color:#d1fae5;font-size:12px;line-height:1.9;text-align:center}
-.form-panel{padding:58px 52px;display:flex;flex-direction:column;justify-content:center}.eyebrow{color:var(--green);font-size:12px;font-weight:800;margin-bottom:10px}
-h2{font-size:27px;margin:0 0 8px}.sub{color:var(--muted);font-size:13px;line-height:1.8;margin:0 0 30px}
-label{display:block;font-size:13px;font-weight:700;margin:0 0 8px}.field{margin-bottom:19px}
-input{width:100%;height:48px;border:1px solid var(--border);border-radius:10px;padding:0 14px;font-size:14px;outline:none;background:#fbfdfc;transition:.2s}
-input:focus{border-color:var(--green);box-shadow:0 0 0 3px rgba(5,150,105,.1);background:#fff}
-.password-wrap{position:relative}.password-wrap input{padding-left:66px}.toggle{position:absolute;left:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:var(--green);font-weight:700;cursor:pointer;font-size:12px}
-.submit{width:100%;height:49px;border:0;border-radius:10px;background:var(--green);color:#fff;font-weight:800;font-size:15px;cursor:pointer;box-shadow:0 6px 16px rgba(5,150,105,.18);transition:.2s}
-.submit:hover{background:#047857;transform:translateY(-1px)}.submit:disabled{opacity:.65;cursor:wait;transform:none}
-.message{display:none;margin-top:16px;padding:12px;border-radius:9px;font-size:12px;line-height:1.7}.message.error{display:block;background:#fef2f2;color:#991b1b;border:1px solid #fecaca}.message.info{display:block;background:#eff6ff;color:#1e40af;border:1px solid #bfdbfe}
-.foot{margin-top:26px;text-align:center;color:#94a3b8;font-size:11px}
-@media(max-width:720px){body{padding:12px}.shell{grid-template-columns:1fr;min-height:auto}.brand-panel{padding:28px 22px}.brand img{width:70px;height:70px}.brand h1{font-size:20px}.brand-note{display:none}.form-panel{padding:36px 24px}.sub{margin-bottom:24px}}
+:root{
+--dark:#064e3b;
+--green:#059669;
+--orange:#f59e0b;
+--bg:#f4f8f6;
+--text:#1e293b;
+--muted:#64748b;
+--border:#e2e8f0
+}
+*{box-sizing:border-box}
+body{
+margin:0;
+min-height:100vh;
+font-family:"Segoe UI",Tahoma,Arial,sans-serif;
+background:linear-gradient(135deg,#f4f8f6,#e8f3ed);
+color:var(--text);
+display:flex;
+align-items:center;
+justify-content:center;
+padding:24px
+}
+.shell{
+width:min(100%,980px);
+min-height:570px;
+display:grid;
+grid-template-columns:1fr 1fr;
+background:#fff;
+border:1px solid var(--border);
+border-radius:24px;
+overflow:hidden;
+box-shadow:0 20px 60px rgba(6,78,59,.12)
+}
+.brand-panel{
+background:var(--dark);
+color:#fff;
+padding:52px 42px;
+display:flex;
+flex-direction:column;
+justify-content:space-between;
+position:relative;
+overflow:hidden
+}
+.brand-panel:before,.brand-panel:after{
+content:"";
+position:absolute;
+border:1px solid rgba(255,255,255,.1);
+border-radius:50%;
+width:330px;
+height:330px;
+left:-130px;
+bottom:-160px
+}
+.brand-panel:after{
+width:230px;
+height:230px;
+left:-80px;
+bottom:-110px
+}
+.brand{
+position:relative;
+z-index:1;
+text-align:center
+}
+.brand img{
+width:92px;
+height:92px;
+object-fit:contain;
+background:#fff;
+border-radius:50%;
+padding:7px;
+border:3px solid #34d399;
+box-shadow:0 8px 24px rgba(0,0,0,.18)
+}
+.brand h1{font-size:24px;margin:18px 0 8px}
+.brand p{
+color:#a7f3d0;
+font-size:14px;
+line-height:1.9;
+margin:0
+}
+.brand-note{
+position:relative;
+z-index:1;
+color:#d1fae5;
+font-size:12px;
+line-height:1.9;
+text-align:center
+}
+.form-panel{
+padding:58px 52px;
+display:flex;
+flex-direction:column;
+justify-content:center
+}
+.eyebrow{
+color:var(--green);
+font-size:12px;
+font-weight:800;
+margin-bottom:10px
+}
+h2{font-size:27px;margin:0 0 8px}
+.sub{
+color:var(--muted);
+font-size:13px;
+line-height:1.8;
+margin:0 0 30px
+}
+label{
+display:block;
+font-size:13px;
+font-weight:700;
+margin:0 0 8px
+}
+.field{margin-bottom:19px}
+input{
+width:100%;
+height:48px;
+border:1px solid var(--border);
+border-radius:10px;
+padding:0 14px;
+font-size:14px;
+outline:none;
+background:#fbfdfc;
+transition:.2s
+}
+input:focus{
+border-color:var(--green);
+box-shadow:0 0 0 3px rgba(5,150,105,.1);
+background:#fff
+}
+.password-wrap{position:relative}
+.password-wrap input{padding-left:66px}
+.toggle{
+position:absolute;
+left:10px;
+top:50%;
+transform:translateY(-50%);
+border:0;
+background:transparent;
+color:var(--green);
+font-weight:700;
+cursor:pointer;
+font-size:12px
+}
+.submit{
+width:100%;
+height:49px;
+border:0;
+border-radius:10px;
+background:var(--green);
+color:#fff;
+font-weight:800;
+font-size:15px;
+cursor:pointer;
+box-shadow:0 6px 16px rgba(5,150,105,.18);
+transition:.2s
+}
+.submit:hover{
+background:#047857;
+transform:translateY(-1px)
+}
+.submit:disabled{
+opacity:.65;
+cursor:wait;
+transform:none
+}
+.message{
+display:none;
+margin-top:16px;
+padding:12px;
+border-radius:9px;
+font-size:12px;
+line-height:1.7
+}
+.message.error{
+display:block;
+background:#fef2f2;
+color:#991b1b;
+border:1px solid #fecaca
+}
+.message.info{
+display:block;
+background:#eff6ff;
+color:#1e40af;
+border:1px solid #bfdbfe
+}
+.foot{
+margin-top:26px;
+text-align:center;
+color:#94a3b8;
+font-size:11px
+}
+@media(max-width:720px){
+body{padding:12px}
+.shell{grid-template-columns:1fr;min-height:auto}
+.brand-panel{padding:28px 22px}
+.brand img{width:70px;height:70px}
+.brand h1{font-size:20px}
+.brand-note{display:none}
+.form-panel{padding:36px 24px}
+.sub{margin-bottom:24px}
+}
 </style>
 </head>
+
 <body>
+
 <main class="shell">
+
 <section class="brand-panel">
 <div class="brand">
-<img src="logo2.png" alt="شعار العيادة" onerror="this.onerror=null;this.src='logo.jpeg'">
+<img src="logo2.png" alt="شعار العيادة"
+onerror="this.onerror=null;this.src='logo.jpeg'">
+
 <h1>نظام إدارة العيادات</h1>
-<p>منصة متكاملة لإدارة المرضى والمتابعات<br>والخطط الغذائية والخدمات الطبية</p>
+
+<p>
+منصة متكاملة لإدارة المرضى والمتابعات<br>
+والخطط الغذائية والخدمات الطبية
+</p>
 </div>
-<div class="brand-note">إدارة منظمة • متابعة دقيقة • رعاية أفضل</div>
+
+<div class="brand-note">
+إدارة منظمة • متابعة دقيقة • رعاية أفضل
+</div>
 </section>
 
 <section class="form-panel">
+
 <div class="eyebrow">مرحباً بعودتك</div>
+
 <h2>تسجيل الدخول</h2>
-<p class="sub">اكتب اسم المستخدم أو البريد الإلكتروني أو رقم الموبايل وكلمة المرور للدخول إلى حسابك.</p>
+
+<p class="sub">
+اكتب اسم المستخدم أو البريد الإلكتروني أو رقم الموبايل وكلمة المرور للدخول إلى حسابك.
+</p>
 
 <form id="loginForm">
+
 <div class="field">
-<label for="loginIdentifier">اسم المستخدم أو رقم الموبايل أو البريد الإلكتروني</label>
-<input id="loginIdentifier" name="loginIdentifier" type="text" autocomplete="username" placeholder="اكتب بيانات الدخول" required>
+<label for="loginIdentifier">
+اسم المستخدم أو رقم الموبايل أو البريد الإلكتروني
+</label>
+
+<input
+id="loginIdentifier"
+name="loginIdentifier"
+type="text"
+autocomplete="username"
+placeholder="اكتب بيانات الدخول"
+required
+>
 </div>
 
 <div class="field">
+
 <label for="password">كلمة المرور</label>
+
 <div class="password-wrap">
-<input id="password" name="password" type="password" autocomplete="current-password" placeholder="أدخل كلمة المرور" required>
-<button class="toggle" type="button" id="togglePassword">إظهار</button>
+
+<input
+id="password"
+name="password"
+type="password"
+autocomplete="current-password"
+placeholder="أدخل كلمة المرور"
+required
+>
+
+<button
+class="toggle"
+type="button"
+id="togglePassword"
+>إظهار</button>
+
 </div>
 </div>
 
-<button class="submit" id="submitBtn" type="submit">دخول إلى النظام</button>
+<button class="submit" id="submitBtn" type="submit">
+دخول إلى النظام
+</button>
+
 <div id="message" class="message" role="alert"></div>
+
 </form>
 
-<div class="foot">© نظام إدارة العيادات — جميع الحقوق محفوظة</div>
+<div class="foot">
+© نظام إدارة العيادات — جميع الحقوق محفوظة
+</div>
+
 </section>
 </main>
 
 <script>
-const SUPABASE_URL='https://clgywbneeicehmamybrc.supabase.co';
-const SUPABASE_ANON_KEY='sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
+const SUPABASE_URL =
+'https://clgywbneeicehmamybrc.supabase.co';
 
-const client=window.supabase.createClient(
+const SUPABASE_ANON_KEY =
+'sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
+
+const client = window.supabase.createClient(
   SUPABASE_URL,
   SUPABASE_ANON_KEY
 );
 
-const form=document.getElementById('loginForm');
-const button=document.getElementById('submitBtn');
-const message=document.getElementById('message');
+const form = document.getElementById('loginForm');
+const button = document.getElementById('submitBtn');
+const message = document.getElementById('message');
 
-document.getElementById('togglePassword').addEventListener('click',()=>{
-  const input=document.getElementById('password');
-  const show=input.type==='password';
-  input.type=show?'text':'password';
-  document.getElementById('togglePassword').textContent=show?'إخفاء':'إظهار';
+const identifierInput =
+document.getElementById('loginIdentifier');
+
+const passwordInput =
+document.getElementById('password');
+
+
+// إظهار وإخفاء كلمة المرور
+document.getElementById('togglePassword')
+.addEventListener('click', () => {
+
+  const show = passwordInput.type === 'password';
+
+  passwordInput.type = show ? 'text' : 'password';
+
+  document.getElementById('togglePassword')
+  .textContent = show ? 'إخفاء' : 'إظهار';
+
 });
 
-function showMessage(text,type='error'){
-  message.textContent=text;
-  message.className='message '+type;
+
+// عرض الرسائل
+function showMessage(text, type = 'error') {
+
+  message.textContent = text;
+
+  message.className = 'message ' + type;
+
 }
 
-function normalizePhone(value){
-  let phone=value.replace(/[\s()-]/g,'');
 
-  if(/^01\d{9}$/.test(phone)) return '+2'+phone;
-  if(/^20\d{10}$/.test(phone)) return '+'+phone;
-  if(/^\d{10,15}$/.test(phone)) return '+'+phone;
+// توحيد رقم الهاتف المصري
+function normalizePhone(value) {
+
+  let phone = value.replace(/[\s()-]/g, '');
+
+  if (/^01\d{9}$/.test(phone)) {
+    return '+2' + phone;
+  }
+
+  if (/^20\d{10}$/.test(phone)) {
+    return '+' + phone;
+  }
+
+  if (/^\d{10,15}$/.test(phone)) {
+    return '+' + phone;
+  }
 
   return phone;
 }
 
-async function resolveUsername(username){
-  const cleanUsername=username.trim().toLowerCase();
 
-  const {data,error}=await client
-    .from('user_profiles')
-    .select('username,is_active')
-    .ilike('username',cleanUsername)
-    .maybeSingle();
+// تحويل اسم المستخدم إلى البريد الداخلي
+async function resolveUsername(username) {
 
-  if(error) throw new Error('تعذر التحقق من اسم المستخدم. حاول مرة أخرى.');
+  const cleanUsername = username.trim().toLowerCase();
 
-  if(!data) throw new Error('اسم المستخدم أو كلمة المرور غير صحيحة.');
+  const { data, error } = await client.functions.invoke(
+    'resolve-clinic-username',
+    {
+      body: {
+        username: cleanUsername
+      }
+    }
+  );
 
-  if(data.is_active===false){
-    throw new Error('هذا الحساب غير نشط. راجع مدير النظام.');
+  if (error) {
+
+    console.error('Username resolution error:', error);
+
+    throw new Error(
+      'تعذر التحقق من اسم المستخدم. راجع اتصال النظام وحاول مرة أخرى.'
+    );
+
   }
 
-  return cleanUsername+'@users.clinic.internal';
+  if (!data || !data.success || !data.email) {
+
+    throw new Error(
+      data?.error || 'اسم المستخدم أو كلمة المرور غير صحيحة.'
+    );
+
+  }
+
+  return data.email;
+
 }
 
-form.addEventListener('submit',async event=>{
+
+// تنفيذ تسجيل الدخول
+form.addEventListener('submit', async (event) => {
+
   event.preventDefault();
 
-  message.className='message';
-  button.disabled=true;
-  button.textContent='جارٍ التحقق...';
+  message.className = 'message';
 
-  try{
-    const identifier=document.getElementById('loginIdentifier').value.trim();
-    const password=document.getElementById('password').value;
+  button.disabled = true;
+  button.textContent = 'جارٍ التحقق...';
 
-    if(!identifier || !password){
+  try {
+
+    const identifier = identifierInput.value.trim();
+
+    const password = passwordInput.value;
+
+    if (!identifier || !password) {
       throw new Error('اكتب بيانات الدخول وكلمة المرور.');
     }
 
     let credentials;
 
-    if(identifier.includes('@')){
-      credentials={email:identifier.toLowerCase(),password};
-    }else{
-      const digits=identifier.replace(/[\s()-]/g,'');
+    // الدخول بالبريد الإلكتروني
+    if (identifier.includes('@')) {
 
-      if(/^\+?\d+$/.test(digits)){
-        credentials={
-          phone:normalizePhone(digits),
-          password
-        };
-      }else{
-        const internalEmail=await resolveUsername(identifier);
-        credentials={
-          email:internalEmail,
-          password
-        };
-      }
+      credentials = {
+        email: identifier.toLowerCase(),
+        password
+      };
+
     }
 
-    const {data,error}=await client.auth.signInWithPassword(credentials);
+    // الدخول برقم الهاتف
+    else {
 
-    if(error) throw error;
-    if(!data.session) throw new Error('لم يتم إنشاء جلسة دخول.');
+      const digits = identifier.replace(/[\s()-]/g, '');
 
-    showMessage('تم تسجيل الدخول بنجاح. جارٍ فتح النظام...','info');
+      if (/^\+?\d+$/.test(digits)) {
+
+        credentials = {
+          phone: normalizePhone(digits),
+          password
+        };
+
+      }
+
+      // الدخول باسم المستخدم
+      else {
+
+        const internalEmail = await resolveUsername(identifier);
+
+        credentials = {
+          email: internalEmail,
+          password
+        };
+
+      }
+
+    }
+
+    const { data, error } =
+      await client.auth.signInWithPassword(credentials);
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data.session) {
+      throw new Error('لم يتم إنشاء جلسة دخول. حاول مرة أخرى.');
+    }
+
+    showMessage(
+      'تم تسجيل الدخول بنجاح. جارٍ فتح النظام...',
+      'info'
+    );
+
+    button.textContent = 'تم الدخول';
 
     window.location.replace('index.html');
 
-  }catch(error){
-    showMessage(error.message||'تعذر تسجيل الدخول. راجع البيانات وحاول مرة أخرى.');
-    button.disabled=false;
-    button.textContent='دخول إلى النظام';
+  } catch (error) {
+
+    console.error('Login error:', error);
+
+    showMessage(
+      error.message || 'تعذر تسجيل الدخول. راجع البيانات وحاول مرة أخرى.'
+    );
+
+    button.disabled = false;
+    button.textContent = 'دخول إلى النظام';
+
   }
+
 });
 
-client.auth.getSession().then(({data})=>{
-  if(data.session) window.location.replace('index.html');
+
+// لو المستخدم مسجل دخول بالفعل
+client.auth.getSession().then(({ data, error }) => {
+
+  if (!error && data.session) {
+    window.location.replace('index.html');
+  }
+
 });
+
 </script>
+
 </body>
 </html>
