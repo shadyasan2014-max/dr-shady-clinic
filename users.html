@@ -16,178 +16,37 @@
 --muted:#64748b;
 --border:#e2e8f0
 }
-
 *{box-sizing:border-box}
-
-body{
-margin:0;
-background:var(--bg);
-font-family:"Segoe UI",Tahoma,Arial;
-color:var(--text)
-}
-
-header{
-background:var(--dark);
-color:white;
-padding:20px 28px;
-display:flex;
-align-items:center;
-justify-content:space-between;
-flex-wrap:wrap;
-gap:12px
-}
-
+body{margin:0;background:var(--bg);font-family:"Segoe UI",Tahoma,Arial;color:var(--text)}
+header{background:var(--dark);color:white;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
 header h1{font-size:21px;margin:0}
 header p{font-size:12px;color:#a7f3d0;margin:6px 0 0}
-
-.container{
-max-width:1200px;
-margin:25px auto;
-padding:0 18px
-}
-
-.stats{
-display:grid;
-grid-template-columns:repeat(3,1fr);
-gap:15px;
-margin-bottom:22px
-}
-
-.stat,.panel{
-background:white;
-border:1px solid var(--border);
-border-radius:14px;
-padding:20px;
-box-shadow:0 3px 12px rgba(0,0,0,.035)
-}
-
+.container{max-width:1200px;margin:25px auto;padding:0 18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:22px}
+.stat,.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 3px 12px rgba(0,0,0,.035)}
 .stat span{color:var(--muted);font-size:13px}
-
-.stat strong{
-display:block;
-color:var(--dark);
-font-size:27px;
-margin-top:8px
-}
-
+.stat strong{display:block;color:var(--dark);font-size:27px;margin-top:8px}
 .panel{margin-bottom:20px}
-
-.panel h2{
-font-size:17px;
-margin:0 0 18px;
-color:var(--dark)
-}
-
-.form-grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:15px
-}
-
-label{
-display:block;
-font-size:13px;
-font-weight:700;
-margin-bottom:7px
-}
-
-input,select{
-width:100%;
-height:43px;
-border:1px solid var(--border);
-border-radius:9px;
-padding:0 11px;
-background:#fff;
-font-size:13px;
-outline:none
-}
-
+.panel h2{font-size:17px;margin:0 0 18px;color:var(--dark)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+input,select{width:100%;height:43px;border:1px solid var(--border);border-radius:9px;padding:0 11px;background:#fff;font-size:13px;outline:none}
 input:focus,select:focus{border-color:var(--green)}
-
-button{
-border:0;
-border-radius:9px;
-padding:11px 19px;
-background:var(--green);
-color:white;
-font-weight:700;
-cursor:pointer
-}
-
+button{border:0;border-radius:9px;padding:11px 19px;background:var(--green);color:white;font-weight:700;cursor:pointer}
 button:disabled{opacity:.6;cursor:wait}
-
-.actions{
-display:flex;
-gap:9px;
-align-items:center;
-flex-wrap:wrap;
-margin-top:18px
-}
-
+.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:18px}
 .secondary{background:#e2e8f0;color:#334155}
-
-.message{
-display:none;
-padding:12px;
-border-radius:9px;
-margin-top:14px;
-font-size:13px;
-line-height:1.7;
-white-space:pre-wrap;
-word-break:break-word
-}
-
-.message.error{
-display:block;
-background:#fef2f2;
-color:#991b1b
-}
-
-.message.success{
-display:block;
-background:#ecfdf5;
-color:#065f46
-}
-
+.message{display:none;padding:12px;border-radius:9px;margin-top:14px;font-size:13px;line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.message.error{display:block;background:#fef2f2;color:#991b1b}
+.message.success{display:block;background:#ecfdf5;color:#065f46}
 .table-wrap{overflow-x:auto}
-
-table{
-width:100%;
-border-collapse:collapse;
-min-width:650px
-}
-
-th,td{
-text-align:right;
-padding:13px 10px;
-border-bottom:1px solid var(--border);
-font-size:13px
-}
-
-th{
-background:#f8fafc;
-color:var(--muted);
-font-weight:700
-}
-
-.role{
-display:inline-block;
-padding:5px 9px;
-border-radius:20px;
-background:#ecfdf5;
-color:#047857;
-font-size:11px
-}
-
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:right;padding:13px 10px;border-bottom:1px solid var(--border);font-size:13px}
+th{background:#f8fafc;color:var(--muted);font-weight:700}
+.role{display:inline-block;padding:5px 9px;border-radius:20px;background:#ecfdf5;color:#047857;font-size:11px}
 .status{font-size:12px;color:#047857}
 .status.off{color:#b91c1c}
-
-.empty{
-text-align:center;
-color:var(--muted);
-padding:25px
-}
-
+.empty{text-align:center;color:var(--muted);padding:25px}
 @media(max-width:650px){
 .stats{grid-template-columns:1fr}
 .form-grid{grid-template-columns:1fr}
@@ -213,12 +72,10 @@ header{padding:17px}
 <span>إجمالي المستخدمين</span>
 <strong id="totalUsers">—</strong>
 </div>
-
 <div class="stat">
 <span>المستخدمون النشطون</span>
 <strong id="activeUsers">—</strong>
 </div>
-
 <div class="stat">
 <span>الأدوار الوظيفية</span>
 <strong>7</strong>
@@ -229,7 +86,6 @@ header{padding:17px}
 <h2>إضافة مستخدم جديد</h2>
 
 <form id="userForm">
-
 <div class="form-grid">
 
 <div>
@@ -239,22 +95,13 @@ header{padding:17px}
 
 <div>
 <label for="username">اسم المستخدم *</label>
-<input
-id="username"
-required
-minlength="3"
-maxlength="30"
-pattern="[A-Za-z0-9._-]+"
-placeholder="مثال: ahmed">
+<input id="username" required minlength="3" maxlength="30"
+pattern="[A-Za-z0-9._-]+" placeholder="مثال: ahmed">
 </div>
 
 <div>
 <label for="password">كلمة المرور *</label>
-<input
-id="password"
-type="password"
-required
-minlength="8"
+<input id="password" type="password" required minlength="8"
 placeholder="8 أحرف على الأقل">
 </div>
 
@@ -270,7 +117,6 @@ placeholder="8 أحرف على الأقل">
 
 <div>
 <label for="role">الدور الوظيفي *</label>
-
 <select id="role" required>
 <option value="">اختر الدور</option>
 <option value="super_admin">Super Admin - مدير النظام</option>
@@ -285,10 +131,7 @@ placeholder="8 أحرف على الأقل">
 
 <div id="customRoleWrap" style="display:none">
 <label for="customRole">اكتب المسمى الوظيفي *</label>
-<input
-id="customRole"
-type="text"
-maxlength="80"
+<input id="customRole" type="text" maxlength="80"
 placeholder="مثال: مدير تسويق أو أخصائي علاج طبيعي">
 </div>
 
@@ -307,17 +150,13 @@ placeholder="مثال: مدير تسويق أو أخصائي علاج طبيعي
 </div>
 
 <div id="formMessage" class="message"></div>
-
 </form>
 </section>
 
 <section class="panel">
-
 <h2>المستخدمون المسجلون</h2>
-
 <div class="table-wrap">
 <table>
-
 <thead>
 <tr>
 <th>الاسم</th>
@@ -327,24 +166,17 @@ placeholder="مثال: مدير تسويق أو أخصائي علاج طبيعي
 <th>الحالة</th>
 </tr>
 </thead>
-
 <tbody id="usersTable">
-<tr>
-<td colspan="5" class="empty">جارٍ تحميل البيانات...</td>
-</tr>
+<tr><td colspan="5" class="empty">جارٍ تحميل البيانات...</td></tr>
 </tbody>
-
 </table>
 </div>
-
 <div id="listMessage" class="message"></div>
-
 </section>
 
 </main>
 
 <script>
-
 const SUPABASE_URL =
 'https://clgywbneeicehmamybrc.supabase.co';
 
@@ -362,7 +194,6 @@ const formMessage = document.getElementById('formMessage');
 const listMessage = document.getElementById('listMessage');
 const usersTable = document.getElementById('usersTable');
 const clinicSelect = document.getElementById('clinic');
-
 const roleSelect = document.getElementById('role');
 const customRoleWrap = document.getElementById('customRoleWrap');
 const customRoleInput = document.getElementById('customRole');
@@ -382,529 +213,452 @@ other: 'أخرى'
 
 // تحويل الأخطاء إلى نص واضح
 function getErrorText(error) {
+    if (error === null || error === undefined) {
+        return 'حدث خطأ غير معروف';
+    }
 
-if (!error) return 'حدث خطأ غير معروف';
+    if (typeof error === 'string') {
+        return error;
+    }
 
-if (typeof error === 'string') return error;
+    if (typeof error === 'object') {
+        const parts = [];
 
-if (error.message) return error.message;
+        if (typeof error.message === 'string' &&
+            error.message !== '[object Object]') {
+            parts.push(error.message);
+        }
 
-if (error.details) return error.details;
+        if (typeof error.error === 'string') {
+            parts.push(error.error);
+        }
 
-if (error.hint) return error.hint;
+        if (typeof error.details === 'string') {
+            parts.push(error.details);
+        } else if (error.details && typeof error.details === 'object') {
+            parts.push(JSON.stringify(error.details, null, 2));
+        }
 
-try {
-return JSON.stringify(error, null, 2);
-} catch {
-return String(error);
+        if (typeof error.hint === 'string') {
+            parts.push(error.hint);
+        }
+
+        if (parts.length) {
+            return [...new Set(parts)].join('\n');
+        }
+
+        try {
+            return JSON.stringify(error, null, 2);
+        } catch (_) {
+            return String(error);
+        }
+    }
+
+    return String(error);
 }
 
+// قراءة رد Edge Function
+async function readFunctionError(error) {
+    let result = '';
+
+    try {
+        const context = error && error.context;
+
+        if (context && typeof context.clone === 'function') {
+            result = await context.clone().text();
+        } else if (context && typeof context.text === 'function') {
+            result = await context.text();
+        } else if (context && typeof context.json === 'function') {
+            const json = await context.json();
+            result = JSON.stringify(json, null, 2);
+        } else if (context && typeof context === 'object') {
+            result = JSON.stringify(context, null, 2);
+        }
+    } catch (readError) {
+        console.error('Could not read Edge Function response:', readError);
+    }
+
+    if (result) {
+        try {
+            const parsed = JSON.parse(result);
+
+            if (typeof parsed === 'string') {
+                return parsed;
+            }
+
+            if (parsed && typeof parsed === 'object') {
+                const messages = [];
+
+                if (typeof parsed.error === 'string') {
+                    messages.push(parsed.error);
+                }
+
+                if (typeof parsed.message === 'string') {
+                    messages.push(parsed.message);
+                }
+
+                if (typeof parsed.details === 'string') {
+                    messages.push(parsed.details);
+                } else if (parsed.details && typeof parsed.details === 'object') {
+                    messages.push(JSON.stringify(parsed.details, null, 2));
+                }
+
+                if (messages.length) {
+                    return [...new Set(messages)].join('\n');
+                }
+
+                return JSON.stringify(parsed, null, 2);
+            }
+        } catch (_) {
+            return result;
+        }
+    }
+
+    return getErrorText(error);
 }
 
 // عرض الرسائل
 function showMessage(element, text, type) {
-
-element.textContent = getErrorText(text);
-
-element.className = 'message ' + type;
-
+    element.textContent = getErrorText(text);
+    element.className = 'message ' + type;
 }
 
-// إظهار حقل المسمى الوظيفي عند اختيار أخرى
+// إظهار حقل المسمى الوظيفي
 roleSelect.addEventListener('change', () => {
+    const isOther = roleSelect.value === 'other';
 
-const isOther = roleSelect.value === 'other';
+    customRoleWrap.style.display = isOther ? 'block' : 'none';
+    customRoleInput.required = isOther;
 
-customRoleWrap.style.display = isOther ? 'block' : 'none';
-
-customRoleInput.required = isOther;
-
-if (!isOther) {
-customRoleInput.value = '';
-}
-
+    if (!isOther) {
+        customRoleInput.value = '';
+    }
 });
 
-// إخفاء حقل المسمى بعد مسح النموذج
+// مسح حقل المسمى عند إعادة ضبط النموذج
 form.addEventListener('reset', () => {
-
-setTimeout(() => {
-
-customRoleWrap.style.display = 'none';
-
-customRoleInput.required = false;
-
-customRoleInput.value = '';
-
-}, 0);
-
+    setTimeout(() => {
+        customRoleWrap.style.display = 'none';
+        customRoleInput.required = false;
+        customRoleInput.value = '';
+    }, 0);
 });
 
 // التحقق من المستخدم والصلاحيات
 async function initialize() {
+    try {
+        const { data: sessionData, error: sessionError } =
+            await db.auth.getSession();
 
-try {
+        if (sessionError) throw sessionError;
 
-const { data: sessionData, error: sessionError } =
-await db.auth.getSession();
+        if (!sessionData.session) {
+            location.replace('login.html');
+            return;
+        }
 
-if (sessionError) throw sessionError;
+        currentUser = sessionData.session.user;
 
-if (!sessionData.session) {
+        const { data: admin, error: adminError } = await db
+            .from('platform_admins')
+            .select('admin_level,permissions')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
 
-location.replace('login.html');
+        if (adminError) throw adminError;
 
-return;
+        const isSuperAdmin =
+            admin?.admin_level === 'super_admin';
 
-}
+        const canManage =
+            admin?.permissions?.manage_users === true ||
+            admin?.permissions?.manage_clinics === true;
 
-currentUser = sessionData.session.user;
+        const { data: memberships, error: membershipError } = await db
+            .from('clinic_memberships')
+            .select('clinic_id,role,permissions,is_active')
+            .eq('user_id', currentUser.id)
+            .eq('is_active', true);
 
-// التحقق من صلاحيات المنصة
-const { data: admin, error: adminError } = await db
-.from('platform_admins')
-.select('admin_level,permissions')
-.eq('user_id', currentUser.id)
-.maybeSingle();
+        if (membershipError) throw membershipError;
 
-if (adminError) throw adminError;
+        const canClinicManage = (memberships || []).some(m =>
+            m.role === 'admin' &&
+            (
+                m.permissions?.manage_users === true ||
+                m.permissions?.manage_clinic_users === true
+            )
+        );
 
-const isSuperAdmin =
-admin?.admin_level === 'super_admin';
+        if (!isSuperAdmin && !canManage && !canClinicManage) {
+            document.querySelector('.container').innerHTML =
+                '<section class="panel"><h2>غير مصرح بالدخول</h2><p>ليس لديك صلاحية إدارة المستخدمين.</p></section>';
+            return;
+        }
 
-const canManage =
-admin?.permissions?.manage_users === true ||
-admin?.permissions?.manage_clinics === true;
+        await loadClinics(isSuperAdmin || canManage);
+        await loadUsers();
 
-// التحقق من عضوية العيادات
-const { data: memberships, error: membershipError } = await db
-.from('clinic_memberships')
-.select('clinic_id,role,permissions,is_active')
-.eq('user_id', currentUser.id)
-.eq('is_active', true);
+    } catch (error) {
+        showMessage(
+            formMessage,
+            'خطأ في تحميل الصفحة:\n' + getErrorText(error),
+            'error'
+        );
 
-if (membershipError) throw membershipError;
+        clinicSelect.innerHTML =
+            '<option value="">تعذر تحميل العيادات</option>';
 
-const canClinicManage = (memberships || []).some(m => {
-
-return m.role === 'admin' && (
-m.permissions?.manage_users === true ||
-m.permissions?.manage_clinic_users === true
-);
-
-});
-
-if (!isSuperAdmin && !canManage && !canClinicManage) {
-
-document.querySelector('.container').innerHTML =
-'<section class="panel"><h2>غير مصرح بالدخول</h2><p>ليس لديك صلاحية إدارة المستخدمين.</p></section>';
-
-return;
-
-}
-
-await loadClinics(isSuperAdmin || canManage);
-
-await loadUsers();
-
-} catch (error) {
-
-showMessage(
-formMessage,
-'خطأ في تحميل الصفحة: ' + getErrorText(error),
-'error'
-);
-
-clinicSelect.innerHTML =
-'<option value="">تعذر تحميل العيادات</option>';
-
-usersTable.innerHTML =
-'<tr><td colspan="5" class="empty">تعذر تحميل المستخدمين</td></tr>';
-
-}
-
+        usersTable.innerHTML =
+            '<tr><td colspan="5" class="empty">تعذر تحميل المستخدمين</td></tr>';
+    }
 }
 
 // تحميل العيادات
 async function loadClinics(canManageAll) {
+    clinicSelect.innerHTML =
+        '<option value="">جارٍ تحميل العيادات...</option>';
 
-clinicSelect.innerHTML =
-'<option value="">جارٍ تحميل العيادات...</option>';
+    let query = db
+        .from('clinics')
+        .select('id,clinic_name,is_active')
+        .eq('is_active', true)
+        .order('created_at');
 
-let query = db
-.from('clinics')
-.select('id,clinic_name,is_active')
-.eq('is_active', true)
-.order('created_at');
+    if (!canManageAll) {
+        const { data: memberships, error } = await db
+            .from('clinic_memberships')
+            .select('clinic_id')
+            .eq('user_id', currentUser.id)
+            .eq('is_active', true);
 
-if (!canManageAll) {
+        if (error) throw error;
 
-const { data: memberships, error } = await db
-.from('clinic_memberships')
-.select('clinic_id')
-.eq('user_id', currentUser.id)
-.eq('is_active', true);
+        const ids = (memberships || []).map(x => x.clinic_id);
 
-if (error) throw error;
+        if (!ids.length) {
+            clinicSelect.innerHTML =
+                '<option value="">لا توجد عيادات مرتبطة بحسابك</option>';
+            return;
+        }
 
-const ids = (memberships || []).map(x => x.clinic_id);
+        query = query.in('id', ids);
+    }
 
-if (!ids.length) {
+    const { data, error } = await query;
 
-clinicSelect.innerHTML =
-'<option value="">لا توجد عيادات مرتبطة بحسابك</option>';
+    if (error) throw error;
 
-return;
+    clinicSelect.innerHTML =
+        '<option value="">اختر العيادة</option>';
 
-}
+    if (!data || data.length === 0) {
+        clinicSelect.innerHTML =
+            '<option value="">لا توجد عيادات نشطة متاحة</option>';
+        return;
+    }
 
-query = query.in('id', ids);
+    data.forEach(c => {
+        const option = document.createElement('option');
+        option.value = c.id;
+        option.textContent = c.clinic_name;
+        clinicSelect.appendChild(option);
+    });
 
-}
-
-const { data, error } = await query;
-
-if (error) throw error;
-
-clinicSelect.innerHTML =
-'<option value="">اختر العيادة</option>';
-
-if (!data || data.length === 0) {
-
-clinicSelect.innerHTML =
-'<option value="">لا توجد عيادات نشطة متاحة</option>';
-
-return;
-
-}
-
-data.forEach(c => {
-
-const option = document.createElement('option');
-
-option.value = c.id;
-
-option.textContent = c.clinic_name;
-
-clinicSelect.appendChild(option);
-
-});
-
-if (data.length === 1) {
-
-clinicSelect.value = data[0].id;
-
-currentClinicId = data[0].id;
-
-}
-
+    if (data.length === 1) {
+        clinicSelect.value = data[0].id;
+        currentClinicId = data[0].id;
+    }
 }
 
 // تحميل المستخدمين
 async function loadUsers() {
+    usersTable.innerHTML =
+        '<tr><td colspan="5" class="empty">جارٍ تحميل البيانات...</td></tr>';
 
-usersTable.innerHTML =
-'<tr><td colspan="5" class="empty">جارٍ تحميل البيانات...</td></tr>';
+    listMessage.className = 'message';
 
-listMessage.className = 'message';
+    const { data: memberships, error } = await db
+        .from('clinic_memberships')
+        .select('user_id,clinic_id,role,is_active,created_at')
+        .order('created_at', { ascending: false });
 
-const { data: memberships, error } = await db
-.from('clinic_memberships')
-.select('user_id,clinic_id,role,is_active,created_at')
-.order('created_at', { ascending: false });
+    if (error) throw error;
 
-if (error) throw error;
+    const userIds = [
+        ...new Set((memberships || []).map(x => x.user_id))
+    ];
 
-const userIds = [
-...new Set((memberships || []).map(x => x.user_id))
-];
+    let profiles = [];
 
-let profiles = [];
+    if (userIds.length) {
+        const { data, error: profileError } = await db
+            .from('user_profiles')
+            .select('user_id,full_name,username,phone,is_active,custom_role')
+            .in('user_id', userIds);
 
-if (userIds.length) {
+        if (profileError) throw profileError;
 
-const { data, error: profileError } = await db
-.from('user_profiles')
-.select('user_id,full_name,username,phone,is_active,custom_role')
-.in('user_id', userIds);
-
-if (profileError) throw profileError;
-
-profiles = data || [];
-
-}
-
-const profileMap = new Map(
-profiles.map(p => [p.user_id, p])
-);
-
-const rows = (memberships || []).map(m => ({
-...m,
-profile: profileMap.get(m.user_id)
-})).filter(x => x.profile);
-
-document.getElementById('totalUsers').textContent =
-rows.length;
-
-document.getElementById('activeUsers').textContent =
-rows.filter(x =>
-x.is_active && x.profile.is_active
-).length;
-
-usersTable.innerHTML = '';
-
-if (!rows.length) {
-
-usersTable.innerHTML =
-'<tr><td colspan="5" class="empty">لا يوجد مستخدمون لعرضهم أو ليست لديك صلاحية القراءة.</td></tr>';
-
-return;
-
-}
-
-rows.forEach(item => {
-
-const tr = document.createElement('tr');
-
-const displayedRole =
-item.role === 'other'
-? (item.profile.custom_role || 'أخرى')
-: (roleNames[item.role] || item.role);
-
-const values = [
-item.profile.full_name || '—',
-item.profile.username || '—',
-item.profile.phone || '—',
-displayedRole,
-item.is_active && item.profile.is_active
-? 'نشط'
-: 'غير نشط'
-];
-
-values.forEach((value, index) => {
-
-const td = document.createElement('td');
-
-td.textContent = value;
-
-if (index === 3) {
-
-const span = document.createElement('span');
-
-span.className = 'role';
-
-span.textContent = value;
-
-td.textContent = '';
-
-td.appendChild(span);
-
-}
-
-if (index === 4) {
-
-td.className =
-item.is_active && item.profile.is_active
-? 'status'
-: 'status off';
-
-}
-
-tr.appendChild(td);
-
-});
-
-usersTable.appendChild(tr);
-
-});
-
-}
-
-// معالجة إنشاء المستخدم
-form.addEventListener('submit', async event => {
-
-event.preventDefault();
-
-formMessage.className = 'message';
-
-saveBtn.disabled = true;
-
-saveBtn.textContent = 'جارٍ إنشاء الحساب...';
-
-try {
-
-const payload = {
-
-full_name:
-document.getElementById('fullName').value.trim(),
-
-username:
-document.getElementById('username').value.trim().toLowerCase(),
-
-password:
-document.getElementById('password').value,
-
-phone:
-document.getElementById('phone').value.trim() || null,
-
-email:
-document.getElementById('email').value.trim() || null,
-
-role:
-roleSelect.value,
-
-custom_role:
-customRoleInput.value.trim() || null,
-
-clinic_id:
-clinicSelect.value,
-
-permissions: {}
-
-};
-
-// التحقق من البيانات
-if (!payload.full_name) {
-throw new Error('اكتب الاسم بالكامل.');
-}
-
-if (!payload.clinic_id) {
-throw new Error('اختر العيادة أولاً.');
-}
-
-if (!payload.role) {
-throw new Error('اختر الدور الوظيفي.');
-}
-
-if (payload.role === 'other' && !payload.custom_role) {
-throw new Error('اكتب المسمى الوظيفي عند اختيار أخرى.');
-}
-
-// إرسال البيانات إلى Edge Function
-const { data, error } = await db.functions.invoke(
-'create-clinic-user',
-{
-body: payload
-}
-);
-
-// عرض الخطأ الحقيقي من Edge Function
-if (error) {
-
-let errorText = error.message || 'تعذر إنشاء المستخدم';
-
-try {
-
-const response = error.context;
-
-if (response && typeof response.json === 'function') {
-
-const errorData = await response.json();
-
-if (typeof errorData === 'string') {
-
-errorText = errorData;
-
-} else if (errorData.details) {
-
-errorText = errorData.details;
-
-} else if (errorData.error) {
-
-errorText = errorData.error;
-
-} else {
-
-errorText = JSON.stringify(errorData, null, 2);
-
-}
-
-}
-
-} catch (e) {
-
-errorText = error.message || String(e);
-
-}
-
-throw new Error(errorText);
-
-}
-
-if (!data?.success) {
-
-throw new Error(
-data?.details ||
-data?.error ||
-'لم يتم إنشاء المستخدم.'
-);
-
-}
-
-// نجاح الإنشاء
-showMessage(
-formMessage,
-'تم إنشاء المستخدم بنجاح. اسم الدخول: ' + payload.username,
-'success'
-);
-
-form.reset();
-
-customRoleWrap.style.display = 'none';
-
-customRoleInput.required = false;
-
-if (currentClinicId) {
-
-clinicSelect.value = currentClinicId;
-
-}
-
-await loadUsers();
-
-} catch (error) {
-
-console.error('CREATE USER ERROR:', error);
-
-let message = '';
-
-if (error.context instanceof Response) {
-    try {
-        const result = await error.context.clone().json();
-        message = JSON.stringify(result, null, 2);
-    } catch {
-        message = error.message;
+        profiles = data || [];
     }
+
+    const profileMap = new Map(
+        profiles.map(p => [p.user_id, p])
+    );
+
+    const rows = (memberships || []).map(m => ({
+        ...m,
+        profile: profileMap.get(m.user_id)
+    })).filter(x => x.profile);
+
+    document.getElementById('totalUsers').textContent = rows.length;
+
+    document.getElementById('activeUsers').textContent =
+        rows.filter(x => x.is_active && x.profile.is_active).length;
+
+    usersTable.innerHTML = '';
+
+    if (!rows.length) {
+        usersTable.innerHTML =
+            '<tr><td colspan="5" class="empty">لا يوجد مستخدمون لعرضهم أو ليست لديك صلاحية القراءة.</td></tr>';
+        return;
+    }
+
+    rows.forEach(item => {
+        const tr = document.createElement('tr');
+
+        const displayedRole =
+            item.role === 'other'
+                ? (item.profile.custom_role || 'أخرى')
+                : (roleNames[item.role] || item.role);
+
+        const values = [
+            item.profile.full_name || '—',
+            item.profile.username || '—',
+            item.profile.phone || '—',
+            displayedRole,
+            item.is_active && item.profile.is_active ? 'نشط' : 'غير نشط'
+        ];
+
+        values.forEach((value, index) => {
+            const td = document.createElement('td');
+            td.textContent = value;
+
+            if (index === 3) {
+                const span = document.createElement('span');
+                span.className = 'role';
+                span.textContent = value;
+                td.textContent = '';
+                td.appendChild(span);
+            }
+
+            if (index === 4) {
+                td.className =
+                    item.is_active && item.profile.is_active
+                        ? 'status'
+                        : 'status off';
+            }
+
+            tr.appendChild(td);
+        });
+
+        usersTable.appendChild(tr);
+    });
 }
 
-if (!message || message === '[object Object]') {
-    message = JSON.stringify({
-        message: error.message,
-        details: error.details,
-        hint: error.hint,
-        code: error.code
-    }, null, 2);
-}
+// إنشاء مستخدم جديد
+form.addEventListener('submit', async event => {
+    event.preventDefault();
 
-showMessage(
-    formMessage,
-    message || 'حدث خطأ غير معروف',
-    'error'
-);
-} finally {
+    formMessage.className = 'message';
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'جارٍ إنشاء الحساب...';
 
-saveBtn.disabled = false;
+    try {
+        const payload = {
+            full_name: document.getElementById('fullName').value.trim(),
+            username: document.getElementById('username').value.trim().toLowerCase(),
+            password: document.getElementById('password').value,
+            phone: document.getElementById('phone').value.trim() || null,
+            email: document.getElementById('email').value.trim() || null,
+            role: roleSelect.value,
+            custom_role: customRoleInput.value.trim() || null,
+            clinic_id: clinicSelect.value,
+            permissions: {}
+        };
 
-saveBtn.textContent = 'إنشاء المستخدم';
+        if (!payload.full_name) {
+            throw new Error('اكتب الاسم بالكامل.');
+        }
 
-}
+        if (!payload.clinic_id) {
+            throw new Error('اختر العيادة أولاً.');
+        }
 
+        if (!payload.role) {
+            throw new Error('اختر الدور الوظيفي.');
+        }
+
+        if (payload.role === 'other' && !payload.custom_role) {
+            throw new Error('اكتب المسمى الوظيفي عند اختيار أخرى.');
+        }
+
+        const { data, error } = await db.functions.invoke(
+            'create-clinic-user',
+            { body: payload }
+        );
+
+        if (error) {
+            console.error('CREATE-CLINIC-USER FUNCTION ERROR:', error);
+
+            const readableError = await readFunctionError(error);
+
+            throw new Error(readableError || 'تعذر إنشاء المستخدم');
+        }
+
+        if (!data?.success) {
+            throw new Error(
+                data?.details ||
+                data?.error ||
+                'لم يتم إنشاء المستخدم.'
+            );
+        }
+
+        showMessage(
+            formMessage,
+            'تم إنشاء المستخدم بنجاح. اسم الدخول: ' + payload.username,
+            'success'
+        );
+
+        form.reset();
+
+        customRoleWrap.style.display = 'none';
+        customRoleInput.required = false;
+
+        if (currentClinicId) {
+            clinicSelect.value = currentClinicId;
+        }
+
+        await loadUsers();
+
+    } catch (error) {
+        console.error('CREATE USER ERROR:', error);
+
+        showMessage(
+            formMessage,
+            getErrorText(error),
+            'error'
+        );
+
+    } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'إنشاء المستخدم';
+    }
 });
 
 // بدء تشغيل الصفحة
 initialize();
 
 </script>
-
 </body>
 </html>
