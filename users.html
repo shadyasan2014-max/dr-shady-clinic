@@ -864,12 +864,33 @@ await loadUsers();
 
 } catch (error) {
 
-showMessage(
-formMessage,
-getErrorText(error),
-'error'
-);
+console.error('CREATE USER ERROR:', error);
 
+let message = '';
+
+if (error.context instanceof Response) {
+    try {
+        const result = await error.context.clone().json();
+        message = JSON.stringify(result, null, 2);
+    } catch {
+        message = error.message;
+    }
+}
+
+if (!message || message === '[object Object]') {
+    message = JSON.stringify({
+        message: error.message,
+        details: error.details,
+        hint: error.hint,
+        code: error.code
+    }, null, 2);
+}
+
+showMessage(
+    formMessage,
+    message || 'حدث خطأ غير معروف',
+    'error'
+);
 } finally {
 
 saveBtn.disabled = false;
