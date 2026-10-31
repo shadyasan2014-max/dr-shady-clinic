@@ -162,6 +162,54 @@
 
   document.head.appendChild(style);
 
+// إصلاح التمرير الداخلي للقائمة الجانبية
+const sidebarScrollFix = document.createElement('style');
+
+sidebarScrollFix.textContent = `
+    .sidebar {
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: flex-start !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        overflow: hidden !important;
+    }
+
+    .sidebar > div:first-child {
+        display: flex !important;
+        flex-direction: column !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+
+    .sidebar-menu {
+        display: block !important;
+        flex: 1 1 auto !important;
+        min-height: 0 !important;
+        height: auto !important;
+        overflow-y: scroll !important;
+        overflow-x: hidden !important;
+        overscroll-behavior: contain !important;
+        -webkit-overflow-scrolling: touch !important;
+    }
+
+    .sidebar-footer {
+        flex: 0 0 auto !important;
+    }
+
+    .sidebar-menu::-webkit-scrollbar {
+        width: 7px;
+    }
+
+    .sidebar-menu::-webkit-scrollbar-thumb {
+        background: #34d399;
+        border-radius: 10px;
+    }
+`;
+
+document.head.appendChild(sidebarScrollFix);
+
 // ==========================================
 // إصلاح التمرير الداخلي للقائمة الجانبية
 // ==========================================
