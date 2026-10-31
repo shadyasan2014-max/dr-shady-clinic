@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
@@ -39,7 +38,12 @@ th{background:#f8fafc;color:var(--muted);font-weight:700}
 .status{font-size:12px;color:#047857}
 .status.off{color:#b91c1c}
 .empty{text-align:center;color:var(--muted);padding:25px}
-@media(max-width:650px){.stats{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}header{padding:17px}.container{padding:0 12px}}
+@media(max-width:650px){
+.stats{grid-template-columns:1fr}
+.form-grid{grid-template-columns:1fr}
+header{padding:17px}
+.container{padding:0 12px}
+}
 </style>
 </head>
 <body>
@@ -56,7 +60,7 @@ th{background:#f8fafc;color:var(--muted);font-weight:700}
 <section class="stats">
 <div class="stat"><span>إجمالي المستخدمين</span><strong id="totalUsers">—</strong></div>
 <div class="stat"><span>المستخدمون النشطون</span><strong id="activeUsers">—</strong></div>
-<div class="stat"><span>الأدوار الوظيفية</span><strong>5</strong></div>
+<div class="stat"><span>الأدوار الوظيفية</span><strong>7</strong></div>
 </section>
 
 <section class="panel">
@@ -72,12 +76,14 @@ th{background:#f8fafc;color:var(--muted);font-weight:700}
 
 <div>
 <label for="username">اسم المستخدم *</label>
-<input id="username" required minlength="3" maxlength="30" pattern="[A-Za-z0-9._-]+" placeholder="مثال: ahmed">
+<input id="username" required minlength="3" maxlength="30"
+pattern="[A-Za-z0-9._-]+" placeholder="مثال: ahmed">
 </div>
 
 <div>
 <label for="password">كلمة المرور *</label>
-<input id="password" type="password" required minlength="8" placeholder="8 أحرف على الأقل">
+<input id="password" type="password" required minlength="8"
+placeholder="8 أحرف على الأقل">
 </div>
 
 <div>
@@ -94,12 +100,20 @@ th{background:#f8fafc;color:var(--muted);font-weight:700}
 <label for="role">الدور الوظيفي *</label>
 <select id="role" required>
 <option value="">اختر الدور</option>
+<option value="super_admin">Super Admin - مدير النظام</option>
 <option value="admin">مدير عيادة Admin</option>
 <option value="doctor">طبيب Doctor</option>
 <option value="reception">استقبال Reception</option>
 <option value="nutritionist">أخصائي تغذية Nutritionist</option>
 <option value="accountant">محاسب Accountant</option>
+<option value="other">أخرى</option>
 </select>
+</div>
+
+<div id="customRoleWrap" style="display:none">
+<label for="customRole">اكتب المسمى الوظيفي *</label>
+<input id="customRole" type="text" maxlength="80"
+placeholder="مثال: مدير تسويق أو أخصائي علاج طبيعي">
 </div>
 
 <div>
@@ -154,6 +168,9 @@ const saveBtn=document.getElementById('saveBtn');
 const formMessage=document.getElementById('formMessage');
 const usersTable=document.getElementById('usersTable');
 const clinicSelect=document.getElementById('clinic');
+const roleSelect=document.getElementById('role');
+const customRoleWrap=document.getElementById('customRoleWrap');
+const customRoleInput=document.getElementById('customRole');
 
 let currentUser=null;
 let currentClinicId=null;
@@ -163,206 +180,296 @@ admin:'مدير عيادة',
 doctor:'طبيب',
 reception:'استقبال',
 nutritionist:'أخصائي تغذية',
-accountant:'محاسب'
+accountant:'محاسب',
+super_admin:'Super Admin',
+other:'أخرى'
 };
 
+// إظهار حقل المسمى الوظيفي عند اختيار أخرى
+roleSelect.addEventListener('change',()=>{
+    const isOther=roleSelect.value==='other';
+
+    customRoleWrap.style.display=isOther?'block':'none';
+    customRoleInput.required=isOther;
+
+    if(!isOther){
+        customRoleInput.value='';
+    }
+});
+
+// إخفاء حقل المسمى الوظيفي بعد مسح النموذج
+form.addEventListener('reset',()=>{
+    setTimeout(()=>{
+        customRoleWrap.style.display='none';
+        customRoleInput.required=false;
+        customRoleInput.value='';
+    },0);
+});
+
 function showMessage(element,text,type){
-element.textContent=text;
-element.className='message '+type;
+    element.textContent=text;
+    element.className='message '+type;
 }
 
 async function initialize(){
-try{
-const {data:{session},error}=await db.auth.getSession();
-if(error)throw error;
-if(!session){
-location.replace('login.html');
-return;
-}
-currentUser=session.user;
+    try{
+        const {data:{session},error}=await db.auth.getSession();
 
-const {data:admin}=await db.from('platform_admins')
-.select('admin_level,permissions')
-.eq('user_id',currentUser.id)
-.maybeSingle();
+        if(error)throw error;
 
-const isSuperAdmin=admin?.admin_level==='super_admin';
-const canManage=admin?.permissions?.manage_users===true ||
-admin?.permissions?.manage_clinics===true;
+        if(!session){
+            location.replace('login.html');
+            return;
+        }
 
-const {data:membership}=await db.from('clinic_memberships')
-.select('clinic_id,role,permissions,is_active')
-.eq('user_id',currentUser.id)
-.eq('is_active',true);
+        currentUser=session.user;
 
-const canClinicManage=(membership||[]).some(m=>
-m.role==='admin' &&
-(m.permissions?.manage_users===true ||
-m.permissions?.manage_clinic_users===true)
-);
+        const {data:admin}=await db.from('platform_admins')
+            .select('admin_level,permissions')
+            .eq('user_id',currentUser.id)
+            .maybeSingle();
 
-if(!isSuperAdmin&&!canManage&&!canClinicManage){
-document.querySelector('.container').innerHTML=
-'<section class="panel"><h2>غير مصرح بالدخول</h2><p>ليس لديك صلاحية إدارة المستخدمين.</p></section>';
-return;
-}
+        const isSuperAdmin=admin?.admin_level==='super_admin';
 
-await loadClinics(isSuperAdmin||canManage);
-await loadUsers();
-}catch(error){
-showMessage(formMessage,error.message||'تعذر تحميل الصفحة','error');
-}
+        const canManage=
+            admin?.permissions?.manage_users===true ||
+            admin?.permissions?.manage_clinics===true;
+
+        const {data:membership}=await db.from('clinic_memberships')
+            .select('clinic_id,role,permissions,is_active')
+            .eq('user_id',currentUser.id)
+            .eq('is_active',true);
+
+        const canClinicManage=(membership||[]).some(m=>
+            m.role==='admin' &&
+            (
+                m.permissions?.manage_users===true ||
+                m.permissions?.manage_clinic_users===true
+            )
+        );
+
+        if(!isSuperAdmin&&!canManage&&!canClinicManage){
+            document.querySelector('.container').innerHTML=
+            '<section class="panel"><h2>غير مصرح بالدخول</h2><p>ليس لديك صلاحية إدارة المستخدمين.</p></section>';
+            return;
+        }
+
+        await loadClinics(isSuperAdmin||canManage);
+        await loadUsers();
+
+    }catch(error){
+        showMessage(formMessage,error.message||'تعذر تحميل الصفحة','error');
+    }
 }
 
 async function loadClinics(canManageAll){
-let query=db.from('clinics').select('id,clinic_name,is_active')
-.eq('is_active',true).order('created_at');
+    let query=db.from('clinics')
+        .select('id,clinic_name,is_active')
+        .eq('is_active',true)
+        .order('created_at');
 
-if(!canManageAll){
-const {data:membership}=await db.from('clinic_memberships')
-.select('clinic_id').eq('user_id',currentUser.id).eq('is_active',true);
-const ids=(membership||[]).map(x=>x.clinic_id);
-query=query.in('id',ids);
-}
+    if(!canManageAll){
+        const {data:membership}=await db.from('clinic_memberships')
+            .select('clinic_id')
+            .eq('user_id',currentUser.id)
+            .eq('is_active',true);
 
-const {data,error}=await query;
-if(error)throw error;
+        const ids=(membership||[]).map(x=>x.clinic_id);
+        query=query.in('id',ids);
+    }
 
-clinicSelect.innerHTML='<option value="">اختر العيادة</option>';
+    const {data,error}=await query;
 
-(data||[]).forEach(c=>{
-const option=document.createElement('option');
-option.value=c.id;
-option.textContent=c.clinic_name;
-clinicSelect.appendChild(option);
-});
+    if(error)throw error;
 
-if(data?.length===1){
-clinicSelect.value=data[0].id;
-currentClinicId=data[0].id;
-}
+    clinicSelect.innerHTML='<option value="">اختر العيادة</option>';
+
+    (data||[]).forEach(c=>{
+        const option=document.createElement('option');
+        option.value=c.id;
+        option.textContent=c.clinic_name;
+        clinicSelect.appendChild(option);
+    });
+
+    if(data?.length===1){
+        clinicSelect.value=data[0].id;
+        currentClinicId=data[0].id;
+    }
 }
 
 async function loadUsers(){
-const {data:memberships,error}=await db
-.from('clinic_memberships')
-.select('user_id,clinic_id,role,is_active,created_at')
-.order('created_at',{ascending:false});
+    const {data:memberships,error}=await db
+        .from('clinic_memberships')
+        .select('user_id,clinic_id,role,is_active,created_at')
+        .order('created_at',{ascending:false});
 
-if(error)throw error;
+    if(error)throw error;
 
-const clinicIds=[...new Set((memberships||[]).map(x=>x.user_id))];
+    const userIds=[...new Set((memberships||[]).map(x=>x.user_id))];
 
-let profiles=[];
+    let profiles=[];
 
-if(clinicIds.length){
-const {data,error:profileError}=await db
-.from('user_profiles')
-.select('user_id,full_name,username,phone,is_active')
-.in('user_id',clinicIds);
+    if(userIds.length){
+        const {data,error:profileError}=await db
+            .from('user_profiles')
+            .select('user_id,full_name,username,phone,is_active')
+            .in('user_id',userIds);
 
-if(profileError)throw profileError;
-profiles=data||[];
-}
+        if(profileError)throw profileError;
 
-const profileMap=new Map(profiles.map(p=>[p.user_id,p]));
-const rows=(memberships||[]).map(m=>({
-...m,
-profile:profileMap.get(m.user_id)
-})).filter(x=>x.profile);
+        profiles=data||[];
+    }
 
-document.getElementById('totalUsers').textContent=rows.length;
-document.getElementById('activeUsers').textContent=
-rows.filter(x=>x.is_active&&x.profile.is_active).length;
+    const profileMap=new Map(profiles.map(p=>[p.user_id,p]));
 
-usersTable.innerHTML='';
+    const rows=(memberships||[]).map(m=>({
+        ...m,
+        profile:profileMap.get(m.user_id)
+    })).filter(x=>x.profile);
 
-if(!rows.length){
-usersTable.innerHTML='<tr><td colspan="5" class="empty">لا يوجد مستخدمون لعرضهم أو ليست لديك صلاحية القراءة.</td></tr>';
-return;
-}
+    document.getElementById('totalUsers').textContent=rows.length;
 
-rows.forEach(item=>{
-const tr=document.createElement('tr');
+    document.getElementById('activeUsers').textContent=
+        rows.filter(x=>x.is_active&&x.profile.is_active).length;
 
-const values=[
-item.profile.full_name||'—',
-item.profile.username||'—',
-item.profile.phone||'—',
-roleNames[item.role]||item.role,
-item.is_active&&item.profile.is_active?'نشط':'غير نشط'
-];
+    usersTable.innerHTML='';
 
-values.forEach((value,index)=>{
-const td=document.createElement('td');
-td.textContent=value;
-if(index===3)td.innerHTML='';
-if(index===3){
-const span=document.createElement('span');
-span.className='role';
-span.textContent=value;
-td.appendChild(span);
-}
-if(index===4){
-td.className=item.is_active&&item.profile.is_active?'status':'status off';
-}
-tr.appendChild(td);
-});
+    if(!rows.length){
+        usersTable.innerHTML=
+        '<tr><td colspan="5" class="empty">لا يوجد مستخدمون لعرضهم أو ليست لديك صلاحية القراءة.</td></tr>';
+        return;
+    }
 
-usersTable.appendChild(tr);
-});
+    rows.forEach(item=>{
+        const tr=document.createElement('tr');
+
+        const values=[
+            item.profile.full_name||'—',
+            item.profile.username||'—',
+            item.profile.phone||'—',
+            roleNames[item.role]||item.role,
+            item.is_active&&item.profile.is_active?'نشط':'غير نشط'
+        ];
+
+        values.forEach((value,index)=>{
+            const td=document.createElement('td');
+            td.textContent=value;
+
+            if(index===3){
+                td.innerHTML='';
+
+                const span=document.createElement('span');
+                span.className='role';
+                span.textContent=value;
+
+                td.appendChild(span);
+            }
+
+            if(index===4){
+                td.className=
+                    item.is_active&&item.profile.is_active
+                    ?'status':'status off';
+            }
+
+            tr.appendChild(td);
+        });
+
+        usersTable.appendChild(tr);
+    });
 }
 
 form.addEventListener('submit',async event=>{
-event.preventDefault();
+    event.preventDefault();
 
-formMessage.className='message';
-saveBtn.disabled=true;
-saveBtn.textContent='جارٍ إنشاء الحساب...';
+    formMessage.className='message';
+    saveBtn.disabled=true;
+    saveBtn.textContent='جارٍ إنشاء الحساب...';
 
-try{
-const payload={
-full_name:document.getElementById('fullName').value.trim(),
-username:document.getElementById('username').value.trim().toLowerCase(),
-password:document.getElementById('password').value,
-phone:document.getElementById('phone').value.trim()||null,
-email:document.getElementById('email').value.trim()||null,
-role:document.getElementById('role').value,
-clinic_id:clinicSelect.value,
-permissions:{}
-};
+    try{
+        const payload={
+            full_name:document.getElementById('fullName').value.trim(),
+            username:document.getElementById('username').value.trim().toLowerCase(),
+            password:document.getElementById('password').value,
+            phone:document.getElementById('phone').value.trim()||null,
+            email:document.getElementById('email').value.trim()||null,
+            role:roleSelect.value,
+            custom_role:customRoleInput.value.trim()||null,
+            clinic_id:clinicSelect.value,
+            permissions:{}
+        };
 
-if(!payload.clinic_id)throw new Error('اختر العيادة أولاً.');
+        if(!payload.clinic_id){
+            throw new Error('اختر العيادة أولاً.');
+        }
 
-const {data,error}=await db.functions.invoke('create-clinic-user',{
-body:payload
-});
+        if(!payload.role){
+            throw new Error('اختر الدور الوظيفي.');
+        }
 
-if(error){
-let details='';
-try{
-details=await error.context?.json?.();
-}catch{}
-throw new Error(details?.error||error.message||'تعذر إنشاء المستخدم');
-}
+        if(payload.role==='other'&&!payload.custom_role){
+            throw new Error('اكتب المسمى الوظيفي في خانة أخرى.');
+        }
 
-if(!data?.success){
-throw new Error(data?.error||'لم يتم إنشاء المستخدم.');
-}
+        // لا يتم إرسال Super Admin أو الدور المخصص قبل تحديث Edge Function
+        if(payload.role==='super_admin'){
+            throw new Error(
+                'اختيار Super Admin أُضيف للواجهة، لكن إنشاء هذا الدور يحتاج تحديث دالة create-clinic-user أولاً.'
+            );
+        }
 
-showMessage(formMessage,'تم إنشاء المستخدم بنجاح. اسم الدخول: '+payload.username,'success');
+        if(payload.role==='other'){
+            throw new Error(
+                'تم إدخال المسمى الوظيفي، لكن حفظ الأدوار المخصصة يحتاج تحديث دالة create-clinic-user أولاً.'
+            );
+        }
 
-form.reset();
-if(currentClinicId)clinicSelect.value=currentClinicId;
+        const {data,error}=await db.functions.invoke('create-clinic-user',{
+            body:payload
+        });
 
-await loadUsers();
+        if(error){
+            let details='';
 
-}catch(error){
-showMessage(formMessage,error.message||'حدث خطأ أثناء إنشاء المستخدم','error');
-}finally{
-saveBtn.disabled=false;
-saveBtn.textContent='إنشاء المستخدم';
-}
+            try{
+                details=await error.context?.json?.();
+            }catch{}
+
+            throw new Error(
+                details?.error||error.message||'تعذر إنشاء المستخدم'
+            );
+        }
+
+        if(!data?.success){
+            throw new Error(data?.error||'لم يتم إنشاء المستخدم.');
+        }
+
+        showMessage(
+            formMessage,
+            'تم إنشاء المستخدم بنجاح. اسم الدخول: '+payload.username,
+            'success'
+        );
+
+        form.reset();
+
+        customRoleWrap.style.display='none';
+        customRoleInput.required=false;
+
+        if(currentClinicId){
+            clinicSelect.value=currentClinicId;
+        }
+
+        await loadUsers();
+
+    }catch(error){
+        showMessage(
+            formMessage,
+            error.message||'حدث خطأ أثناء إنشاء المستخدم',
+            'error'
+        );
+    }finally{
+        saveBtn.disabled=false;
+        saveBtn.textContent='إنشاء المستخدم';
+    }
 });
 
 initialize();
