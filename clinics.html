@@ -4,7 +4,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>إدارة العيادات | نظام إدارة العيادات</title>
+<title>إدارة العيادات</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
@@ -17,823 +17,499 @@
     --muted:#64748b;
     --border:#e2e8f0;
 }
-
-* {box-sizing:border-box}
-
-body {
-    margin:0;
-    font-family:"Segoe UI",Tahoma,Arial,sans-serif;
-    background:var(--bg);
-    color:var(--text);
-}
-
-.page {
-    max-width:1250px;
-    margin:auto;
-    padding:25px;
-}
-
-.header {
-    background:white;
-    padding:22px;
-    border-radius:16px;
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    gap:15px;
-    margin-bottom:22px;
-    box-shadow:0 2px 10px rgba(0,0,0,.04);
-}
-
-.header h1 {
-    margin:0 0 7px;
-    font-size:23px;
-    color:var(--dark);
-}
-
-.header p {
-    margin:0;
-    color:var(--muted);
-    font-size:13px;
-}
-
-button {
-    border:0;
-    border-radius:9px;
-    padding:11px 17px;
-    font-weight:bold;
-    cursor:pointer;
-    font-family:inherit;
-}
-
-.primary {
-    background:var(--green);
-    color:white;
-}
-
-.secondary {
-    background:#e2e8f0;
-    color:#334155;
-}
-
-.warning {
-    background:#fff7ed;
-    color:#c2410c;
-}
-
-.danger {
-    background:#fee2e2;
-    color:#b91c1c;
-}
-
-.stats {
-    display:grid;
-    grid-template-columns:repeat(3,1fr);
-    gap:15px;
-    margin-bottom:22px;
-}
-
-.stat {
-    background:white;
-    padding:20px;
-    border:1px solid var(--border);
-    border-radius:14px;
-}
-
-.stat span {
-    color:var(--muted);
-    font-size:13px;
-}
-
-.stat strong {
-    display:block;
-    font-size:27px;
-    margin-top:9px;
-    color:var(--dark);
-}
-
-.panel {
-    background:white;
-    border:1px solid var(--border);
-    border-radius:15px;
-    padding:22px;
-    margin-bottom:22px;
-}
-
-.panel h2 {
-    margin:0 0 20px;
-    font-size:18px;
-}
-
-.form-grid {
-    display:grid;
-    grid-template-columns:repeat(2,1fr);
-    gap:16px;
-}
-
-.field {
-    margin-bottom:14px;
-}
-
-.field.full {
-    grid-column:1/-1;
-}
-
-label {
-    display:block;
-    font-size:13px;
-    font-weight:bold;
-    margin-bottom:7px;
-}
-
-input, textarea {
-    width:100%;
-    padding:12px;
-    border:1px solid var(--border);
-    border-radius:9px;
-    font-family:inherit;
-    font-size:14px;
-    outline:none;
-    background:#fbfdfc;
-}
-
-input:focus, textarea:focus {
-    border-color:var(--green);
-}
-
-textarea {
-    min-height:85px;
-    resize:vertical;
-}
-
-.form-actions {
-    display:flex;
-    gap:10px;
-    flex-wrap:wrap;
-    margin-top:10px;
-}
-
-.message {
-    display:none;
-    padding:12px;
-    border-radius:9px;
-    margin-top:15px;
-    font-size:13px;
-}
-
-.message.error {
-    display:block;
-    background:#fef2f2;
-    color:#991b1b;
-}
-
-.message.success {
-    display:block;
-    background:#ecfdf5;
-    color:#065f46;
-}
-
-.table-wrap {
-    overflow-x:auto;
-}
-
-table {
-    width:100%;
-    border-collapse:collapse;
-    min-width:750px;
-}
-
-th, td {
-    padding:13px 11px;
-    text-align:right;
-    border-bottom:1px solid var(--border);
-    font-size:13px;
-}
-
-th {
-    background:#f8fafc;
-    color:var(--dark);
-}
-
-.status {
-    padding:5px 10px;
-    border-radius:20px;
-    font-size:11px;
-    font-weight:bold;
-}
-
-.active {
-    background:#dcfce7;
-    color:#166534;
-}
-
-.inactive {
-    background:#fee2e2;
-    color:#991b1b;
-}
-
-.actions {
-    display:flex;
-    gap:7px;
-    flex-wrap:wrap;
-}
-
-.actions button {
-    padding:7px 10px;
-    font-size:12px;
-}
-
-.clinic-logo {
-    width:43px;
-    height:43px;
-    object-fit:contain;
-    border-radius:50%;
-    border:1px solid var(--border);
-}
-
-.empty {
-    text-align:center;
-    color:var(--muted);
-    padding:30px;
-}
-
-@media(max-width:700px) {
-    .page {padding:12px}
-    .header {align-items:flex-start;flex-direction:column}
-    .stats {grid-template-columns:1fr}
-    .form-grid {grid-template-columns:1fr}
-    .field.full {grid-column:auto}
+*{box-sizing:border-box}
+body{margin:0;font-family:"Segoe UI",Tahoma,Arial,sans-serif;background:var(--bg);color:var(--text)}
+.page{max-width:1250px;margin:auto;padding:25px}
+.header{background:white;padding:22px;border-radius:16px;display:flex;justify-content:space-between;align-items:center;gap:15px;margin-bottom:22px;box-shadow:0 2px 10px #00000008}
+.header h1{margin:0 0 7px;font-size:23px;color:var(--dark)}
+.header p{margin:0;color:var(--muted);font-size:13px}
+button{border:0;border-radius:9px;padding:11px 17px;font-weight:bold;cursor:pointer;font-family:inherit}
+.primary{background:var(--green);color:white}
+.secondary{background:#e2e8f0;color:#334155}
+.warning{background:#fff7ed;color:#c2410c}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:22px}
+.stat{background:white;padding:20px;border:1px solid var(--border);border-radius:14px}
+.stat span{color:var(--muted);font-size:13px}
+.stat strong{display:block;font-size:27px;margin-top:9px;color:var(--dark)}
+.panel{background:white;border:1px solid var(--border);border-radius:15px;padding:22px;margin-bottom:22px}
+.panel h2{margin:0 0 20px;font-size:18px}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px}
+.field{margin-bottom:14px}
+.field.full{grid-column:1/-1}
+label{display:block;font-size:13px;font-weight:bold;margin-bottom:7px}
+input,textarea{width:100%;padding:12px;border:1px solid var(--border);border-radius:9px;font-family:inherit;font-size:14px;outline:none;background:#fbfdfc}
+input:focus,textarea:focus{border-color:var(--green)}
+textarea{min-height:85px;resize:vertical}
+.form-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.message{display:none;padding:12px;border-radius:9px;margin-top:15px;font-size:13px;line-height:1.7}
+.message.error{display:block;background:#fef2f2;color:#991b1b}
+.message.success{display:block;background:#ecfdf5;color:#065f46}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:750px}
+th,td{padding:13px 11px;text-align:right;border-bottom:1px solid var(--border);font-size:13px}
+th{background:#f8fafc;color:var(--dark)}
+.status{padding:5px 10px;border-radius:20px;font-size:11px;font-weight:bold}
+.active{background:#dcfce7;color:#166534}
+.inactive{background:#fee2e2;color:#991b1b}
+.actions{display:flex;gap:7px;flex-wrap:wrap}
+.actions button{padding:7px 10px;font-size:12px}
+.clinic-logo{width:43px;height:43px;object-fit:contain;border-radius:50%;border:1px solid var(--border);background:white}
+.empty{text-align:center;color:var(--muted);padding:30px}
+.logo-box{display:flex;align-items:center;gap:15px;flex-wrap:wrap;margin-top:10px}
+.logo-preview{width:110px;height:110px;object-fit:contain;border:1px solid var(--border);border-radius:12px;padding:5px;background:white;display:none}
+.file-input{background:#f8fafc;padding:10px}
+@media(max-width:700px){
+.page{padding:12px}
+.header{align-items:flex-start;flex-direction:column}
+.stats{grid-template-columns:1fr}
+.form-grid{grid-template-columns:1fr}
+.field.full{grid-column:auto}
 }
 </style>
 </head>
 
 <body>
-
 <main class="page">
 
-    <header class="header">
-        <div>
-            <h1>🏥 إدارة العيادات</h1>
-            <p>إضافة وتعديل بيانات العيادات التابعة للنظام</p>
-        </div>
+<header class="header">
+<div>
+<h1>🏥 إدارة العيادات</h1>
+<p>إضافة وتعديل بيانات العيادات التابعة للنظام</p>
+</div>
+<button class="primary" onclick="newClinic()">+ إضافة عيادة جديدة</button>
+</header>
 
-        <button class="primary" onclick="newClinic()">
-            + إضافة عيادة جديدة
-        </button>
-    </header>
+<section class="stats">
+<div class="stat"><span>إجمالي العيادات</span><strong id="totalCount">0</strong></div>
+<div class="stat"><span>العيادات النشطة</span><strong id="activeCount">0</strong></div>
+<div class="stat"><span>العيادات المتوقفة</span><strong id="inactiveCount">0</strong></div>
+</section>
 
-    <section class="stats">
-        <div class="stat">
-            <span>إجمالي العيادات</span>
-            <strong id="totalCount">0</strong>
-        </div>
+<section class="panel" id="clinicFormPanel" style="display:none">
+<h2 id="formTitle">إضافة عيادة جديدة</h2>
 
-        <div class="stat">
-            <span>العيادات النشطة</span>
-            <strong id="activeCount">0</strong>
-        </div>
+<form id="clinicForm">
+<input type="hidden" id="clinicId">
 
-        <div class="stat">
-            <span>العيادات المتوقفة</span>
-            <strong id="inactiveCount">0</strong>
-        </div>
-    </section>
+<div class="form-grid">
 
-    <section class="panel" id="clinicFormPanel" style="display:none">
-
-        <h2 id="formTitle">إضافة عيادة جديدة</h2>
-
-        <form id="clinicForm">
-
-            <input type="hidden" id="clinicId">
-
-            <div class="form-grid">
-
-                <div class="field">
-                    <label>اسم العيادة *</label>
-                    <input id="clinicName" required
-                    placeholder="مثال: عيادة د. شادي سمير">
-                </div>
-
-                <div class="field">
-                    <label>اسم الطبيب المسؤول *</label>
-                    <input id="doctorName" required
-                    placeholder="اسم الطبيب">
-                </div>
-
-                <div class="field full">
-                    <label>التخصصات</label>
-                    <textarea id="specialty"
-                    placeholder="اكتب كل تخصص في سطر منفصل"></textarea>
-                </div>
-
-                <div class="field">
-                    <label>أرقام التليفون</label>
-                    <textarea id="phones"
-                    placeholder="كل رقم في سطر منفصل"></textarea>
-                </div>
-
-                <div class="field">
-                    <label>عناوين العيادة</label>
-                    <textarea id="addresses"
-                    placeholder="كل عنوان في سطر منفصل"></textarea>
-                </div>
-
-               <div class="field full">
-    <label>لوجو العيادة</label>
-
-    <input
-        type="file"
-        id="logoFile"
-        accept="image/png,image/jpeg,image/webp"
-    >
-
-    <div style="margin-top:12px">
-        <img
-            id="logoPreview"
-            src=""
-            alt="معاينة اللوجو"
-            style="display:none;width:110px;height:110px;
-            object-fit:contain;border:1px solid #ddd;
-            border-radius:12px;padding:5px;background:white"
-        >
-    </div>
+<div class="field">
+<label>اسم العيادة *</label>
+<input id="clinicName" required placeholder="اسم العيادة">
 </div>
 
-            </div>
+<div class="field">
+<label>اسم الطبيب المسؤول *</label>
+<input id="doctorName" required placeholder="اسم الطبيب">
+</div>
 
-            <div class="form-actions">
-                <button type="submit" class="primary" id="saveBtn">
-                    حفظ العيادة
-                </button>
+<div class="field full">
+<label>التخصصات</label>
+<textarea id="specialty" placeholder="اكتب كل تخصص في سطر منفصل"></textarea>
+</div>
 
-                <button type="button" class="secondary"
-                onclick="cancelForm()">
-                    إلغاء
-                </button>
-            </div>
+<div class="field">
+<label>أرقام التليفون</label>
+<textarea id="phones" placeholder="كل رقم في سطر منفصل"></textarea>
+</div>
 
-            <div id="formMessage" class="message"></div>
+<div class="field">
+<label>عناوين العيادة</label>
+<textarea id="addresses" placeholder="كل عنوان في سطر منفصل"></textarea>
+</div>
 
-        </form>
-    </section>
+<div class="field full">
+<label>اختيار صورة اللوجو</label>
+<input class="file-input" type="file" id="logoFile" accept="image/png,image/jpeg,image/webp">
+<div class="logo-box">
+<img id="logoPreview" class="logo-preview" alt="معاينة اللوجو">
+<span id="logoStatus" style="font-size:12px;color:#64748b">اختر صورة PNG أو JPG أو WEBP بحد أقصى 3 ميجابايت</span>
+</div>
+</div>
 
-    <section class="panel">
+</div>
 
-        <h2>📋 قائمة العيادات</h2>
+<div class="form-actions">
+<button type="submit" class="primary" id="saveBtn">حفظ العيادة</button>
+<button type="button" class="secondary" onclick="cancelForm()">إلغاء</button>
+</div>
 
-        <div class="table-wrap">
-            <table>
-                <thead>
-                    <tr>
-                        <th>اللوجو</th>
-                        <th>اسم العيادة</th>
-                        <th>الطبيب المسؤول</th>
-                        <th>التخصص</th>
-                        <th>الحالة</th>
-                        <th>الإجراءات</th>
-                    </tr>
-                </thead>
+<div id="formMessage" class="message"></div>
+</form>
+</section>
 
-                <tbody id="clinicsTable">
-                    <tr>
-                        <td colspan="6" class="empty">
-                            جارٍ تحميل العيادات...
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
-        </div>
-
-        <div id="pageMessage" class="message"></div>
-
-    </section>
+<section class="panel">
+<h2>📋 قائمة العيادات</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>اللوجو</th>
+<th>اسم العيادة</th>
+<th>الطبيب المسؤول</th>
+<th>التخصص</th>
+<th>الحالة</th>
+<th>الإجراءات</th>
+</tr>
+</thead>
+<tbody id="clinicsTable">
+<tr><td colspan="6" class="empty">جارٍ تحميل العيادات...</td></tr>
+</tbody>
+</table>
+</div>
+<div id="pageMessage" class="message"></div>
+</section>
 
 </main>
 
 <script>
-const SUPABASE_URL =
-'https://clgywbneeicehmamybrc.supabase.co';
+const SUPABASE_URL='https://clgywbneeicehmamybrc.supabase.co';
+const SUPABASE_KEY='sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
 
-const SUPABASE_KEY =
-'sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);
+const BUCKET='clinic-logos';
 
-const db = window.supabase.createClient(
-    SUPABASE_URL,
-    SUPABASE_KEY
-);
+let clinics=[];
+let selectedLogoFile=null;
+let currentLogoPath='';
 
-let clinics = [];
+const form=document.getElementById('clinicForm');
+const formPanel=document.getElementById('clinicFormPanel');
+const logoFile=document.getElementById('logoFile');
+const logoPreview=document.getElementById('logoPreview');
 
-    let selectedLogoFile = null;
-
-document.getElementById('logoFile').addEventListener('change', function() {
-
-    const file = this.files[0];
-    const preview = document.getElementById('logoPreview');
-
-    selectedLogoFile = file || null;
-
-    if (!file) {
-        preview.style.display = 'none';
-        return;
-    }
-
-    if (!file.type.startsWith('image/')) {
-        alert('من فضلك اختر صورة صحيحة.');
-        this.value = '';
-        selectedLogoFile = null;
-        return;
-    }
-
-    if (file.size > 3 * 1024 * 1024) {
-        alert('حجم الصورة يجب ألا يتجاوز 3 ميجابايت.');
-        this.value = '';
-        selectedLogoFile = null;
-        return;
-    }
-
-    preview.src = URL.createObjectURL(file);
-    preview.style.display = 'block';
-});
-    
-
-const form = document.getElementById('clinicForm');
-const formPanel = document.getElementById('clinicFormPanel');
-
-function showMessage(element, text, type='error') {
-    element.textContent = text;
-    element.className = 'message ' + type;
+function showMessage(element,text,type='error'){
+    element.textContent=text;
+    element.className='message '+type;
 }
 
-function clearMessage(element) {
-    element.textContent = '';
-    element.className = 'message';
+function clearMessage(element){
+    element.textContent='';
+    element.className='message';
 }
 
-function linesToArray(value) {
-    return value
-        .split('\n')
-        .map(item => item.trim())
-        .filter(Boolean);
+function linesToArray(value){
+    return value.split('\n').map(x=>x.trim()).filter(Boolean);
 }
 
-function arrayToLines(value) {
-    if (!Array.isArray(value)) return '';
-    return value.join('\n');
+function arrayToLines(value){
+    return Array.isArray(value)?value.join('\n'):'';
 }
 
-function safeText(value) {
-    return String(value ?? '').replace(/[&<>"']/g, char => ({
-        '&':'&amp;',
-        '<':'&lt;',
-        '>':'&gt;',
-        '"':'&quot;',
-        "'":'&#39;'
+function safeText(value){
+    return String(value??'').replace(/[&<>"']/g,char=>({
+        '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
     })[char]);
 }
 
-async function checkAccess() {
-
-    const { data, error } = await db.auth.getSession();
-
-    if (error) throw error;
-
-    if (!data.session) {
+async function checkAccess(){
+    const {data,error}=await db.auth.getSession();
+    if(error)throw error;
+    if(!data.session){
         window.location.replace('login.html');
         throw new Error('يجب تسجيل الدخول أولاً.');
     }
-
-    // صلاحية الإدارة الفعلية يجب أن تكون مفروضة
-    // أيضًا من خلال RLS على جدول clinics في Supabase.
     return data.session.user;
 }
 
-async function loadClinics() {
-
-    const tbody = document.getElementById('clinicsTable');
-
-    tbody.innerHTML = `
-        <tr><td colspan="6" class="empty">جارٍ تحميل البيانات...</td></tr>
-    `;
-
-    try {
-
-        await checkAccess();
-
-        const { data, error } = await db
-            .from('clinics')
-            .select('*')
-            .order('created_at', { ascending:false });
-
-        if (error) throw error;
-
-        clinics = data || [];
-
-        renderClinics();
-
-    } catch (error) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty">
-                    ${safeText(error.message)}
-                </td>
-            </tr>
-        `;
-
+function setLogoPreview(url){
+    if(url){
+        logoPreview.src=url;
+        logoPreview.style.display='block';
+    }else{
+        logoPreview.removeAttribute('src');
+        logoPreview.style.display='none';
     }
 }
 
-function renderClinics() {
+logoFile.addEventListener('change',function(){
+    const file=this.files[0];
+    selectedLogoFile=file||null;
 
-    const tbody = document.getElementById('clinicsTable');
-
-    const active = clinics.filter(c => c.is_active === true);
-    const inactive = clinics.filter(c => c.is_active === false);
-
-    document.getElementById('totalCount').textContent =
-        clinics.length;
-
-    document.getElementById('activeCount').textContent =
-        active.length;
-
-    document.getElementById('inactiveCount').textContent =
-        inactive.length;
-
-    if (!clinics.length) {
-
-        tbody.innerHTML = `
-            <tr>
-                <td colspan="6" class="empty">
-                    لا توجد عيادات مسجلة حتى الآن
-                </td>
-            </tr>
-        `;
-
+    if(!file){
+        setLogoPreview(currentLogoPath);
         return;
     }
 
-    tbody.innerHTML = clinics.map(clinic => {
+    if(!['image/png','image/jpeg','image/webp'].includes(file.type)){
+        alert('اختر صورة PNG أو JPG أو WEBP.');
+        this.value='';
+        selectedLogoFile=null;
+        setLogoPreview(currentLogoPath);
+        return;
+    }
 
-        const logo = clinic.logo_path
-            ? `<img class="clinic-logo" src="${safeText(clinic.logo_path)}"
-                onerror="this.style.display='none'">`
-            : '🏥';
+    if(file.size>3*1024*1024){
+        alert('حجم الصورة يجب ألا يتجاوز 3 ميجابايت.');
+        this.value='';
+        selectedLogoFile=null;
+        setLogoPreview(currentLogoPath);
+        return;
+    }
 
-        const status = clinic.is_active
-            ? '<span class="status active">نشطة</span>'
-            : '<span class="status inactive">متوقفة</span>';
+    const objectUrl=URL.createObjectURL(file);
+    setLogoPreview(objectUrl);
+    document.getElementById('logoStatus').textContent='تم اختيار الصورة، وستُرفع عند حفظ العيادة.';
+});
 
-        const specialties = Array.isArray(clinic.specialty)
-            ? clinic.specialty.join('، ')
-            : (clinic.specialty || '—');
+async function uploadClinicLogo(clinicId,file){
+    const extension=file.name.split('.').pop().toLowerCase();
+    const safeExtension=['png','jpg','jpeg','webp'].includes(extension)?extension:'jpg';
+    const filePath=clinicId+'/'+Date.now()+'-'+crypto.randomUUID()+'.'+safeExtension;
 
-        return `
-            <tr>
-                <td>${logo}</td>
-                <td><strong>${safeText(clinic.clinic_name)}</strong></td>
-                <td>${safeText(clinic.doctor_name)}</td>
-                <td>${safeText(specialties)}</td>
-                <td>${status}</td>
-                <td>
-                    <div class="actions">
+    const {data,error}=await db.storage
+        .from(BUCKET)
+        .upload(filePath,file,{
+            cacheControl:'3600',
+            upsert:false,
+            contentType:file.type
+        });
 
-                        <button class="secondary"
-                        onclick="editClinic('${clinic.id}')">
-                            تعديل
-                        </button>
+    if(error)throw error;
 
-                        <button class="${clinic.is_active ? 'warning':'primary'}"
-                        onclick="toggleClinic('${clinic.id}')">
-                            ${clinic.is_active ? 'إيقاف':'تفعيل'}
-                        </button>
+    const {data:publicData}=db.storage
+        .from(BUCKET)
+        .getPublicUrl(data.path);
 
-                    </div>
-                </td>
-            </tr>
-        `;
+    if(!publicData?.publicUrl){
+        throw new Error('تم رفع الصورة لكن تعذر استخراج رابطها.');
+    }
 
-    }).join('');
-
+    return publicData.publicUrl;
 }
 
-function newClinic() {
+async function loadClinics(){
+    const tbody=document.getElementById('clinicsTable');
+    tbody.innerHTML='<tr><td colspan="6" class="empty">جارٍ تحميل البيانات...</td></tr>';
 
-    form.reset();
-
-    document.getElementById('clinicId').value = '';
-
-    document.getElementById('formTitle').textContent =
-        'إضافة عيادة جديدة';
-
-    document.getElementById('saveBtn').textContent =
-        'حفظ العيادة';
-
-    clearMessage(document.getElementById('formMessage'));
-
-    formPanel.style.display = 'block';
-
-    formPanel.scrollIntoView({ behavior:'smooth' });
-
-}
-
-function editClinic(id) {
-
-    const clinic = clinics.find(c => c.id === id);
-
-    if (!clinic) return;
-
-    document.getElementById('clinicId').value = clinic.id;
-
-    document.getElementById('clinicName').value =
-        clinic.clinic_name || '';
-
-    document.getElementById('doctorName').value =
-        clinic.doctor_name || '';
-
-    document.getElementById('specialty').value =
-        clinic.specialty || '';
-
-    document.getElementById('phones').value =
-        arrayToLines(clinic.phone_numbers);
-
-    document.getElementById('addresses').value =
-        arrayToLines(clinic.addresses);
-
-    document.getElementById('logoPath').value =
-        clinic.logo_path || '';
-
-    document.getElementById('formTitle').textContent =
-        'تعديل بيانات العيادة';
-
-    document.getElementById('saveBtn').textContent =
-        'حفظ التعديلات';
-
-    clearMessage(document.getElementById('formMessage'));
-
-    formPanel.style.display = 'block';
-
-    formPanel.scrollIntoView({ behavior:'smooth' });
-
-}
-
-function cancelForm() {
-
-    form.reset();
-
-    formPanel.style.display = 'none';
-
-    clearMessage(document.getElementById('formMessage'));
-
-}
-
-form.addEventListener('submit', async event => {
-
-    event.preventDefault();
-
-    const saveBtn = document.getElementById('saveBtn');
-    const msg = document.getElementById('formMessage');
-
-    saveBtn.disabled = true;
-    saveBtn.textContent = 'جارٍ الحفظ...';
-
-    clearMessage(msg);
-
-    try {
-
+    try{
         await checkAccess();
 
-        const id = document.getElementById('clinicId').value;
+        const {data,error}=await db
+            .from('clinics')
+            .select('*')
+            .order('created_at',{ascending:false});
 
-        const payload = {
+        if(error)throw error;
 
-            clinic_name:
-                document.getElementById('clinicName').value.trim(),
+        clinics=data||[];
+        renderClinics();
 
-            doctor_name:
-                document.getElementById('doctorName').value.trim(),
+    }catch(error){
+        tbody.innerHTML='<tr><td colspan="6" class="empty">'+safeText(error.message)+'</td></tr>';
+    }
+}
 
-            specialty:
-                document.getElementById('specialty').value.trim(),
+function renderClinics(){
+    const tbody=document.getElementById('clinicsTable');
+    const active=clinics.filter(c=>c.is_active===true);
+    const inactive=clinics.filter(c=>c.is_active===false);
 
-            phone_numbers:
-                linesToArray(document.getElementById('phones').value),
+    document.getElementById('totalCount').textContent=clinics.length;
+    document.getElementById('activeCount').textContent=active.length;
+    document.getElementById('inactiveCount').textContent=inactive.length;
 
-            addresses:
-                linesToArray(document.getElementById('addresses').value),
+    if(!clinics.length){
+        tbody.innerHTML='<tr><td colspan="6" class="empty">لا توجد عيادات مسجلة</td></tr>';
+        return;
+    }
 
-            logo_path:
-                document.getElementById('logoPath').value.trim(),
+    tbody.innerHTML=clinics.map(clinic=>{
+        const logo=clinic.logo_path
+            ?'<img class="clinic-logo" src="'+safeText(clinic.logo_path)+'" alt="لوجو">'
+            :'🏥';
 
-            updated_at: new Date().toISOString()
+        const status=clinic.is_active
+            ?'<span class="status active">نشطة</span>'
+            :'<span class="status inactive">متوقفة</span>';
 
+        return `
+        <tr>
+            <td>${logo}</td>
+            <td><strong>${safeText(clinic.clinic_name)}</strong></td>
+            <td>${safeText(clinic.doctor_name)}</td>
+            <td>${safeText(clinic.specialty||'—')}</td>
+            <td>${status}</td>
+            <td>
+                <div class="actions">
+                    <button class="secondary" onclick="editClinic('${clinic.id}')">تعديل</button>
+                    <button class="${clinic.is_active?'warning':'primary'}" onclick="toggleClinic('${clinic.id}')">
+                    ${clinic.is_active?'إيقاف':'تفعيل'}
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+    }).join('');
+}
+
+function newClinic(){
+    form.reset();
+    selectedLogoFile=null;
+    currentLogoPath='';
+    document.getElementById('clinicId').value='';
+    document.getElementById('formTitle').textContent='إضافة عيادة جديدة';
+    document.getElementById('saveBtn').textContent='حفظ العيادة';
+    document.getElementById('logoStatus').textContent='اختر صورة اللوجو';
+    setLogoPreview('');
+    clearMessage(document.getElementById('formMessage'));
+    formPanel.style.display='block';
+    formPanel.scrollIntoView({behavior:'smooth'});
+}
+
+function editClinic(id){
+    const clinic=clinics.find(c=>c.id===id);
+    if(!clinic)return;
+
+    form.reset();
+    selectedLogoFile=null;
+
+    document.getElementById('clinicId').value=clinic.id;
+    document.getElementById('clinicName').value=clinic.clinic_name||'';
+    document.getElementById('doctorName').value=clinic.doctor_name||'';
+    document.getElementById('specialty').value=clinic.specialty||'';
+    document.getElementById('phones').value=arrayToLines(clinic.phone_numbers);
+    document.getElementById('addresses').value=arrayToLines(clinic.addresses);
+
+    currentLogoPath=clinic.logo_path||'';
+    setLogoPreview(currentLogoPath);
+
+    document.getElementById('logoStatus').textContent=
+        currentLogoPath?'اللوجو الحالي. اختر صورة جديدة لاستبداله.':'لا يوجد لوجو حالي.';
+
+    document.getElementById('formTitle').textContent='تعديل بيانات العيادة';
+    document.getElementById('saveBtn').textContent='حفظ التعديلات';
+
+    clearMessage(document.getElementById('formMessage'));
+    formPanel.style.display='block';
+    formPanel.scrollIntoView({behavior:'smooth'});
+}
+
+function cancelForm(){
+    form.reset();
+    selectedLogoFile=null;
+    currentLogoPath='';
+    setLogoPreview('');
+    formPanel.style.display='none';
+    clearMessage(document.getElementById('formMessage'));
+}
+
+form.addEventListener('submit',async event=>{
+    event.preventDefault();
+
+    const saveBtn=document.getElementById('saveBtn');
+    const msg=document.getElementById('formMessage');
+
+    saveBtn.disabled=true;
+    saveBtn.textContent='جارٍ الحفظ...';
+    clearMessage(msg);
+
+    try{
+        await checkAccess();
+
+        const id=document.getElementById('clinicId').value;
+
+        const payload={
+            clinic_name:document.getElementById('clinicName').value.trim(),
+            doctor_name:document.getElementById('doctorName').value.trim(),
+            specialty:document.getElementById('specialty').value.trim(),
+            phone_numbers:linesToArray(document.getElementById('phones').value),
+            addresses:linesToArray(document.getElementById('addresses').value),
+            updated_at:new Date().toISOString()
         };
 
-        if (!payload.clinic_name || !payload.doctor_name) {
+        if(!payload.clinic_name||!payload.doctor_name){
             throw new Error('يرجى إدخال اسم العيادة واسم الطبيب.');
         }
 
-        let result;
+        let clinicId=id;
 
-        if (id) {
-
-            result = await db
+        if(id){
+            const {data,error}=await db
                 .from('clinics')
                 .update(payload)
-                .eq('id', id)
+                .eq('id',id)
                 .select('id');
 
-        } else {
+            if(error)throw error;
+            if(!data?.length)throw new Error('لم يتم تحديث العيادة. راجع صلاحيات قاعدة البيانات.');
 
-            payload.is_active = true;
+        }else{
+            payload.is_active=true;
 
-            result = await db
+            const {data,error}=await db
                 .from('clinics')
                 .insert(payload)
+                .select('id')
+                .single();
+
+            if(error)throw error;
+            clinicId=data.id;
+        }
+
+        // رفع اللوجو بعد التأكد من وجود سجل العيادة
+        if(selectedLogoFile){
+            const publicUrl=await uploadClinicLogo(clinicId,selectedLogoFile);
+
+            const {data,error}=await db
+                .from('clinics')
+                .update({
+                    logo_path:publicUrl,
+                    updated_at:new Date().toISOString()
+                })
+                .eq('id',clinicId)
                 .select('id');
 
+            if(error)throw error;
+            if(!data?.length)throw new Error('تم رفع الصورة لكن لم يتم حفظ رابطها في بيانات العيادة.');
         }
 
-        if (result.error) throw result.error;
-
-        if (!result.data || result.data.length === 0) {
-            throw new Error('لم يتم حفظ البيانات. راجع صلاحيات قاعدة البيانات.');
-        }
-
-        showMessage(
-            msg,
-            id ? 'تم تحديث بيانات العيادة بنجاح.' :
-                 'تمت إضافة العيادة بنجاح.',
-            'success'
-        );
+        showMessage(msg,'تم حفظ بيانات العيادة بنجاح.','success');
 
         await loadClinics();
 
-        setTimeout(cancelForm, 1000);
+        setTimeout(cancelForm,1200);
 
-    } catch (error) {
-
-        showMessage(msg, error.message || 'حدث خطأ أثناء الحفظ.');
-
-    } finally {
-
-        saveBtn.disabled = false;
-
-        saveBtn.textContent =
+    }catch(error){
+        console.error(error);
+        showMessage(msg,error.message||'حدث خطأ أثناء الحفظ.');
+    }finally{
+        saveBtn.disabled=false;
+        saveBtn.textContent=
             document.getElementById('clinicId').value
-            ? 'حفظ التعديلات'
-            : 'حفظ العيادة';
-
+            ?'حفظ التعديلات':'حفظ العيادة';
     }
-
 });
 
-async function toggleClinic(id) {
+async function toggleClinic(id){
+    const clinic=clinics.find(c=>c.id===id);
+    if(!clinic)return;
 
-    const clinic = clinics.find(c => c.id === id);
+    const action=clinic.is_active?'إيقاف':'تفعيل';
+    if(!confirm('هل تريد '+action+' '+clinic.clinic_name+'؟'))return;
 
-    if (!clinic) return;
-
-    const action = clinic.is_active ? 'إيقاف' : 'تفعيل';
-
-    if (!confirm(`هل تريد ${action} ${clinic.clinic_name}؟`)) {
-        return;
-    }
-
-    try {
-
+    try{
         await checkAccess();
 
-        const { data, error } = await db
+        const {data,error}=await db
             .from('clinics')
             .update({
-                is_active: !clinic.is_active,
-                updated_at: new Date().toISOString()
+                is_active:!clinic.is_active,
+                updated_at:new Date().toISOString()
             })
-            .eq('id', id)
+            .eq('id',id)
             .select('id');
 
-        if (error) throw error;
-
-        if (!data || !data.length) {
-            throw new Error('لم يتم تنفيذ التغيير. راجع صلاحيات قاعدة البيانات.');
-        }
+        if(error)throw error;
+        if(!data?.length)throw new Error('لم يتم تنفيذ التغيير. راجع صلاحيات قاعدة البيانات.');
 
         await loadClinics();
 
-    } catch (error) {
-
-        alert(error.message || 'تعذر تحديث حالة العيادة.');
-
+    }catch(error){
+        alert(error.message||'تعذر تحديث حالة العيادة.');
     }
-
 }
 
-// بدء الصفحة
 loadClinics();
-
 </script>
-
 </body>
 </html>
