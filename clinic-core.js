@@ -160,7 +160,40 @@
         }
     `;
 
-    document.head.appendChild(style);
+  document.head.appendChild(style);
+
+// ==========================================
+// إصلاح التمرير الداخلي للقائمة الجانبية
+// ==========================================
+
+function enableSidebarScroll() {
+
+    const sidebar = document.querySelector('.sidebar');
+
+    if (!sidebar) return;
+
+    sidebar.style.setProperty('height', '100vh', 'important');
+    sidebar.style.setProperty('max-height', '100vh', 'important');
+    sidebar.style.setProperty('overflow-y', 'auto', 'important');
+    sidebar.style.setProperty('overflow-x', 'hidden', 'important');
+    sidebar.style.setProperty('overscroll-behavior', 'contain', 'important');
+    sidebar.style.setProperty('-webkit-overflow-scrolling', 'touch', 'important');
+
+    sidebar.style.setProperty('display', 'block', 'important');
+
+    sidebar.style.setProperty('scrollbar-width', 'thin');
+    sidebar.style.setProperty('scrollbar-color', '#34d399 #064e3b');
+
+    // إظهار شريط التمرير بوضوح
+    sidebar.style.setProperty('scrollbar-gutter', 'stable');
+
+}
+
+document.addEventListener('DOMContentLoaded', enableSidebarScroll);
+
+window.addEventListener('load', enableSidebarScroll);
+
+setTimeout(enableSidebarScroll, 500);
 
 
     // ==========================================
