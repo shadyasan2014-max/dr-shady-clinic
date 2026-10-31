@@ -400,6 +400,7 @@
             loadMeasurementsData();
         }
 
+        
         async function deleteMeasurement(id) {
             if (!confirm('هل أنت متأكد من حذف هذا السجل نهائياً؟')) return;
             const { error } = await supabaseClient.from('measurements').delete().eq('id', id);
