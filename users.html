@@ -1,0 +1,371 @@
+
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>إدارة المستخدمين | نظام إدارة العيادات</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--dark:#064e3b;--green:#059669;--orange:#f59e0b;--bg:#f4f8f6;--text:#1e293b;--muted:#64748b;--border:#e2e8f0}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);font-family:"Segoe UI",Tahoma,Arial;color:var(--text)}
+header{background:var(--dark);color:white;padding:20px 28px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+header h1{font-size:21px;margin:0}
+header p{font-size:12px;color:#a7f3d0;margin:6px 0 0}
+.container{max-width:1200px;margin:25px auto;padding:0 18px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:15px;margin-bottom:22px}
+.stat,.panel{background:white;border:1px solid var(--border);border-radius:14px;padding:20px;box-shadow:0 3px 12px rgba(0,0,0,.035)}
+.stat span{color:var(--muted);font-size:13px}
+.stat strong{display:block;color:var(--dark);font-size:27px;margin-top:8px}
+.panel{margin-bottom:20px}
+.panel h2{font-size:17px;margin:0 0 18px;color:var(--dark)}
+.form-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:15px}
+label{display:block;font-size:13px;font-weight:700;margin-bottom:7px}
+input,select{width:100%;height:43px;border:1px solid var(--border);border-radius:9px;padding:0 11px;background:#fff;font-size:13px;outline:none}
+input:focus,select:focus{border-color:var(--green)}
+button{border:0;border-radius:9px;padding:11px 19px;background:var(--green);color:white;font-weight:700;cursor:pointer}
+button:disabled{opacity:.6;cursor:wait}
+.actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:18px}
+.secondary{background:#e2e8f0;color:#334155}
+.message{display:none;padding:12px;border-radius:9px;margin-top:14px;font-size:13px;line-height:1.7}
+.message.error{display:block;background:#fef2f2;color:#991b1b}
+.message.success{display:block;background:#ecfdf5;color:#065f46}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;min-width:650px}
+th,td{text-align:right;padding:13px 10px;border-bottom:1px solid var(--border);font-size:13px}
+th{background:#f8fafc;color:var(--muted);font-weight:700}
+.role{display:inline-block;padding:5px 9px;border-radius:20px;background:#ecfdf5;color:#047857;font-size:11px}
+.status{font-size:12px;color:#047857}
+.status.off{color:#b91c1c}
+.empty{text-align:center;color:var(--muted);padding:25px}
+@media(max-width:650px){.stats{grid-template-columns:1fr}.form-grid{grid-template-columns:1fr}header{padding:17px}.container{padding:0 12px}}
+</style>
+</head>
+<body>
+
+<header>
+<div>
+<h1>إدارة المستخدمين</h1>
+<p>إدارة الأطباء والموظفين والصلاحيات</p>
+</div>
+</header>
+
+<main class="container">
+
+<section class="stats">
+<div class="stat"><span>إجمالي المستخدمين</span><strong id="totalUsers">—</strong></div>
+<div class="stat"><span>المستخدمون النشطون</span><strong id="activeUsers">—</strong></div>
+<div class="stat"><span>الأدوار الوظيفية</span><strong>5</strong></div>
+</section>
+
+<section class="panel">
+<h2>إضافة مستخدم جديد</h2>
+
+<form id="userForm">
+<div class="form-grid">
+
+<div>
+<label for="fullName">الاسم بالكامل *</label>
+<input id="fullName" required placeholder="اسم الموظف">
+</div>
+
+<div>
+<label for="username">اسم المستخدم *</label>
+<input id="username" required minlength="3" maxlength="30" pattern="[A-Za-z0-9._-]+" placeholder="مثال: ahmed">
+</div>
+
+<div>
+<label for="password">كلمة المرور *</label>
+<input id="password" type="password" required minlength="8" placeholder="8 أحرف على الأقل">
+</div>
+
+<div>
+<label for="phone">رقم الهاتف (اختياري)</label>
+<input id="phone" type="tel" placeholder="01xxxxxxxxx">
+</div>
+
+<div>
+<label for="email">البريد الإلكتروني الحقيقي (اختياري)</label>
+<input id="email" type="email" placeholder="name@example.com">
+</div>
+
+<div>
+<label for="role">الدور الوظيفي *</label>
+<select id="role" required>
+<option value="">اختر الدور</option>
+<option value="admin">مدير عيادة Admin</option>
+<option value="doctor">طبيب Doctor</option>
+<option value="reception">استقبال Reception</option>
+<option value="nutritionist">أخصائي تغذية Nutritionist</option>
+<option value="accountant">محاسب Accountant</option>
+</select>
+</div>
+
+<div>
+<label for="clinic">العيادة</label>
+<select id="clinic" required>
+<option value="">جارٍ تحميل العيادات...</option>
+</select>
+</div>
+
+</div>
+
+<div class="actions">
+<button id="saveBtn" type="submit">إنشاء المستخدم</button>
+<button class="secondary" type="reset">مسح الحقول</button>
+</div>
+
+<div id="formMessage" class="message"></div>
+</form>
+</section>
+
+<section class="panel">
+<h2>المستخدمون المسجلون</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th>الاسم</th>
+<th>اسم المستخدم</th>
+<th>الهاتف</th>
+<th>الدور</th>
+<th>الحالة</th>
+</tr>
+</thead>
+<tbody id="usersTable">
+<tr><td colspan="5" class="empty">جارٍ تحميل البيانات...</td></tr>
+</tbody>
+</table>
+</div>
+<div id="listMessage" class="message"></div>
+</section>
+
+</main>
+
+<script>
+const SUPABASE_URL='https://clgywbneeicehmamybrc.supabase.co';
+const SUPABASE_ANON_KEY='sb_publishable_wY6VrbJDxknPWHzlqaJnrA_NQanmGPc';
+
+const db=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+
+const form=document.getElementById('userForm');
+const saveBtn=document.getElementById('saveBtn');
+const formMessage=document.getElementById('formMessage');
+const usersTable=document.getElementById('usersTable');
+const clinicSelect=document.getElementById('clinic');
+
+let currentUser=null;
+let currentClinicId=null;
+
+const roleNames={
+admin:'مدير عيادة',
+doctor:'طبيب',
+reception:'استقبال',
+nutritionist:'أخصائي تغذية',
+accountant:'محاسب'
+};
+
+function showMessage(element,text,type){
+element.textContent=text;
+element.className='message '+type;
+}
+
+async function initialize(){
+try{
+const {data:{session},error}=await db.auth.getSession();
+if(error)throw error;
+if(!session){
+location.replace('login.html');
+return;
+}
+currentUser=session.user;
+
+const {data:admin}=await db.from('platform_admins')
+.select('admin_level,permissions')
+.eq('user_id',currentUser.id)
+.maybeSingle();
+
+const isSuperAdmin=admin?.admin_level==='super_admin';
+const canManage=admin?.permissions?.manage_users===true ||
+admin?.permissions?.manage_clinics===true;
+
+const {data:membership}=await db.from('clinic_memberships')
+.select('clinic_id,role,permissions,is_active')
+.eq('user_id',currentUser.id)
+.eq('is_active',true);
+
+const canClinicManage=(membership||[]).some(m=>
+m.role==='admin' &&
+(m.permissions?.manage_users===true ||
+m.permissions?.manage_clinic_users===true)
+);
+
+if(!isSuperAdmin&&!canManage&&!canClinicManage){
+document.querySelector('.container').innerHTML=
+'<section class="panel"><h2>غير مصرح بالدخول</h2><p>ليس لديك صلاحية إدارة المستخدمين.</p></section>';
+return;
+}
+
+await loadClinics(isSuperAdmin||canManage);
+await loadUsers();
+}catch(error){
+showMessage(formMessage,error.message||'تعذر تحميل الصفحة','error');
+}
+}
+
+async function loadClinics(canManageAll){
+let query=db.from('clinics').select('id,clinic_name,is_active')
+.eq('is_active',true).order('created_at');
+
+if(!canManageAll){
+const {data:membership}=await db.from('clinic_memberships')
+.select('clinic_id').eq('user_id',currentUser.id).eq('is_active',true);
+const ids=(membership||[]).map(x=>x.clinic_id);
+query=query.in('id',ids);
+}
+
+const {data,error}=await query;
+if(error)throw error;
+
+clinicSelect.innerHTML='<option value="">اختر العيادة</option>';
+
+(data||[]).forEach(c=>{
+const option=document.createElement('option');
+option.value=c.id;
+option.textContent=c.clinic_name;
+clinicSelect.appendChild(option);
+});
+
+if(data?.length===1){
+clinicSelect.value=data[0].id;
+currentClinicId=data[0].id;
+}
+}
+
+async function loadUsers(){
+const {data:memberships,error}=await db
+.from('clinic_memberships')
+.select('user_id,clinic_id,role,is_active,created_at')
+.order('created_at',{ascending:false});
+
+if(error)throw error;
+
+const clinicIds=[...new Set((memberships||[]).map(x=>x.user_id))];
+
+let profiles=[];
+
+if(clinicIds.length){
+const {data,error:profileError}=await db
+.from('user_profiles')
+.select('user_id,full_name,username,phone,is_active')
+.in('user_id',clinicIds);
+
+if(profileError)throw profileError;
+profiles=data||[];
+}
+
+const profileMap=new Map(profiles.map(p=>[p.user_id,p]));
+const rows=(memberships||[]).map(m=>({
+...m,
+profile:profileMap.get(m.user_id)
+})).filter(x=>x.profile);
+
+document.getElementById('totalUsers').textContent=rows.length;
+document.getElementById('activeUsers').textContent=
+rows.filter(x=>x.is_active&&x.profile.is_active).length;
+
+usersTable.innerHTML='';
+
+if(!rows.length){
+usersTable.innerHTML='<tr><td colspan="5" class="empty">لا يوجد مستخدمون لعرضهم أو ليست لديك صلاحية القراءة.</td></tr>';
+return;
+}
+
+rows.forEach(item=>{
+const tr=document.createElement('tr');
+
+const values=[
+item.profile.full_name||'—',
+item.profile.username||'—',
+item.profile.phone||'—',
+roleNames[item.role]||item.role,
+item.is_active&&item.profile.is_active?'نشط':'غير نشط'
+];
+
+values.forEach((value,index)=>{
+const td=document.createElement('td');
+td.textContent=value;
+if(index===3)td.innerHTML='';
+if(index===3){
+const span=document.createElement('span');
+span.className='role';
+span.textContent=value;
+td.appendChild(span);
+}
+if(index===4){
+td.className=item.is_active&&item.profile.is_active?'status':'status off';
+}
+tr.appendChild(td);
+});
+
+usersTable.appendChild(tr);
+});
+}
+
+form.addEventListener('submit',async event=>{
+event.preventDefault();
+
+formMessage.className='message';
+saveBtn.disabled=true;
+saveBtn.textContent='جارٍ إنشاء الحساب...';
+
+try{
+const payload={
+full_name:document.getElementById('fullName').value.trim(),
+username:document.getElementById('username').value.trim().toLowerCase(),
+password:document.getElementById('password').value,
+phone:document.getElementById('phone').value.trim()||null,
+email:document.getElementById('email').value.trim()||null,
+role:document.getElementById('role').value,
+clinic_id:clinicSelect.value,
+permissions:{}
+};
+
+if(!payload.clinic_id)throw new Error('اختر العيادة أولاً.');
+
+const {data,error}=await db.functions.invoke('create-clinic-user',{
+body:payload
+});
+
+if(error){
+let details='';
+try{
+details=await error.context?.json?.();
+}catch{}
+throw new Error(details?.error||error.message||'تعذر إنشاء المستخدم');
+}
+
+if(!data?.success){
+throw new Error(data?.error||'لم يتم إنشاء المستخدم.');
+}
+
+showMessage(formMessage,'تم إنشاء المستخدم بنجاح. اسم الدخول: '+payload.username,'success');
+
+form.reset();
+if(currentClinicId)clinicSelect.value=currentClinicId;
+
+await loadUsers();
+
+}catch(error){
+showMessage(formMessage,error.message||'حدث خطأ أثناء إنشاء المستخدم','error');
+}finally{
+saveBtn.disabled=false;
+saveBtn.textContent='إنشاء المستخدم';
+}
+});
+
+initialize();
+</script>
+</body>
+</html>
